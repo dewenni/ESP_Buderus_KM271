@@ -1,0 +1,10 @@
+.pio
+.clang_complete
+.gcc-flags.json
+.DS_Store
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+.vscode/c_cpp_properties.json
+.travis.yml
+include/_Credentials.h
