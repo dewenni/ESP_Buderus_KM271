@@ -104,28 +104,28 @@ It includes the RS232/TTL Adapter and also an ESP32.
 Topic: esp_heizung/setvalue/setdatetime  
 Payload: none
 
-Topic: esp_marley/setvalue/hk1_betriebsart  
+Topic: esp_heizung/setvalue/hk1_betriebsart  
 Payload:  0:Nacht | 1:Tag | 2:AUTO
 
-Topic: esp_marley/setvalue/hk1_programm (** under construction **)  
+Topic: esp_heizung/setvalue/hk1_programm (** under construction **)  
 Payload:  Programmnummer 0..8
 
-Topic: esp_marley/setvalue/hk1_auslegung  
+Topic: esp_heizung/setvalue/hk1_auslegung  
 Payload:  Auflösung: 1 °C Stellbereich: 30 – 90 °C WE: 75 °C
 
-Topic: esp_marley/setvalue/ww_betriebsart  
+Topic: esp_heizung/setvalue/ww_betriebsart  
 Payload:  0:Nacht | 1:Tag | 2:AUTO
 
-Topic: esp_marley/setvalue/ww_soll  
+Topic: esp_heizung/setvalue/ww_soll  
 Payload:  30°-60°
 
-Topic: esp_marley/setvalue/sommer_ab  
+Topic: esp_heizung/setvalue/sommer_ab  
 Payload:  9:Winter | 10°-30° | 31:Sommer
 
-Topic: esp_marley/setvalue/frost_ab  
+Topic: esp_heizung/setvalue/frost_ab  
 Payload:   -20° ... +10°
 
-Topic: esp_marley/setvalue/aussenhalt_ab  
+Topic: esp_heizung/setvalue/aussenhalt_ab  
 Payload:  -20° ... +10°
 ```
 
