@@ -87,7 +87,7 @@ In combination with a RS232 TTL Adapter (MAX3232) it can be connected to the TX/
 Logamattic R2107 => KM271 => RS232/TTL Adapter => ESP
 
 ### Option 2
-An even smarter and cheaper option, is the DIY Interface that was build by **Daniel Glasner**. Big thanks for his engagement in this Topic!  
+An even smarter and cheaper option, is the DIY Interface that was build by **Daniel Glaser**. Big thanks for his engagement in this Topic!  
 You can find more information here: *[https://the78mole.de](https://the78mole.de/reverse-engineering-the-buderus-km217/)*  
 You can order it here: https://www.tindie.com/products/24664/
 
