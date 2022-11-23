@@ -69,11 +69,12 @@ WW_Zirkulation                  | HK1_BW2_Externer_Stoereingang	|
 .								| WW_Solltemperatur				|
 
 
+
 ### additional and optional Oilcounter / Oil Meter
 The project includes also an additional and optional oilcounter implementation. I have installed an Braun HZ-5 Meter to measure the oil consumtion.  
 There are diffeent models with (HZ 5R, HZ 5DR) and without pulse output (HZ 5).  
 I have used the normal one without pulse output and modified it with a small reed contact - that works fine and was simple to install.
-If you are not interested in the Oil Meter function you can simple delete the "oilcounter.h" and "oilcounter.cpp" file.
+If you are not interested in the Oil Meter function you can simple disable it in config.h
 
 ---
 
@@ -88,7 +89,7 @@ Logamattic R2107 => KM271 => RS232/TTL Adapter => ESP
 ### Option 2
 An even smarter and cheaper option, is the DIY Interface that was build by **Daniel Glasner**. Big thanks for his engagement in this Topic!  
 You can find more information here: *[https://the78mole.de](https://the78mole.de/reverse-engineering-the-buderus-km217/)*
-And you can order this here: https://www.tindie.com/products/24664/
+You can order it here: https://www.tindie.com/products/24664/
 
 In this case you only need this DIY interface and nothing more.  
 It includes the RS232/TTL Adapter and also an ESP32.
@@ -148,6 +149,7 @@ Status values as lised above (single topics)
 
 # use at own risk!
 
-** feel free to use and adopt to your needs! **
-** If you have something to improve, let us all know about you ideas! **
+**feel free to use and adopt to your needs!**
+
+**If you have something to improve, let us all know about you ideas!**
 
