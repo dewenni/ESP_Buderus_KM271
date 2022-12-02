@@ -15,7 +15,7 @@ It has been extended with the possibility not only to read values, but also to w
 config values (read)            |status values (read)   	    |commands and setvalues (write)
 --------------------------------|-------------------------------|-----------------------------------
 HK1_Aussenhalt_ab               | Abgastemperatur				| HK1_Betriebsart
-HK1_Betriebsar                  | Aussentemperatur_gedaempft	| HK1_Programm (under construction)
+HK1_Betriebsar                  | Aussentemperatur_gedaempft	| HK1_Programm
 HK1_Fernbedienung               | Aussentemperatur_gedaempft	| HK1_Auslegung
 HK1_Heizsystem                  | Brenner_Ansteuerung			| WW_Betriebsart
 HK1_Max_Temperatur              | Brenner_Ausschalttemperatur	| WW_Soll
@@ -32,7 +32,7 @@ WW_Betriebsart                  | HK1_BW1_Frostschutz			|
 WW_Temperatur                   | HK1_BW1_Manuell				|
 WW_Vorrang                      | HK1_BW1_Warmwasservorrang		|
 WW_Zirkulation                  | HK1_BW2_Externer_Stoereingang	|
-.								| HK1_BW2_FB_fehlerhaft			|
+HK1_Programm					| HK1_BW2_FB_fehlerhaft			|
 .								| HK1_BW2_Fehler_Vorlauffuehler	|
 .								| HK1_BW2_Keine_Komm_mit_FB		|
 .								| HK1_BW2_Maximaler_Vorlauf		|
@@ -107,7 +107,7 @@ Payload: none
 Topic: esp_heizung/setvalue/hk1_betriebsart  
 Payload:  0:Nacht | 1:Tag | 2:AUTO
 
-Topic: esp_heizung/setvalue/hk1_programm (** under construction **)  
+Topic: esp_heizung/setvalue/hk1_programm 
 Payload:  Programmnummer 0..8
 
 Topic: esp_heizung/setvalue/hk1_auslegung  

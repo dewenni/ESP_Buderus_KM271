@@ -370,6 +370,7 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addTopic("/status/ERR_Alarmstatus_HK2-Vorlauffuehler"), String(bitRead(tmpState.ERR_Alarmstatus, 6)).c_str(), false);
       mqttPublish(addTopic("/status/ERR_Alarmstatus_80"), String(bitRead(tmpState.ERR_Alarmstatus, 7)).c_str(), false);
       break;   
+
     
     /*
     **********************************************************************************
@@ -439,19 +440,31 @@ void parseInfo(uint8_t *data, int len) {
       break;
 
     case 0x00a1: 
-      mqttPublish(addTopic("/config/Pumplogik"), String(data[2] + String(" °C")).c_str(), false);                                    // "CFG_Pumplogik"                => "00a1:0"
+      mqttPublish(addTopic("/config/Pumplogik"), String(data[2] + String(" °C")).c_str(), false);                    // "CFG_Pumplogik"                => "00a1:0"
       mqttPublish(addTopic("/config/Abgastemperaturschwelle"), (cfgAbgasTempSchwelle[data[2+5]-9]).c_str(), false);  // "CFG_Abgastemperaturschwelle"  => "00a1:5,p:-9,a"
       break;
 
     case 0x00a8: 
-      mqttPublish(addTopic("/config/Brenner_Min_Modulation"), String(data[2]).c_str(), false);   // "CFG_Brenner_Min_Modulation"       => "00a8:0"
-      mqttPublish(addTopic("/config/Brenner_Mod_Laufzeit"), String(data[2+1]).c_str(), false);     // "CFG_Brenner_Mod_Laufzeit"       => "00a8:1"
+      mqttPublish(addTopic("/config/Brenner_Min_Modulation"), String(data[2]).c_str(), false);   // "CFG_Brenner_Min_Modulation"     => "00a8:0"
+      mqttPublish(addTopic("/config/Brenner_Mod_Laufzeit"), String(data[2+1]).c_str(), false);   // "CFG_Brenner_Mod_Laufzeit"       => "00a8:1"
+      break;
+
+    
+    case 0x0100:
+      mqttPublish(addTopic("/config/HK1_Programm"), cfgHk1Programm[data[2]].c_str(), false);     // "CFG_HK1_Programm"  => "0100:0"
+      break;
+
+    case 0x0400: 
+        // 04_00_07_01_81_8e_00_c1_ff_00_00_00
+        // some kind of lifesign - ignore
       break;
 
     // undefined
     default:   
-      //sendString = String(data[0], HEX) + "_" + String(data[1], HEX) + "_" + String(data[2], HEX) + "_" + String(data[3], HEX) + "_" + String(data[4], HEX) + "_" + String(data[5], HEX) + "_" + String(data[6], HEX) + "_" + String(data[7], HEX) + "_" + String(data[8], HEX) + "_" + String(data[9], HEX) + "_" + String(data[10], HEX) + "_" + String(data[11], HEX);
-      //mqttPublish(addTopic("/undefinded_message"), (sendString).c_str(), false);                                                      
+      #ifdef DEBUG_ON
+        String sendString = String(data[0], HEX) + "_" + String(data[1], HEX) + "_" + String(data[2], HEX) + "_" + String(data[3], HEX) + "_" + String(data[4], HEX) + "_" + String(data[5], HEX) + "_" + String(data[6], HEX) + "_" + String(data[7], HEX) + "_" + String(data[8], HEX) + "_" + String(data[9], HEX) + "_" + String(data[10], HEX) + "_" + String(data[11], HEX);
+        mqttPublish(addTopic("/undefinded_message"), (sendString).c_str(), false); 
+      #endif                                                     
       break;
   }
  
@@ -740,9 +753,9 @@ void km271sendCmd(e_km271_sendCmd sendCmd, uint8_t cmdPara){
     break;
 
   case KM271_SENDCMD_HK1_PROGRAMM:
-    if (cmdPara>=0 && cmdPara<=9){
+    if (cmdPara>=0 && cmdPara<=8){
       send_request = true;
-      send_buf[0]= 0x11;        // Daten-Typ für HK1 (0x07)
+      send_buf[0]= 0x11;        // Daten-Typ
       send_buf[1]= 0x00;        // Offset
       send_buf[2]= cmdPara;     // Programmnummer 0..8
       send_buf[3]= 0x65;

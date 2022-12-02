@@ -2,6 +2,7 @@
 #include <Credentials.h>
 
 #define USE_OILMETER                // disable if you dont use the oilmeter
+// #define DEBUG_ON                 // enable debug messages
 
 #define HOSTNAME "ESP_Buderus_KM271"
 #define MQTT_TOPIC "esp_heizung"
