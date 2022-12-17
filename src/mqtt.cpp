@@ -46,9 +46,8 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
     ESP.restart();
   }
   // set date and time
-  else if (strcmp (topic, addTopic("/cmd/setdatetime")) == 0){
+  else if (strcmp (topic, addTopic("/setvalue/setdatetime")) == 0){
     Serial.println("cmd set date time");
-    mqtt_client.publish(addTopic("/message"), "cmd datetime requested!");
     km271SetDateTime();
   }
   // set oilmeter

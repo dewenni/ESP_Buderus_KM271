@@ -120,7 +120,7 @@ void parseInfo(uint8_t *data, int len) {
   s_km271_status        tmpState;
   
   // Get current state
-  xSemaphoreTake(accessMutex, portMAX_DELAY);                             // Prevent task switch to ensure the whole structure remains constistent
+  xSemaphoreTake(accessMutex, portMAX_DELAY);               // Prevent task switch to ensure the whole structure remains constistent
   memcpy(&tmpState, &kmState, sizeof(s_km271_status));
   xSemaphoreGive(accessMutex);
   uint kmregister = (data[0] * 256) + data[1];
@@ -830,10 +830,11 @@ void sendKM271Info(){
  * @return  none
  * *******************************************************************/
 void km271SetDateTime(){
-  time_t now;                       // this is the epoch
-  tm dti;                           // the structure tm holds time information in a more convient way
-  time(&now);                       // read the current time
-  localtime_r(&now, &dti);          // update the structure tm with the current time
+  char dateTimeInfo[128]={'\0'};              // Date and time info String
+  time_t now;                                 // this is the epoch
+  tm dti;                                     // the structure tm holds time information in a more convient way
+  time(&now);                                 // read the current time
+  localtime_r(&now, &dti);                    // update the structure tm with the current time
   send_request = true;
   send_buf[0]= 0x01;                          // address
   send_buf[1]= 0x00;                          // address
@@ -846,7 +847,9 @@ void km271SetDateTime(){
   send_buf[6]= dti.tm_mon;                    // month
   send_buf[6]|= (dti.tm_wday << 4) & 0x70;    // day of week (0=monday...6=sunday)
   send_buf[7]= dti.tm_year-1900;              // year 
-  mqttPublish(addTopic("/message"), "date and time set!", false);
+  
+  sprintf(dateTimeInfo, "date and time set to: %d.%d.%d - %02i:%02i:%02i - DST:%d", dti.tm_mday, (dti.tm_mon + 1), (dti.tm_year + 1900), dti.tm_hour, dti.tm_min, dti.tm_sec, (dti.tm_isdst>0));
+  mqttPublish(addTopic("/message"), dateTimeInfo, false);
 }
 
 /**
