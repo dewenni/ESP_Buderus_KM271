@@ -67,44 +67,57 @@ typedef struct {                                                          // Rx 
 // Use km271GetStatus() to get the most recent copy of these values in a thread-safe manner.
 typedef struct {
   // Retrieved values
-  uint8_t   HeatingCircuitOperatingStates_1;                        // 0x8000 : Bitfield
-  uint8_t   HeatingCircuitOperatingStates_2;                        // 0x8001 : Bitfield
-  float     HeatingForwardTargetTemp;                               // 0x8002 : Temperature (1C resolution)
-  float     HeatingForwardActualTemp;                               // 0x8003 : Temperature (1C resolution)
-  float     RoomTargetTemp;                                         // 0x8004 : Temperature (0.5C resolution)
-  float     RoomActualTemp;                                         // 0x8005 : Temperature (0.5C resolution)
-  uint8_t   SwitchOnOptimizationTime;                               // 0x8006 : Minutes
-  uint8_t   SwitchOffOptimizationTime;                              // 0x8007 : Minutes
-  uint8_t   PumpPower;                                              // 0x8008 : Percent
-  uint8_t   MixingValue;                                            // 0x8009 : Percent
-  float     HeatingCurvePlus10;                                     // 0x800c : Temperature (1C resolution)
-  float     HeatingCurve0;                                          // 0x800d : Temperature (1C resolution)
-  float     HeatingCurveMinus10;                                    // 0x800e : Temperature (1C resolution)
-  uint8_t   HotWaterOperatingStates_1;                              // 0x8424 : Bitfield
-  uint8_t   HotWaterOperatingStates_2;                              // 0x8425 : Bitfield
-  float     HotWaterTargetTemp;                                     // 0x8426 : Temperature (1C resolution)
-  float     HotWaterActualTemp;                                     // 0x8427 : Temperature (1C resolution)
-  uint8_t   HotWaterOptimizationTime;                               // 0x8428 : Minutes
-  uint8_t   HotWaterPumpStates;                                     // 0x8429 : Bitfield
-  float     BoilerForwardTargetTemp;                                // 0x882a : Temperature (1C resolution)
-  float     BoilerForwardActualTemp;                                // 0x882b : Temperature (1C resolution)
-  float     BurnerSwitchOnTemp;                                     // 0x882c : Temperature (1C resolution)
-  float     BurnerSwitchOffTemp;                                    // 0x882d : Temperature (1C resolution)
-  uint8_t   BoilerIntegral_1;                                       // 0x882e : Number (*256)
-  uint8_t   BoilerIntegral_2;                                       // 0x882f : Number (*1)
-  uint8_t   BoilerErrorStates;                                      // 0x8830 : Bitfield
-  uint8_t   BoilerOperatingStates;                                  // 0x8831 : Bitfield
-  uint8_t   BurnerStates;                                           // 0x8832 : Bitfield
-  float     ExhaustTemp;                                            // 0x8833 : Temperature (1C resolution)
-  uint8_t   BurnerOperatingDuration_2;                              // 0x8836 : Minutes (*65536)
-  uint8_t   BurnerOperatingDuration_1;                              // 0x8837 : Minutes (*256)
-  uint8_t   BurnerOperatingDuration_0;                              // 0x8838 : Minutes (*1)
-  float     OutsideTemp;                                            // 0x893c : Temperature (1C resolution, possibly negative)
-  float     OutsideDampedTemp;                                      // 0x893e : Temperature (1C resolution, possibly negative)
-  uint8_t   ControllerVersionMain;                                  // 0x893e : Number
-  uint8_t   ControllerVersionSub;                                   // 0x893f : Number
-  uint8_t   Modul;                                                  // 0x8940 : Number
-  uint8_t   ERR_Alarmstatus;                                        // 0xaa42 : Bitfield
+  uint8_t   HC1_OperatingStates_1;                        // 0x8000:0 Bitfield
+  uint8_t   HC1_OperatingStates_2;                        // 0x8001:0 Bitfield
+  float     HC1_HeatingForwardTargetTemp;                 // 0x8002:0 Temperature (1C resolution)
+  float     HC1_HeatingForwardActualTemp;                 // 0x8003:0 Temperature (1C resolution)
+  float     HC1_RoomTargetTemp;                           // 0x8004:0 Temperature (0.5C resolution)
+  float     HC1_RoomActualTemp;                           // 0x8005:0 Temperature (0.5C resolution)
+  uint8_t   HC1_SwitchOnOptimizationTime;                 // 0x8006:0 Minutes
+  uint8_t   HC1_SwitchOffOptimizationTime;                // 0x8007:0 Minutes
+  uint8_t   HC1_PumpPower;                                // 0x8008:0 Percent
+  uint8_t   HC1_MixingValue;                              // 0x8009:0 Percent
+  float     HC1_HeatingCurvePlus10;                       // 0x800c:0 Temperature (1C resolution)
+  float     HC1_HeatingCurve0;                            // 0x800d:0 Temperature (1C resolution)
+  float     HC1_HeatingCurveMinus10;                      // 0x800e:0 Temperature (1C resolution)
+  uint8_t   HC2_OperatingStates_1;                        // 0x8112:0 Bitfield
+  uint8_t   HC2_OperatingStates_2;                        // 0x8113:0 Bitfield
+  float     HC2_HeatingForwardTargetTemp;                 // 0x8114:0 Temperature (1C resolution)
+  float     HC2_HeatingForwardActualTemp;                 // 0x8115:0 Temperature (1C resolution)
+  float     HC2_RoomTargetTemp;                           // 0x8116:0 Temperature (0.5C resolution)
+  float     HC2_RoomActualTemp;                           // 0x8117:0 Temperature (0.5C resolution)
+  uint8_t   HC2_SwitchOnOptimizationTime;                 // 0x8118:0 Minutes
+  uint8_t   HC2_SwitchOffOptimizationTime;                // 0x8119:0 Minutes
+  uint8_t   HC2_PumpPower;                                // 0x811a:0 Percent
+  uint8_t   HC2_MixingValue;                              // 0x811b:0 Percent
+  float     HC2_HeatingCurvePlus10;                       // 0x811e:0 Temperature (1C resolution)
+  float     HC2_HeatingCurve0;                            // 0x811f:0 Temperature (1C resolution)
+  float     HC2_HeatingCurveMinus10;                      // 0x8120:0 Temperature (1C resolution) 
+  uint8_t   HotWaterOperatingStates_1;                    // 0x8424 : Bitfield
+  uint8_t   HotWaterOperatingStates_2;                    // 0x8425 : Bitfield
+  float     HotWaterTargetTemp;                           // 0x8426 : Temperature (1C resolution)
+  float     HotWaterActualTemp;                           // 0x8427 : Temperature (1C resolution)
+  uint8_t   HotWaterOptimizationTime;                     // 0x8428 : Minutes
+  uint8_t   HotWaterPumpStates;                           // 0x8429 : Bitfield
+  float     BoilerForwardTargetTemp;                      // 0x882a : Temperature (1C resolution)
+  float     BoilerForwardActualTemp;                      // 0x882b : Temperature (1C resolution)
+  float     BurnerSwitchOnTemp;                           // 0x882c : Temperature (1C resolution)
+  float     BurnerSwitchOffTemp;                          // 0x882d : Temperature (1C resolution)
+  uint8_t   BoilerIntegral_1;                             // 0x882e : Number (*256)
+  uint8_t   BoilerIntegral_2;                             // 0x882f : Number (*1)
+  uint8_t   BoilerErrorStates;                            // 0x8830 : Bitfield
+  uint8_t   BoilerOperatingStates;                        // 0x8831 : Bitfield
+  uint8_t   BurnerStates;                                 // 0x8832 : Bitfield
+  float     ExhaustTemp;                                  // 0x8833 : Temperature (1C resolution)
+  uint8_t   BurnerOperatingDuration_2;                    // 0x8836 : Minutes (*65536)
+  uint8_t   BurnerOperatingDuration_1;                    // 0x8837 : Minutes (*256)
+  uint8_t   BurnerOperatingDuration_0;                    // 0x8838 : Minutes (*1)
+  float     OutsideTemp;                                  // 0x893c : Temperature (1C resolution, possibly negative)
+  float     OutsideDampedTemp;                            // 0x893e : Temperature (1C resolution, possibly negative)
+  uint8_t   ControllerVersionMain;                        // 0x893e : Number
+  uint8_t   ControllerVersionSub;                         // 0x893f : Number
+  uint8_t   Modul;                                        // 0x8940 : Number
+  uint8_t   ERR_Alarmstatus;                              // 0xaa42 : Bitfield
 } s_km271_status;
 
 
@@ -119,10 +132,14 @@ typedef enum {
   KM271_SENDCMD_HK1_BA,         // HK1 Betriebsart
   KM271_SENDCMD_HK1_AUSLEGUNG,  // HK1 Auslegung
   KM271_SENDCMD_HK1_PROGRAMM,   // HK1 Programm
+  KM271_SENDCMD_HK1_AUSSENHALT, // HK1 Aussehnhalt ab
+  KM271_SENDCMD_HK2_BA,         // HK2 Betriebsart
+  KM271_SENDCMD_HK2_AUSLEGUNG,  // HK2 Auslegung
+  KM271_SENDCMD_HK2_PROGRAMM,   // HK2 Programm
+  KM271_SENDCMD_HK2_AUSSENHALT, // HK2 Aussehnhalt ab
   KM271_SENDCMD_WW_BA,          // Warmwasser Vetriebsart
   KM271_SENDCMD_SOMMER_AB,      // Sommer ab
   KM271_SENDCMD_FROST_AB,       // Frost ab
-  KM271_SENDCMD_AUSSENHALT,     // Aussehnhalt ab
   KM271_SENDCMD_WW_SOLL,        // Warmwasser soll
 } e_km271_sendCmd;
 

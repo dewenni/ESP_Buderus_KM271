@@ -60,14 +60,34 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   else if (strcmp (topic, addTopic("/setvalue/hk1_betriebsart")) == 0){  
     km271sendCmd(KM271_SENDCMD_HK1_BA, intVal);
   }
+  // HK2 Betriebsart
+  else if (strcmp (topic, addTopic("/setvalue/hk2_betriebsart")) == 0){  
+    km271sendCmd(KM271_SENDCMD_HK2_BA, intVal);
+  }
   // HK1 Programm
   else if (strcmp (topic, addTopic("/setvalue/hk1_programm")) == 0){  
     km271sendCmd(KM271_SENDCMD_HK1_PROGRAMM, intVal);
+  }
+  // HK2 Programm
+  else if (strcmp (topic, addTopic("/setvalue/hk2_programm")) == 0){  
+    km271sendCmd(KM271_SENDCMD_HK2_PROGRAMM, intVal);
   }
   // HK1 Auslegung
   else if (strcmp (topic, addTopic("/setvalue/hk1_auslegung")) == 0){  
     km271sendCmd(KM271_SENDCMD_HK1_AUSLEGUNG, intVal);
   }
+  // HK2 Auslegung
+  else if (strcmp (topic, addTopic("/setvalue/hk2_auslegung")) == 0){  
+    km271sendCmd(KM271_SENDCMD_HK2_AUSLEGUNG, intVal);
+  }
+  // HK1 Aussenhalt-Ab Temperatur
+  else if (strcmp (topic, addTopic("/setvalue/hk1_aussenhalt_ab")) == 0){
+    km271sendCmd(KM271_SENDCMD_HK1_AUSSENHALT, intVal);
+  }
+  // HK2 Aussenhalt-Ab Temperatur
+  else if (strcmp (topic, addTopic("/setvalue/hk2_aussenhalt_ab")) == 0){
+    km271sendCmd(KM271_SENDCMD_HK2_AUSSENHALT, intVal);
+  }  
   // WW Betriebsart
   else if (strcmp (topic, addTopic("/setvalue/ww_betriebsart")) == 0){
     km271sendCmd(KM271_SENDCMD_WW_BA, intVal);
@@ -79,10 +99,6 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   // Frost-Ab Temperatur
   else if (strcmp (topic, addTopic("/setvalue/frost_ab")) == 0){
     km271sendCmd(KM271_SENDCMD_FROST_AB, intVal);
-  } 
-  // Aussenhalt-Ab Temperatur
-  else if (strcmp (topic, addTopic("/setvalue/aussenhalt_ab")) == 0){
-    km271sendCmd(KM271_SENDCMD_AUSSENHALT, intVal);
   } 
   // WW-Temperatur
   else if (strcmp (topic, addTopic("/setvalue/ww_soll")) == 0){
@@ -141,7 +157,7 @@ void mqttCyclic(){
  * @return  none
  * *******************************************************************/
 void mqttSetup(){
-  mqtt_client.setServer(MQTT_SERVER, 1883);
+  mqtt_client.setServer(MQTT_SERVER, MQTT_PORT);
   mqtt_client.setCallback(mqttCallback);
 }
 
