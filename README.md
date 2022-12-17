@@ -4,14 +4,6 @@ Control your Buderus Logamatic R2107 with ESP and MQTT
 The information from the heater provides a better understanding of how the heater works and offers opportunities for optimization.  
 In combination with influxDB and Grafana you can also create usefull and impressive Dashboard of your heating system.
 
----
-
-For more informations take a look at the **[wiki](https://github.com/dewenni/ESP_Buderus_KM271/wiki)**
-
-and if you like it - press the Star button :-)
-
----
-
 ## Functional descrption
 
 The heart of the project is the reverse engineered Buderus interface, that is based on the 3964R Protocol.  
