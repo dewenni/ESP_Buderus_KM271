@@ -24,7 +24,6 @@ const char * addTopic(const char *suffix){
   return newTopic;
 }
 
-
 /**
  * *******************************************************************
  * @brief   MQTT callback function

@@ -117,8 +117,12 @@ void sendTxBlock(uint8_t *data, int len) {
  * @return  none
  * *******************************************************************/
 void parseInfo(uint8_t *data, int len) {
-  s_km271_status        tmpState;
-  
+  s_km271_status  tmpState;
+  char            t1[100]={'\0'};
+  char            t2[100]={'\0'};
+  char            t3[100]={'\0'};
+  char            tmpMessage[300]={'\0'};
+
   // Get current state
   xSemaphoreTake(accessMutex, portMAX_DELAY);               // Prevent task switch to ensure the whole structure remains constistent
   memcpy(&tmpState, &kmState, sizeof(s_km271_status));
@@ -589,10 +593,290 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addTopic("/config/HK1_Programm"), cfgHkProgramm[data[2]].c_str(), false);     // "CFG_HK1_Programm"  => "0100:0"
       #endif
       break;
-#   
+   
     case 0x0169:
       #ifdef USE_HC2
       mqttPublish(addTopic("/config/HK2_Programm"), cfgHkProgramm[data[2]].c_str(), false);     // "CFG_HK2_Programm"  => "0169:0"
+      #endif
+      break;
+
+    case 0x0107: // HK1_Timer01  
+      #ifdef USE_HC1
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP01: %s | SP02: %s | SP03: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK1_Timer01"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x010e: // HK1_Timer02
+      #ifdef USE_HC1
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP04: %s | SP05: %s | SP06: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK1_Timer02"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x0115: // HK1_Timer03
+      #ifdef USE_HC1
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP07: %s | SP08: %s | SP09: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK1_Timer03"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x011c: // HK1_Timer04
+      #ifdef USE_HC1
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP10: %s | SP11: %s | SP12: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK1_Timer04"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x0123: // HK1_Timer05
+      #ifdef USE_HC1
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP13: %s | SP14: %s | SP15: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK1_Timer05"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x012a: // HK1_Timer06
+      #ifdef USE_HC1
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP16: %s | SP17: %s | SP18: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK1_Timer06"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x0131: // HK1_Timer07
+      #ifdef USE_HC1
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP19: %s | SP20: %s | SP21: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK1_Timer07"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x0138: // HK1_Timer08
+      #ifdef USE_HC1
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP22: %s | SP23: %s | SP24: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK1_Timer08"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x013f: // HK1_Timer09
+      #ifdef USE_HC1
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP25: %s | SP026: %s | SP27: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK1_Timer09"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x0146: // HK1_Timer10
+      #ifdef USE_HC1
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP28: %s | SP029: %s | SP30: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK1_Timer10"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x014d: // HK1_Timer11
+      #ifdef USE_HC1
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP31: %s | SP32: %s | SP33: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK1_Timer11"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x0154: // HK1_Timer12
+      #ifdef USE_HC1
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP34: %s | SP35: %s | SP36: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK1_Timer12"), tmpMessage, false);
+      #endif
+      break;
+ 
+    case 0x015b: // HK1_Timer13
+      #ifdef USE_HC1
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP37: %s | SP38: %s | SP39: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK1_Timer13"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x0162: // HK1_Timer14
+      #ifdef USE_HC1
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP40: %s | SP41: %s | SP42: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK1_Timer14"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x0170: // HK2_Timer01  
+      #ifdef USE_HC2
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP01: %s | SP02: %s | SP03: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK2_Timer01"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x0177: // HK2_Timer02
+      #ifdef USE_HC2
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP04: %s | SP05: %s | SP06: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK2_Timer02"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x017e: // HK2_Timer03
+      #ifdef USE_HC2
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP07: %s | SP08: %s | SP09: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK2_Timer03"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x0185: // HK2_Timer04
+      #ifdef USE_HC2
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP10: %s | SP11: %s | SP12: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK2_Timer04"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x018c: // HK2_Timer05
+      #ifdef USE_HC2
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP13: %s | SP14: %s | SP15: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK2_Timer05"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x0193: // HK2_Timer06
+      #ifdef USE_HC2
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP16: %s | SP17: %s | SP18: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK2_Timer06"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x019a: // HK2_Timer07
+      #ifdef USE_HC2
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP19: %s | SP20: %s | SP21: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK2_Timer07"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x01a1: // HK2_Timer08
+      #ifdef USE_HC2
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP22: %s | SP23: %s | SP24: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK2_Timer08"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x01a8: // HK2_Timer09
+      #ifdef USE_HC2
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP25: %s | SP026: %s | SP27: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK2_Timer09"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x01af: // HK2_Timer10
+      #ifdef USE_HC2
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP28: %s | SP029: %s | SP30: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK2_Timer10"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x01b6: // HK2_Timer11
+      #ifdef USE_HC2
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP31: %s | SP32: %s | SP33: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK2_Timer11"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x01bd: // HK2_Timer12
+      #ifdef USE_HC2
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP34: %s | SP35: %s | SP36: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK2_Timer12"), tmpMessage, false);
+      #endif
+      break;
+ 
+    case 0x01c4: // HK2_Timer13
+      #ifdef USE_HC2
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP37: %s | SP38: %s | SP39: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK2_Timer13"), tmpMessage, false);
+      #endif
+      break;
+
+    case 0x01cb: // HK2_Timer14
+      #ifdef USE_HC2
+      decodeTimer(t1, data[2], data[3]);
+      decodeTimer(t2, data[4], data[5]);
+      decodeTimer(t3, data[6], data[7]);
+      sprintf(tmpMessage,"SP40: %s | SP41: %s | SP42: %s",t1,t2,t3);
+      mqttPublish(addTopic("/config/HK2_Timer14"), tmpMessage, false);
       #endif
       break;
 
@@ -603,7 +887,7 @@ void parseInfo(uint8_t *data, int len) {
 
     // undefined
     default:   
-      #ifdef DEBUG_ON
+      #ifdef DEBUG_ON 
         String sendString = String(data[0], HEX) + "_" + String(data[1], HEX) + "_" + String(data[2], HEX) + "_" + String(data[3], HEX) + "_" + String(data[4], HEX) + "_" + String(data[5], HEX) + "_" + String(data[6], HEX) + "_" + String(data[7], HEX) + "_" + String(data[8], HEX) + "_" + String(data[9], HEX) + "_" + String(data[10], HEX) + "_" + String(data[11], HEX);
         mqttPublish(addTopic("/undefinded_message"), (sendString).c_str(), false); 
       #endif                                                     
@@ -1080,4 +1364,72 @@ void km271sendCmd(e_km271_sendCmd sendCmd, uint8_t cmdPara){
  * *******************************************************************/
 bool km271GetLogMode(){
   return km271LogModeActive;
+}
+
+/**
+ * *******************************************************************
+ * @brief   decode the timer values
+ * @param   
+ * @return  string with timer information
+ * *******************************************************************/
+void decodeTimer(char * timerInfo, uint8_t dateOnOff, uint8_t time){
+  
+/*
+  dateOnOff: first part contains day
+  0x00  => "Mo",
+  0x20  => "Di",
+  0x40  => "Mi",
+  0x60  => "Do",
+  0x80  => "Fr",
+  0xa0  => "Sa",
+  0xc0  => "So"
+  
+  second part contains on/off
+  example:
+  0x21 => Di + ON / 0x20 => Di + OFF
+  0x61 => Do + ON / 0x60 => Do + OFF
+  --------
+  time:
+  The time has a resolution of 10min 
+  05:30: => 33 (0x21)
+  Calculation: 5 x 6 + (30 / 10) = 33
+  -------
+  return example: "Di 05:30 (An) | Di 22:00 (Aus)"
+  */
+  
+  bool onOff = dateOnOff & 0x0f;    // extract OnOff State
+  uint8_t day = dateOnOff & 0xf0;   // extract day
+  char timeString[100]={'\0'};
+  char dayString[10]={'\0'};
+  char onOffString[10]={'\0'};
+
+  if (!(dateOnOff==0xc2 && time == 0x90)){
+    switch (day)
+    {
+      case 0x00: strncpy(dayString, "Mo ", sizeof(dayString)); break;
+      case 0x20: strncpy(dayString, "Di ", sizeof(dayString)); break;
+      case 0x40: strncpy(dayString, "Mi ", sizeof(dayString)); break;
+      case 0x60: strncpy(dayString, "Do ", sizeof(dayString)); break;
+      case 0x80: strncpy(dayString, "Fr ", sizeof(dayString)); break;
+      case 0xa0: strncpy(dayString, "Sa ", sizeof(dayString)); break;
+      case 0xc0: strncpy(dayString, "So ", sizeof(dayString)); break;
+      default: strncpy(dayString, "--", sizeof(dayString)); break;
+    }
+    // add switch state
+    if (onOff){
+      strncpy(onOffString, " (An) ", sizeof(onOffString));
+    }
+    else{
+      strncpy(onOffString, " (Aus) ", sizeof(onOffString));
+    }
+    // convert time data
+    sprintf(timeString, "%02d:%02d", (time / 6), (time % 6)*10);
+    // copy to output parameter
+    sprintf(timerInfo, "%s %s %s",dayString, timeString, onOffString);
+  }
+  else {
+    // not used
+    strncpy(timerInfo, "frei", sizeof(timerInfo));
+  }
+  
 }
