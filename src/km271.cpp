@@ -685,7 +685,7 @@ void parseInfo(uint8_t *data, int len) {
       decodeTimer(t1, data[2], data[3]);
       decodeTimer(t2, data[4], data[5]);
       decodeTimer(t3, data[6], data[7]);
-      sprintf(tmpMessage,"SP25: %s | SP026: %s | SP27: %s",t1,t2,t3);
+      sprintf(tmpMessage,"SP25: %s | SP26: %s | SP27: %s",t1,t2,t3);
       mqttPublish(addTopic("/config/HK1_Timer09"), tmpMessage, false);
       #endif
       break;
@@ -695,7 +695,7 @@ void parseInfo(uint8_t *data, int len) {
       decodeTimer(t1, data[2], data[3]);
       decodeTimer(t2, data[4], data[5]);
       decodeTimer(t3, data[6], data[7]);
-      sprintf(tmpMessage,"SP28: %s | SP029: %s | SP30: %s",t1,t2,t3);
+      sprintf(tmpMessage,"SP28: %s | SP29: %s | SP30: %s",t1,t2,t3);
       mqttPublish(addTopic("/config/HK1_Timer10"), tmpMessage, false);
       #endif
       break;
@@ -825,7 +825,7 @@ void parseInfo(uint8_t *data, int len) {
       decodeTimer(t1, data[2], data[3]);
       decodeTimer(t2, data[4], data[5]);
       decodeTimer(t3, data[6], data[7]);
-      sprintf(tmpMessage,"SP25: %s | SP026: %s | SP27: %s",t1,t2,t3);
+      sprintf(tmpMessage,"SP25: %s | SP26: %s | SP27: %s",t1,t2,t3);
       mqttPublish(addTopic("/config/HK2_Timer09"), tmpMessage, false);
       #endif
       break;
@@ -835,7 +835,7 @@ void parseInfo(uint8_t *data, int len) {
       decodeTimer(t1, data[2], data[3]);
       decodeTimer(t2, data[4], data[5]);
       decodeTimer(t3, data[6], data[7]);
-      sprintf(tmpMessage,"SP28: %s | SP029: %s | SP30: %s",t1,t2,t3);
+      sprintf(tmpMessage,"SP28: %s | SP29: %s | SP30: %s",t1,t2,t3);
       mqttPublish(addTopic("/config/HK2_Timer10"), tmpMessage, false);
       #endif
       break;
