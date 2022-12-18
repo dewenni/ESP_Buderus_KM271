@@ -14,83 +14,83 @@ It has been extended with the possibility not only to read values, but also to w
 
 ### List of supported values
 
-| **config values (read)**     | **status values (read)**       | **commands and setvalues (write)** |
-|------------------------------|--------------------------------|------------------------------------|
-| HK1_Aussenhalt_ab            | Abgastemperatur                | HK1_Betriebsart                    |
-| HK1_Betriebsart              | Aussentemperatur_gedaempft     | HK1_Programm                       |
-| HK1_Fernbedienung            | Aussentemperatur_gedaempft     | HK1_Auslegung                      |
-| HK1_Heizsystem               | Brenner_Ansteuerung            | HK2_Betriebsart                    |
-| HK1_Max_Temperatur           | Brenner_Ausschalttemperatur    | HK2_Programm                       |
-| HK1_Nachttemperatur          | Brenner_Einschalttemperatur    | HK2_Auslegung                      |
-| HK1_Tagtemperatur            | Brenner_Laufzeit_Minuten       | WW_Betriebsart                     |
-| HK1_Temperatur_Offset        | Brenner_Laufzeit_Minuten256    | WW_Soll                            |
-| HK1_Urlaubtemperatur         | Brenner_Laufzeit_Summe         | Sommer_ab                          |
-| HK1_Programm                 | HK1_BW1_Ausschaltoptimierung   | Frost_ab                           |
-| HK2_Aussenhalt_ab            | HK1_BW1_Automatik              | Aussenhalt_ab                      |
-| HK2_Betriebsart              | HK1_BW1_Einschaltoptimierung   | setdatetime (NTP-Server)           |
-| HK2_Fernbedienung            | HK1_BW1_Estrichtrocknung       |                                    |
-| HK2_Heizsystem               | HK1_BW1_Ferien                 |                                    |
-| HK2_Max_Temperatur           | HK1_BW1_Frostschutz            |                                    |
-| HK2_Nachttemperatur          | HK1_BW1_Manuell                |                                    |
-| HK2_Tagtemperatur            | HK1_BW1_Warmwasservorrang      |                                    |
-| HK2_Temperatur_Offset        | HK1_BW2_Externer_Stoereingang  |                                    |
-| HK2_Urlaubtemperatur         | HK1_BW2_FB_fehlerhaft          |                                    |
-| HK2_Programm                 | HK1_BW2_Fehler_Vorlauffuehler  |                                    |
-| Pumplogik                    | HK1_BW2_Keine_Komm_mit_FB      |                                    |
-| Sommer_ab                    | HK1_BW2_Maximaler_Vorlauf      |                                    |
-| Sprache                      | HK1_BW2_Sommer                 |                                    |
-| WW_Aufbereitung              | HK1_BW2_Tag                    |                                    |
-| WW_Betriebsart               | HK1_Heizkennlinie_-10_Grad     |                                    |
-| WW_Temperatur                | HK1_Heizkennlinie_0_Grad       |                                    |
-| WW_Vorrang                   | HK1_Heizkennlinie_10_Grad      |                                    |
-| WW_Zirkulation               | HK1_Pumpe                      |                                    |
-| Max_Kesseltemperatur         | HK1_Raumsolltemperatur         |                                    |
-|                              | HK1_Vorlaufisttemperatur       |                                    |
-|                              | HK1_Vorlaufsolltemperatur      |                                    |
-|                              | HK2_BW1_Ausschaltoptimierung   |                                    |
-|                              | HK2_BW1_Automatik              |                                    |
-|                              | HK2_BW1_Einschaltoptimierung   |                                    |
-|                              | HK2_BW1_Estrichtrocknung       |                                    |
-|                              | HK2_BW1_Ferien                 |                                    |
-|                              | HK2_BW1_Frostschutz            |                                    |
-|                              | HK2_BW1_Manuell                |                                    |
-|                              | HK2_BW1_Warmwasservorrang      |                                    |
-|                              | HK2_BW2_Externer_Stoereingang  |                                    |
-|                              | HK2_BW2_FB_fehlerhaft          |                                    |
-|                              | HK2_BW2_Fehler_Vorlauffuehler  |                                    |
-|                              | HK2_BW2_Keine_Komm_mit_FB      |                                    |
-|                              | HK2_BW2_Maximaler_Vorlauf      |                                    |
-|                              | HK2_BW2_Sommer                 |                                    |
-|                              | HK2_BW2_Tag                    |                                    |
-|                              | HK2_Heizkennlinie_-10_Grad     |                                    |
-|                              | HK2_Heizkennlinie_0_Grad       |                                    |
-|                              | HK2_Heizkennlinie_10_Grad      |                                    |
-|                              | HK2_Pumpe                      |                                    |
-|                              | HK2_Raumsolltemperatur         |                                    |
-|                              | HK2_Vorlaufisttemperatur       |                                    |
-|                              | HK2_Vorlaufsolltemperatur      |                                    |
-|                              | Kessel_Betrieb_Abgastest       |                                    |
-|                              | Kessel_Betrieb_Betrieb_Stufe1  |                                    |
-|                              | Kessel_Betrieb_BetriebStufe2   |                                    |
-|                              | Kessel_Betrieb_Kesselschutz    |                                    |
-|                              | Kessel_Betrieb_Leistung_frei   |                                    |
-|                              | Kessel_Betrieb_Leistung_hoch   |                                    |
-|                              | Kessel_Betrieb_Unter_Betrieb   |                                    |
-|                              | Kessel_Vorlaufisttemperatur    |                                    |
-|                              | Kessel_Vorlaufsolltemperatur   |                                    |
-|                              | WW_BW2_Ausschaltoptimierung    |                                    |
-|                              | WW_BW2_Einschaltoptimierung    |                                    |
-|                              | WW_BW2_Laden                   |                                    |
-|                              | WW_BW2_Manuell                 |                                    |
-|                              | WW_BW2_Nachladen               |                                    |
-|                              | WW_BW2_Tag                     |                                    |
-|                              | WW_BW2_Vorrang                 |                                    |
-|                              | WW_BW2_Warm                    |                                    |
-|                              | WW_Isttemperatur               |                                    |
-|                              | WW_Pumpentyp_Absenkung_Solar   |                                    |
-|                              | WW_Pumpentyp_Ladepumpe         |                                    |
-|                              | WW_Pumpentyp_Zirkulationspumpe |                                    |
-|                              | WW_Solltemperatur              |                                    |
+| **config values (read)** | **status values (read)**       | **commands and setvalues (write)** |
+|--------------------------|--------------------------------|------------------------------------|
+| HK1_Aussenhalt_ab        | Abgastemperatur                | HK1_Betriebsart                    |
+| HK1_Betriebsart          | Aussentemperatur_gedaempft     | HK1_Programm                       |
+| HK1_Fernbedienung        | Aussentemperatur_gedaempft     | HK1_Auslegung                      |
+| HK1_Heizsystem           | Brenner_Ansteuerung            | HK2_Betriebsart                    |
+| HK1_Max_Temperatur       | Brenner_Ausschalttemperatur    | HK2_Programm                       |
+| HK1_Nachttemperatur      | Brenner_Einschalttemperatur    | HK2_Auslegung                      |
+| HK1_Tagtemperatur        | Brenner_Laufzeit_Minuten       | WW_Betriebsart                     |
+| HK1_Temperatur_Offset    | Brenner_Laufzeit_Minuten256    | WW_Soll                            |
+| HK1_Urlaubtemperatur     | Brenner_Laufzeit_Summe         | Sommer_ab                          |
+| HK1_Programm             | HK1_BW1_Ausschaltoptimierung   | Frost_ab                           |
+| HK1_Timer01              | HK1_BW1_Automatik              | Aussenhalt_ab                      |
+| HK1_Timer02              | HK1_BW1_Einschaltoptimierung   | setdatetime (NTP-Server)           |
+| HK1_Timer03              | HK1_BW1_Estrichtrocknung       |                                    |
+| HK1_Timer04              | HK1_BW1_Ferien                 |                                    |
+| HK1_Timer05              | HK1_BW1_Frostschutz            |                                    |
+| HK1_Timer06              | HK1_BW1_Manuell                |                                    |
+| HK1_Timer07              | HK1_BW1_Warmwasservorrang      |                                    |
+| HK1_Timer08              | HK1_BW2_Externer_Stoereingang  |                                    |
+| HK1_Timer09              | HK1_BW2_FB_fehlerhaft          |                                    |
+| HK1_Timer10              | HK1_BW2_Fehler_Vorlauffuehler  |                                    |
+| HK1_Timer11              | HK1_BW2_Keine_Komm_mit_FB      |                                    |
+| HK1_Timer12              | HK1_BW2_Maximaler_Vorlauf      |                                    |
+| HK1_Timer13              | HK1_BW2_Sommer                 |                                    |
+| HK1_Timer14              | HK1_BW2_Tag                    |                                    |
+| HK2_Aussenhalt_ab        | HK1_Heizkennlinie_-10_Grad     |                                    |
+| HK2_Betriebsart          | HK1_Heizkennlinie_0_Grad       |                                    |
+| HK2_Fernbedienung        | HK1_Heizkennlinie_10_Grad      |                                    |
+| HK2_Heizsystem           | HK1_Pumpe                      |                                    |
+| HK2_Max_Temperatur       | HK1_Raumsolltemperatur         |                                    |
+| HK2_Nachttemperatur      | HK1_Vorlaufisttemperatur       |                                    |
+| HK2_Tagtemperatur        | HK1_Vorlaufsolltemperatur      |                                    |
+| HK2_Temperatur_Offset    | HK2_BW1_Ausschaltoptimierung   |                                    |
+| HK2_Urlaubtemperatur     | HK2_BW1_Automatik              |                                    |
+| HK2_Programm             | HK2_BW1_Einschaltoptimierung   |                                    |
+| HK2_Timer01              | HK2_BW1_Estrichtrocknung       |                                    |
+| HK2_Timer02              | HK2_BW1_Ferien                 |                                    |
+| HK2_Timer03              | HK2_BW1_Frostschutz            |                                    |
+| HK2_Timer04              | HK2_BW1_Manuell                |                                    |
+| HK2_Timer05              | HK2_BW1_Warmwasservorrang      |                                    |
+| HK2_Timer06              | HK2_BW2_Externer_Stoereingang  |                                    |
+| HK2_Timer07              | HK2_BW2_FB_fehlerhaft          |                                    |
+| HK2_Timer08              | HK2_BW2_Fehler_Vorlauffuehler  |                                    |
+| HK2_Timer09              | HK2_BW2_Keine_Komm_mit_FB      |                                    |
+| HK2_Timer10              | HK2_BW2_Maximaler_Vorlauf      |                                    |
+| HK2_Timer11              | HK2_BW2_Sommer                 |                                    |
+| HK2_Timer12              | HK2_BW2_Tag                    |                                    |
+| HK2_Timer13              | HK2_Heizkennlinie_-10_Grad     |                                    |
+| HK2_Timer14              | HK2_Heizkennlinie_0_Grad       |                                    |
+| Pumplogik                | HK2_Heizkennlinie_10_Grad      |                                    |
+| Sommer_ab                | HK2_Pumpe                      |                                    |
+| Sprache                  | HK2_Raumsolltemperatur         |                                    |
+| WW_Aufbereitung          | HK2_Vorlaufisttemperatur       |                                    |
+| WW_Betriebsart           | HK2_Vorlaufsolltemperatur      |                                    |
+| WW_Temperatur            | Kessel_Betrieb_Abgastest       |                                    |
+| WW_Vorrang               | Kessel_Betrieb_Betrieb_Stufe1  |                                    |
+| WW_Zirkulation           | Kessel_Betrieb_BetriebStufe2   |                                    |
+| Max_Kesseltemperatur     | Kessel_Betrieb_Kesselschutz    |                                    |
+|                          | Kessel_Betrieb_Leistung_frei   |                                    |
+|                          | Kessel_Betrieb_Leistung_hoch   |                                    |
+|                          | Kessel_Betrieb_Unter_Betrieb   |                                    |
+|                          | Kessel_Vorlaufisttemperatur    |                                    |
+|                          | Kessel_Vorlaufsolltemperatur   |                                    |
+|                          | WW_BW2_Ausschaltoptimierung    |                                    |
+|                          | WW_BW2_Einschaltoptimierung    |                                    |
+|                          | WW_BW2_Laden                   |                                    |
+|                          | WW_BW2_Manuell                 |                                    |
+|                          | WW_BW2_Nachladen               |                                    |
+|                          | WW_BW2_Tag                     |                                    |
+|                          | WW_BW2_Vorrang                 |                                    |
+|                          | WW_BW2_Warm                    |                                    |
+|                          | WW_Isttemperatur               |                                    |
+|                          | WW_Pumpentyp_Absenkung_Solar   |                                    |
+|                          | WW_Pumpentyp_Ladepumpe         |                                    |
+|                          | WW_Pumpentyp_Zirkulationspumpe |                                    |
+|                          | WW_Solltemperatur              |                                    |
 
 
 
