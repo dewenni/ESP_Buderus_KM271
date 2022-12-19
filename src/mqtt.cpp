@@ -4,11 +4,14 @@
 #include <WiFi.h>
 #include <oilmeter.h>
 
+
 // ======================================================
 // declaration
 // ======================================================
 WiFiClient espClient;
 PubSubClient mqtt_client(espClient);
+
+s_mqtt_cmds mqttCmd;  // exts that are used as topics for KM271 commands
 
 
 /**
@@ -23,6 +26,7 @@ const char * addTopic(const char *suffix){
   strcat(newTopic, suffix);
   return newTopic;
 }
+
 
 /**
  * *******************************************************************
@@ -39,67 +43,67 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   Serial.println(topic);
 
   // ESP restarten auf Kommando
-  if (strcmp (topic, addTopic("/cmd/restart")) == 0){
+  if (strcmp (topic, addTopic(mqttCmd.RESTART[LANG])) == 0){
     mqtt_client.publish(addTopic("/message"), "restart requested!");
     delay(1000);
     ESP.restart();
   }
   // set date and time
-  else if (strcmp (topic, addTopic("/setvalue/setdatetime")) == 0){
+  else if (strcmp (topic, addTopic(mqttCmd.DATETIME[LANG])) == 0){
     Serial.println("cmd set date time");
     km271SetDateTime();
   }
   // set oilmeter
-  else if (strcmp (topic, addTopic("/setvalue/oilcounter")) == 0){
+  else if (strcmp (topic, addTopic(mqttCmd.OILCNT[LANG])) == 0){
     Serial.println("cmd setvalue oilcounter");
     cmdSetOilmeter(intVal);
   }
   // HK1 Betriebsart
-  else if (strcmp (topic, addTopic("/setvalue/hk1_betriebsart")) == 0){  
+  else if (strcmp (topic, addTopic(mqttCmd.HC1_OPMODE[LANG])) == 0){  
     km271sendCmd(KM271_SENDCMD_HK1_BA, intVal);
   }
   // HK2 Betriebsart
-  else if (strcmp (topic, addTopic("/setvalue/hk2_betriebsart")) == 0){  
+  else if (strcmp (topic, addTopic(mqttCmd.HC2_OPMODE[LANG])) == 0){  
     km271sendCmd(KM271_SENDCMD_HK2_BA, intVal);
   }
   // HK1 Programm
-  else if (strcmp (topic, addTopic("/setvalue/hk1_programm")) == 0){  
+  else if (strcmp (topic, addTopic(mqttCmd.HC1_PRG[LANG])) == 0){  
     km271sendCmd(KM271_SENDCMD_HK1_PROGRAMM, intVal);
   }
   // HK2 Programm
-  else if (strcmp (topic, addTopic("/setvalue/hk2_programm")) == 0){  
+  else if (strcmp (topic, addTopic(mqttCmd.HC2_PRG[LANG])) == 0){  
     km271sendCmd(KM271_SENDCMD_HK2_PROGRAMM, intVal);
   }
   // HK1 Auslegung
-  else if (strcmp (topic, addTopic("/setvalue/hk1_auslegung")) == 0){  
+  else if (strcmp (topic, addTopic(mqttCmd.HC1_INTERPRET[LANG])) == 0){  
     km271sendCmd(KM271_SENDCMD_HK1_AUSLEGUNG, intVal);
   }
   // HK2 Auslegung
-  else if (strcmp (topic, addTopic("/setvalue/hk2_auslegung")) == 0){  
+  else if (strcmp (topic, addTopic(mqttCmd.HC2_INTERPRET[LANG])) == 0){  
     km271sendCmd(KM271_SENDCMD_HK2_AUSLEGUNG, intVal);
   }
   // HK1 Aussenhalt-Ab Temperatur
-  else if (strcmp (topic, addTopic("/setvalue/hk1_aussenhalt_ab")) == 0){
+  else if (strcmp (topic, addTopic(mqttCmd.HC1_SWITCH_OFF_THRESHOLD[LANG])) == 0){
     km271sendCmd(KM271_SENDCMD_HK1_AUSSENHALT, intVal);
   }
   // HK2 Aussenhalt-Ab Temperatur
-  else if (strcmp (topic, addTopic("/setvalue/hk2_aussenhalt_ab")) == 0){
+  else if (strcmp (topic, addTopic(mqttCmd.HC2_SWITCH_OFF_THRESHOLD[LANG])) == 0){
     km271sendCmd(KM271_SENDCMD_HK2_AUSSENHALT, intVal);
   }  
   // WW Betriebsart
-  else if (strcmp (topic, addTopic("/setvalue/ww_betriebsart")) == 0){
+  else if (strcmp (topic, addTopic(mqttCmd.WW_OPMODE[LANG])) == 0){
     km271sendCmd(KM271_SENDCMD_WW_BA, intVal);
   }
   // Sommer-Ab Temperatur
-  else if (strcmp (topic, addTopic("/setvalue/sommer_ab")) == 0){
+  else if (strcmp (topic, addTopic(mqttCmd.SUMMER[LANG])) == 0){
     km271sendCmd(KM271_SENDCMD_SOMMER_AB, intVal);
   }  
   // Frost-Ab Temperatur
-  else if (strcmp (topic, addTopic("/setvalue/frost_ab")) == 0){
+  else if (strcmp (topic, addTopic(mqttCmd.FROST[LANG])) == 0){
     km271sendCmd(KM271_SENDCMD_FROST_AB, intVal);
   } 
   // WW-Temperatur
-  else if (strcmp (topic, addTopic("/setvalue/ww_soll")) == 0){
+  else if (strcmp (topic, addTopic(mqttCmd.WW_SETPOINT[LANG])) == 0){
     km271sendCmd(KM271_SENDCMD_WW_SOLL, intVal);
   } 
 

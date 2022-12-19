@@ -160,3 +160,5 @@ void km271sendCmd(e_km271_sendCmd sendCmd, uint8_t cmdPara);
 bool km271GetLogMode();
 void km271SetDateTime();
 void decodeTimer(char * timerInfo, uint8_t dateOnOff, uint8_t time);
+const char * addCfgTopic(const char *suffix);
+const char * addStatTopic(const char *suffix);

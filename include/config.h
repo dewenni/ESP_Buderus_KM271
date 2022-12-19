@@ -1,5 +1,6 @@
 #pragma once
 #include <Credentials.h>
+
 /*--------------------------------------------------------------------------------
 Introduction:
 you can enable/disable different options/configurations using the different #defines
@@ -11,8 +12,9 @@ Example:
 ----------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION             v1.1.0      // internal program version
+#define VERSION             v1.2.0      // internal program version
 #define DEBUG_ON                        // enable debug messages
+#define LANG                0           // 0=GERMAN / 1=ENGLISH
 
 #define HOSTNAME "ESP_Buderus_KM271"    // WiFi Hostname
 #define MQTT_TOPIC "esp_heizung"        // MQTT Topic Prefix
@@ -29,5 +31,5 @@ Feature Configuration
 Logamatic Configuration
 --------------------------------------------------------------------------------*/
 #define USE_HC1                         // Use HeatingCircuit_1
-#define USE_HC2                       // Use HeatingCircuit_2
+#define USE_HC2                         // Use HeatingCircuit_2
 
