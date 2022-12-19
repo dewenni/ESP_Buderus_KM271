@@ -12,7 +12,7 @@ The heart of the project is the reverse engineered Buderus interface, that is ba
 The main code is based on the work of **Michael Mayer** who has set a really good base for the communication.
 It has been extended with the possibility not only to read values, but also to write some common values to the Logamatic.
 
-The software supports multi language support. You can switch between german and english mqtt topics. (see: **/include/config.h**)  
+The software supports multi language support. You can switch between german and english mqtt topics. (see: **[/include/config.h](https://github.com/dewenni/ESP_Buderus_KM271/blob/aa369b0bc6e71b8ec41ad1284f3467846cb56dcc/include/config.h)**)  
 Feel free to add more languages. The texts are located in: **[/include/language.h](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/include/language.h)**
 
 ### List of supported values
