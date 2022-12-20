@@ -1158,7 +1158,7 @@ void km271SetDateTime(){
  * @param   cmdPara: parameter
  * @return  none
  * *******************************************************************/
-void km271sendCmd(e_km271_sendCmd sendCmd, uint8_t cmdPara){
+void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
 
   switch (sendCmd)
   {
@@ -1308,7 +1308,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, uint8_t cmdPara){
       send_buf[4]= 0x65;
       send_buf[5]= 0x65; 
       send_buf[6]= 0x65;
-      send_buf[7]= cmdPara;    // -20° ... +10°
+      send_buf[7]= (cmdPara>0) ? cmdPara:cmdPara+256;    // -20° ... +10° (add 256 if value is negative)
       mqttPublish(addTopic("/message"), mqttMsg.FROST_RECV[LANG], false);
     } else {
       mqttPublish(addTopic("/message"), mqttMsg.FROST_INVALID[LANG], false);
@@ -1322,7 +1322,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, uint8_t cmdPara){
       send_buf[1]= 0x15;      // Offset 
       send_buf[2]= 0x65;
       send_buf[3]= 0x65;       
-      send_buf[4]= cmdPara;   // -20° ... +10°
+      send_buf[4]= (cmdPara>0) ? cmdPara:cmdPara+256;    // -20° ... +10° (add 256 if value is negative)
       send_buf[5]= 0x65; 
       send_buf[6]= 0x65;
       send_buf[7]= 0x65;
@@ -1339,7 +1339,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, uint8_t cmdPara){
       send_buf[1]= 0x15;      // Offset 
       send_buf[2]= 0x65;
       send_buf[3]= 0x65;       
-      send_buf[4]= cmdPara;   // -20° ... +10°
+      send_buf[4]= (cmdPara>0) ? cmdPara:cmdPara+256;    // -20° ... +10° (add 256 if value is negative)
       send_buf[5]= 0x65; 
       send_buf[6]= 0x65;
       send_buf[7]= 0x65;
