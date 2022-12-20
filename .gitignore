@@ -8,3 +8,4 @@
 .vscode/c_cpp_properties.json
 .travis.yml
 include/_Credentials.h
+include/Credentials.h

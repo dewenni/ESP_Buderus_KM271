@@ -156,7 +156,7 @@ float decode05cTemp(uint8_t data);
 float decodeNegTemp(uint8_t data);
 void cyclicKM271();
 void sendKM271Info();
-void km271sendCmd(e_km271_sendCmd sendCmd, uint8_t cmdPara);
+void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara);
 bool km271GetLogMode();
 void km271SetDateTime();
 void decodeTimer(char * timerInfo, uint8_t dateOnOff, uint8_t time);
