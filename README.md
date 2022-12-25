@@ -1,10 +1,12 @@
 # ESP_Buderus_KM271
+![Buderus_s](https://user-images.githubusercontent.com/46074831/209479478-c89a3a4e-e987-468a-82b2-b60f09ca56c3.png)
+
 Control your Buderus Logamatic R2107 with ESP and MQTT
 
 The information from the heater provides a better understanding of how the heater works and offers opportunities for optimization.  
 In combination with influxDB and Grafana you can also create usefull and impressive Dashboard of your heating system.
 
-> **Note**
+> **Note**  
 > for more informations take a look at the **[wiki](https://github.com/dewenni/ESP_Buderus_KM271/wiki)**
 
 ## Functional description
@@ -41,19 +43,24 @@ If you are not interested in the Oil Meter function you can simple disable it in
 
 ## Hardware Requirements
 
-### Option 1
-The first option is to use the original Buderus KM271 Module that has a serial interface (RS232).  
-In combination with a RS232 TTL Adapter (MAX3232) it can be connected to the TX/RX Port of the ESP.  
+# Option 1 - Board from the78mole
+the easiest, smartest and even cheapest option is the DIY Interface that was build by Daniel Glaser. Big thanks for his engagement in this Topic!  
+You can find more information here: [https://the78mole.de](https://the78mole.de/reverse-engineering-the-buderus-km217/)  
+You can order it here: https://www.tindie.com/products/24664/
+
+In this case you only need this DIY interface and nothing more.
+It includes the RS232/TTL Adapter and also an ESP32.  
+
+![KM217_mod](https://user-images.githubusercontent.com/46074831/206558276-ef8727ac-384c-4b7b-866f-8c3fe644a2cb.jpg)
+(this is my board with the customized connector for the oil meter instead of the "USER 1" button)
+
+# Option 2 - original Buderus KM271
+The other option is, to use the original Buderus KM271 Module that has a serial interface (RS232).
+In combination with a RS232 TTL Adapter (MAX3232) it can be connected to the TX/RX Port of the ESP.
 
 Logamattic R2107 => KM271 => RS232/TTL Adapter => ESP
 
-### Option 2
-An even smarter and cheaper option, is the DIY Interface that was build by **Daniel Glaser**. Big thanks for his engagement in this Topic!  
-You can find more information here: *[https://the78mole.de](https://the78mole.de/reverse-engineering-the-buderus-km217/)*  
-You can order it here: https://www.tindie.com/products/24664/
-
-In this case you only need this DIY interface and nothing more.  
-It includes the RS232/TTL Adapter and also an ESP32.
+![km271_orig](https://user-images.githubusercontent.com/46074831/206558264-3d17b69a-e2ac-4e23-8ed6-b17977599c50.jpg)
 
 ---
 
