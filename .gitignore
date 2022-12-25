@@ -9,3 +9,5 @@
 .travis.yml
 include/_Credentials.h
 include/Credentials.h
+Todo.txt
+values.md

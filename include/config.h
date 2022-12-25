@@ -12,8 +12,8 @@ Example:
 ----------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION             v1.2.1      // internal program version
-#define DEBUG_ON                        // enable debug messages
+#define VERSION             v1.3.1      // internal program version
+//#define DEBUG_ON                        // enable debug messages
 #define LANG                0           // 0=GERMAN / 1=ENGLISH
 
 #define HOSTNAME "ESP_Buderus_KM271"    // WiFi Hostname

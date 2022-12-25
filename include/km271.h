@@ -129,18 +129,26 @@ typedef enum {
 
 // send commands to KM271
 typedef enum {
-  KM271_SENDCMD_HK1_BA,         // HK1 Betriebsart
-  KM271_SENDCMD_HK1_AUSLEGUNG,  // HK1 Auslegung
-  KM271_SENDCMD_HK1_PROGRAMM,   // HK1 Programm
-  KM271_SENDCMD_HK1_AUSSENHALT, // HK1 Aussehnhalt ab
-  KM271_SENDCMD_HK2_BA,         // HK2 Betriebsart
-  KM271_SENDCMD_HK2_AUSLEGUNG,  // HK2 Auslegung
-  KM271_SENDCMD_HK2_PROGRAMM,   // HK2 Programm
-  KM271_SENDCMD_HK2_AUSSENHALT, // HK2 Aussehnhalt ab
-  KM271_SENDCMD_WW_BA,          // Warmwasser Vetriebsart
-  KM271_SENDCMD_SOMMER_AB,      // Sommer ab
-  KM271_SENDCMD_FROST_AB,       // Frost ab
-  KM271_SENDCMD_WW_SOLL,        // Warmwasser soll
+  KM271_SENDCMD_HC1_OPMODE,               // HK1 Betriebsart
+  KM271_SENDCMD_HC1_DESIGN_TEMP,          // HK1 Auslegung
+  KM271_SENDCMD_HC1_PROGRAMM,             // HK1 Programm
+  KM271_SENDCMD_HC1_SWITCH_OFF_THRESHOLD, // HK1 Aussehnhalt ab
+  KM271_SENDCMD_HC1_DAY_SETPOINT,         // HK1 Tag-Soll
+  KM271_SENDCMD_HC1_NIGHT_SETPOINT,       // HK1 Nacht-Soll
+  KM271_SENDCMD_HC1_HOLIDAY_SETPOINT,     // HK1 Ferien-Soll
+  KM271_SENDCMD_HC2_OPMODE,               // HK2 Betriebsart
+  KM271_SENDCMD_HC2_DESIGN_TEMP,          // HK2 Auslegung
+  KM271_SENDCMD_HC2_PROGRAMM,             // HK2 Programm
+  KM271_SENDCMD_HC2_SWITCH_OFF_THRESHOLD, // HK2 Aussehnhalt ab
+  KM271_SENDCMD_HC2_DAY_SETPOINT,         // HK2 Tag-Soll
+  KM271_SENDCMD_HC2_NIGHT_SETPOINT,       // HK2 Nacht-Soll
+  KM271_SENDCMD_HC2_HOLIDAY_SETPOINT,     // HK2 Ferien-Soll
+  KM271_SENDCMD_WW_OPMODE,                // Warmwasser Vetriebsart
+  KM271_SENDCMD_SUMMER,                   // Sommer ab
+  KM271_SENDCMD_FROST,                    // Frost ab
+  KM271_SENDCMD_WW_SETPOINT,              // Warmwasser soll
+  KM271_SENDCMD_HC1_HOLIDAYS,             // HK1 Ferien Tage
+  KM271_SENDCMD_HC2_HOLIDAYS,             // HK2 Ferien Tage
 } e_km271_sendCmd;
 
 
@@ -153,12 +161,16 @@ void sendTxBlock(uint8_t *data, int len);
 void handleRxBlock(uint8_t *data, int len, uint8_t bcc);
 void parseInfo(uint8_t *data, int len);
 float decode05cTemp(uint8_t data);
-float decodeNegTemp(uint8_t data);
+float decodeNegValue(uint8_t data);
 void cyclicKM271();
 void sendKM271Info();
 void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara);
+void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara);
 bool km271GetLogMode();
 void km271SetDateTime();
 void decodeTimer(char * timerInfo, uint8_t dateOnOff, uint8_t time);
 const char * addCfgTopic(const char *suffix);
 const char * addStatTopic(const char *suffix);
+const char * addAlarmTopic(const char *suffix);
+uint8_t getErrorTextIndex(uint8_t errorNr);
+void decodeErrorMsg(char * errorMsg, uint8_t *data);

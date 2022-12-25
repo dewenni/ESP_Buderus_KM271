@@ -10,11 +10,11 @@
 #include <km271.h>
 #include <basics.h>
 
-
 /* V A R I A B L E S ********************************************************/
 SemaphoreHandle_t    accessMutex;                                  // To protect access to kmState structure
-s_mqtt_messags       mqttMsg;                                     // texts for mqtt messages
-
+s_mqtt_messags       mqttMsg;                                      // texts for mqtt messages
+s_err_array          errMsgText;                                   // Array of error messages
+ 
 // This structure contains the complete received status of the KM271 (as far it is parsed by now).
 // It is updated automatically on any changes by this driver and therefore kept up-to-date.
 // Do not access it directly from outside this source to avoid inconsistency of the structure.
@@ -31,11 +31,10 @@ uint8_t KmCNAK[]     = {KM_NAK};                                   // NAK Respon
 uint8_t KmCLogMode[] = {0xEE, 0x00, 0x00};                         // Switch to Log Mode
 
 // ************************ km271 handling variables ****************************
-uint8_t     rxByte;                                // The received character. We are reading byte by byte only.
-e_rxState   kmRxStatus = KM_RX_RESYNC;             // Status in Rx reception
-uint8_t     kmRxBcc  = 0;                          // BCC value for Rx Block
-KmRx_s      kmRxBuf;                               // Rx block storag
-bool        send_request;
+uint8_t     rxByte;                                                // The received character. We are reading byte by byte only.
+e_rxState   kmRxStatus = KM_RX_RESYNC;                             // Status in Rx reception
+uint8_t     kmRxBcc  = 0;                                          // BCC value for Rx Block
+KmRx_s      kmRxBuf;                                               // Rx block storag
 uint8_t     send_cmd;
 uint8_t     send_buf[8] = {};
 bool        km271LogModeActive = false;
@@ -105,23 +104,38 @@ void parseInfo(uint8_t *data, int len) {
   s_cfg_topics    cfgTopic;
   s_stat_topics   statTopic;
   s_cfg_arrays    cfgArray;
+  s_error_topics  errTopic;
+
   char            t1[100]={'\0'};
   char            t2[100]={'\0'};
   char            t3[100]={'\0'};
   char            tmpMessage[300]={'\0'};
+  char            errorMsg[300]={'\0'};
 
   // Get current state
   xSemaphoreTake(accessMutex, portMAX_DELAY);               // Prevent task switch to ensure the whole structure remains constistent
   memcpy(&tmpState, &kmState, sizeof(s_km271_status));
   xSemaphoreGive(accessMutex);
   uint kmregister = (data[0] * 256) + data[1];
+
+  /********************************************************
+  * publish all incomming messages for debug reasons
+  ********************************************************/
+  #ifdef DEBUG_ON 
+    if (kmregister != 0x0400 && kmregister != 0x882e && kmregister != 0x882f){
+      sprintf(tmpMessage, "%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
+      mqttPublish(addTopic("/debug_message"), tmpMessage, false); 
+    }
+  #endif 
+
   switch(kmregister) {                                     // Check if we can find known stati
-    
+ 
     /********************************************************
     * status values Heating Circuit 1
     ********************************************************/
-    #ifdef USE_HC1
+    
     case 0x8000: // 0x8000 : Bitfield                                                           
+      #ifdef USE_HC1
       tmpState.HC1_OperatingStates_1 = data[2];                 
       mqttPublish(addStatTopic(statTopic.HC1_OV1_OFFTIME_OPT[LANG]),String(bitRead(tmpState.HC1_OperatingStates_1, 0)).c_str(), false);
       mqttPublish(addStatTopic(statTopic.HC1_OV1_ONTIME_OPT[LANG]), String(bitRead(tmpState.HC1_OperatingStates_1, 1)).c_str(), false);
@@ -131,9 +145,11 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addStatTopic(statTopic.HC1_OV1_HOLIDAY[LANG]),    String(bitRead(tmpState.HC1_OperatingStates_1, 5)).c_str(), false);
       mqttPublish(addStatTopic(statTopic.HC1_OV1_FROST[LANG]),      String(bitRead(tmpState.HC1_OperatingStates_1, 6)).c_str(), false);
       mqttPublish(addStatTopic(statTopic.HC1_OV1_MANUAL[LANG]),     String(bitRead(tmpState.HC1_OperatingStates_1, 7)).c_str(), false);   
+      #endif
       break;
       
     case 0x8001: // 0x8001 : Bitfield                                                          
+      #ifdef USE_HC1
       tmpState.HC1_OperatingStates_2 = data[2];                 
       mqttPublish(addStatTopic(statTopic.HC1_OV2_SUMMER[LANG]),        String(bitRead(tmpState.HC1_OperatingStates_2, 0)).c_str(), false);
       mqttPublish(addStatTopic(statTopic.HC1_OV2_DAY[LANG]),           String(bitRead(tmpState.HC1_OperatingStates_2, 1)).c_str(), false);
@@ -142,69 +158,92 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addStatTopic(statTopic.HC1_OV2_FLOW_SENS_ERR[LANG]), String(bitRead(tmpState.HC1_OperatingStates_2, 4)).c_str(), false);
       mqttPublish(addStatTopic(statTopic.HC1_OV2_FLOW_AT_MAX[LANG]),   String(bitRead(tmpState.HC1_OperatingStates_2, 5)).c_str(), false);
       mqttPublish(addStatTopic(statTopic.HC1_OV2_EXT_SENS_ERR[LANG]),  String(bitRead(tmpState.HC1_OperatingStates_2, 6)).c_str(), false);        
+      #endif
       break;
       
     case 0x8002: // 0x8002 : Temperature (1C resolution)
+      #ifdef USE_HC1
       tmpState.HC1_HeatingForwardTargetTemp = (float)data[2];                 
       mqttPublish(addStatTopic(statTopic.HC1_FLOW_SETPOINT[LANG]), String(tmpState.HC1_HeatingForwardTargetTemp).c_str(), false);  
+      #endif
       break;
       
     case 0x8003: // 0x8003 : Temperature (1C resolution)
+      #ifdef USE_HC1
       tmpState.HC1_HeatingForwardActualTemp = (float)data[2];                 
       mqttPublish(addStatTopic(statTopic.HC1_FLOW_TEMP[LANG]), String(tmpState.HC1_HeatingForwardActualTemp).c_str(), false);
+      #endif
       break;
       
     case 0x8004: // 0x8004 : Temperature (0.5C resolution)
+      #ifdef USE_HC1
       tmpState.HC1_RoomTargetTemp = decode05cTemp(data[2]);                   
       mqttPublish(addStatTopic(statTopic.HC1_ROOM_SETPOINT[LANG]), String(tmpState.HC1_RoomTargetTemp).c_str(), false);
+      #endif
       break;
       
     case 0x8005: // 0x8005 : Temperature (0.5C resolution)
+      #ifdef USE_HC1
       tmpState.HC1_RoomActualTemp = decode05cTemp(data[2]);                   
       mqttPublish(addStatTopic(statTopic.HC1_ROOM_TEMP[LANG]), String(tmpState.HC1_RoomActualTemp).c_str(), false);
+      #endif
       break;
       
     case 0x8006: // 0x8006 : Minutes
+      #ifdef USE_HC1
       tmpState.HC1_SwitchOnOptimizationTime = data[2];                        
       mqttPublish(addStatTopic(statTopic.HC1_ON_TIME_OPT[LANG]), String(tmpState.HC1_SwitchOnOptimizationTime).c_str(), false);
+      #endif
       break;
       
     case 0x8007: // 0x8007 : Minutes  
+      #ifdef USE_HC1
       tmpState.HC1_SwitchOffOptimizationTime = data[2];                       
       mqttPublish(addStatTopic(statTopic.HC1_OV1_OFFTIME_OPT[LANG]), String(tmpState.HC1_SwitchOffOptimizationTime).c_str(), false);
+      #endif
       break;
       
     case 0x8008: // 0x8008 : Percent 
+      #ifdef USE_HC1
       tmpState.HC1_PumpPower = data[2];                                       
       mqttPublish(addStatTopic(statTopic.HC1_PUMP[LANG]), String(tmpState.HC1_PumpPower).c_str(), false);
+      #endif
       break;
       
     case 0x8009: // 0x8009 : Percent
+      #ifdef USE_HC1
       tmpState.HC1_MixingValue = data[2];                                     
       mqttPublish(addStatTopic(statTopic.HC1_MIXER[LANG]), String(tmpState.HC1_MixingValue).c_str(), false);
+      #endif
       break;
       
     case 0x800c: // 0x800c : Temperature (1C resolution)
+      #ifdef USE_HC1
       tmpState.HC1_HeatingCurvePlus10 = (float)data[2];                       
       mqttPublish(addStatTopic(statTopic.HC1_HEAT_CURVE1[LANG]), String(tmpState.HC1_HeatingCurvePlus10).c_str(), false);
+      #endif
       break;
       
     case 0x800d:  // 0x800d : Temperature (1C resolution)
+      #ifdef USE_HC1
       tmpState.HC1_HeatingCurve0 = (float)data[2];                           
       mqttPublish(addStatTopic(statTopic.HC1_HEAT_CURVE2[LANG]), String(tmpState.HC1_HeatingCurve0).c_str(), false);
+      #endif
       break;
       
     case 0x800e: // 0x800e : Temperature (1C resolution)
+      #ifdef USE_HC1
       tmpState.HC1_HeatingCurveMinus10 = (float)data[2];                      
       mqttPublish(addStatTopic(statTopic.HC1_HEAT_CURVE3[LANG]), String(tmpState.HC1_HeatingCurveMinus10).c_str(), false);
-      break;
-    #endif
+      #endif
+    break;
+    
     
     /********************************************************
     * status values Heating Circuit 2
     ********************************************************/
-    #ifdef USE_HC2
     case 0x8112: // 0x8112 : Bitfield                                                          
+      #ifdef USE_HC2
       tmpState.HC2_OperatingStates_1 = data[2];                 
       mqttPublish(addStatTopic(statTopic.HC2_OV1_OFFTIME_OPT[LANG]),String(bitRead(tmpState.HC2_OperatingStates_1, 0)).c_str(), false);
       mqttPublish(addStatTopic(statTopic.HC2_OV1_ONTIME_OPT[LANG]), String(bitRead(tmpState.HC2_OperatingStates_1, 1)).c_str(), false);
@@ -214,9 +253,11 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addStatTopic(statTopic.HC2_OV1_HOLIDAY[LANG]),    String(bitRead(tmpState.HC2_OperatingStates_1, 5)).c_str(), false);
       mqttPublish(addStatTopic(statTopic.HC2_OV1_FROST[LANG]),      String(bitRead(tmpState.HC2_OperatingStates_1, 6)).c_str(), false);
       mqttPublish(addStatTopic(statTopic.HC2_OV1_MANUAL[LANG]),     String(bitRead(tmpState.HC2_OperatingStates_1, 7)).c_str(), false);   
+      #endif
       break;
       
     case 0x8113: // 0x8113 : Bitfield                                                          
+      #ifdef USE_HC2
       tmpState.HC2_OperatingStates_2 = data[2];                
       mqttPublish(addStatTopic(statTopic.HC2_OV2_SUMMER[LANG]),        String(bitRead(tmpState.HC2_OperatingStates_2, 0)).c_str(), false);
       mqttPublish(addStatTopic(statTopic.HC2_OV2_DAY[LANG]),           String(bitRead(tmpState.HC2_OperatingStates_2, 1)).c_str(), false);
@@ -225,63 +266,86 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addStatTopic(statTopic.HC2_OV2_FLOW_SENS_ERR[LANG]), String(bitRead(tmpState.HC2_OperatingStates_2, 4)).c_str(), false);
       mqttPublish(addStatTopic(statTopic.HC2_OV2_FLOW_AT_MAX[LANG]),   String(bitRead(tmpState.HC2_OperatingStates_2, 5)).c_str(), false);
       mqttPublish(addStatTopic(statTopic.HC2_OV2_EXT_SENS_ERR[LANG]),  String(bitRead(tmpState.HC2_OperatingStates_2, 6)).c_str(), false);        
+      #endif
       break;
       
     case 0x8114: // 0x8114 : Temperature (1C resolution)
+      #ifdef USE_HC2
       tmpState.HC2_HeatingForwardTargetTemp = (float)data[2];              
       mqttPublish(addStatTopic(statTopic.HC2_FLOW_SETPOINT[LANG]), String(tmpState.HC2_HeatingForwardTargetTemp).c_str(), false);  
+      #endif
       break;
       
     case 0x8115: // 0x8115 : Temperature (1C resolution)
+      #ifdef USE_HC2
       tmpState.HC2_HeatingForwardActualTemp = (float)data[2];                
       mqttPublish(addStatTopic(statTopic.HC2_FLOW_TEMP[LANG]), String(tmpState.HC2_HeatingForwardActualTemp).c_str(), false);
+      #endif
       break;
       
     case 0x8116: // 0x8116 : Temperature (0.5C resolution)
+      #ifdef USE_HC2
       tmpState.HC2_RoomTargetTemp = decode05cTemp(data[2]);              
       mqttPublish(addStatTopic(statTopic.HC2_ROOM_SETPOINT[LANG]), String(tmpState.HC2_RoomTargetTemp).c_str(), false);
+      #endif
       break;
       
     case 0x8117: // 0x8117 : Temperature (0.5C resolution)
+      #ifdef USE_HC2
       tmpState.HC2_RoomActualTemp = decode05cTemp(data[2]);                  
       mqttPublish(addStatTopic(statTopic.HC2_ROOM_TEMP[LANG]), String(tmpState.HC2_RoomActualTemp).c_str(), false);
+      #endif
       break;
       
     case 0x8118: // 0x8118 : Minutes
+      #ifdef USE_HC2
       tmpState.HC2_SwitchOnOptimizationTime = data[2];                       
       mqttPublish(addStatTopic(statTopic.HC2_ON_TIME_OPT[LANG]), String(tmpState.HC2_SwitchOnOptimizationTime).c_str(), false);
+      #endif
       break;
       
     case 0x8119: // 0x8119 : Minutes 
+      #ifdef USE_HC2
       tmpState.HC2_SwitchOffOptimizationTime = data[2];                     
       mqttPublish(addStatTopic(statTopic.HC2_OV1_OFFTIME_OPT[LANG]), String(tmpState.HC2_SwitchOffOptimizationTime).c_str(), false);
+      #endif
       break;
       
     case 0x811a: // 0x811a : Percent  
+      #ifdef USE_HC2
       tmpState.HC2_PumpPower = data[2];                                     
       mqttPublish(addStatTopic(statTopic.HC2_PUMP[LANG]), String(tmpState.HC2_PumpPower).c_str(), false);
+      #endif
       break;
       
     case 0x811b: // 0x811b : Percent
+      #ifdef USE_HC2
       tmpState.HC2_MixingValue = data[2];                                 
       mqttPublish(addStatTopic(statTopic.HC2_MIXER[LANG]), String(tmpState.HC2_MixingValue).c_str(), false);
+      #endif
       break;
       
     case 0x811e: // 0x811e : Temperature (1C resolution)
+      #ifdef USE_HC2
       tmpState.HC2_HeatingCurvePlus10 = (float)data[2];                   
       mqttPublish(addStatTopic(statTopic.HC2_HEAT_CURVE1[LANG]), String(tmpState.HC2_HeatingCurvePlus10).c_str(), false);
+      #endif
       break;
       
     case 0x811f: // 0x811f : Temperature (1C resolution)
+      #ifdef USE_HC2
       tmpState.HC2_HeatingCurve0 = (float)data[2];                          
       mqttPublish(addStatTopic(statTopic.HC2_HEAT_CURVE2[LANG]), String(tmpState.HC2_HeatingCurve0).c_str(), false);
+      #endif
       break;
       
     case 0x8120: // 0x8120 : Temperature (1C resolution) 
+      #ifdef USE_HC2
       tmpState.HC2_HeatingCurveMinus10 = (float)data[2];                   
       mqttPublish(addStatTopic(statTopic.HC2_HEAT_CURVE3[LANG]), String(tmpState.HC2_HeatingCurveMinus10).c_str(), false);
+      #endif
       break;
-    #endif // USE_HC2
+    
 
     /********************************************************
     * status values general
@@ -397,8 +461,8 @@ void parseInfo(uint8_t *data, int len) {
       break;
       
     case 0x8836: // 0x8836 : Minutes (*65536)
-      tmpState.BurnerOperatingDuration_2 = data[2];                       
-      mqttPublish(addStatTopic(statTopic.BOILER_LIFETIME_1[LANG]), String(tmpState.BurnerOperatingDuration_2).c_str(), false);
+      tmpState.BurnerOperatingDuration_0 = data[2];                       
+      mqttPublish(addStatTopic(statTopic.BOILER_LIFETIME_1[LANG]), String(tmpState.BurnerOperatingDuration_0).c_str(), false);
       break;
       
     case 0x8837:  // 0x8837 : Minutes (*256)
@@ -406,18 +470,19 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addStatTopic(statTopic.BOILER_LIFETIME_2[LANG]), String(tmpState.BurnerOperatingDuration_1).c_str(), false);
       break;
       
-    case 0x8838: // 0x8838 : Minutes (*1)
-      tmpState.BurnerOperatingDuration_0 = data[2];                       
-      mqttPublish(addStatTopic(statTopic.BOILER_LIFETIME_3[LANG]), String(tmpState.BurnerOperatingDuration_0).c_str(), false);
+    case 0x8838: // 0x8838 : Minutes (*1) + calculated sum of all 3 runtime values
+      tmpState.BurnerOperatingDuration_2 = data[2];                       
+      mqttPublish(addStatTopic(statTopic.BOILER_LIFETIME_3[LANG]), String(tmpState.BurnerOperatingDuration_2).c_str(), false);
+      mqttPublish(addStatTopic(statTopic.BOILER_LIFETIME_4[LANG]), String((uint64_t)(tmpState.BurnerOperatingDuration_2+(tmpState.BurnerOperatingDuration_1*256)+(tmpState.BurnerOperatingDuration_0*65536))).c_str(), false);
       break;
       
     case 0x893c: // 0x893c : Temperature (1C resolution, possibly negative)
-      tmpState.OutsideTemp = decodeNegTemp(data[2]);                      
+      tmpState.OutsideTemp = decodeNegValue(data[2]);                      
       mqttPublish(addStatTopic(statTopic.OUTSIDE_TEMP[LANG]), String(tmpState.OutsideTemp).c_str(), false);
       break;
       
     case 0x893d: // 0x893d : Temperature (1C resolution, possibly negative)
-      tmpState.OutsideDampedTemp = decodeNegTemp(data[2]);                
+      tmpState.OutsideDampedTemp = decodeNegValue(data[2]);                
       mqttPublish(addStatTopic(statTopic.OUTSIDE_TEMP_DAMPED[LANG]), String(tmpState.OutsideDampedTemp).c_str(), false);
       break;
       
@@ -448,7 +513,28 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addStatTopic(statTopic.ALARM_80[LANG]),            String(bitRead(tmpState.ERR_Alarmstatus, 7)).c_str(), false);
       break;   
 
-    
+    case 0x0300: // 0x0300 : Error Buffer 1                               
+      decodeErrorMsg(errorMsg, data);
+      mqttPublish(addAlarmTopic(errTopic.ERR_BUFF_1[LANG]), errorMsg, false);
+      break;   
+
+    case 0x0307: // 0x0307 : Error Buffer 2                               
+      decodeErrorMsg(errorMsg, data);
+      mqttPublish(addAlarmTopic(errTopic.ERR_BUFF_2[LANG]), errorMsg, false);
+      break; 
+
+    case 0x030e: // 0x030e : Error Buffer 3                               
+      decodeErrorMsg(errorMsg, data);
+      mqttPublish(addAlarmTopic(errTopic.ERR_BUFF_3[LANG]), errorMsg, false);
+      break; 
+
+    case 0x0315: // 0x0315 : Error Buffer 4                             
+      decodeErrorMsg(errorMsg, data);
+      mqttPublish(addAlarmTopic(errTopic.ERR_BUFF_4[LANG]), errorMsg, false);
+      break; 
+
+
+
     /*
     **********************************************************************************
     * config values beginnig with 0x00 
@@ -481,31 +567,31 @@ void parseInfo(uint8_t *data, int len) {
     case 0x0015: 
       #ifdef USE_HC1
       mqttPublish(addCfgTopic(cfgTopic.HC1_SWITCH_ON_TEMP[LANG]), (cfgArray.SWITCH_ON_TEMP[data[2]] + String(" °C")).c_str(), false);  // "CFG_HK1_Aufschalttemperatur"  => "0015:0,a"
-      mqttPublish(addCfgTopic(cfgTopic.HC1_SWITCH_OFF_THRESHOLD[LANG]), String(decodeNegTemp(data[2+2]) + String(" °C")).c_str(), false);        // CFG_HK1_Aussenhalt_ab"         => "0015:2,s"
+      mqttPublish(addCfgTopic(cfgTopic.HC1_SWITCH_OFF_THRESHOLD[LANG]), String(decodeNegValue(data[2+2]) + String(" °C")).c_str(), false);        // CFG_HK1_Aussenhalt_ab"         => "0015:2,s"
       #endif
       break;
     
     case 0x001c: 
       #ifdef USE_HC1
-      mqttPublish(addCfgTopic(cfgTopic.HC1_REDUCTION_MODE[LANG]), cfgArray.REDUCT_MODE[data[2+1]], false);     // "CFG_HK1_Absenkungsart"    => "001c:1,a"
+      mqttPublish(addCfgTopic(cfgTopic.HC1_REDUCTION_MODE[LANG]), cfgArray.REDUCT_MODE[data[2+1]], false);              // "CFG_HK1_Absenkungsart"    => "001c:1,a"
       mqttPublish(addCfgTopic(cfgTopic.HC1_HEATING_SYSTEM[LANG]), cfgArray.HEATING_SYSTEM[data[2+2]], false);           // "CFG_HK1_Heizsystem"       => "001c:2,a"
       #endif
       break;
 
     case 0x0031: 
       #ifdef USE_HC1
-      mqttPublish(addCfgTopic(cfgTopic.HC1_TEMP_OFFSET[LANG]), String(decode05cTemp(decodeNegTemp(data[2+3])) + String(" °C")).c_str(), false);   // "CFG_HK1_Temperatur_Offset"    => "0031:3,s,d:2"
+      mqttPublish(addCfgTopic(cfgTopic.HC1_TEMP_OFFSET[LANG]), String(decode05cTemp(decodeNegValue(data[2+3])) + String(" °C")).c_str(), false);     // "CFG_HK1_Temperatur_Offset"    => "0031:3,s,d:2"
       mqttPublish(addCfgTopic(cfgTopic.HC1_REMOTECTRL[LANG]), cfgArray.ON_OFF[data[2+4]], false);                                                   // "CFG_HK1_Fernbedienung"        => "0031:4,a"  
       #endif
-      mqttPublish(addCfgTopic(cfgTopic.FROST_THRESHOLD[LANG]), String(decodeNegTemp(data[2+5]) + String(" °C")).c_str(), false);                               // "CFG_Frost_ab"                 => "0031:5,s"
+      mqttPublish(addCfgTopic(cfgTopic.FROST_THRESHOLD[LANG]), String(decodeNegValue(data[2+5]) + String(" °C")).c_str(), false);                    // "CFG_Frost_ab"                 => "0031:5,s"
       break;
 
     case 0x0038:                                     
       #ifdef USE_HC2
-      mqttPublish(addCfgTopic(cfgTopic.HC2_NIGHT_TEMP[LANG]), String(decode05cTemp(data[2+2]) + String(" °C")).c_str(), false);       // "CFG_HK2_Nachttemperatur"   => "0038:2,d:2"
-      mqttPublish(addCfgTopic(cfgTopic.HC2_DAY_TEMP[LANG]), String(decode05cTemp(data[2+3]) + String(" °C")).c_str(), false);         // "CFG_HK2_Tagtemperatur"     => "0038:3,d:2"
-      mqttPublish(addCfgTopic(cfgTopic.HC2_OPMODE[LANG]), cfgArray.OPMODE[data[2+4]], false);                                  // "CFG_HK2_Betriebsart"       => "0038:4,a:4"
-      mqttPublish(addCfgTopic(cfgTopic.HC2_HOLIDAY_TEMP[LANG]), String(decode05cTemp(data[2+5]) + String(" °C")).c_str(), false);      // "CFG_HK2_Urlaubtemperatur"  => "0038:5,d:2"
+      mqttPublish(addCfgTopic(cfgTopic.HC2_NIGHT_TEMP[LANG]), String(decode05cTemp(data[2+2]) + String(" °C")).c_str(), false);         // "CFG_HK2_Nachttemperatur"   => "0038:2,d:2"
+      mqttPublish(addCfgTopic(cfgTopic.HC2_DAY_TEMP[LANG]), String(decode05cTemp(data[2+3]) + String(" °C")).c_str(), false);           // "CFG_HK2_Tagtemperatur"     => "0038:3,d:2"
+      mqttPublish(addCfgTopic(cfgTopic.HC2_OPMODE[LANG]), cfgArray.OPMODE[data[2+4]], false);                                           // "CFG_HK2_Betriebsart"       => "0038:4,a:4"
+      mqttPublish(addCfgTopic(cfgTopic.HC2_HOLIDAY_TEMP[LANG]), String(decode05cTemp(data[2+5]) + String(" °C")).c_str(), false);       // "CFG_HK2_Urlaubtemperatur"  => "0038:5,d:2"
       #endif 
       break;
 
@@ -521,7 +607,7 @@ void parseInfo(uint8_t *data, int len) {
       
       #ifdef USE_HC2
       mqttPublish(addCfgTopic(cfgTopic.HC2_SWITCH_ON_TEMP[LANG]), (cfgArray.SWITCH_ON_TEMP[data[2]] + String(" °C")).c_str(), false);  // "CFG_HK1_Aufschalttemperatur"  => "004d:0,a"
-      mqttPublish(addCfgTopic(cfgTopic.HC2_SWITCH_OFF_THRESHOLD[LANG]), String(decodeNegTemp(data[2+2]) + String(" °C")).c_str(), false);         // CFG_HK1_Aussenhalt_ab"         => "004d:2,s"
+      mqttPublish(addCfgTopic(cfgTopic.HC2_SWITCH_OFF_THRESHOLD[LANG]), String(decodeNegValue(data[2+2]) + String(" °C")).c_str(), false);         // CFG_HK1_Aussenhalt_ab"         => "004d:2,s"
       #endif
       
       break;
@@ -535,7 +621,7 @@ void parseInfo(uint8_t *data, int len) {
     
     case 0x0069: 
       #ifdef USE_HC2
-      mqttPublish(addCfgTopic(cfgTopic.HC2_TEMP_OFFSET[LANG]), String(decode05cTemp(decodeNegTemp(data[2+3])) + String(" °C")).c_str(), false);   // "CFG_HK2_Temperatur_Offset"    => "0069:3,s,d:2"
+      mqttPublish(addCfgTopic(cfgTopic.HC2_TEMP_OFFSET[LANG]), String(decode05cTemp(decodeNegValue(data[2+3])) + String(" °C")).c_str(), false);   // "CFG_HK2_Temperatur_Offset"    => "0069:3,s,d:2"
       mqttPublish(addCfgTopic(cfgTopic.HC2_REMOTECTRL[LANG]), cfgArray.ON_OFF[data[2+4]], false);                                                   // "CFG_HK2_Fernbedienung"        => "0069:4,a"  
       #endif
       break;
@@ -867,6 +953,11 @@ void parseInfo(uint8_t *data, int len) {
       #endif
       break;
 
+    case 0x01e0: // 01e0:1,s Uhrzeit_Offset
+        mqttPublish(addCfgTopic(cfgTopic.TIME_OFFSET[LANG]), String(decode05cTemp(decodeNegValue(data[2+1])) + String(" ") + String(mqttMsg.HOURS[LANG])).c_str(), false);   // "CFG_Uhrzeit_Offset"    => "01e0:1,s"
+      break;
+
+
     case 0x0400: 
         // 04_00_07_01_81_8e_00_c1_ff_00_00_00
         // some kind of lifesign - ignore
@@ -875,8 +966,8 @@ void parseInfo(uint8_t *data, int len) {
     // undefined
     default:   
       #ifdef DEBUG_ON 
-        String sendString = String(data[0], HEX) + "_" + String(data[1], HEX) + "_" + String(data[2], HEX) + "_" + String(data[3], HEX) + "_" + String(data[4], HEX) + "_" + String(data[5], HEX) + "_" + String(data[6], HEX) + "_" + String(data[7], HEX) + "_" + String(data[8], HEX) + "_" + String(data[9], HEX) + "_" + String(data[10], HEX) + "_" + String(data[11], HEX);
-        mqttPublish(addTopic("/undefinded_message"), (sendString).c_str(), false); 
+        sprintf(tmpMessage, "%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
+        mqttPublish(addTopic("/undefinded_message"), tmpMessage, false); 
       #endif                                                     
       break;
   }
@@ -903,12 +994,12 @@ float decode05cTemp(uint8_t data) {
 
 /**
  * *******************************************************************
- * @brief   Decodes KM271 temperatures with negative temperature range
+ * @brief   Decodes KM271 values with negative range
  * @details Values >128 are negative
  * @param   data: the receive dat byte
  * @return  the decoded value as float
   * ********************************************************************/
-float decodeNegTemp(uint8_t data) {
+float decodeNegValue(uint8_t data) {
   if(data > 128) {
         return (((float)(256-data)) * -1.0f);
   } else {
@@ -1046,8 +1137,8 @@ void handleRxBlock(uint8_t *data, int len, uint8_t bcc) {
           sendTxBlock(KmCSTX, sizeof(KmCSTX));                              // Send STX to KM271
           break;
         case KM_DLE:                                                        // DLE received, KM ready to receive command
-          sendTxBlock(KmCLogMode, sizeof(KmCLogMode));                      // Send logging command
-          KmRxBlockState = KM_TSK_LG_CMD;                                   // Switch to check for logging mode state
+            sendTxBlock(KmCLogMode, sizeof(KmCLogMode));                    // Send logging command
+            KmRxBlockState = KM_TSK_LG_CMD;                                 // Switch to check for logging mode state
           break;
       }
       break;
@@ -1060,15 +1151,15 @@ void handleRxBlock(uint8_t *data, int len, uint8_t bcc) {
       break;
     case KM_TSK_LOGGING:                                                    // We have reached logging state
       if(data[0] == KM_STX) {                                               // If STX, this is a send request
-        if (send_request){                                                  // If a send-request is active, 
+        if (send_buf[0] != 0){                                            // If a send-request is active, 
           sendTxBlock(KmCSTX, sizeof(KmCSTX));                              // send STX to KM271 to request for send data
         }
         else {
           sendTxBlock(KmCDLE, sizeof(KmCDLE));                              // Confirm handling of block by sending DLE
         }
       } else if(data[0] == KM_DLE) {                                        // KM271 is ready to receive
-          sendTxBlock(send_buf, sizeof(send_buf));                          // send buffer 
-          send_request = false;                                             // reset send-request
+          sendTxBlock(send_buf, sizeof(send_buf));                      // send buffer 
+          memset(send_buf, 0, sizeof(send_buf));                        // clear buffer
           KmRxBlockState = KM_TSK_START;                                    // start log-mode again, to get all new values
       } else {                                                              // If not STX, it should be valid data block
         parseInfo(data, len);                                               // Handle data block with event information
@@ -1087,7 +1178,7 @@ void handleRxBlock(uint8_t *data, int len, uint8_t bcc) {
 void sendKM271Info(){
   DynamicJsonDocument infoJSON(1024);
   infoJSON[0]["logmode"] = km271LogModeActive;
-  infoJSON[0]["send_cmd_busy"] = send_request;
+  infoJSON[0]["send_cmd_busy"] = (send_buf[0]!=0);
   infoJSON[0]["date-time"] = getDateTimeString();
   String sendInfoJSON;
   serializeJson(infoJSON, sendInfoJSON);
@@ -1110,7 +1201,7 @@ const char * addCfgTopic(const char *suffix){
 
 /**
  * *******************************************************************
- * @brief   helper function to add subject to mqtt CONFIG topic
+ * @brief   helper function to add subject to mqtt STATUS topic
  * @param   suffix that shoould be add to the static part of the topic
  * @return  pointer to result topic string
  * *******************************************************************/
@@ -1120,6 +1211,20 @@ const char * addStatTopic(const char *suffix){
   strcat(newStatTopic, "/status/");
   strcat(newStatTopic, suffix);
   return newStatTopic;
+}
+
+/**
+ * *******************************************************************
+ * @brief   helper function to add subject to mqtt ERROR topic
+ * @param   suffix that shoould be add to the static part of the topic
+ * @return  pointer to result topic string
+ * *******************************************************************/
+char newAlarmTopic[256];
+const char * addAlarmTopic(const char *suffix){
+  strcpy(newAlarmTopic, MQTT_TOPIC);
+  strcat(newAlarmTopic, "/alarm/");
+  strcat(newAlarmTopic, suffix);
+  return newAlarmTopic;
 }
 
 /**
@@ -1134,7 +1239,6 @@ void km271SetDateTime(){
   tm dti;                                     // the structure tm holds time information in a more convient way
   time(&now);                                 // read the current time
   localtime_r(&now, &dti);                    // update the structure tm with the current time
-  send_request = true;
   send_buf[0]= 0x01;                          // address
   send_buf[1]= 0x00;                          // address
   send_buf[2]= dti.tm_sec;                    // seconds
@@ -1155,23 +1259,22 @@ void km271SetDateTime(){
  * *******************************************************************
  * @brief   prepare and send setvalues to buderus controller
  * @param   sendCmd: send command
- * @param   cmdPara: parameter
+ * @param   cmdPara: parameter as integer
  * @return  none
  * *******************************************************************/
 void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
 
   switch (sendCmd)
   {
-  case KM271_SENDCMD_HK1_BA:
+  case KM271_SENDCMD_HC1_OPMODE:
     if (cmdPara>=0 && cmdPara<=2){
-      send_request = true;
-      send_buf[0]= 0x07;        // Daten-Typ für HK1 (0x07) 
+      send_buf[0]= 0x07;        // Data-Type für HK1 (0x07) 
       send_buf[1]= 0x00;        // Offset
       send_buf[2]= 0x65;
       send_buf[3]= 0x65;
       send_buf[4]= 0x65;
       send_buf[5]= 0x65; 
-      send_buf[6]= cmdPara;     // 0:Nacht | 1:Tag | 2:AUTO
+      send_buf[6]= cmdPara;     // 0:Night | 1:Day | 2:AUTO
       send_buf[7]= 0x65;
       mqttPublish(addTopic("/message"), mqttMsg.HC1_OPMODE_RECV[LANG], false);
     } else {
@@ -1179,16 +1282,15 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
     }
     break;
     
-    case KM271_SENDCMD_HK2_BA:
-    if (cmdPara>=0 && cmdPara<=2){
-      send_request = true;
-      send_buf[0]= 0x08;        // Daten-Typ für HK2 (0x08) 
+    case KM271_SENDCMD_HC2_OPMODE:
+    if (cmdPara>=0 && cmdPara<=2){      
+      send_buf[0]= 0x08;        // Data-Type für HK2 (0x08) 
       send_buf[1]= 0x00;        // Offset
       send_buf[2]= 0x65;
       send_buf[3]= 0x65;
       send_buf[4]= 0x65;
       send_buf[5]= 0x65; 
-      send_buf[6]= cmdPara;     // 0:Nacht | 1:Tag | 2:AUTO
+      send_buf[6]= cmdPara;     // 0:Night | 1:Day | 2:AUTO
       send_buf[7]= 0x65;
       mqttPublish(addTopic("/message"), mqttMsg.HC2_OPMODE_RECV[LANG], false);
     } else {
@@ -1196,16 +1298,15 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
     }
     break;
 
-  case KM271_SENDCMD_HK1_AUSLEGUNG:
-    if (cmdPara>=30 && cmdPara<=90){
-      send_request = true;
-      send_buf[0]= 0x07;        // Daten-Typ für HK1 (0x07)
+  case KM271_SENDCMD_HC1_DESIGN_TEMP:
+    if (cmdPara>=30 && cmdPara<=90){    
+      send_buf[0]= 0x07;        // Data-Type für HK1 (0x07)
       send_buf[1]= 0x0E;        // Offset
       send_buf[2]= 0x65;
       send_buf[3]= 0x65;
       send_buf[4]= 0x65;
       send_buf[5]= 0x65;     
-      send_buf[6]= cmdPara;     // Auflösung: 1 °C Stellbereich: 30 – 90 °C WE: 75 °C
+      send_buf[6]= cmdPara;     // Resolution: 1 °C - Range: 30 – 90 °C WE: 75 °C
       send_buf[7]= 0x65;
       mqttPublish(addTopic("/message"), mqttMsg.HC1_INTERPRET_RECV[LANG], false);
     } else {
@@ -1213,16 +1314,15 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
     }
     break;
 
-  case KM271_SENDCMD_HK2_AUSLEGUNG:
-    if (cmdPara>=30 && cmdPara<=90){
-      send_request = true;
-      send_buf[0]= 0x08;        // Daten-Typ für HK2 (0x08)
+  case KM271_SENDCMD_HC2_DESIGN_TEMP:
+    if (cmdPara>=30 && cmdPara<=90){    
+      send_buf[0]= 0x08;        // Data-Type für HK2 (0x08)
       send_buf[1]= 0x0E;        // Offset
       send_buf[2]= 0x65;
       send_buf[3]= 0x65;
       send_buf[4]= 0x65;
       send_buf[5]= 0x65;     
-      send_buf[6]= cmdPara;     // Auflösung: 1 °C Stellbereich: 30 – 90 °C WE: 75 °C
+      send_buf[6]= cmdPara;     // Resolution: 1 °C - Range: 30 – 90 °C WE: 75 °C
       send_buf[7]= 0x65;
       mqttPublish(addTopic("/message"), mqttMsg.HC2_INTERPRET_RECV[LANG], false);
     } else {
@@ -1230,10 +1330,9 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
     }
     break;
 
-  case KM271_SENDCMD_HK1_PROGRAMM:
-    if (cmdPara>=0 && cmdPara<=8){
-      send_request = true;
-      send_buf[0]= 0x11;        // Daten-Typ
+  case KM271_SENDCMD_HC1_PROGRAMM:
+    if (cmdPara>=0 && cmdPara<=8){     
+      send_buf[0]= 0x11;        // Data-Type
       send_buf[1]= 0x00;        // Offset
       send_buf[2]= cmdPara;     // Programmnummer 0..8
       send_buf[3]= 0x65;
@@ -1247,10 +1346,9 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
     }
     break;
 
-  case KM271_SENDCMD_HK2_PROGRAMM:
-    if (cmdPara>=0 && cmdPara<=8){
-      send_request = true;
-      send_buf[0]= 0x12;        // Daten-Typ
+  case KM271_SENDCMD_HC2_PROGRAMM:
+    if (cmdPara>=0 && cmdPara<=8){     
+      send_buf[0]= 0x12;        // Data-Type
       send_buf[1]= 0x00;        // Offset
       send_buf[2]= cmdPara;     // Programmnummer 0..8
       send_buf[3]= 0x65;
@@ -1264,12 +1362,11 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
     }
     break;
 
-  case KM271_SENDCMD_WW_BA:
-    if (cmdPara>=0 && cmdPara<=2){
-      send_request = true;
-      send_buf[0]= 0x0C;      // Daten-Typ für Warmwasser (0x0C)
+  case KM271_SENDCMD_WW_OPMODE:
+    if (cmdPara>=0 && cmdPara<=2){     
+      send_buf[0]= 0x0C;      // Data-Type für Warmwasser (0x0C)
       send_buf[1]= 0x0E;      // Offset
-      send_buf[2]= cmdPara;   // 0:Nacht | 1:Tag | 2:AUTO
+      send_buf[2]= cmdPara;   // 0:Night | 1:Day | 2:AUTO
       send_buf[3]= 0x65; 
       send_buf[4]= 0x65;
       send_buf[5]= 0x65; 
@@ -1281,13 +1378,12 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
     }
     break;
 
-  case KM271_SENDCMD_SOMMER_AB:
-    if (cmdPara>=9 && cmdPara<=31){
-      send_request = true;
-      send_buf[0]= 0x07;      // Daten-Typ für HK1 (0x07) 
+  case KM271_SENDCMD_SUMMER:
+    if (cmdPara>=9 && cmdPara<=31){     
+      send_buf[0]= 0x07;      // Data-Type für HK1 (0x07) 
       send_buf[1]= 0x00;      // Offset 
       send_buf[2]= 0x65;
-      send_buf[3]= cmdPara;   // 9:Winter | 10°-30° | 31:Sommer
+      send_buf[3]= cmdPara;   // 9:Winter | 10°-30° | 31:Summer
       send_buf[4]= 0x65;
       send_buf[5]= 0x65; 
       send_buf[6]= 0x65;
@@ -1298,10 +1394,9 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
     }
     break;
 
-  case KM271_SENDCMD_FROST_AB:
-    if (cmdPara>=-20 && cmdPara<=10){
-      send_request = true;
-      send_buf[0]= 0x07;      // Daten-Typ für HK1 (0x07) 
+  case KM271_SENDCMD_FROST:
+    if (cmdPara>=-20 && cmdPara<=10){    
+      send_buf[0]= 0x07;      // Data-Type für HK1 (0x07) 
       send_buf[1]= 0x31;      // Offset
       send_buf[2]= 0x65;
       send_buf[3]= 0x65;      
@@ -1315,10 +1410,9 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
     }
     break;
 
-  case KM271_SENDCMD_HK1_AUSSENHALT:
-    if (cmdPara>=-20 && cmdPara<=10){
-      send_request = true;
-      send_buf[0]= 0x07;      // Daten-Typ für HK1 (0x07)  
+  case KM271_SENDCMD_HC1_SWITCH_OFF_THRESHOLD:
+    if (cmdPara>=-20 && cmdPara<=10){     
+      send_buf[0]= 0x07;      // Data-Type für HK1 (0x07)  
       send_buf[1]= 0x15;      // Offset 
       send_buf[2]= 0x65;
       send_buf[3]= 0x65;       
@@ -1332,10 +1426,9 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
     }
     break;
 
- case KM271_SENDCMD_HK2_AUSSENHALT:
-    if (cmdPara>=-20 && cmdPara<=10){
-      send_request = true;
-      send_buf[0]= 0x08;      // Daten-Typ für HK2 (0x08)  
+ case KM271_SENDCMD_HC2_SWITCH_OFF_THRESHOLD:
+    if (cmdPara>=-20 && cmdPara<=10){     
+      send_buf[0]= 0x08;      // Data-Type für HK2 (0x08)  
       send_buf[1]= 0x15;      // Offset 
       send_buf[2]= 0x65;
       send_buf[3]= 0x65;       
@@ -1349,10 +1442,9 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
     }
     break;
 
-  case KM271_SENDCMD_WW_SOLL:
-    if (cmdPara>=30 && cmdPara<=60){
-      send_request = true;
-      send_buf[0]= 0x0C;        // Daten-Typ für Warmwasser (0x0C) 
+  case KM271_SENDCMD_WW_SETPOINT:
+    if (cmdPara>=30 && cmdPara<=60){    
+      send_buf[0]= 0x0C;        // Data-Type für Warmwater (0x0C) 
       send_buf[1]= 0x07;        // Offset
       send_buf[2]= 0x65;
       send_buf[3]= 0x65;       
@@ -1366,10 +1458,155 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
     }
     break;
 
+  case KM271_SENDCMD_HC1_HOLIDAYS:
+    if (cmdPara>=0 && cmdPara<=99){    
+      send_buf[0]= 0x11;        // Data-Type HK1
+      send_buf[1]= 0x00;        // Offset
+      send_buf[2]= 0x65;
+      send_buf[3]= 0x65;
+      send_buf[4]= 0x65;
+      send_buf[5]= cmdPara;     // Resolution: 1 Day - Range: 0 – 99 Days 
+      send_buf[6]= 0x65;
+      send_buf[7]= 0x65;    
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_HOLIDAYS_RECV[LANG], false);
+    } else {
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_HOLIDAYS_INVALID[LANG], false);
+    }
+    break;
+
+  case KM271_SENDCMD_HC2_HOLIDAYS:
+    if (cmdPara>=0 && cmdPara<=99){    
+      send_buf[0]= 0x12;        // Data-Type HK2
+      send_buf[1]= 0x00;        // Offset
+      send_buf[2]= 0x65;
+      send_buf[3]= 0x65;
+      send_buf[4]= 0x65;
+      send_buf[5]= cmdPara;     // Resolution: 1 Day - Range: 0 – 99 Days 
+      send_buf[6]= 0x65;
+      send_buf[7]= 0x65;    
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_HOLIDAYS_RECV[LANG], false);
+    } else {
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_HOLIDAYS_INVALID[LANG], false);
+    }
+    break;
+
   default:
     break;
   }
 }
+
+/**
+ * *******************************************************************
+ * @brief   prepare and send setvalues to buderus controller
+ * @param   sendCmd: send command
+ * @param   cmdPara: parameter as float
+ * @return  none
+ * *******************************************************************/
+void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara){
+
+  switch (sendCmd)
+  {
+  case KM271_SENDCMD_HC1_DAY_SETPOINT:
+    if (cmdPara>=10 && cmdPara<=30){      
+      send_buf[0]= 0x07;        // Data-Type für HK1 (0x07)
+      send_buf[1]= 0x00;        // Offset
+      send_buf[2]= 0x65;
+      send_buf[3]= 0x65;
+      send_buf[4]= 0x65;
+      send_buf[5]= trunc(2.0 * cmdPara + 0.5);     // Resolution: 0.5 °C - Range: 10 – 30 °C 
+      send_buf[6]= 0x65;
+      send_buf[7]= 0x65;
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_DAY_SETPOINT_RECV[LANG], false);
+    } else {
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_DAY_SETPOINT_INVALID[LANG], false);
+    }
+    break;
+
+  case KM271_SENDCMD_HC1_NIGHT_SETPOINT:
+    if (cmdPara>=10 && cmdPara<=30){    
+      send_buf[0]= 0x07;        // Data-Type für HK1 (0x07)
+      send_buf[1]= 0x00;        // Offset
+      send_buf[2]= 0x65;
+      send_buf[3]= 0x65;
+      send_buf[4]= trunc(2.0 * cmdPara + 0.5);     // Resolution: 0.5 °C - Range: 10 – 30 °C 
+      send_buf[5]= 0x65;
+      send_buf[6]= 0x65;
+      send_buf[7]= 0x65;
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_NIGHT_SETPOINT_RECV[LANG], false);
+    } else {
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_NIGHT_SETPOINT_INVALID[LANG], false);
+    }
+    break;
+
+  case KM271_SENDCMD_HC2_DAY_SETPOINT:
+    if (cmdPara>=10 && cmdPara<=30){     
+      send_buf[0]= 0x08;        // Data-Type für HK2 (0x08)
+      send_buf[1]= 0x00;        // Offset
+      send_buf[2]= 0x65;
+      send_buf[3]= 0x65;
+      send_buf[4]= 0x65;
+      send_buf[5]= trunc(2.0 * cmdPara + 0.5);     // Resolution: 0.5 °C - Range: 10 – 30 °C 
+      send_buf[6]= 0x65;
+      send_buf[7]= 0x65;
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_DAY_SETPOINT_RECV[LANG], false);
+    } else {
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_DAY_SETPOINT_INVALID[LANG], false);
+    }
+    break;
+
+  case KM271_SENDCMD_HC2_NIGHT_SETPOINT:
+    if (cmdPara>=10 && cmdPara<=30){     
+      send_buf[0]= 0x08;        // Data-Type für HK2 (0x08)
+      send_buf[1]= 0x00;        // Offset
+      send_buf[2]= 0x65;
+      send_buf[3]= 0x65;
+      send_buf[4]= trunc(2.0 * cmdPara + 0.5);     // Resolution: 0.5 °C - Range: 10 – 30 °C 
+      send_buf[5]= 0x65;
+      send_buf[6]= 0x65;
+      send_buf[7]= 0x65;
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_NIGHT_SETPOINT_RECV[LANG], false);
+    } else {
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_NIGHT_SETPOINT_INVALID[LANG], false);
+    }
+    break;
+
+  case KM271_SENDCMD_HC1_HOLIDAY_SETPOINT:
+    if (cmdPara>=10 && cmdPara<=30){    
+      send_buf[0]= 0x07;        // Data-Type für HK1 (0x07)
+      send_buf[1]= 0x00;        // Offset
+      send_buf[2]= 0x65;
+      send_buf[3]= 0x65;
+      send_buf[4]= 0x65;
+      send_buf[5]= 0x65;
+      send_buf[6]= 0x65;
+      send_buf[7]= trunc(2.0 * cmdPara + 0.5);     // Resolution: 0.5 °C - Range: 10 – 30 °C 
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_HOLIDAY_SETPOINT_RECV[LANG], false);
+    } else {
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_HOLIDAY_SETPOINT_INVALID[LANG], false);
+    }
+    break;
+
+  case KM271_SENDCMD_HC2_HOLIDAY_SETPOINT:
+    if (cmdPara>=10 && cmdPara<=30){    
+      send_buf[0]= 0x08;        // Data-Type für HK1 (0x08)
+      send_buf[1]= 0x00;        // Offset
+      send_buf[2]= 0x65;
+      send_buf[3]= 0x65;
+      send_buf[4]= 0x65;
+      send_buf[5]= 0x65;
+      send_buf[6]= 0x65;
+      send_buf[7]= trunc(2.0 * cmdPara + 0.5);     // Resolution: 0.5 °C - Range: 10 – 30 °C 
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_HOLIDAY_SETPOINT_RECV[LANG], false);
+    } else {
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_HOLIDAY_SETPOINT_INVALID[LANG], false);
+    }
+    break;
+
+  default:
+    break;
+  }
+}
+
 
 /**
  * *******************************************************************
@@ -1446,4 +1683,70 @@ void decodeTimer(char * timerInfo, uint8_t dateOnOff, uint8_t time){
     // not used
     strncpy(timerInfo, "frei", sizeof(timerInfo));
   }
+}
+
+/**
+ * *******************************************************************
+ * @brief   get the index of the error message for the given error number
+ * @param   errorNr Error Number from Logamatic
+ * @return  index for error message in errMsgText
+ * *******************************************************************/
+uint8_t getErrorTextIndex(uint8_t errorNr){
+   switch (errorNr)
+   {
+    case   0: return 0; break;
+    case   2: return 1; break;
+    case   3: return 2; break;
+    case   4: return 3; break;
+    case   8: return 4; break;
+    case   9: return 5; break;
+    case  10: return 6; break;
+    case  11: return 7; break;
+    case  12: return 8; break;
+    case  15: return 9; break;
+    case  16: return 10; break;
+    case  20: return 11; break;
+    case  24: return 12; break;
+    case  30: return 13; break;
+    case  31: return 14; break;
+    case  32: return 15; break;
+    case  33: return 16; break;
+    case  49: return 17; break;
+    case  50: return 18; break;
+    case  51: return 19; break;
+    case  52: return 20; break;
+    case  53: return 21; break;
+    case  54: return 22; break;
+    case  55: return 23; break;
+    case  56: return 24; break;
+    case  87: return 25; break;
+    case  92: return 26; break;
+    default: return 27; break;
+   }
+}
+
+/**
+ * *******************************************************************
+ * @brief   generate error message 
+ * @param   errorNr Error Number from Logamatic
+ * @return  index for error message in errMsgText
+ * *******************************************************************/
+void decodeErrorMsg(char * errorMsg, uint8_t *data){
+  // no error
+  if(data[2]==0){
+    sprintf(errorMsg, "%s", errMsgText.idx[0]);
+  }
+  else { 
+    // error already acknowledged
+    if(data[6]!=0xFF) {
+        // Aussenfuehler defekt (>> 16:31 -3 Tage | << 20:40 -2 Tage)
+        sprintf(errorMsg, "%s (>> %02i:%02i -%i %s | << %02i:%02i -%i %s)", errMsgText.idx[getErrorTextIndex(data[2])], data[3], data[4], (data[5]+data[8]), mqttMsg.DAYS[LANG], data[6], data[7], data[8], mqttMsg.DAYS[LANG]);
+    }
+    // unacknowledged error 
+    else {
+        // example: Aussenfuehler defekt (>> 16:31 -3 Tage)
+        sprintf(errorMsg, "%s (>> %02i:%02i -%i %s)", errMsgText.idx[getErrorTextIndex(data[2])], data[3], data[4], data[5], mqttMsg.DAYS[LANG]);
+    }
+  }
+  
 }

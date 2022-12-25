@@ -18,10 +18,18 @@ const char* HC1_INTERPRET[MAX_LANG] =               {"/setvalue/hk1_auslegung", 
 const char* HC2_INTERPRET[MAX_LANG] =               {"/setvalue/hk2_auslegung",     "/setvalue/hc2_interpretation"};
 const char* HC1_SWITCH_OFF_THRESHOLD[MAX_LANG] =    {"/setvalue/hk1_aussenhalt_ab", "/setvalue/hc1_switch_off_threshold"};
 const char* HC2_SWITCH_OFF_THRESHOLD[MAX_LANG] =    {"/setvalue/hk2_aussenhalt_ab", "/setvalue/hc2_switch_off_threshold"};
+const char* HC1_DAY_SETPOINT[MAX_LANG] =            {"/setvalue/hk1_tag_soll",      "/setvalue/hc1_day_setpoint"};
+const char* HC2_DAY_SETPOINT[MAX_LANG] =            {"/setvalue/hk2_tag_soll",      "/setvalue/hc2_day_setpoint"};
+const char* HC1_NIGHT_SETPOINT[MAX_LANG] =          {"/setvalue/hk1_nacht_soll",    "/setvalue/hc1_night_setpoint"};
+const char* HC2_NIGHT_SETPOINT[MAX_LANG] =          {"/setvalue/hk2_nacht_soll",    "/setvalue/hc2_night_setpoint"};
+const char* HC1_HOLIDAY_SETPOINT[MAX_LANG] =        {"/setvalue/hk1_ferien_soll",   "/setvalue/hc1_holiday_setpoint"};
+const char* HC2_HOLIDAY_SETPOINT[MAX_LANG] =        {"/setvalue/hk2_ferien_soll",   "/setvalue/hc2_holiday_setpoint"};
 const char* WW_OPMODE[MAX_LANG] =                   {"/setvalue/ww_betriebsart",    "/setvalue/ww_opmode"};
 const char* SUMMER[MAX_LANG] =                      {"/setvalue/sommer_ab",         "/setvalue/summer_mode_threshold"};
 const char* FROST[MAX_LANG] =                       {"/setvalue/frost_ab",          "/setvalue/frost_mode_threshold"};
 const char* WW_SETPOINT[MAX_LANG] =                 {"/setvalue/ww_soll",           "/setvalue/ww_setpoint"};
+const char* HC1_HOLIDAYS[MAX_LANG] =                {"/setvalue/hk1_ferien_tage",   "/setvalue/hc1_holidays"};
+const char* HC2_HOLIDAYS[MAX_LANG] =                {"/setvalue/hk2_ferien_tage",   "/setvalue/hc2_holidays"};
 } s_mqtt_cmds; 
 
 
@@ -39,31 +47,49 @@ const char* THU[MAX_LANG]               =    {"Do",                             
 const char* FRI[MAX_LANG]               =    {"Fr",                              "Fri"};
 const char* SAT[MAX_LANG]               =    {"Sa",                              "Sat"};
 const char* SUN[MAX_LANG]               =    {"So",                              "Sun"};
+const char* DAYS[MAX_LANG]              =    {"Tage",                            "days"};
+const char* HOURS[MAX_LANG]             =    {"Stunden",                         "days"};
 
-const char* HC1_OPMODE_RECV[MAX_LANG]                   =    {"setvalue: HK1_Betriebsart - empfangen",       "setvalue: hc1_opmode - received"};
-const char* HC1_OPMODE_INVALID[MAX_LANG]                =    {"setvalue: HK1_Betriebsart - ungültig",        "setvalue: hc1_opmode - invalid"};
-const char* HC2_OPMODE_RECV[MAX_LANG]                   =    {"setvalue: HK2_Betriebsart - empfangen",       "setvalue: hc2_opmode - received"};
-const char* HC2_OPMODE_INVALID[MAX_LANG]                =    {"setvalue: HK2_Betriebsart - ungültig",        "setvalue: hc2_opmode - invalid"};
-const char* HC1_INTERPRET_RECV[MAX_LANG]                =    {"setvalue: HK1_Auslegung - empfangen",         "setvalue: hc1_interpretation - received"};
-const char* HC1_INTERPRET_INVALID[MAX_LANG]             =    {"setvalue: HK1_Auslegung - ungültig",          "setvalue: hc1_interpretation - invalid"};
-const char* HC2_INTERPRET_RECV[MAX_LANG]                =    {"setvalue: HK2_Auslegung - empfangen",         "setvalue: hc2_interpretation - received"};
-const char* HC2_INTERPRET_INVALID[MAX_LANG]             =    {"setvalue: HK2_Auslegung - ungültig",          "setvalue: hc2_interpretation - invalid"};
-const char* HC1_PROG_RECV[MAX_LANG]                     =    {"setvalue: HK1_Programm - empfangen",          "setvalue: hc1_program - received"};
-const char* HC1_PROG_INVALID[MAX_LANG]                  =    {"setvalue: HK1_Programm - ungültig",           "setvalue: hc1_program - invalid"};
-const char* HC2_PROG_RECV[MAX_LANG]                     =    {"setvalue: HK2_Programm - empfangen",          "setvalue: hc2_program - received"};
-const char* HC2_PROG_INVALID[MAX_LANG]                  =    {"setvalue: HK2_Programm - ungültig",           "setvalue: hc2_program - invalid"};
-const char* WW_OPMODE_RECV[MAX_LANG]                    =    {"setvalue: HK2_Programm - empfangen",          "setvalue: hc2_program - received"};
-const char* WW_OPMODE_INVALID[MAX_LANG]                 =    {"setvalue: HK2_Programm - ungültig",           "setvalue: hc2_program - invalid"};
-const char* SUMMER_RECV[MAX_LANG]                       =    {"setvalue: Sommer_ab - empfangen",             "setvalue: summer_mode_threshold - received"};
-const char* SUMMER_INVALID[MAX_LANG]                    =    {"setvalue: Sommer_ab - ungültig",              "setvalue: summer_mode_threshold - invalid"};
-const char* FROST_RECV[MAX_LANG]                        =    {"setvalue: Frost_ab - empfangen",              "setvalue: frost_mode_threshold - received"};
-const char* FROST_INVALID[MAX_LANG]                     =    {"setvalue: Frost_ab - ungültig",               "setvalue: frost_mode_threshold - invalid"};
-const char* HC1_SWITCH_OFF_THRESHOLD_RECV[MAX_LANG]     =    {"setvalue: HK1_Aussenhalt_ab - empfangen",     "setvalue: hc1_switch_off_threshold - received"};
-const char* HC1_SWITCH_OFF_THRESHOLD_INVALID[MAX_LANG]  =    {"setvalue: HK1_Aussenhalt_ab - ungültig",      "setvalue: hc1_switch_off_threshold - invalid"};
-const char* HC2_SWITCH_OFF_THRESHOLD_RECV[MAX_LANG]     =    {"setvalue: HK2_Aussenhalt_ab - empfangen",     "setvalue: hc2_switch_off_threshold - received"};
-const char* HC2_SWITCH_OFF_THRESHOLD_INVALID[MAX_LANG]  =    {"setvalue: HK2_Aussenhalt_ab - ungültig",      "setvalue: hc2_switch_off_threshold - invalid"};
-const char* WW_SETPOINT_RECV[MAX_LANG]                  =    {"setvalue: WW_Soll - empfangen",               "setvalue: ww_setpoint - received"};
-const char* WW_SETPOINT_INVALID[MAX_LANG]               =    {"setvalue: WW_Soll - ungültig",                "setvalue: ww_setpoint - invalid"};
+const char* HC1_OPMODE_RECV[MAX_LANG]                   =    {"setvalue: hk1_betriebsart - empfangen",       "setvalue: hc1_opmode - received"};
+const char* HC1_OPMODE_INVALID[MAX_LANG]                =    {"setvalue: hk1_betriebsart - ungültig",        "setvalue: hc1_opmode - invalid"};
+const char* HC2_OPMODE_RECV[MAX_LANG]                   =    {"setvalue: hk2_betriebsart - empfangen",       "setvalue: hc2_opmode - received"};
+const char* HC2_OPMODE_INVALID[MAX_LANG]                =    {"setvalue: hk2_betriebsart - ungültig",        "setvalue: hc2_opmode - invalid"};
+const char* HC1_INTERPRET_RECV[MAX_LANG]                =    {"setvalue: hk1_auslegung - empfangen",         "setvalue: hc1_interpretation - received"};
+const char* HC1_INTERPRET_INVALID[MAX_LANG]             =    {"setvalue: hk1_auslegung - ungültig",          "setvalue: hc1_interpretation - invalid"};
+const char* HC2_INTERPRET_RECV[MAX_LANG]                =    {"setvalue: hk2_auslegung - empfangen",         "setvalue: hc2_interpretation - received"};
+const char* HC2_INTERPRET_INVALID[MAX_LANG]             =    {"setvalue: hk2_auslegung - ungültig",          "setvalue: hc2_interpretation - invalid"};
+const char* HC1_PROG_RECV[MAX_LANG]                     =    {"setvalue: hk1_programm - empfangen",          "setvalue: hc1_program - received"};
+const char* HC1_PROG_INVALID[MAX_LANG]                  =    {"setvalue: hk1_programm - ungültig",           "setvalue: hc1_program - invalid"};
+const char* HC2_PROG_RECV[MAX_LANG]                     =    {"setvalue: hk2_programm - empfangen",          "setvalue: hc2_program - received"};
+const char* HC2_PROG_INVALID[MAX_LANG]                  =    {"setvalue: hk2_programm - ungültig",           "setvalue: hc2_program - invalid"};
+const char* WW_OPMODE_RECV[MAX_LANG]                    =    {"setvalue: hk2_programm - empfangen",          "setvalue: hc2_program - received"};
+const char* WW_OPMODE_INVALID[MAX_LANG]                 =    {"setvalue: hk2_programm - ungültig",           "setvalue: hc2_program - invalid"};
+const char* SUMMER_RECV[MAX_LANG]                       =    {"setvalue: sommer_ab - empfangen",             "setvalue: summer_mode_threshold - received"};
+const char* SUMMER_INVALID[MAX_LANG]                    =    {"setvalue: sommer_ab - ungültig",              "setvalue: summer_mode_threshold - invalid"};
+const char* FROST_RECV[MAX_LANG]                        =    {"setvalue: frost_ab - empfangen",              "setvalue: frost_mode_threshold - received"};
+const char* FROST_INVALID[MAX_LANG]                     =    {"setvalue: frost_ab - ungültig",               "setvalue: frost_mode_threshold - invalid"};
+const char* HC1_SWITCH_OFF_THRESHOLD_RECV[MAX_LANG]     =    {"setvalue: hk1_aussenhalt_ab - empfangen",     "setvalue: hc1_switch_off_threshold - received"};
+const char* HC1_SWITCH_OFF_THRESHOLD_INVALID[MAX_LANG]  =    {"setvalue: hk1_aussenhalt_ab - ungültig",      "setvalue: hc1_switch_off_threshold - invalid"};
+const char* HC2_SWITCH_OFF_THRESHOLD_RECV[MAX_LANG]     =    {"setvalue: hk2_aussenhalt_ab - empfangen",     "setvalue: hc2_switch_off_threshold - received"};
+const char* HC2_SWITCH_OFF_THRESHOLD_INVALID[MAX_LANG]  =    {"setvalue: hk2_aussenhalt_ab - ungültig",      "setvalue: hc2_switch_off_threshold - invalid"};
+const char* WW_SETPOINT_RECV[MAX_LANG]                  =    {"setvalue: ww_soll - empfangen",               "setvalue: ww_setpoint - received"};
+const char* WW_SETPOINT_INVALID[MAX_LANG]               =    {"setvalue: ww_soll - ungültig",                "setvalue: ww_setpoint - invalid"};
+const char* HC1_DAY_SETPOINT_RECV[MAX_LANG]             =    {"setvalue: hk1_tag_soll - empfangen",          "setvalue: hc1_day_setpoint - received"};
+const char* HC1_DAY_SETPOINT_INVALID[MAX_LANG]          =    {"setvalue: hk1_tag_soll - ungültig",           "setvalue: hc1_day_setpoint - invalid"};
+const char* HC1_NIGHT_SETPOINT_RECV[MAX_LANG]           =    {"setvalue: hk1_nacht_soll - empfangen",        "setvalue: hc1_night_setpoint - received"};
+const char* HC1_NIGHT_SETPOINT_INVALID[MAX_LANG]        =    {"setvalue: hk1_nacht_soll - ungültig",         "setvalue: hc1_night_setpoint - invalid"};
+const char* HC2_DAY_SETPOINT_RECV[MAX_LANG]             =    {"setvalue: hk2_tag_soll - empfangen",          "setvalue: hc2_day_setpoint - received"};
+const char* HC2_DAY_SETPOINT_INVALID[MAX_LANG]          =    {"setvalue: hk2_tag_soll - ungültig",           "setvalue: hc2_day_setpoint - invalid"};
+const char* HC2_NIGHT_SETPOINT_RECV[MAX_LANG]           =    {"setvalue: hk2_nacht_soll - empfangen",        "setvalue: hc2_night_setpoint - received"};
+const char* HC2_NIGHT_SETPOINT_INVALID[MAX_LANG]        =    {"setvalue: hk2_nacht_soll - ungültig",         "setvalue: hc2_night_setpoint - invalid"};
+const char* HC1_HOLIDAY_SETPOINT_RECV[MAX_LANG]         =    {"setvalue: hk1_ferien_soll - empfangen",       "setvalue: hc1_holiday_setpoint - received"};
+const char* HC1_HOLIDAY_SETPOINT_INVALID[MAX_LANG]      =    {"setvalue: hk1_ferien_soll - ungültig",        "setvalue: hc1_holiday_setpoint - invalid"};
+const char* HC2_HOLIDAY_SETPOINT_RECV[MAX_LANG]         =    {"setvalue: hk2_ferien_soll - empfangen",       "setvalue: hc2_holiday_setpoint - received"};
+const char* HC2_HOLIDAY_SETPOINT_INVALID[MAX_LANG]      =    {"setvalue: hk2_ferien_soll - ungültig",        "setvalue: hc2_holiday_setpoint - invalid"};
+const char* HC1_HOLIDAYS_RECV[MAX_LANG]                 =    {"setvalue: hk1_ferien_tage - empfangen",       "setvalue: hc1_holidays - received"};
+const char* HC1_HOLIDAYS_INVALID[MAX_LANG]              =    {"setvalue: hk1_ferien_tage - ungültig",        "setvalue: hc1_holidays - invalid"};
+const char* HC2_HOLIDAYS_RECV[MAX_LANG]                 =    {"setvalue: hk2_ferien_tage - empfangen",       "setvalue: hc2_holidays - received"};
+const char* HC2_HOLIDAYS_INVALID[MAX_LANG]              =    {"setvalue: hk2_ferien_tage - ungültig",        "setvalue: hc2_holidays - invalid"};
 } s_mqtt_messags;   
 
 
@@ -141,6 +167,7 @@ const char* HC2_TIMER11[MAX_LANG]               =    {"HK2_Timer11",            
 const char* HC2_TIMER12[MAX_LANG]               =    {"HK2_Timer12",                 "hc2_timer12"};
 const char* HC2_TIMER13[MAX_LANG]               =    {"HK2_Timer13",                 "hc2_timer13"};
 const char* HC2_TIMER14[MAX_LANG]               =    {"HK2_Timer14",                 "hc2_timer14"};
+const char* TIME_OFFSET[MAX_LANG]               =    {"Uhrzeit_Offset",              "time_offset"};
 } s_cfg_topics;
 
 
@@ -255,9 +282,10 @@ const char* BOILER_STATE_STAGE2[MAX_LANG]       =   {"Kessel_Betrieb_BetriebStuf
 
 const char* BOILER_CONTROL[MAX_LANG]            =   {"Brenner_Ansteuerung",                         "burner_control"};
 const char* EXHAUST_TEMP[MAX_LANG]              =   {"Abgastemperatur",                             "exhaust_gas_temp"};
-const char* BOILER_LIFETIME_1[MAX_LANG]         =   {"Brenner_Laufzeit_Minuten65536",               "burner_lifetime_minutes65536"};
-const char* BOILER_LIFETIME_2[MAX_LANG]         =   {"Brenner_Laufzeit_Minuten256",                 "burner_lifetime_minutes256"};
-const char* BOILER_LIFETIME_3[MAX_LANG]         =   {"Brenner_Laufzeit_Minuten",                    "burner_lifetime_minutes"};
+const char* BOILER_LIFETIME_1[MAX_LANG]         =   {"Brenner_Laufzeit_Minuten65536",               "burner_runtime_minutes65536"};
+const char* BOILER_LIFETIME_2[MAX_LANG]         =   {"Brenner_Laufzeit_Minuten256",                 "burner_runtime_minutes256"};
+const char* BOILER_LIFETIME_3[MAX_LANG]         =   {"Brenner_Laufzeit_Minuten",                    "burner_runtime_minutes"};
+const char* BOILER_LIFETIME_4[MAX_LANG]         =   {"Brenner_Laufzeit_Summe",                      "burner_runtime_overall"};
 
 const char* OUTSIDE_TEMP[MAX_LANG]              =   {"Aussentemperatur",                            "outside_temp"};
 const char* OUTSIDE_TEMP_DAMPED[MAX_LANG]       =   {"Aussentemperatur_gedaempft",                  "outside_temp_damped"};
@@ -274,8 +302,17 @@ const char* ALARM_BURNER[MAX_LANG]              =   {"ERR_Alarmstatus_Brenner", 
 const char* ALARM_20[MAX_LANG]                  =   {"ERR_Alarmstatus_20",                          "err_alarm_20"};
 const char* ALARM_HC2_FLOW_SENS[MAX_LANG]       =   {"ERR_Alarmstatus_HK2-Vorlauffuehler",          "err_alarm_HK2-flow_sensor"};
 const char* ALARM_80[MAX_LANG]                  =   {"ERR_Alarmstatus_80",                          "err_alarm_80"};
-
 } s_stat_topics;
+
+// ======================================================================================
+// topic decription for error messages buffer from KM271
+// ======================================================================================
+typedef struct {
+const char* ERR_BUFF_1[MAX_LANG]                =    {"Fehlerspeicher1",                            "error_buffer1"};
+const char* ERR_BUFF_2[MAX_LANG]                =    {"Fehlerspeicher2",                            "error_buffer2"};
+const char* ERR_BUFF_3[MAX_LANG]                =    {"Fehlerspeicher3",                            "error_buffer3"};
+const char* ERR_BUFF_4[MAX_LANG]                =    {"Fehlerspeicher4",                            "error_buffer4"};
+} s_error_topics;
 
 // ======================================================================================
 // decription for encode different config value arrays
@@ -313,4 +350,75 @@ const char* BURNER_TYPE[3]={"1-stage","2-stage","modulated"};
 const char* EXHAUST_GAS_THRESHOLD[42]={"off","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250"};
 const char* HC_PROGRAM[9]={"custom","family","early","late","AM","PM","noon","single","senior"};
 } s_cfg_arrays;
+#endif
+
+// ======================================================================================
+// decription for encode different config value arrays
+// ======================================================================================
+#if LANG==0 // GERMAN
+//const char* ERROR_BUFFER[93]={[0]="Kein Fehler",[2]="Aussenfuehler defekt",[3]="HK1-Vorlauffuehler defekt",[87]="Ruecklauffuehler defekt",[92]="RESET"};
+typedef struct {
+const char* idx[28] = {
+                        "Kein Fehler",
+                        "Aussenfuehler defekt",
+                        "HK1-Vorlauffuehler defekt",
+                        "HK2-Vorlauffuehler defekt",
+                        "Warmwasserfuehler defekt",
+                        "Warmwasser bleibt kalt",
+                        "Stoerung thermische Desinfektion",
+                        "HK1-Fernbedienung defekt",
+                        "HK2-Fernbedienung defekt",
+                        "Keine Kommunikation mit HK1-Fernbedienung",
+                        "Keine Kommunikation mit HK2-Fernbedienung",
+                        "Stoerung Brenner 1",
+                        "Keine Verbindung mit Kessel 1",
+                        "Interner Fehler Nr. 1",
+                        "Interner Fehler Nr. 2",
+                        "Interner Fehler Nr. 3",
+                        "Interner Fehler Nr. 4",
+                        "Kesselvorlauffuehler defekt",
+                        "Kesselzusatzfuehler defekt",
+                        "Kessel bleibt kalt",
+                        "Stoerung Brenner",
+                        "Stoerung Sicherheitskette",
+                        "Externe Stoerung Kessel",
+                        "Abgasfuehler defekt",
+                        "Abgasgrenze ueberschritten",
+                        "Ruecklauffuehler defekt",
+                        "RESET"
+                        "unbekannter Fehler"
+                        };
+} s_err_array;
+#else // ENGLISH
+const char* idx[28] = {
+                        "no error",
+                        "failure outdoor sensor",
+                        "failure hc1-flow sensor",
+                        "failure hc1-flow sensor",
+                        "failure warm water sensor",
+                        "Warmwasser bleibt kalt",
+                        "Fault thermal disinfection",
+                        "Fault hc1-remotecontrol",
+                        "Fault hc1-remotecontrol",
+                        "no communication to hc1-remote control",
+                        "no communication to hc1-remote control",
+                        "Fault Burner 1",
+                        "no connection with boiler 1",
+                        "internal Error Nr. 1",
+                        "internal Error Nr. 2",
+                        "internal Error Nr. 3",
+                        "internal Error Nr. 4",
+                        "failure Boiler flow sensor",
+                        "failure Boiler auxiliary sensor",
+                        "Boiler remains cold",
+                        "Fault Burner",
+                        "Fault safety chain",
+                        "External fault boiler",
+                        "failure Exhaust gas sensor",
+                        "Exhaust limit exceeded",
+                        "failure Return flow sensor",
+                        "RESET"
+                        "unknown error"
+                        };
+} s_err_array;
 #endif

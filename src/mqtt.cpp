@@ -38,6 +38,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   payload[length] = '\0';
   String payloadString = String((char*)payload);
   long intVal = payloadString.toInt();
+  float floatVal = payloadString.toFloat();
 
   Serial.print("topic: ");
   Serial.println(topic);
@@ -60,53 +61,84 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   }
   // HK1 Betriebsart
   else if (strcmp (topic, addTopic(mqttCmd.HC1_OPMODE[LANG])) == 0){  
-    km271sendCmd(KM271_SENDCMD_HK1_BA, intVal);
+    km271sendCmd(KM271_SENDCMD_HC1_OPMODE, intVal);
   }
   // HK2 Betriebsart
   else if (strcmp (topic, addTopic(mqttCmd.HC2_OPMODE[LANG])) == 0){  
-    km271sendCmd(KM271_SENDCMD_HK2_BA, intVal);
+    km271sendCmd(KM271_SENDCMD_HC2_OPMODE, intVal);
   }
   // HK1 Programm
   else if (strcmp (topic, addTopic(mqttCmd.HC1_PRG[LANG])) == 0){  
-    km271sendCmd(KM271_SENDCMD_HK1_PROGRAMM, intVal);
+    km271sendCmd(KM271_SENDCMD_HC1_PROGRAMM, intVal);
   }
   // HK2 Programm
   else if (strcmp (topic, addTopic(mqttCmd.HC2_PRG[LANG])) == 0){  
-    km271sendCmd(KM271_SENDCMD_HK2_PROGRAMM, intVal);
+    km271sendCmd(KM271_SENDCMD_HC2_PROGRAMM, intVal);
   }
   // HK1 Auslegung
   else if (strcmp (topic, addTopic(mqttCmd.HC1_INTERPRET[LANG])) == 0){  
-    km271sendCmd(KM271_SENDCMD_HK1_AUSLEGUNG, intVal);
+    km271sendCmd(KM271_SENDCMD_HC1_DESIGN_TEMP, intVal);
   }
   // HK2 Auslegung
   else if (strcmp (topic, addTopic(mqttCmd.HC2_INTERPRET[LANG])) == 0){  
-    km271sendCmd(KM271_SENDCMD_HK2_AUSLEGUNG, intVal);
+    km271sendCmd(KM271_SENDCMD_HC2_DESIGN_TEMP, intVal);
   }
   // HK1 Aussenhalt-Ab Temperatur
   else if (strcmp (topic, addTopic(mqttCmd.HC1_SWITCH_OFF_THRESHOLD[LANG])) == 0){
-    km271sendCmd(KM271_SENDCMD_HK1_AUSSENHALT, intVal);
+    km271sendCmd(KM271_SENDCMD_HC1_SWITCH_OFF_THRESHOLD, intVal);
   }
   // HK2 Aussenhalt-Ab Temperatur
   else if (strcmp (topic, addTopic(mqttCmd.HC2_SWITCH_OFF_THRESHOLD[LANG])) == 0){
-    km271sendCmd(KM271_SENDCMD_HK2_AUSSENHALT, intVal);
+    km271sendCmd(KM271_SENDCMD_HC2_SWITCH_OFF_THRESHOLD, intVal);
   }  
+  // HK1 Tag-Soll Temperatur
+  else if (strcmp (topic, addTopic(mqttCmd.HC1_DAY_SETPOINT[LANG])) == 0){
+    km271sendCmdFlt(KM271_SENDCMD_HC1_DAY_SETPOINT, floatVal);
+  }  
+  // HK2 Tag-Soll Temperatur
+  else if (strcmp (topic, addTopic(mqttCmd.HC2_DAY_SETPOINT[LANG])) == 0){
+    km271sendCmdFlt(KM271_SENDCMD_HC2_DAY_SETPOINT, floatVal);
+  } 
+  // HK1 Nacht-Soll Temperatur
+  else if (strcmp (topic, addTopic(mqttCmd.HC1_NIGHT_SETPOINT[LANG])) == 0){
+    km271sendCmdFlt(KM271_SENDCMD_HC1_NIGHT_SETPOINT, floatVal);
+  }  
+  // HK2 Nacht-Soll Temperatur
+  else if (strcmp (topic, addTopic(mqttCmd.HC2_NIGHT_SETPOINT[LANG])) == 0){
+    km271sendCmdFlt(KM271_SENDCMD_HC2_NIGHT_SETPOINT, floatVal);
+  }
+  // HK1 Ferien-Soll Temperatur
+  else if (strcmp (topic, addTopic(mqttCmd.HC1_HOLIDAY_SETPOINT[LANG])) == 0){
+    km271sendCmdFlt(KM271_SENDCMD_HC1_HOLIDAY_SETPOINT, floatVal);
+  }  
+  // HK2 Ferien-Soll Temperatur
+  else if (strcmp (topic, addTopic(mqttCmd.HC2_HOLIDAY_SETPOINT[LANG])) == 0){
+    km271sendCmdFlt(KM271_SENDCMD_HC2_HOLIDAY_SETPOINT, floatVal);
+  } 
   // WW Betriebsart
   else if (strcmp (topic, addTopic(mqttCmd.WW_OPMODE[LANG])) == 0){
-    km271sendCmd(KM271_SENDCMD_WW_BA, intVal);
+    km271sendCmd(KM271_SENDCMD_WW_OPMODE, intVal);
   }
   // Sommer-Ab Temperatur
   else if (strcmp (topic, addTopic(mqttCmd.SUMMER[LANG])) == 0){
-    km271sendCmd(KM271_SENDCMD_SOMMER_AB, intVal);
+    km271sendCmd(KM271_SENDCMD_SUMMER, intVal);
   }  
   // Frost-Ab Temperatur
   else if (strcmp (topic, addTopic(mqttCmd.FROST[LANG])) == 0){
-    km271sendCmd(KM271_SENDCMD_FROST_AB, intVal);
+    km271sendCmd(KM271_SENDCMD_FROST, intVal);
   } 
   // WW-Temperatur
   else if (strcmp (topic, addTopic(mqttCmd.WW_SETPOINT[LANG])) == 0){
-    km271sendCmd(KM271_SENDCMD_WW_SOLL, intVal);
+    km271sendCmd(KM271_SENDCMD_WW_SETPOINT, intVal);
   } 
-
+  // HK1 Ferien Tage
+  else if (strcmp (topic, addTopic(mqttCmd.HC1_HOLIDAYS[LANG])) == 0){
+    km271sendCmd(KM271_SENDCMD_HC1_HOLIDAYS, intVal);
+  }  
+  // HK2 Ferien Tage
+  else if (strcmp (topic, addTopic(mqttCmd.HC2_HOLIDAYS[LANG])) == 0){
+    km271sendCmd(KM271_SENDCMD_HC2_HOLIDAYS, intVal);
+  } 
 }
 
 
