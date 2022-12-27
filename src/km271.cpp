@@ -123,7 +123,7 @@ void parseInfo(uint8_t *data, int len) {
   ********************************************************/
   #ifdef DEBUG_ON 
     if (kmregister != 0x0400 && kmregister != 0x882e && kmregister != 0x882f){
-      sprintf(tmpMessage, "%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
+      sprintf(tmpMessage, "%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], data[10]);
       mqttPublish(addTopic("/debug_message"), tmpMessage, false); 
     }
   #endif 
@@ -966,7 +966,7 @@ void parseInfo(uint8_t *data, int len) {
     // undefined
     default:   
       #ifdef DEBUG_ON 
-        sprintf(tmpMessage, "%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
+        sprintf(tmpMessage, "%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], data[10]);
         mqttPublish(addTopic("/undefinded_message"), tmpMessage, false); 
       #endif                                                     
       break;
