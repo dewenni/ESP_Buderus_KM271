@@ -514,23 +514,31 @@ void parseInfo(uint8_t *data, int len) {
       break;   
 
     case 0x0300: // 0x0300 : Error Buffer 1                               
+      #ifdef USE_ALARM_MSG
       decodeErrorMsg(errorMsg, data);
       mqttPublish(addAlarmTopic(errTopic.ERR_BUFF_1[LANG]), errorMsg, false);
+      #endif
       break;   
 
     case 0x0307: // 0x0307 : Error Buffer 2                               
+      #ifdef USE_ALARM_MSG
       decodeErrorMsg(errorMsg, data);
       mqttPublish(addAlarmTopic(errTopic.ERR_BUFF_2[LANG]), errorMsg, false);
+      #endif
       break; 
 
     case 0x030e: // 0x030e : Error Buffer 3                               
+      #ifdef USE_ALARM_MSG
       decodeErrorMsg(errorMsg, data);
       mqttPublish(addAlarmTopic(errTopic.ERR_BUFF_3[LANG]), errorMsg, false);
+      #endif
       break; 
 
     case 0x0315: // 0x0315 : Error Buffer 4                             
+      #ifdef USE_ALARM_MSG
       decodeErrorMsg(errorMsg, data);
       mqttPublish(addAlarmTopic(errTopic.ERR_BUFF_4[LANG]), errorMsg, false);
+      #endif
       break; 
 
 

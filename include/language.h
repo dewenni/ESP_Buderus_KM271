@@ -356,7 +356,6 @@ const char* HC_PROGRAM[9]={"custom","family","early","late","AM","PM","noon","si
 // decription for encode different config value arrays
 // ======================================================================================
 #if LANG==0 // GERMAN
-//const char* ERROR_BUFFER[93]={[0]="Kein Fehler",[2]="Aussenfuehler defekt",[3]="HK1-Vorlauffuehler defekt",[87]="Ruecklauffuehler defekt",[92]="RESET"};
 typedef struct {
 const char* idx[28] = {
                         "Kein Fehler",
