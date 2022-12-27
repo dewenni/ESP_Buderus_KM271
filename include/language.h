@@ -385,11 +385,12 @@ const char* idx[28] = {
                         "Abgasfuehler defekt",
                         "Abgasgrenze ueberschritten",
                         "Ruecklauffuehler defekt",
-                        "RESET"
+                        "RESET",
                         "unbekannter Fehler"
                         };
 } s_err_array;
 #else // ENGLISH
+typedef struct {
 const char* idx[28] = {
                         "no error",
                         "failure outdoor sensor",
@@ -417,7 +418,7 @@ const char* idx[28] = {
                         "failure Exhaust gas sensor",
                         "Exhaust limit exceeded",
                         "failure Return flow sensor",
-                        "RESET"
+                        "RESET",
                         "unknown error"
                         };
 } s_err_array;
