@@ -1,5 +1,15 @@
 #include <basics.h>
- 
+
+/* P R O T O T Y P E S ********************************************************/ 
+void ntpSetup();
+void setupOTA();
+void setup_wifi();
+
+/* D E C L A R A T I O N S ****************************************************/  
+s_wifi wifi;  // global WiFi Informations
+
+
+
 /**
  * *******************************************************************
  * @brief   Setup for NTP Server
@@ -19,17 +29,14 @@ void ntpSetup(){
 }
 
 
-time_t now;                       // this is the epoch
-tm dti;                           // the structure tm holds time information in a more convient way
-char dateTimeInfo[74]={'\0'};     // Date and time info String
 /**
  * *******************************************************************
  * @brief   create date and time as String
  * @param   none
- * @return  pointer to date and time String
+ * @return  pointer to date and time String (local static memory)
  * *******************************************************************/
 const char * getDateTimeString() {
-   /* ---------------- INFO ---------------------------------
+  /* ---------------- INFO ---------------------------------
   dti.tm_year + 1900  // years since 1900
   dti.tm_mon + 1      // January = 0 (!)
   dti.tm_mday         // day of month
@@ -39,11 +46,47 @@ const char * getDateTimeString() {
   dti.tm_wday         // days since Sunday 0-6
   dti.tm_isdst        // Daylight Saving Time flag
   --------------------------------------------------------- */
-  time(&now);                       // read the current time
-  localtime_r(&now, &dti);          // update the structure tm with the current time
-  sprintf(dateTimeInfo, "%d.%d.%d - %02i:%02i:%02i", dti.tm_mday, (dti.tm_mon + 1), (dti.tm_year + 1900), dti.tm_hour, dti.tm_min, dti.tm_sec);
+  static char dateTimeInfo[74]={'\0'};      // Date and time info String
+  time_t now;                               // this is the epoch
+  tm dti;                                   // the structure tm holds time information in a more convient way
+  time(&now);                               // read the current time
+  localtime_r(&now, &dti);                  // update the structure tm with the current time
+  snprintf(dateTimeInfo, sizeof(dateTimeInfo), "%02d.%02d.%02d - %02i:%02i:%02i", dti.tm_mday, (dti.tm_mon + 1), (dti.tm_year + 1900), dti.tm_hour, dti.tm_min, dti.tm_sec);
   return dateTimeInfo;
 }
+
+/**
+ * *******************************************************************
+ * @brief   create date  String
+ * @param   none
+ * @return  pointer to date String (local static memory)
+ * *******************************************************************/
+const char * getDateString() {
+  static char dateInfo[74]={'\0'};          // Date String
+  time_t now;                               // this is the epoch
+  tm dti;                                   // the structure tm holds time information in a more convient way
+  time(&now);                               // read the current time
+  localtime_r(&now, &dti);                  // update the structure tm with the current time
+  snprintf(dateInfo, sizeof(dateInfo), "%02d.%02d.%02d", dti.tm_mday, (dti.tm_mon + 1), (dti.tm_year + 1900));
+  return dateInfo;
+}
+
+/**
+ * *******************************************************************
+ * @brief   create time as String
+ * @param   none
+ * @return  pointer to time String (local static memory)
+ * *******************************************************************/
+const char * getTimeString() {
+  static char timeInfo[74]={'\0'};          // Date and time info String
+  time_t now;                               // this is the epoch
+  tm dti;                                   // the structure tm holds time information in a more convient way
+  time(&now);                               // read the current time
+  localtime_r(&now, &dti);                  // update the structure tm with the current time
+  snprintf(timeInfo, sizeof(timeInfo), "%02i:%02i:%02i", dti.tm_hour, dti.tm_min, dti.tm_sec);
+  return timeInfo;
+}
+
 
 /**
  * *******************************************************************
@@ -131,31 +174,25 @@ void basic_setup() {
  * @param   none
  * @return  none
  * *******************************************************************/
-long wifiRssi;
-int wifiSignal;
-
 void sendWiFiInfo() {
  // check  RSSI
-  wifiRssi = WiFi.RSSI();
+  wifi.rssi = WiFi.RSSI();
   
   //dBm to Quality:
-  if(wifiRssi <= -100)
-      wifiSignal = 0;
-  else if(wifiRssi >= -50)
-      wifiSignal = 100;
+  if(wifi.rssi <= -100)
+      wifi.signal = 0;
+  else if(wifi.rssi >= -50)
+      wifi.signal = 100;
   else
-      wifiSignal = 2 * (wifiRssi + 100);
+      wifi.signal = 2 * (wifi.rssi + 100);
 
     IPAddress localIP = WiFi.localIP();
-    char bufIP[20];
-    sprintf(bufIP, "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);
-
+    snprintf(wifi.ipAddress, sizeof(wifi.ipAddress), "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);
     DynamicJsonDocument wifiJSON(1024);
-
     wifiJSON["status"] = "online";
-    wifiJSON["rssi"] = wifiRssi;
-    wifiJSON["signal"] = wifiSignal;
-    wifiJSON["ip"] = bufIP;
+    wifiJSON["rssi"] = wifi.rssi;
+    wifiJSON["signal"] = wifi.signal;
+    wifiJSON["ip"] = wifi.ipAddress;
     wifiJSON["date-time"] = getDateTimeString();
 
     String sendWififJSON;
@@ -165,4 +202,64 @@ void sendWiFiInfo() {
     // wifi status
     mqttPublish(addTopic("/status"), "online", false);
 
+}
+
+/**
+ * *******************************************************************
+ * @brief   create String from integer
+ * @param   value as uint8_t
+ * @return  pointer to char array - pay attention, it is local static
+ * *******************************************************************/
+const char* uint8ToString(uint8_t value){
+  static char ret_str[4];
+  snprintf(ret_str, sizeof(ret_str), "%u", value);
+  return ret_str;
+}
+
+/**
+ * *******************************************************************
+ * @brief   create String from integer
+ * @param   value as uint64_t
+ * @return  pointer to char array - pay attention, it is local static
+ * *******************************************************************/
+const char* uint64ToString(uint64_t value){
+  static char ret_str[64];
+  snprintf(ret_str, sizeof(ret_str), "%llu", value);
+  return ret_str;
+}
+
+/**
+ * *******************************************************************
+ * @brief   create String from integer
+ * @param   value as int8_t
+ * @return  pointer to char array - pay attention, it is local static
+ * *******************************************************************/
+const char* int8ToString(int8_t value){
+  static char ret_str[4];
+  snprintf(ret_str, sizeof(ret_str), "%i", value);
+  return ret_str;
+}
+
+/**
+ * *******************************************************************
+ * @brief   create String from integer
+ * @param   value as float
+ * @return  pointer to char array - pay attention, it is local static
+ * *******************************************************************/
+const char* floatToString(float value){
+  static char ret_str[64];
+  snprintf(ret_str, sizeof(ret_str), "%.1f", value);
+  return ret_str;
+}
+
+/**
+ * *******************************************************************
+ * @brief   create String from integer
+ * @param   value as double
+ * @return  pointer to char array - pay attention, it is local static
+ * *******************************************************************/
+const char* doubleToString(double value){
+  static char ret_str[64];
+  snprintf(ret_str, sizeof(ret_str), "%.1lf", value);
+  return ret_str;
 }

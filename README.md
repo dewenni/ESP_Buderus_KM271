@@ -9,11 +9,18 @@
 ---
 Control your Buderus Logamatic R2107 with ESP and MQTT
 
-The information from the heater provides a better understanding of how the heater works and offers opportunities for optimization.  
+The information from the heater provides a better understanding of how the heater works and offers opportunities for optimization.
+
 In combination with influxDB and Grafana you can also create usefull and impressive Dashboard of your heating system.
 
-> **Note**  
-> for more informations take a look at the **[wiki](https://github.com/dewenni/ESP_Buderus_KM271/wiki)**
+But there is also a build in WebUI to view and control your Logamatic without any other Software.
+
+<img width="1062" alt="image" src="https://user-images.githubusercontent.com/46074831/212485914-3ac7b0ae-12a0-479a-bb8a-3af1ae9e0853.png">
+
+-----
+
+>**Note**  
+>for more informations take a look at the **[wiki](https://github.com/dewenni/ESP_Buderus_KM271/wiki)**
 
 ## Functional description
 
@@ -21,7 +28,8 @@ The heart of the project is the reverse engineered Buderus interface, that is ba
 The main code is based on the work of **Michael Mayer** who has set a really good base for the communication.
 It has been extended with the possibility not only to read values, but also to write some common values to the Logamatic.
 
-The software supports multi language support. You can switch between german and english mqtt topics. (see: **[/include/config.h](https://github.com/dewenni/ESP_Buderus_KM271/blob/aa369b0bc6e71b8ec41ad1284f3467846cb56dcc/include/config.h)**)  
+The software supports multi language support. 
+You can switch between german and english mqtt topics. (see: **[/include/config.h](https://github.com/dewenni/ESP_Buderus_KM271/blob/aa369b0bc6e71b8ec41ad1284f3467846cb56dcc/include/config.h)**)  
 Feel free to add more languages. The texts are located in: **[/include/language.h](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/include/language.h)**
 
 ### List of supported values
@@ -49,7 +57,7 @@ If you are not interested in the Oil Meter function you can simple disable it in
 
 ## Hardware Requirements
 
-# Option 1 - Board from the78mole
+### Option 1 - Board from the78mole
 the easiest, smartest and even cheapest option is the DIY Interface that was build by Daniel Glaser. Big thanks for his engagement in this Topic!  
 You can find more information here: [https://the78mole.de](https://the78mole.de/reverse-engineering-the-buderus-km217/)  
 You can order it here: https://www.tindie.com/products/24664/
@@ -60,7 +68,7 @@ It includes the RS232/TTL Adapter and also an ESP32.
 ![KM217_mod](https://user-images.githubusercontent.com/46074831/206558276-ef8727ac-384c-4b7b-866f-8c3fe644a2cb.jpg)
 (this is my board with the customized connector for the oil meter instead of the "USER 1" button)
 
-# Option 2 - original Buderus KM271
+### Option 2 - original Buderus KM271
 The other option is, to use the original Buderus KM271 Module that has a serial interface (RS232).
 In combination with a RS232 TTL Adapter (MAX3232) it can be connected to the TX/RX Port of the ESP.
 
@@ -72,7 +80,7 @@ Logamattic R2107 => KM271 => RS232/TTL Adapter => ESP
 
 ## MQTT Communication
 
-### You can control the Logamatic with the following commands:
+### You can control the Logamatic with commands like this:
 
 ```
 Topic: esp_heizung/setvalue/hk1_betriebsart  
@@ -118,6 +126,19 @@ Payload: none - it will be set by NTP Server
 
 ### As Status you will get informations:
 
+Config values as single topics (see list in [language.h](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/include/language.h))
+```
+example:
+Topic: esp_heizung/config/frost_protection_threshold
+Payload:   -1.00 °C     (String)
+```
+Status values as single topics (see list in [language.h](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/include/language.h))
+```
+example:
+Topic: esp_heizung/status/hc1_ov1_automatic
+Payload:   1    (integer)
+```
+status information about WiFi:
 ```
 Topic: esp_heizung/wifi = {  
     "status":"online",  
@@ -126,14 +147,15 @@ Topic: esp_heizung/wifi = {
     "ip":"192.168.1.1",  
     "date-time":"01.01.2022 - 10:20:30"  
 }
-
-Config values as listed above (single topics)
-
-Status values as lised above (single topics)
-
 ```
-
-see full description in the **[wiki](https://github.com/dewenni/ESP_Buderus_KM271/wiki)**
+debug information:
+```
+Topic: esp_heizung/info = {  
+    "logmode":true,
+    "send_cmd_busy":false,
+    "date-time":"01.01.2022 - 10:20:30"  
+}
+```
 
 you can also change the mqtt topics for your needs by editig: **[/include/language.h](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/include/language.h)**
 

@@ -12,7 +12,7 @@ Example:
 ----------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION             v1.3.4      // internal program version
+#define VERSION             "v2.0.0"    // internal program version
 #define DEBUG_ON                        // enable debug messages
 #define LANG                0           // 0=GERMAN / 1=ENGLISH
 
@@ -26,11 +26,22 @@ General Configuration
 Feature Configuration
 --------------------------------------------------------------------------------*/
 #define USE_OILMETER                    // disable if you dont use the oilmeter
+#define USE_WEBUI                       // disable WebUI if you dont want to use it
 
 /*--------------------------------------------------------------------------------
 Logamatic Configuration
 --------------------------------------------------------------------------------*/
 #define USE_HC1                         // Use HeatingCircuit_1
-#define USE_HC2                         // Use HeatingCircuit_2
+//#define USE_HC2                         // Use HeatingCircuit_2
 
 #define USE_ALARM_MSG                  // activates the use of Messages based on 0x0300, 0x0307, 0x030e, 0x0315 that are not supportet for every Logamatic models (e.g. HS 2105M)
+
+/*--------------------------------------------------------------------------------
+Optional: calculation of oil consumption based on burner runtime
+--------------------------------------------------------------------------------*/
+//#define USE_CALCULATED_CONSUMPTION      // use calculated oil consumption
+                                        // calculation: Consumption_Litre = Runtime_Minutes / 60 * CFG_CONSUMPTION_KG_H / CFG_OIL_DENSITY_KG_L
+
+#define CFG_CONSUMPTION_KG_H 2.0        // oil consumption in "kilograms per hour" - see documentation of your heater
+#define CFG_OIL_DENSITY_KG_L 0.85       // densitiy of oil in "kilograms per Litre"
+

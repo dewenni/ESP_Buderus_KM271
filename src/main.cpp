@@ -2,22 +2,20 @@
 #include <basics.h>
 #include <mqtt.h>
 #include <km271.h>
+#include <webUI.h>
+#include <oilmeter.h>
 
-#ifdef USE_OILMETER
-  #include <oilmeter.h>
-#endif
-
-// PIN Assignment
+/* P I N - A S S I G N M E N T *************************************************/  
 #define LED_WIFI        21     // LED for WiFi Status
 #define LED_HEARBEAT    22     // LED for heartbeat
 #define LED_LOGMODE     23     // LED for LogMode
 
-// ==================================================================================================
-// variables and instances
-// ==================================================================================================
-muTimer mainTimer = muTimer();  // timer for cyclic info
-muTimer heartbeat = muTimer();  // timer for heartbeat signal
-muTimer dstTimer = muTimer();   // timer to check daylight saving time change
+
+/* D E C L A R A T I O N S ****************************************************/  
+muTimer mainTimer = muTimer();    // timer for cyclic info
+muTimer heartbeat = muTimer();    // timer for heartbeat signal
+muTimer dstTimer = muTimer();     // timer to check daylight saving time change
+
 
 bool main_reboot = true;        // reboot flag
 int dst_old;                    // reminder for change of daylight saving time 
@@ -56,6 +54,9 @@ void setup()
   pinMode(LED_HEARBEAT, OUTPUT);    // LED for heartbeat
   pinMode(LED_LOGMODE, OUTPUT);     // LED for LogMode-Status
 
+  // send initial WiFi infos
+  sendWiFiInfo();
+
   // setup for km271
   km271ProtInit(RXD2, TXD2);
 
@@ -64,8 +65,10 @@ void setup()
     setupOilmeter();
   #endif
 
-  // send initial WiFi infos
-  sendWiFiInfo();
+  // webUI Setup
+  #ifdef USE_WEBUI
+    webUISetup(); 
+  #endif
 
 }
 
@@ -106,6 +109,10 @@ void loop()
     sendKM271Info();
   }
 
+  #ifdef USE_WEBUI
+    webUICylic(); // call webUI
+  #endif
+
   // check every hour if DST has changed
   if (dstTimer.cycleTrigger(3600000))
   {
@@ -118,6 +125,8 @@ void loop()
     }
     dst_old=dti.tm_isdst;    
   }
+
+
 
   main_reboot = false; // reset reboot flag
 }

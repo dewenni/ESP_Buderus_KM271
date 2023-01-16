@@ -13,6 +13,7 @@
 int addr = 0;                             // start address for EEPROM
 int writeCounter =0;                      // counter for write to EEPROM
 bool reboot = true;                       // flag for reboot
+char tmpMsg[300]={'\0'};
 
 #define DI_OIL_CNT 26                     // input for oilmeter sensor
 #define DO_OIL_CNT 25                     // LED signal oilmeter trigger
@@ -32,7 +33,17 @@ muTimer oilCyclicInfo = muTimer();        // timer for cyclic information
  * *******************************************************************/
 void sendOilmeter() {
   // publish actual value
-  mqttPublish(addTopic("/oilcounter"), String(data.oilcounter).c_str(), true);
+  mqttPublish(addTopic("/oilcounter"), uint64ToString(data.oilcounter), true);
+}
+
+/**
+ * *******************************************************************
+ * @brief   get actual Oilmeter value
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+long getOilmeter() {
+  return data.oilcounter;
 }
 
 /**
@@ -46,8 +57,8 @@ void cmdSetOilmeter(long setvalue) {
   data.oilcounter = setvalue;
   cmdStoreOilmeter();
   
-  String message = "oilcounter was set to: " + String(data.oilcounter);
-  mqttPublish(addTopic("/message"), String(message).c_str(), false);
+  snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %i", data.oilcounter);
+  mqttPublish(addTopic("/message"), tmpMsg, false);
 
   sendOilmeter();
 }
@@ -61,7 +72,7 @@ void cmdSetOilmeter(long setvalue) {
 void cmdStoreOilmeter() {
   EEPROM.put(addr,data);
   EEPROM.commit();
-  mqttPublish(addTopic("/message"), String("oilcounter stored!").c_str(), false);
+  mqttPublish(addTopic("/message"), "oilcounter stored!", false);
 }
 
 /**
@@ -78,8 +89,10 @@ void setupOilmeter(){
   
   Serial.print("restored value from Flash: ");
   Serial.println(data.oilcounter);
-  String message = "oilcounter was set to: " + String(data.oilcounter);
-  mqttPublish(addTopic("/message"), String(message).c_str(), false);
+
+  snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %i", data.oilcounter);
+  mqttPublish(addTopic("/message"), tmpMsg, false);
+
 
   // IO Setup
   pinMode(DI_OIL_CNT, INPUT_PULLUP);    // Trigger Input

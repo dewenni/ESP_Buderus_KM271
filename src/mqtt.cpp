@@ -5,12 +5,13 @@
 #include <oilmeter.h>
 
 
-// ======================================================
-// declaration
-// ======================================================
+/* P R O T O T Y P E S ********************************************************/  
+void mqtt_callback(char* topic, byte* payload, unsigned int length);
+void mqtt_reconnect();
+
+/* D E C L A R A T I O N S ****************************************************/  
 WiFiClient espClient;
 PubSubClient mqtt_client(espClient);
-
 s_mqtt_cmds mqttCmd;  // exts that are used as topics for KM271 commands
 
 
@@ -20,8 +21,8 @@ s_mqtt_cmds mqttCmd;  // exts that are used as topics for KM271 commands
  * @param   none
  * @return  none
  * *******************************************************************/
-char newTopic[256];
 const char * addTopic(const char *suffix){
+  static char newTopic[256];
   strcpy(newTopic, MQTT_TOPIC);
   strcat(newTopic, suffix);
   return newTopic;

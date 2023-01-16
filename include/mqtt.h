@@ -1,22 +1,14 @@
 #pragma once
 
-// ======================================================
-// includes
-// ======================================================
+/* I N C L U D E S ****************************************************/ 
 #include <config.h>
 #include <Arduino.h>
 #include <language.h>
-
-// MQTT
 #include <PubSubClient.h>
 
 
-// ======================================================
-// Prototypes
-// ======================================================
+/* P R O T O T Y P E S ********************************************************/ 
 const char * addTopic(const char *suffix);
-void mqtt_callback(char* topic, byte* payload, unsigned int length);
-void mqttCyclic();
 void mqttSetup();
-void mqtt_reconnect();
+void mqttCyclic();
 void mqttPublish(const char* sendtopic, const char* payload, boolean retained);
