@@ -37,9 +37,9 @@ const char * addTopic(const char *suffix){
  * *******************************************************************/
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
   payload[length] = '\0';
-  String payloadString = String((char*)payload);
-  long intVal = payloadString.toInt();
-  float floatVal = payloadString.toFloat();
+
+  long intVal = atoi((char*)payload);
+  float floatVal = atoff((char*)payload);
 
   Serial.print("topic: ");
   Serial.println(topic);

@@ -28,9 +28,8 @@ s_km271_alarm_str   kmAlarmMsgCpy;
 muTimer cfgTabRefreshTimer = muTimer();   // timer to refresh id.tab.config
 muTimer valeCompareTimer = muTimer();     // timer to refresh id.tab.config
 
-const char * hc_opmode_optval[3] = {webText.NIGHT[LANG], webText.DAY[LANG], webText.AUTOMATIC[LANG]};    // array of operating modes for select control
-char tmpMessage[300]={'\0'};
-
+const char* hc_opmode_optval[3] = {webText.NIGHT[LANG], webText.DAY[LANG], webText.AUTOMATIC[LANG]};    // array of operating modes for select control
+char tmpMessage[300]={'\0'};              // temp string
 long oilcounter, oilcounterOld;           // actual and old oilcounter value
 
 
@@ -212,8 +211,8 @@ void webUISetup(){
 
   // WW-Temp
   auto wwTemp_Group = addGroupHelper(webText.WW[LANG], Dark, id.tab.dashboard);
-  ESPUI.setElementStyle(ESPUI.addControl(Label, "", String(webText.SET_TEMP[LANG])+ String(" °C"), None, wwTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
-  ESPUI.setElementStyle(ESPUI.addControl(Label, "", String(webText.ACT_TEMP[LANG])+ String(" °C"), None, wwTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.SET_TEMP_C[LANG], None, wwTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.ACT_TEMP_C[LANG], None, wwTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
   id.dash.wwSetTemp = ESPUI.addControl(Label, "", "--", None, wwTemp_Group);
   ESPUI.setElementStyle(id.dash.wwSetTemp, "width: 45%; font-size: 30px");
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, wwTemp_Group), "background-color: unset; width: 10%;");
@@ -222,8 +221,8 @@ void webUISetup(){
   
   // Burner-Temp
   auto burnerTemp_Group = addGroupHelper(webText.BURNER_TEMP[LANG], Dark, id.tab.dashboard);
-  ESPUI.setElementStyle(ESPUI.addControl(Label, "", String(webText.SET_TEMP[LANG])+ String(" °C"), None, burnerTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
-  ESPUI.setElementStyle(ESPUI.addControl(Label, "", String(webText.ACT_TEMP[LANG])+ String(" °C"), None, burnerTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.SET_TEMP_C[LANG], None, burnerTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.ACT_TEMP_C[LANG], None, burnerTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
   id.dash.burnerSetTemp = ESPUI.addControl(Label, "", "--", None, burnerTemp_Group);
   ESPUI.setElementStyle(id.dash.burnerSetTemp, "width: 45%; font-size: 30px");
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, burnerTemp_Group), "background-color: unset; width: 10%;");
@@ -233,8 +232,8 @@ void webUISetup(){
   // HC Flow-Temp
   #ifdef USE_HC1
     auto hc1flowTemp_Group = addGroupHelper(webText.HC1_FLOW[LANG], Dark, id.tab.dashboard);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", String(webText.SET_TEMP[LANG])+ String(" °C"), None, hc1flowTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", String(webText.ACT_TEMP[LANG])+ String(" °C"), None, hc1flowTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.SET_TEMP_C[LANG], None, hc1flowTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.ACT_TEMP_C[LANG], None, hc1flowTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
     id.dash.hc1flowSetTemp = ESPUI.addControl(Label, "", "--", None, hc1flowTemp_Group);
     ESPUI.setElementStyle(id.dash.hc1flowSetTemp, "width: 45%; font-size: 30px");
     ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, hc1flowTemp_Group), "background-color: unset; width: 10%;");
@@ -243,8 +242,8 @@ void webUISetup(){
   #else
     #ifdef USE_HC2
       auto hc2flowTemp_Group = addGroupHelper(webText.HC2_FLOW[LANG], Dark, id.tab.dashboard);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", String(webText.SET_TEMP[LANG])+ String(" °C"), None, hc2flowTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", String(webText.ACT_TEMP[LANG])+ String(" °C"), None, hc2flowTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
+      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.SET_TEMP_C[LANG], None, hc2flowTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
+      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.ACT_TEMP_C[LANG], None, hc2flowTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
       id.dash.hc2flowSetTemp = ESPUI.addControl(Label, "", "--", None, hc2flowTemp_Group);
       ESPUI.setElementStyle(id.dash.hc2flowSetTemp, "width: 45%; font-size: 30px");
       ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, hc2flowTemp_Group), "background-color: unset; width: 10%;");
@@ -386,7 +385,7 @@ void webUISetup(){
   -------------------------------------------------------------------------*/
   #ifdef USE_HC1
     
-    id.tab.hc1 = ESPUI.addControl(Tab, "", String(webText.HC1[LANG]), ControlColor::None, 0, generalCallback);
+    id.tab.hc1 = ESPUI.addControl(Tab, "", webText.HC1[LANG], ControlColor::None, 0, generalCallback);
     
     // config
     auto hc1_config                       = addGroupHelper(webText.CONFIG[LANG], Dark, id.tab.hc1);
@@ -474,7 +473,7 @@ void webUISetup(){
   
     #ifdef USE_HC2
     
-    id.tab.hc2 = ESPUI.addControl(Tab, "", String(webText.HC2[LANG]), ControlColor::None, 0, generalCallback);
+    id.tab.hc2 = ESPUI.addControl(Tab, "", webText.HC2[LANG], ControlColor::None, 0, generalCallback);
 
     // config values
     auto hc2_config                       = addGroupHelper(webText.CONFIG[LANG], Dark, id.tab.hc2);
@@ -557,7 +556,7 @@ void webUISetup(){
   /*-------------------------------------------------------------------------
   // TAB: Warm-Water
   -------------------------------------------------------------------------*/
-  id.tab.ww = ESPUI.addControl(Tab, "", String(webText.WW[LANG]), ControlColor::None, 0, generalCallback);
+  id.tab.ww = ESPUI.addControl(Tab, "", webText.WW[LANG], ControlColor::None, 0, generalCallback);
 
   // config values
   auto ww_config                        = addGroupHelper(webText.CONFIG[LANG], Dark, id.tab.ww);
@@ -605,7 +604,7 @@ void webUISetup(){
   /*-------------------------------------------------------------------------
   // TAB: Burner
   -------------------------------------------------------------------------*/
-  id.tab.boiler = ESPUI.addControl(Tab, "", String(webText.BURNER[LANG]), ControlColor::None, 0, generalCallback);
+  id.tab.boiler = ESPUI.addControl(Tab, "", webText.BURNER[LANG], ControlColor::None, 0, generalCallback);
 
   auto boiler_status = addGroupHelper(webText.STATUS[LANG], Dark, id.tab.boiler);
   id.stat.boiler_ctrl                = addGroupValueHelper(km271StatTopics.BOILER_CONTROL[LANG], "--", "", boiler_status);
@@ -651,7 +650,7 @@ void webUISetup(){
   /*-------------------------------------------------------------------------
   // TAB: General
   -------------------------------------------------------------------------*/
-  id.tab.general = ESPUI.addControl(Tab, "", String(webText.GENERAL[LANG]), ControlColor::None, 0, generalCallback);
+  id.tab.general = ESPUI.addControl(Tab, "", webText.GENERAL[LANG], ControlColor::None, 0, generalCallback);
 
   auto general_config                         = addGroupHelper(webText.CONFIG[LANG], Dark, id.tab.general);
   id.cfg.building_type                        = addGroupCfgHelper(km271CfgTopics.BUILDING_TYP[LANG], "--", general_config);

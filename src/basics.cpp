@@ -188,16 +188,16 @@ void sendWiFiInfo() {
 
     IPAddress localIP = WiFi.localIP();
     snprintf(wifi.ipAddress, sizeof(wifi.ipAddress), "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);
-    DynamicJsonDocument wifiJSON(1024);
+    DynamicJsonDocument wifiJSON(255);
     wifiJSON["status"] = "online";
     wifiJSON["rssi"] = wifi.rssi;
     wifiJSON["signal"] = wifi.signal;
     wifiJSON["ip"] = wifi.ipAddress;
     wifiJSON["date-time"] = getDateTimeString();
 
-    String sendWififJSON;
+    char sendWififJSON[255];
     serializeJson(wifiJSON, sendWififJSON);
-    mqttPublish(addTopic("/wifi"),String(sendWififJSON).c_str(), false); 
+    mqttPublish(addTopic("/wifi"),sendWififJSON, false); 
 
     // wifi status
     mqttPublish(addTopic("/status"), "online", false);

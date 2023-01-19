@@ -1377,13 +1377,13 @@ e_ret km271ProtInit(int rxPin, int txPin) {
  * @return  none
  * *******************************************************************/
 void sendKM271Info(){
-  DynamicJsonDocument infoJSON(1024);
+  DynamicJsonDocument infoJSON(255);
   infoJSON[0]["logmode"] = km271LogModeActive;
   infoJSON[0]["send_cmd_busy"] = (send_buf[0]!=0);
   infoJSON[0]["date-time"] = getDateTimeString();
-  String sendInfoJSON;
+  char sendInfoJSON[255]={'\0'}; ;
   serializeJson(infoJSON, sendInfoJSON);
-  mqttPublish(addTopic("/info"),String(sendInfoJSON).c_str(), false);
+  mqttPublish(addTopic("/info"),sendInfoJSON, false);
 }
 
 /**
