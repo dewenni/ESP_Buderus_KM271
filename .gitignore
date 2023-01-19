@@ -7,9 +7,8 @@
 .vscode/extensions.json
 .vscode/c_cpp_properties.json
 .travis.yml
-include/_Credentials.h
 include/_config.h
-include/__Credentials.h
+include/Credentials.h
 Todo.txt
 values.md
 Datenpunkte.txt
