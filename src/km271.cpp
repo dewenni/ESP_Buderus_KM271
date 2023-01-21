@@ -19,11 +19,10 @@ float decodeNegValue(uint8_t data);
 void decodeTimer(char * timerInfo, unsigned int size, uint8_t dateOnOff, uint8_t time);
 void decodeErrorMsg(char * errorMsg, unsigned int size, uint8_t *data);
 uint8_t getErrorTextIndex(uint8_t errorNr);
-
 const char * addCfgTopic(const char *suffix);
 const char * addStatTopic(const char *suffix);
 const char * addAlarmTopic(const char *suffix);
-
+uint8_t limit(uint8_t lower, uint8_t value, uint8_t upper);
 
 /* V A R I A B L E S ********************************************************/
 s_mqtt_messags       mqttMsg;                                      // texts for mqtt messages
@@ -66,64 +65,64 @@ bool        km271LogModeActive = false;
  * *******************************************************************/
 void cyclicKM271(){
   // >>>>>>>>> KM271 Main Handling >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-  if(Serial2.readBytes(&rxByte, 1)) {                                   // Wait for RX byte, if timeout, just loop and read again
-    // Protocol handling
-    kmRxBcc ^= rxByte;                                                  // Calculate BCC
-    switch(kmRxStatus) {
-      case KM_RX_RESYNC:                                                // Unknown state, discard everthing but STX
-        if(rxByte == KM_STX) {                                          // React on STX only to re-synchronise
-          kmRxBuf.buf[0] = KM_STX;                                      // Store current STX
-          kmRxBuf.len = 1;                                              // Set length
-          kmRxStatus = KM_RX_IDLE;                                      // Sync done, now continue to receive
-          handleRxBlock(kmRxBuf.buf, kmRxBuf.len, rxByte);              // Handle RX block
-        }
-        break;
-      case KM_RX_IDLE:                                                  // Start of block or command
-        kmRxBuf.buf[0] = rxByte;                                        // Store current byte
-        kmRxBuf.len = 1;                                                // Initialise length
-        kmRxBcc = rxByte;                                               // Reset BCC
+  if(Serial2.readBytes(&rxByte, 1)) {                                           // Wait for RX byte, if timeout, just loop and read again
+    // Protocol handling        
+    kmRxBcc ^= rxByte;                                                          // Calculate BCC
+    switch(kmRxStatus) {        
+      case KM_RX_RESYNC:                                                        // Unknown state, discard everthing but STX
+        if(rxByte == KM_STX) {                                                  // React on STX only to re-synchronise
+          kmRxBuf.buf[0] = KM_STX;                                              // Store current STX
+          kmRxBuf.len = 1;                                                      // Set length
+          kmRxStatus = KM_RX_IDLE;                                              // Sync done, now continue to receive
+          handleRxBlock(kmRxBuf.buf, kmRxBuf.len, rxByte);                      // Handle RX block
+        }       
+        break;        
+      case KM_RX_IDLE:                                                          // Start of block or command
+        kmRxBuf.buf[0] = rxByte;                                                // Store current byte
+        kmRxBuf.len = 1;                                                        // Initialise length
+        kmRxBcc = rxByte;                                                       // Reset BCC
         if((rxByte == KM_STX) || (rxByte == KM_DLE) || (rxByte == KM_NAK)) {    // Give STX, DLE, NAK directly to caller
-          handleRxBlock(kmRxBuf.buf, kmRxBuf.len, rxByte);              // Handle RX block
-        } else {                                                        // Whole block will follow
-          kmRxStatus = KM_RX_ON;                                        // More data to follow, start collecting
+          handleRxBlock(kmRxBuf.buf, kmRxBuf.len, rxByte);                      // Handle RX block
+        } else {                                                                // Whole block will follow
+          kmRxStatus = KM_RX_ON;                                                // More data to follow, start collecting
         }
         break;                      
-      case KM_RX_ON:                                                    // Block reception ongoing
-        if(rxByte == KM_DLE) {                                          // Handle DLE doubling
-          kmRxStatus = KM_RX_DLE;                                       // Discard first received DLE, could be doubling or end of block, check in next state
-          break;                                                        // Quit here without storing
+      case KM_RX_ON:                                                            // Block reception ongoing
+        if(rxByte == KM_DLE) {                                                  // Handle DLE doubling
+          kmRxStatus = KM_RX_DLE;                                               // Discard first received DLE, could be doubling or end of block, check in next state
+          break;                                                                // Quit here without storing
         }
-        if(kmRxBuf.len >= KM_RX_BUF_LEN) {                              // Check allowed block len, if too long, re-sync
-          kmRxStatus = KM_RX_RESYNC;                                    // Enter re-sync
-          break;                                                        // Do not save data beyond array border
+        if(kmRxBuf.len >= KM_RX_BUF_LEN) {                                      // Check allowed block len, if too long, re-sync
+          kmRxStatus = KM_RX_RESYNC;                                            // Enter re-sync
+          break;                                                                // Do not save data beyond array border
         }
-        kmRxBuf.buf[kmRxBuf.len] = rxByte;                              // No DLE -> store regular, current byte
-        kmRxBuf.len++;                                                  // Adjust length in rx buffer
+        kmRxBuf.buf[kmRxBuf.len] = rxByte;                                      // No DLE -> store regular, current byte
+        kmRxBuf.len++;                                                          // Adjust length in rx buffer
         break;
-      case KM_RX_DLE:                                                   // Entered when one DLE was already received
-        if(rxByte == KM_DLE) {                                          // Double DLE?
-          if(kmRxBuf.len >= KM_RX_BUF_LEN) {                            // Check allowed block len, if too long, re-sync
-            kmRxStatus = KM_RX_RESYNC;                                  // Enter re-sync
-            break;                                                      // Do not save data beyond array border
+      case KM_RX_DLE:                                                           // Entered when one DLE was already received
+        if(rxByte == KM_DLE) {                                                  // Double DLE?
+          if(kmRxBuf.len >= KM_RX_BUF_LEN) {                                    // Check allowed block len, if too long, re-sync
+            kmRxStatus = KM_RX_RESYNC;                                          // Enter re-sync
+            break;                                                              // Do not save data beyond array border
           }
-          kmRxBuf.buf[kmRxBuf.len] = rxByte;                            // Yes -> store this DLE as valid part of data
-          kmRxBuf.len++;                                                // Adjust length in rx buffer
-          kmRxStatus = KM_RX_ON;                                        // Continue to receive block
-        } else {                                                        // This should be ETX now
-          if(rxByte == KM_ETX) {                                        // Really? then we are done, just waiting for BCC
-            kmRxStatus = KM_RX_BCC;                                     // Receive BCC and verify it
+          kmRxBuf.buf[kmRxBuf.len] = rxByte;                                    // Yes -> store this DLE as valid part of data
+          kmRxBuf.len++;                                                        // Adjust length in rx buffer
+          kmRxStatus = KM_RX_ON;                                                // Continue to receive block
+        } else {                                                                // This should be ETX now
+          if(rxByte == KM_ETX) {                                                // Really? then we are done, just waiting for BCC
+            kmRxStatus = KM_RX_BCC;                                             // Receive BCC and verify it
           } else {
-            kmRxStatus = KM_RX_RESYNC;                                  // Something wrong, just try to restart 
+            kmRxStatus = KM_RX_RESYNC;                                          // Something wrong, just try to restart 
           }
         }
         break;
-      case KM_RX_BCC:                                                   // Last stage, BCC verification, "received BCC" ^ "calculated BCC" shall be 0 
-        if(!kmRxBcc) {                                                  // Block is valid
-          handleRxBlock(kmRxBuf.buf, kmRxBuf.len, rxByte);              // Handle RX block, provide BCC for debug logging, too
+      case KM_RX_BCC:                                                           // Last stage, BCC verification, "received BCC" ^ "calculated BCC" shall be 0 
+        if(!kmRxBcc) {                                                          // Block is valid
+          handleRxBlock(kmRxBuf.buf, kmRxBuf.len, rxByte);                      // Handle RX block, provide BCC for debug logging, too
         } else {
-          sendTxBlock(KmCNAK, sizeof(KmCNAK));                          // Send NAK, ask for re-sending the block
+          sendTxBlock(KmCNAK, sizeof(KmCNAK));                                  // Send NAK, ask for re-sending the block
         }
-        kmRxStatus = KM_RX_IDLE;                                        // Wait for next data or re-sent block
+        kmRxStatus = KM_RX_IDLE;                                                // Wait for next data or re-sent block
         break;    
     } // end-case
   }  // end-if
@@ -167,15 +166,15 @@ void handleRxBlock(uint8_t *data, int len, uint8_t bcc) {
       break;
     case KM_TSK_LOGGING:                                                    // We have reached logging state
       if(data[0] == KM_STX) {                                               // If STX, this is a send request
-        if (send_buf[0] != 0){                                            // If a send-request is active, 
+        if (send_buf[0] != 0){                                              // If a send-request is active, 
           sendTxBlock(KmCSTX, sizeof(KmCSTX));                              // send STX to KM271 to request for send data
         }
         else {
           sendTxBlock(KmCDLE, sizeof(KmCDLE));                              // Confirm handling of block by sending DLE
         }
       } else if(data[0] == KM_DLE) {                                        // KM271 is ready to receive
-          sendTxBlock(send_buf, sizeof(send_buf));                      // send buffer 
-          memset(send_buf, 0, sizeof(send_buf));                        // clear buffer
+          sendTxBlock(send_buf, sizeof(send_buf));                          // send buffer 
+          memset(send_buf, 0, sizeof(send_buf));                            // clear buffer
           KmRxBlockState = KM_TSK_START;                                    // start log-mode again, to get all new values
       } else {                                                              // If not STX, it should be valid data block
         parseInfo(data, len);                                               // Handle data block with event information
@@ -706,9 +705,9 @@ void parseInfo(uint8_t *data, int len) {
 
     case 0x0000: 
       kmConfigNum.summer_mode_threshold = data[2+1];
-      snprintf(kmConfigStr.summer_mode_threshold, sizeof(kmConfigStr.summer_mode_threshold), "%s", cfgArray.SUMMER[kmConfigNum.summer_mode_threshold-9]);
+      snprintf(kmConfigStr.summer_mode_threshold, sizeof(kmConfigStr.summer_mode_threshold), "%s", cfgArray.SUMMER[limit(0, kmConfigNum.summer_mode_threshold-9, 22)]);
       mqttPublish(addCfgTopic(cfgTopic.SUMMER_THRESHOLD[LANG]), kmConfigStr.summer_mode_threshold, false);                                // "CFG_Sommer_ab"            => "0000:1,p:-9,a"
-
+      
       #ifdef USE_HC1
       kmConfigNum.hc1_night_temp = decode05cTemp(data[2+2]);
       snprintf(kmConfigStr.hc1_night_temp, sizeof(kmConfigStr.hc1_night_temp), "%0.1f °C", kmConfigNum.hc1_night_temp);
@@ -719,7 +718,7 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addCfgTopic(cfgTopic.HC1_DAY_TEMP[LANG]), kmConfigStr.hc1_day_temp, false);                                     // "CFG_HK1_Tagtemperatur"     => "0000:3,d:2"
       
       kmConfigNum.hc1_operation_mode = data[2+4];
-      snprintf(kmConfigStr.hc1_operation_mode, sizeof(kmConfigStr.hc1_operation_mode), "%s", cfgArray.OPMODE[kmConfigNum.hc1_operation_mode]); 
+      snprintf(kmConfigStr.hc1_operation_mode, sizeof(kmConfigStr.hc1_operation_mode), "%s", cfgArray.OPMODE[limit(0, kmConfigNum.hc1_operation_mode, 2)]); 
       mqttPublish(addCfgTopic(cfgTopic.HC1_OPMODE[LANG]), kmConfigStr.hc1_operation_mode, false);                                 // "CFG_HK1_Betriebsart"       => "0000:4,a:4"
       
       kmConfigNum.hc1_holiday_temp = decode05cTemp(data[2+5]);
@@ -743,7 +742,7 @@ void parseInfo(uint8_t *data, int len) {
     case 0x0015: 
       #ifdef USE_HC1
       kmConfigNum.hc1_switch_on_temperature = data[2+4];
-      snprintf(kmConfigStr.hc1_switch_on_temperature, sizeof(kmConfigStr.hc1_switch_on_temperature), "%s", cfgArray.SWITCH_ON_TEMP[kmConfigNum.hc1_switch_on_temperature]);
+      snprintf(kmConfigStr.hc1_switch_on_temperature, sizeof(kmConfigStr.hc1_switch_on_temperature), "%s", cfgArray.SWITCH_ON_TEMP[limit(0, kmConfigNum.hc1_switch_on_temperature, 10)]);
       mqttPublish(addCfgTopic(cfgTopic.HC1_SWITCH_ON_TEMP[LANG]), kmConfigStr.hc1_switch_on_temperature, false);              // "CFG_HK1_Aufschalttemperatur"  => "0015:0,a"
       
       kmConfigNum.hc1_switch_off_threshold = decodeNegValue(data[2+2]);
@@ -755,11 +754,11 @@ void parseInfo(uint8_t *data, int len) {
     case 0x001c: 
       #ifdef USE_HC1
       kmConfigNum.hc1_reduction_mode = data[2+1];
-      snprintf(kmConfigStr.hc1_reduction_mode, sizeof(kmConfigStr.hc1_reduction_mode), "%s", cfgArray.REDUCT_MODE[kmConfigNum.hc1_reduction_mode]);
+      snprintf(kmConfigStr.hc1_reduction_mode, sizeof(kmConfigStr.hc1_reduction_mode), "%s", cfgArray.REDUCT_MODE[limit(0, kmConfigNum.hc1_reduction_mode, 3)]);
       mqttPublish(addCfgTopic(cfgTopic.HC1_REDUCTION_MODE[LANG]), kmConfigStr.hc1_reduction_mode, false);              // "CFG_HK1_Absenkungsart"    => "001c:1,a"
       
       kmConfigNum.hc1_heating_system = data[2+2];
-      snprintf(kmConfigStr.hc1_heating_system, sizeof(kmConfigStr.hc1_heating_system), "%s", cfgArray.HEATING_SYSTEM[kmConfigNum.hc1_heating_system]);
+      snprintf(kmConfigStr.hc1_heating_system, sizeof(kmConfigStr.hc1_heating_system), "%s", cfgArray.HEATING_SYSTEM[limit(0, kmConfigNum.hc1_heating_system, 3)]);
       mqttPublish(addCfgTopic(cfgTopic.HC1_HEATING_SYSTEM[LANG]), kmConfigStr.hc1_heating_system, false);             // "CFG_HK1_Heizsystem"       => "001c:2,a"
       #endif
       break;
@@ -771,7 +770,7 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addCfgTopic(cfgTopic.HC1_TEMP_OFFSET[LANG]), kmConfigStr.hc1_temp_offset, false);                              // "CFG_HK1_Temperatur_Offset"    => "0031:3,s,d:2"
       
       kmConfigNum.hc1_remotecontrol = data[2+4];
-      snprintf(kmConfigStr.hc1_remotecontrol, sizeof(kmConfigStr.hc1_remotecontrol), "%s", cfgArray.ON_OFF[kmConfigNum.hc1_remotecontrol]);
+      snprintf(kmConfigStr.hc1_remotecontrol, sizeof(kmConfigStr.hc1_remotecontrol), "%s", cfgArray.ON_OFF[limit(0, kmConfigNum.hc1_remotecontrol, 1)]);
       mqttPublish(addCfgTopic(cfgTopic.HC1_REMOTECTRL[LANG]), kmConfigStr.hc1_remotecontrol, false);                             // "CFG_HK1_Fernbedienung"        => "0031:4,a"  
       #endif
       
@@ -791,7 +790,7 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addCfgTopic(cfgTopic.HC2_DAY_TEMP[LANG]), kmConfigStr.hc2_day_temp, false);                                     // "CFG_HK2_Tagtemperatur"     => "0038:3,d:2"
       
       kmConfigNum.hc2_operation_mode = data[2+4];
-      snprintf(kmConfigStr.hc2_operation_mode, sizeof(kmConfigStr.hc2_operation_mode), "%s", cfgArray.OPMODE[kmConfigNum.hc2_operation_mode]);
+      snprintf(kmConfigStr.hc2_operation_mode, sizeof(kmConfigStr.hc2_operation_mode), "%s", cfgArray.OPMODE[limit(0, kmConfigNum.hc2_operation_mode, 2)]);
       mqttPublish(addCfgTopic(cfgTopic.HC2_OPMODE[LANG]), kmConfigStr.hc2_operation_mode, false);                                 // "CFG_HK2_Betriebsart"       => "0038:4,a:4"
       
       kmConfigNum.hc2_holiday_temp = decode05cTemp(data[2+5]);
@@ -814,12 +813,12 @@ void parseInfo(uint8_t *data, int len) {
 
     case 0x004d: 
       kmConfigNum.ww_priority = data[2+1];
-      snprintf(kmConfigStr.ww_priority, sizeof(kmConfigStr.ww_priority), "%s", cfgArray.ON_OFF[kmConfigNum.ww_priority]);
+      snprintf(kmConfigStr.ww_priority, sizeof(kmConfigStr.ww_priority), "%s", cfgArray.ON_OFF[limit(0, kmConfigNum.ww_priority, 1)]);
       mqttPublish(addCfgTopic(cfgTopic.WW_PRIO[LANG]), kmConfigStr.ww_priority, false);                                         // "CFG_WW_Vorrang"   => "004d:1,a"
       
       #ifdef USE_HC2
       kmConfigNum.hc2_switch_on_temperature = data[2];
-      snprintf(kmConfigStr.hc2_switch_on_temperature, sizeof(kmConfigStr.hc2_switch_on_temperature), "%s", cfgArray.SWITCH_ON_TEMP[kmConfigNum.hc2_switch_on_temperature]);       
+      snprintf(kmConfigStr.hc2_switch_on_temperature, sizeof(kmConfigStr.hc2_switch_on_temperature), "%s", cfgArray.SWITCH_ON_TEMP[limit(0, kmConfigNum.hc2_switch_on_temperature, 10)]);       
       mqttPublish(addCfgTopic(cfgTopic.HC2_SWITCH_ON_TEMP[LANG]), kmConfigStr.hc2_switch_on_temperature, false);                // "CFG_HK1_Aufschalttemperatur"  => "004d:0,a"
       
       kmConfigNum.hc2_switch_off_threshold = decodeNegValue(data[2+2]);
@@ -831,11 +830,11 @@ void parseInfo(uint8_t *data, int len) {
     case 0x0054: 
       #ifdef USE_HC2
       kmConfigNum.hc2_reduction_mode = data[2+1];
-      snprintf(kmConfigStr.hc2_reduction_mode, sizeof(kmConfigStr.hc2_reduction_mode), "%s", cfgArray.REDUCT_MODE[kmConfigNum.hc2_reduction_mode]); 
+      snprintf(kmConfigStr.hc2_reduction_mode, sizeof(kmConfigStr.hc2_reduction_mode), "%s", cfgArray.REDUCT_MODE[limit(0, kmConfigNum.hc2_reduction_mode, 3)]); 
       mqttPublish(addCfgTopic(cfgTopic.HC2_REDUCTION_MODE[LANG]), kmConfigStr.hc2_reduction_mode, false);                          // "CFG_HK1_Absenkungsart"    => "0054:1,a"
       
       kmConfigNum.hc2_heating_system = data[2+1];
-      snprintf(kmConfigStr.hc2_heating_system, sizeof(kmConfigStr.hc2_heating_system), "%s", cfgArray.HEATING_SYSTEM[kmConfigNum.hc2_heating_system]);    
+      snprintf(kmConfigStr.hc2_heating_system, sizeof(kmConfigStr.hc2_heating_system), "%s", cfgArray.HEATING_SYSTEM[limit(0, kmConfigNum.hc2_heating_system, 3)]);    
       mqttPublish(addCfgTopic(cfgTopic.HC2_HEATING_SYSTEM[LANG]), kmConfigStr.hc2_heating_system, false);                       // "CFG_HK1_Heizsystem"       => "0054:2,a"
       #endif
       break;
@@ -847,14 +846,14 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addCfgTopic(cfgTopic.HC2_TEMP_OFFSET[LANG]), kmConfigStr.hc2_temp_offset, false);                         // "CFG_HK2_Temperatur_Offset"    => "0069:3,s,d:2"
       
       kmConfigNum.hc2_remotecontrol = data[2+4];
-      snprintf(kmConfigStr.hc2_remotecontrol, sizeof(kmConfigStr.hc2_remotecontrol), "%s", cfgArray.ON_OFF[kmConfigNum.hc2_remotecontrol]); 
+      snprintf(kmConfigStr.hc2_remotecontrol, sizeof(kmConfigStr.hc2_remotecontrol), "%s", cfgArray.ON_OFF[limit(0, kmConfigNum.hc2_remotecontrol, 1)]); 
       mqttPublish(addCfgTopic(cfgTopic.HC2_REMOTECTRL[LANG]), kmConfigStr.hc2_remotecontrol, false);                                                   // "CFG_HK2_Fernbedienung"        => "0069:4,a"  
       #endif
       break;
 
     case 0x0070: 
       kmConfigNum.building_type = data[2+2];
-      snprintf(kmConfigStr.building_type, sizeof(kmConfigStr.building_type), "%s", cfgArray.BUILDING_TYPE[kmConfigNum.building_type]); 
+      snprintf(kmConfigStr.building_type, sizeof(kmConfigStr.building_type), "%s", cfgArray.BUILDING_TYPE[limit(0, kmConfigNum.building_type, 2)]); 
       mqttPublish(addCfgTopic(cfgTopic.BUILDING_TYP[LANG]), kmConfigStr.building_type, false);              // "CFG_Gebaeudeart"   => "0070:2,a" 
       break;
 
@@ -866,33 +865,32 @@ void parseInfo(uint8_t *data, int len) {
 
     case 0x0085: 
       kmConfigNum.ww_operation_mode = data[2];
-      snprintf(kmConfigStr.ww_operation_mode, sizeof(kmConfigStr.ww_operation_mode), "%s", cfgArray.OPMODE[kmConfigNum.ww_operation_mode]); 
+      snprintf(kmConfigStr.ww_operation_mode, sizeof(kmConfigStr.ww_operation_mode), "%s", cfgArray.OPMODE[limit(0, kmConfigNum.ww_operation_mode, 2)]); 
       mqttPublish(addCfgTopic(cfgTopic.WW_OPMODE[LANG]), kmConfigStr.ww_operation_mode, false);                // "CFG_WW_Betriebsart"  => "0085:0,a"
       
       kmConfigNum.ww_processing = data[2+3];
-      snprintf(kmConfigStr.ww_processing, sizeof(kmConfigStr.ww_processing), "%s", cfgArray.ON_OFF[kmConfigNum.ww_processing]); 
+      snprintf(kmConfigStr.ww_processing, sizeof(kmConfigStr.ww_processing), "%s", cfgArray.ON_OFF[limit(0, kmConfigNum.ww_processing, 1)]); 
       mqttPublish(addCfgTopic(cfgTopic.WW_PROCESSING[LANG]), kmConfigStr.ww_processing, false);               // "CFG_WW_Aufbereitung"  => "0085:3,a"
       
       kmConfigNum.ww_circulation = data[2+5];
-      snprintf(kmConfigStr.ww_circulation, sizeof(kmConfigStr.ww_circulation), "%s", cfgArray.CIRC_INTERVAL[kmConfigNum.ww_circulation]); 
+      snprintf(kmConfigStr.ww_circulation, sizeof(kmConfigStr.ww_circulation), "%s", cfgArray.CIRC_INTERVAL[limit(0, kmConfigNum.ww_circulation, 7)]); 
       mqttPublish(addCfgTopic(cfgTopic.WW_CIRCULATION[LANG]), kmConfigStr.ww_circulation, false);             // "CFG_WW_Zirkulation"   => "0085:5,a"
       break;
 
     case 0x0093: 
       kmConfigNum.language = data[2];
-      snprintf(kmConfigStr.language, sizeof(kmConfigStr.language), "%s", cfgArray.LANGUAGE[kmConfigNum.language]); 
+      snprintf(kmConfigStr.language, sizeof(kmConfigStr.language), "%s", cfgArray.LANGUAGE[limit(0, kmConfigNum.language, 5)]); 
       mqttPublish(addCfgTopic(cfgTopic.LANGUAGE[LANG]), kmConfigStr.language, false);    // "CFG_Sprache"   => "0093:0"
       
       kmConfigNum.display = data[2+1];
-      snprintf(kmConfigStr.display, sizeof(kmConfigStr.display), "%s", cfgArray.SCREEN[kmConfigNum.display]); 
+      snprintf(kmConfigStr.display, sizeof(kmConfigStr.display), "%s", cfgArray.SCREEN[limit(0, kmConfigNum.display, 3)]); 
       mqttPublish(addCfgTopic(cfgTopic.SCREEN[LANG]), kmConfigStr.display, false);    // "CFG_Anzeige"   => "0093:1,a"
       break;
 
     case 0x009a: 
       kmConfigNum.burner_type = data[2+1];
-      snprintf(kmConfigStr.burner_type, sizeof(kmConfigStr.burner_type), "%s", cfgArray.BURNER_TYPE[kmConfigNum.burner_type-1]); 
+      snprintf(kmConfigStr.burner_type, sizeof(kmConfigStr.burner_type), "%s", cfgArray.BURNER_TYPE[limit(0, kmConfigNum.burner_type-1, 2)]); 
       mqttPublish(addCfgTopic(cfgTopic.BURNER_TYP[LANG]), kmConfigStr.burner_type, false);                        // "CFG_Brennerart"             => "009a:1,p:-1,a:12"),
-      
       kmConfigNum.max_boiler_temperature = data[2+3];
       snprintf(kmConfigStr.max_boiler_temperature, sizeof(kmConfigStr.max_boiler_temperature), "%i °C", kmConfigNum.max_boiler_temperature); 
       mqttPublish(addCfgTopic(cfgTopic.MAX_BOILER_TEMP[LANG]), kmConfigStr.max_boiler_temperature, false);       // "CFG_Max_Kesseltemperatur"   => "009a:3"
@@ -904,7 +902,7 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addCfgTopic(cfgTopic.PUMP_LOGIC[LANG]), kmConfigStr.pump_logic_temp, false);                    // "CFG_Pumplogik"                => "00a1:0"
       
       kmConfigNum.exhaust_gas_temperature_threshold = data[2+5];
-      snprintf(kmConfigStr.exhaust_gas_temperature_threshold, sizeof(kmConfigStr.exhaust_gas_temperature_threshold), "%s", cfgArray.EXHAUST_GAS_THRESHOLD[kmConfigNum.exhaust_gas_temperature_threshold-9]); 
+      snprintf(kmConfigStr.exhaust_gas_temperature_threshold, sizeof(kmConfigStr.exhaust_gas_temperature_threshold), "%s", cfgArray.EXHAUST_GAS_THRESHOLD[limit(0, kmConfigNum.exhaust_gas_temperature_threshold-9, 41)]); 
       mqttPublish(addCfgTopic(cfgTopic.EXHAUST_THRESHOLD[LANG]), kmConfigStr.exhaust_gas_temperature_threshold, false);           // "CFG_Abgastemperaturschwelle"  => "00a1:5,p:-9,a"
       break;
 
@@ -922,7 +920,7 @@ void parseInfo(uint8_t *data, int len) {
     case 0x0100:
       #ifdef USE_HC1
       kmConfigNum.hc1_program = data[2];
-      snprintf(kmConfigStr.hc1_program, sizeof(kmConfigStr.hc1_program), "%s", cfgArray.HC_PROGRAM[kmConfigNum.hc1_program]); 
+      snprintf(kmConfigStr.hc1_program, sizeof(kmConfigStr.hc1_program), "%s", cfgArray.HC_PROGRAM[limit(0, kmConfigNum.hc1_program, 8)]); 
       mqttPublish(addCfgTopic(cfgTopic.HC1_PROGRAM[LANG]), kmConfigStr.hc1_program, false);     // "CFG_HK1_Programm"  => "0100:0"
       #endif
       break;
@@ -930,7 +928,7 @@ void parseInfo(uint8_t *data, int len) {
     case 0x0169:
       #ifdef USE_HC2
       kmConfigNum.hc2_program = data[2];
-      snprintf(kmConfigStr.hc2_program, sizeof(kmConfigStr.hc2_program), "%s", cfgArray.HC_PROGRAM[kmConfigNum.hc2_program]); 
+      snprintf(kmConfigStr.hc2_program, sizeof(kmConfigStr.hc2_program), "%s", cfgArray.HC_PROGRAM[limit(0, kmConfigNum.hc2_program, 8)]); 
       mqttPublish(addCfgTopic(cfgTopic.HC2_PROGRAM[LANG]), kmConfigStr.hc2_program, false);     // "CFG_HK2_Programm"  => "0169:0"
       #endif
       break;
@@ -1378,12 +1376,30 @@ e_ret km271ProtInit(int rxPin, int txPin) {
  * *******************************************************************/
 void sendKM271Info(){
   DynamicJsonDocument infoJSON(255);
+  infoJSON[0]["burner"] = kmStatus.BurnerStates;
+  infoJSON[0]["pump"] = kmStatus.HC1_PumpPower;
+  infoJSON[0]["ww_temp"] = kmStatus.HotWaterActualTemp;
+  infoJSON[0]["boiler_temp"] = kmStatus.BoilerForwardActualTemp;
+  char sendInfoJSON[255] = {'\0'};
+  serializeJson(infoJSON, sendInfoJSON);
+  mqttPublish(addTopic("/info"),sendInfoJSON, false);
+}
+
+/**
+ * *******************************************************************
+ * @brief   build debug structure ans send it via mqtt
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void sendKM271Debug(){
+  DynamicJsonDocument infoJSON(255);
   infoJSON[0]["logmode"] = km271LogModeActive;
   infoJSON[0]["send_cmd_busy"] = (send_buf[0]!=0);
+  infoJSON[0]["sw_version"] = VERSION;
   infoJSON[0]["date-time"] = getDateTimeString();
   char sendInfoJSON[255]={'\0'}; ;
   serializeJson(infoJSON, sendInfoJSON);
-  mqttPublish(addTopic("/info"),sendInfoJSON, false);
+  mqttPublish(addTopic("/debug"),sendInfoJSON, false);
 }
 
 /**
@@ -1435,25 +1451,94 @@ const char * addAlarmTopic(const char *suffix){
  * @param   dti: date and time info structure
  * @return  none
  * *******************************************************************/
-void km271SetDateTime(){
+void km271SetDateTimeDTI(tm dti){
+  char dateTimeInfo[128]={'\0'};              // Date and time info String
+  /* ---------------- INFO ---------------------------------
+  dti.tm_year + 1900  // years since 1900
+  dti.tm_mon + 1      // January = 0 (!)
+  dti.tm_mday         // day of month
+  dti.tm_hour         // hours since midnight  0-23
+  dti.tm_min          // minutes after the hour  0-59
+  dti.tm_sec          // seconds after the minute  0-61*
+  dti.tm_wday         // days since Sunday 0-6
+  dti.tm_isdst        // Daylight Saving Time flag
+  --------------------------------------------------------- */
+  send_buf[0]= 0x01;                                  // address
+  send_buf[1]= 0x00;                                  // address
+  send_buf[2]= dti.tm_sec;                            // seconds
+  send_buf[3]= dti.tm_min;                            // minutes
+  send_buf[4]= dti.tm_hour;                           // hours (bit 0-4)
+  if (dti.tm_isdst>0)       
+    send_buf[4] |= (1 << 6) & 0x40;                   // if time ist DST  (bit 6) 
+  send_buf[5]= dti.tm_mday;                           // day of month
+  send_buf[6]= dti.tm_mon+1;                          // month
+  send_buf[6]|= (((dti.tm_wday+6) %7) << 4) & 0x70;   // day of week (Logamatic: 0=monday...6=sunday / wday: 0=sunday...6=saturday)
+  send_buf[7]= dti.tm_year;                           // year year < 100 means 19xx / year > 100 means 20xx
+  
+  char wday[4] = {'\0'};
+  switch (dti.tm_wday)
+  {
+  case 0: snprintf(wday, sizeof(wday), "%s", mqttMsg.MON[LANG]); break;
+  case 1: snprintf(wday, sizeof(wday), "%s", mqttMsg.TUE[LANG]); break;
+  case 2: snprintf(wday, sizeof(wday), "%s", mqttMsg.WED[LANG]); break;
+  case 3: snprintf(wday, sizeof(wday), "%s", mqttMsg.THU[LANG]); break;
+  case 4: snprintf(wday, sizeof(wday), "%s", mqttMsg.FRI[LANG]); break;
+  case 5: snprintf(wday, sizeof(wday), "%s", mqttMsg.SAT[LANG]); break;
+  case 6: snprintf(wday, sizeof(wday), "%s", mqttMsg.SUN[LANG]); break;
+  default: break;
+  }
+  snprintf(dateTimeInfo, sizeof(dateTimeInfo), "%s: (%s) %02d.%02d.%d - %02i:%02i:%02i", mqttMsg.DATETIME_CHANGED[LANG], wday, dti.tm_mday, (dti.tm_mon + 1), (dti.tm_year + 1900), dti.tm_hour, dti.tm_min, dti.tm_sec);
+  mqttPublish(addTopic("/message"), dateTimeInfo, false);
+}
+
+/**
+ * *******************************************************************
+ * @brief   set actual date and time to buderus
+ * @param   dti: date and time info structure
+ * @return  none
+ * *******************************************************************/
+void km271SetDateTimeNTP(){
   char dateTimeInfo[128]={'\0'};              // Date and time info String
   time_t now;                                 // this is the epoch
   tm dti;                                     // the structure tm holds time information in a more convient way
   time(&now);                                 // read the current time
   localtime_r(&now, &dti);                    // update the structure tm with the current time
-  send_buf[0]= 0x01;                          // address
-  send_buf[1]= 0x00;                          // address
-  send_buf[2]= dti.tm_sec;                    // seconds
-  send_buf[3]= dti.tm_min;                    // minutes
-  send_buf[4]= dti.tm_hour;                   // hours (bit 0-4)
-  if (dti.tm_isdst>0)
-    send_buf[4] |= (1 << 6) & 0x40;           // if time ist DST  (bit 6) 
-  send_buf[5]= dti.tm_mday;                   // day of month
-  send_buf[6]= dti.tm_mon;                    // month
-  send_buf[6]|= (dti.tm_wday << 4) & 0x70;    // day of week (0=monday...6=sunday)
-  send_buf[7]= dti.tm_year-1900;              // year 
+  /* ---------------- INFO ---------------------------------
+  dti.tm_year + 1900  // years since 1900
+  dti.tm_mon + 1      // January = 0 (!)
+  dti.tm_mday         // day of month
+  dti.tm_hour         // hours since midnight  0-23
+  dti.tm_min          // minutes after the hour  0-59
+  dti.tm_sec          // seconds after the minute  0-61*
+  dti.tm_wday         // days since Sunday 0-6
+  dti.tm_isdst        // Daylight Saving Time flag
+  --------------------------------------------------------- */
+  send_buf[0]= 0x01;                                  // address
+  send_buf[1]= 0x00;                                  // address
+  send_buf[2]= dti.tm_sec;                            // seconds
+  send_buf[3]= dti.tm_min;                            // minutes
+  send_buf[4]= dti.tm_hour;                           // hours (bit 0-4)
+  if (dti.tm_isdst>0)       
+    send_buf[4] |= (1 << 6) & 0x40;                   // if time ist DST  (bit 6) 
+  send_buf[5]= dti.tm_mday;                           // day of month
+  send_buf[6]= dti.tm_mon+1;                          // month
+  send_buf[6]|= (((dti.tm_wday+6) %7) << 4) & 0x70;   // day of week (Logamatic: 0=monday...6=sunday / wday: 0=sunday...6=saturday)
+  send_buf[7]= dti.tm_year;                           // year 
   
-  snprintf(dateTimeInfo, sizeof(dateTimeInfo), "%s: %d.%d.%d - %02i:%02i:%02i - DST:%d", mqttMsg.DATETIME_CHANGED, dti.tm_mday, (dti.tm_mon + 1), (dti.tm_year + 1900), dti.tm_hour, dti.tm_min, dti.tm_sec, (dti.tm_isdst>0));
+  char wday[4] = {'\0'};
+  switch (dti.tm_wday)
+  {
+  case 0: snprintf(wday, sizeof(wday), "%s", mqttMsg.MON[LANG]); break;
+  case 1: snprintf(wday, sizeof(wday), "%s", mqttMsg.TUE[LANG]); break;
+  case 2: snprintf(wday, sizeof(wday), "%s", mqttMsg.WED[LANG]); break;
+  case 3: snprintf(wday, sizeof(wday), "%s", mqttMsg.THU[LANG]); break;
+  case 4: snprintf(wday, sizeof(wday), "%s", mqttMsg.FRI[LANG]); break;
+  case 5: snprintf(wday, sizeof(wday), "%s", mqttMsg.SAT[LANG]); break;
+  case 6: snprintf(wday, sizeof(wday), "%s", mqttMsg.SUN[LANG]); break;
+  default: break;
+  }
+
+  snprintf(dateTimeInfo, sizeof(dateTimeInfo), "%s: (%s) %02d.%02d.%d - %02i:%02i:%02i - DST:%d", mqttMsg.DATETIME_CHANGED[LANG], wday, dti.tm_mday, (dti.tm_mon + 1), (dti.tm_year + 1900), dti.tm_hour, dti.tm_min, dti.tm_sec, (dti.tm_isdst>0));
   mqttPublish(addTopic("/message"), dateTimeInfo, false);
 }
 
@@ -1949,6 +2034,22 @@ void decodeErrorMsg(char * errorMsg, unsigned int size, uint8_t *data){
         // example: Aussenfuehler defekt (>> 16:31 -3 Tage)
         snprintf(errorMsg, size, "%s (>> %02i:%02i -%i %s)", errMsgText.idx[getErrorTextIndex(data[2])], data[3], data[4], data[5], mqttMsg.DAYS[LANG]);
     }
-  }
-  
+  } 
+}
+
+/**
+ * *******************************************************************
+ * @brief   limit function
+ * @param   lower lower limit
+ * @param   value value that should be limited
+ * @param   upper upper limit
+ * @return  limited value
+ * *******************************************************************/
+uint8_t limit(uint8_t lower, uint8_t value, uint8_t upper){
+  if (value > upper)
+    return upper;
+  else if (value < lower)
+    return lower;
+  else
+    return value;
 }

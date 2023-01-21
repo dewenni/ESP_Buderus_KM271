@@ -5,10 +5,7 @@
 #include <webUI.h>
 #include <oilmeter.h>
 
-/* P I N - A S S I G N M E N T *************************************************/  
-#define LED_WIFI        21     // LED for WiFi Status
-#define LED_HEARBEAT    22     // LED for heartbeat
-#define LED_LOGMODE     23     // LED for LogMode
+
 
 
 /* D E C L A R A T I O N S ****************************************************/  
@@ -107,6 +104,7 @@ void loop()
   {
     sendWiFiInfo();
     sendKM271Info();
+    sendKM271Debug();
   }
 
   #ifdef USE_WEBUI
@@ -114,18 +112,19 @@ void loop()
   #endif
 
   // check every hour if DST has changed
-  if (dstTimer.cycleTrigger(3600000))
-  {
-    time_t now;                       
-    tm dti;                           
-    time(&now);                                   // read the current time
-    localtime_r(&now, &dti);                      // update the structure tm with the current time
-    if (dst_old!=dti.tm_isdst && !main_reboot){   // check if DST has changed
-      km271SetDateTime();                         // change date and time on buderus
+  #ifdef USE_NTP
+    if (dstTimer.cycleTrigger(3600000))
+    {
+      time_t now;                       
+      tm dti;                           
+      time(&now);                                   // read the current time
+      localtime_r(&now, &dti);                      // update the structure tm with the current time
+      if (dst_old!=dti.tm_isdst && !main_reboot){   // check if DST has changed
+        km271SetDateTimeNTP();                      // change date and time on buderus
+      }
+      dst_old=dti.tm_isdst;    
     }
-    dst_old=dti.tm_isdst;    
-  }
-
+  #endif
 
 
   main_reboot = false; // reset reboot flag

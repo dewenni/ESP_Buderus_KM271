@@ -19,12 +19,12 @@ s_wifi wifi;  // global WiFi Informations
 void ntpSetup(){
   #ifdef ARDUINO_ARCH_ESP32
     // ESP32 seems to be a little more complex:
-    configTime(0, 0, MY_NTP_SERVER); // 0, 0 because we will use TZ in the next line
-    setenv("TZ", MY_TZ, 1); // Set environment variable with your time zone
+    configTime(0, 0, NTP_SERVER); // 0, 0 because we will use TZ in the next line
+    setenv("TZ", NTP_TZ, 1); // Set environment variable with your time zone
     tzset();
   #else
     // ESP8266
-    configTime(MY_TZ, MY_NTP_SERVER); // --> for the ESP8266 only
+    configTime(NTP_TZ, NTP_SERVER); // --> for the ESP8266 only
   #endif
 }
 
@@ -201,7 +201,6 @@ void sendWiFiInfo() {
 
     // wifi status
     mqttPublish(addTopic("/status"), "online", false);
-
 }
 
 /**

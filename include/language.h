@@ -72,6 +72,8 @@ const char* OILMETER[MAX_LANG] =                    {"Ölzähler",              
 const char* INFO_UNIT_L[MAX_LANG] =                 {"Einheit: Liter",                                  "Unit: Litre"};
 const char* OILMETER_ACT[MAX_LANG] =                {"Ölzählerstand",                                   "Oil-Meter value"};
 const char* BUTTON_SET[MAX_LANG] =                  {"setzen",                                          "set"};
+const char* BUTTON_NTP[MAX_LANG] =                  {"setzen NTP",                                      "set NTP"};
+const char* BUTTON_DTI[MAX_LANG] =                  {"setzen manuell",                                  "set manually"};
 const char* VOLTAGE[MAX_LANG] =                     {"Spannung",                                        "Voltage"};
 const char* ESP_HEAPSIZE[MAX_LANG] =                {"ESP HeapSize",                                    "ESP HeapSize"};
 const char* ESP_FREEHEAP[MAX_LANG] =                {"ESP FreeHeap",                                    "ESP FreeHeap"};
@@ -85,7 +87,7 @@ const char* ESP_INFO[MAX_LANG] =                    {"ESP-Info",                
 const char* OPERATION[MAX_LANG] =                   {"Betrieb",                                         "Operation"};
 const char* LIFETIMES[MAX_LANG] =                   {"Laufzeiten",                                      "Runtimes"};
 const char* LIMITS[MAX_LANG] =                      {"Grenzwerte",                                      "Limits"};
-const char* DATETIME[MAX_LANG] =                    {"ESP Datum und Uhrzeit",                           "ESP Date and Time"};
+const char* DATETIME[MAX_LANG] =                    {"Datum und Uhrzeit",                               "Date and Time"};
 const char* DATE[MAX_LANG] =                        {"Datum",                                           "Date"};
 const char* TIME[MAX_LANG] =                        {"Uhrzeit",                                         "Time"};
 } s_webui_texts; 

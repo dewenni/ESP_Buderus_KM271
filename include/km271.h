@@ -16,11 +16,6 @@
 
 /* D E F I N E S ****************************************************/  
 
-// Configuration
-#define KM271_EN_PROTLOG          0                                       // Enable/disable protocol logging (most of protocol bytes are reported, but DLE doubling is missing in RX!)
-#define KM271_EN_PARSELOG         0                                       // Enable/disable parsing logging (only blocks to be parsed are reported)
-#define KM271_EN_PARSE_RESULTLOG  1                                       // Enable/disable parsing result logging: Clear text logging.
-
 // Protocol elements. Do not change, otherwise KM271 communication will fail!
 #define KM271_BAUDRATE        2400                                        // The baudrate top be used for KM271 communication
 #define KM_STX                0x02                                        // Protocol control bytes
@@ -30,11 +25,6 @@
 
 #define KM_RX_BUF_LEN         20                                          // Max number of RX bytes 
 #define KM_TX_BUF_LEN         20                                          // Max number of TX bytes 
-
-// ********* Used UART-Pins to connect to KM271
-#define RXD2   4        // IO4               // ESP32 RX-pin for KM271 communication, align with hardware
-#define TXD2   2        // IO2               // ESP32 TX-pin for KM271 communication, align with hardware
-
 
 // The states to receive a single block of data.
 // First a block iof data is received byte by byte by using this state interpreter.
@@ -304,10 +294,11 @@ s_km271_config_num* km271GetConfigValueAdr();
 s_km271_alarm_str* km271GetAlarmMsgAdr();
 
 void sendKM271Info();
+void sendKM271Debug();
 void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara);
 void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara);
 bool km271GetLogMode();
-void km271SetDateTime();
-
+void km271SetDateTimeNTP();
+void km271SetDateTimeDTI(tm dti);
 
 

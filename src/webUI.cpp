@@ -719,13 +719,33 @@ void webUISetup(){
   id.sys.espMaxAllocHeap    = addGroupValueHelper(webText.ESP_MAXALLOCHEAP[LANG], "--", "KB", EspGroup);
   id.sys.espMinFreeHeap     = addGroupValueHelper(webText.ESP_MINFREEHEAP[LANG], "--", "KB", EspGroup);
 
-
   auto dateTimeGroup = addGroupHelper(webText.DATETIME[LANG], Dark, id.tab.system);
-  id.sys.date  = addGroupValueHelper(webText.DATE[LANG], "--", "", dateTimeGroup);
-  id.sys.time  = addGroupValueHelper(webText.TIME[LANG], "--", "", dateTimeGroup);
+  
+  // NTP Date&Time
+  #ifdef USE_NTP
+    id.sys.date  = ESPUI.addControl(Label, "", "", None, dateTimeGroup); // control: output date
+    ESPUI.setElementStyle(id.sys.date, "width: 25%; font-size: 20px");
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, dateTimeGroup), "background-color: unset; width: 5%"); // spacer
+    id.sys.time  = ESPUI.addControl(Label, "", "", None, dateTimeGroup); // control: output time
+    ESPUI.setElementStyle(id.sys.time, "width: 25%; font-size: 20px");
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, dateTimeGroup), "background-color: unset; width: 5%"); // spacer
+    id.sys.ntp_button = ESPUI.addControl(Button, "", webText.BUTTON_NTP[LANG], Dark, dateTimeGroup, generalCallback); // control: button
+    ESPUI.setElementStyle(id.sys.ntp_button, "width: 30%");
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, dateTimeGroup), "background-color: unset; width: 100%"); // spacer
+  #endif
+  // manual Date&Time
+  id.sys.date_input = ESPUI.addControl(Text, "", "", Dark, dateTimeGroup, generalCallback); // control: input date
+  ESPUI.setInputType(id.sys.date_input, "date"); // input control type: date
+  ESPUI.setElementStyle(id.sys.date_input, "width: 25%; color: black; font-size: 20px");
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, dateTimeGroup), "background-color: unset; width: 5%"); // spacer
+  id.sys.time_input = ESPUI.addControl(Text, "", "", Dark, dateTimeGroup, generalCallback); // control: input time
+  ESPUI.setInputType(id.sys.time_input, "time"); // input control type: time
+  ESPUI.setElementStyle(id.sys.time_input, "width: 25%; color: black; font-size: 20px");
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, dateTimeGroup), "background-color: unset; width: 5%"); // spacer
+  id.sys.dti_button = ESPUI.addControl(Button, "", webText.BUTTON_DTI[LANG], Dark, dateTimeGroup, generalCallback); // control: button
+  ESPUI.setElementStyle(id.sys.dti_button, "width: 30%");
 
-
-  // ESPUI.setVerbosity(Verbosity::Verbose);  // enable debug informations
+//  ESPUI.setVerbosity(Verbosity::Verbose);  // enable debug informations
 
   // create webUI
   ESPUI.begin("Buderus Logamatic");
@@ -1271,6 +1291,61 @@ void generalCallback(Control *sender, int type) {
     cmdSetOilmeter(setval);
   }
 
-}
+  // set date and time manually
+  if(sender->id == id.sys.dti_button && type==B_UP) {
+    char tmp1[12] = {'\0'};
+    char tmp2[12] = {'\0'};
+    tm dti;
+    memset(&dti, 0, sizeof(dti));
+    /* ---------------- INFO ---------------------------------
+    dti.tm_year + 1900  // years since 1900
+    dti.tm_mon + 1      // January = 0 (!)
+    dti.tm_mday         // day of month
+    dti.tm_hour         // hours since midnight  0-23
+    dti.tm_min          // minutes after the hour  0-59
+    dti.tm_sec          // seconds after the minute  0-61*
+    dti.tm_wday         // days since Sunday 0-6
+    dti.tm_isdst        // Daylight Saving Time flag
+    --------------------------------------------------------- */
 
+    // get date
+    strncpy(tmp1, ESPUI.getControl(id.sys.date_input)->value.c_str(), sizeof(tmp1));
+    // extract year
+    memset(tmp2, 0, sizeof(tmp2));
+    strncpy(tmp2, tmp1, 4);
+    dti.tm_year = atoi(tmp2)-1900;
+    // extract month
+    memset(tmp2, 0, sizeof(tmp2));
+    strncpy(tmp2, tmp1+5, 2);
+    dti.tm_mon = atoi(tmp2)-1;
+    // extract day
+    memset(tmp2, 0, sizeof(tmp2));
+    strncpy(tmp2, tmp1+8, 2);
+    dti.tm_mday = atoi(tmp2);
+    // calculate day of week
+    int d    = dti.tm_mday;       //Day     1-31
+    int m    = dti.tm_mon+1;      //Month   1-12
+    int y    = dti.tm_year+1900;  //Year    2022 
+    dti.tm_wday = (d += m < 3 ? y-- : y - 2, 23*m/9 + d + 4 + y/4- y/100 + y/400)%7; // calculate day of week 
 
+    // get time
+    strncpy(tmp1, ESPUI.getControl(id.sys.time_input)->value.c_str(), sizeof(tmp1));
+    // extract hour
+    memset(tmp2, 0, sizeof(tmp2));
+    strncpy(tmp2, tmp1, 2);
+    dti.tm_hour = atoi(tmp2);
+    // extract minutes
+    memset(tmp2, 0, sizeof(tmp2));
+    strncpy(tmp2, tmp1+3, 2);
+    dti.tm_min = atoi(tmp2);
+
+    km271SetDateTimeDTI(dti); // set date and time on Logamatic
+
+  }
+  
+  // set date and time manually
+  if(sender->id == id.sys.ntp_button && type==B_UP) {
+    km271SetDateTimeNTP(); // set date and time on Logamatic
+  }
+
+} // end generalCallback()

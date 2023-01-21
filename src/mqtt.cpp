@@ -53,7 +53,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   // set date and time
   else if (strcmp (topic, addTopic(mqttCmd.DATETIME[LANG])) == 0){
     Serial.println("cmd set date time");
-    km271SetDateTime();
+    km271SetDateTimeNTP();
   }
   // set oilmeter
   else if (strcmp (topic, addTopic(mqttCmd.OILCNT[LANG])) == 0){

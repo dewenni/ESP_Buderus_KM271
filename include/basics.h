@@ -13,9 +13,6 @@
 #include <ArduinoJSON.h>
 #include <muTimer.h>
 
-/* Configuration of NTP */
-#define MY_NTP_SERVER "de.pool.ntp.org"           
-#define MY_TZ "CET-1CEST,M3.5.0,M10.5.0/3 " 
 
 /* D E C L A R A T I O N S ****************************************************/  
 typedef struct {                                        
@@ -23,7 +20,6 @@ typedef struct {
   int signal;
   char ipAddress[20];
 } s_wifi;
-
 extern s_wifi wifi;
 
 /* P R O T O T Y P E S ********************************************************/ 

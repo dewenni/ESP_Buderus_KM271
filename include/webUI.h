@@ -158,8 +158,11 @@ uint16_t espMaxAllocHeap;
 uint16_t espMinFreeHeap;
 uint16_t date;
 uint16_t time;
+uint16_t date_input;
+uint16_t time_input;
+uint16_t dti_button;
+uint16_t ntp_button;
 } s_webui_id_system;
-
 
 typedef struct {
 uint16_t hc1_night_temp;
