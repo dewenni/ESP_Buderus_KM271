@@ -262,7 +262,7 @@ const char* TIME_OFFSET[MAX_LANG]               =    {"Uhrzeit_Offset",         
 
 
 // ======================================================================================
-// topic decription for config values from KM271
+// topic decription for status values from KM271
 // ======================================================================================
 typedef struct {
 const char* HC1_OV1_OFFTIME_OPT[MAX_LANG]       =   {"HK1_BW1_Ausschaltoptimierung",                "hc1_ov1_off_time_optimization"};
@@ -446,7 +446,7 @@ const char* BURNER_STATE[5]={"Burner OFF", "ON (Stage 1)", "-", "-", "ON (Stage 
 #endif
 
 // ======================================================================================
-// decription for encode different config value arrays
+// decription for encode error messages
 // ======================================================================================
 #if LANG==0 // GERMAN
 typedef struct {

@@ -1,0 +1,616 @@
+
+=================================================================================================
+
+MQTT commands (write)
+
+With the following commands, you can control your Logamatic.
+There are commands for changing the operation mode and also commands to chage parameters 
+like setpoint temperatures
+
+=================================================================================================
+
+command:    restart ESP
+topic:      {cmd/restart", cmd/restart"}
+payload:    none
+
+command:    set date & time of Logamatic
+topic:      {"setvalue/setdatetime", setvalue/setdatetime"}
+payload:    none
+
+command:    set oilcounter to given value
+topic:      {"setvalue/oilcounter", setvalue/oilcounter"}
+payload:    counter value including decimals (123,45L = 1234) 
+
+command:    heating circuit 1: operation mode 
+topic:      {"setvalue/hk1_betriebsart", setvalue/hc1_opmode"}
+payload:    0=night / 1=day / 2=auto  
+
+command:    heating circuit 2: operation mode 
+topic:      {"setvalue/hk2_betriebsart", setvalue/hc2_opmode"}
+payload:    (0=night / 1=day / 2=auto)
+
+command:    heating circuit 1: program
+topic:      {"setvalue/hk1_programm", setvalue/hc1_program"}
+palyoad:    (0=custom / 1=family / 2=early / 3=late / 4=AM / 5=PM / 6=noon / 7=single / 8=senior)
+
+command:    heating circuit 2: program
+topic:      {"setvalue/hk2_programm", setvalue/hc2_program"}
+palyoad:    (0=custom / 1=family / 2=early / 3=late / 4=AM / 5=PM / 6=noon / 7=single / 8=senior)
+
+command:    heating circuit 1: design temperature for heating curves
+topic:      {"setvalue/hk1_auslegung", setvalue/hc1_interpretation"}
+payload:    Resolution: 1 [°C] - Range: 30 ... 90 [°C]
+
+command:    heating circuit 2: design temperature for heating curves
+topic:      {"setvalue/hk2_auslegung", setvalue/hc2_interpretation"}
+payload:    Resolution: 1 [°C] - Range: 30 ... 90 [°C]
+
+command:    heating circuit 1: switch off threshold for reduction mode
+topic:      {"setvalue/hk1_aussenhalt_ab", setvalue/hc1_switch_off_threshold"}
+payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
+
+command:    heating circuit 2: switch off threshold for reduction mode
+topic:      {"setvalue/hk2_aussenhalt_ab", setvalue/hc2_switch_off_threshold"}
+payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
+
+command:    heating circuit 1: day temperature ww_setpoint
+topic:      {"setvalue/hk1_tag_soll", setvalue/hc1_day_setpoint"}
+payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
+
+command:    heating circuit 2: day temperature ww_setpoint
+topic:      {"setvalue/hk2_tag_soll", setvalue/hc2_day_setpoint"}
+payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
+
+command:    heating circuit 1: nigth temperature ww_setpoint
+topic:      {"setvalue/hk1_nacht_soll", setvalue/hc1_night_setpoint"}
+payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
+
+command:    heating circuit 2: night temperature ww_setpoint
+topic:      {"setvalue/hk2_nacht_soll", setvalue/hc2_night_setpoint"}
+payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
+
+command:    heating circuit 1: nigth temperature ww_setpoint
+topic:      {"setvalue/hk1_ferien_soll", setvalue/hc1_holiday_setpoint"}
+payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
+
+command:    heating circuit 2: night temperature ww_setpoint
+topic:      {"setvalue/hk2_ferien_soll", setvalue/hc2_holiday_setpoint"}
+payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
+
+command:    warm water: operation mode
+topic:      {"setvalue/ww_betriebsart", setvalue/ww_opmode"}
+payload:    0=night / 1=day / 2=auto
+
+command:    summer mode threshold Temperature
+topic:      {"setvalue/sommer_ab", setvalue/summer_mode_threshold"}
+payload:    Resolution: 1 [°C] - Range: 9:Winter | 10°..30° | 31:Summer
+
+command:    frost mode threshold Temperature
+topic:      {"setvalue/frost_ab", setvalue/frost_mode_threshold"}
+payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
+
+command:    warm water: setpoint temperature
+topic:      {"setvalue/ww_soll", setvalue/ww_setpoint"}
+payload:    Resolution: 1 [°C] - Range: 30 ... 60 [°C]
+
+command:    heating circuit 1: count of days for holiday mode (Logamatic will dekrement every day by one)
+topic:      {"setvalue/hk1_ferien_tage", setvalue/hc1_holidays"}
+payload:    count of days 0 .. 99
+
+command:    heating circuit 2: count of days for holiday mode (Logamatic will dekrement every day by one)
+topic:      {"setvalue/hk2_ferien_tage", setvalue/hc2_holidays"}
+payload:    count of days 0 .. 99
+
+
+=================================================================================================
+
+Logamatic CONFIG values (read)
+
+This values are read at startup or if you change settings direct on the Logamatic.
+
+=================================================================================================
+
+------- h e a t i n g - c i r c u i t - 1 / 2 ---------------------------------------------------
+(The same values are available for heating circuit 2. The topic change from HK1->HK2 / hc1->hc2)
+
+value:      heating circuit 1: night setpoint temperatue
+topic:      {"HK1_Nachttemperatur", "hc1_night_temp"}
+payload:    temperatur [°C]
+
+value:      heating circuit 1: day setpoint temperatue
+topic:      {"HK1_Tagtemperatur", "hc1_day_temp"}
+payload:    temperatur [°C]
+
+value:      heating circuit 1: operation mode
+topic:      {"HK1_Betriebsart", "hc1_operation_mode"}
+payload:    {"night", "day", "auto"} / {"Nacht", "Tag", "Automatik"};
+
+value:      heating circuit 1: holiday setpoint temperatue
+topic:      {"HK1_Urlaubtemperatur", "hc1_holiday_temp"}
+payload:    temperatur [°C]
+
+value:      heating circuit 1: maximum temperatue
+topic:      {"HK1_Max_Temperatur", "hc1_max_temp"}
+payload:    temperatur [°C]
+
+value:      heating circuit 1: design temperature for heating curves
+topic:      {"HK1_Auslegung", "hc1_interpretation"}
+payload:    temperatur [°C]
+
+value:      heating circuit 1: switch on temperature
+topic:      {"HK1_Aufschalttemperatur", "hc1_switch_on_temperature"}
+payload:    temperatur [°C]
+
+value:      heating circuit 1: switch off threshold for reduction mode
+topic:      {"HK1_Aussenhalt_ab", "hc1_switch_off_threshold"}
+payload:    temperatur [°C]
+
+value:      heating circuit 1: reduction mode
+topic:      {"HK1_Absenkungsart", "hc1_reduction_mode"}
+payload:    {"off", "fixed", "room", "outdoors"} / {"Abschalt", "Reduziert", "Raumhalt", "Aussenhalt"}
+
+value:      heating circuit 1: heating system
+topic:      {"HK1_Heizsystem", "hc1_heating_system"}
+payload:    {"off","radiator","-","underfloor"} / {"Aus","Heizkoerper","-","Fussboden"}
+
+value:      heating circuit 1: temperature offset
+topic:      {"HK1_Temperatur_Offset", "hc1_temp_offset"}
+payload:    temperatur [°C]
+
+value:      heating circuit 1: remote control
+topic:      {"HK1_Fernbedienung", "hc1_remotecontrol"}
+payload:    {"off","on"} / {"Aus","An"}
+
+value:      heating circuit 1: program
+topic:      {"HK1_Programm", "hc1_program"}
+payload:    {"Eigen","Familie","Frueh","Spaet","Vormittag","Nachmittag","Mittag","Single","Senior"} / {"custom","family","early","late","AM","PM","noon","single","senior"}
+
+value:      heating circuit 1: timer configuration (Timer01..Timer14)
+topic:      {"HK1_Timer01", "hc1_timer01"} .. {"HK1_Timer14", "hc1_timer14"}
+payload:    example: {SP01: Mo 05:40  (An)  | SP02: Mo 22:10  (Aus)  | SP03: Di 05:30  (An)}
+
+------- w a r m -  w a t e r ----------------------------------------------------------------
+
+value:      warm water: priority
+topic:      {"WW_Vorrang", "ww_priority"}
+palyoad:    {"off","on"} / {"Aus","An"}
+
+value:      warm water: setpoint temperature
+topic:      {"WW_Temperatur", "ww_temp"}
+palyoad:    temperatur [°C]
+
+value:      warm water: operation mode
+topic:      {"WW_Betriebsart", "ww_operation_mode"}
+payload:    {"night", "day", "auto"} / {"Nacht", "Tag", "Automatik"}
+
+value:      warm water: processing
+topic:      {"WW_Aufbereitung", "ww_processing"}
+palyoad:    {"off","on"} / {"Aus","An"}
+
+value:      warm water: circulation
+topic:      {"WW_Zirkulation", "ww_circulation"}
+palyoad:    {"off","on"} / {"Aus","An"}
+
+------- g e n e r a l -  v a l u e s ----------------------------------------------------------
+
+value:      frost protection threshold temperatue
+topic:      {"Frost_ab", "frost_protection_threshold"}
+payload:    temperatur [°C]
+
+value:      summer mode threshold temperatue
+topic:      {"Sommer_ab", "summer_mode_threshold"}
+payload:    temperatur [°C]
+
+value:      building type
+topic:      {"Gebaeudeart", "building_type"}
+palyoad:    {"Leicht","Mittel","Schwer"} / {"light","medium","heavy"}
+
+value:      logamatic display language
+topic:      {"Sprache", "language"}
+palyoad:    {"DE", "FR", "IT", "NL", "EN", "PL"}
+
+value:      logamatic display value
+topic:      {"Anzeige", "display"}
+palyoad:    {"Automatik", "Kessel", "Warmwasser", "Aussen"} / {"auto", "boiler", "DHW", "outdoor"}
+
+value:      burner type
+topic:      {"Brennerart", "burner_type"}
+palyoad:    {"1-stufig","2-stufig","Modulierend"} / {"1-stage","2-stage","modulated"}
+
+value:      maximum boiler temperature
+topic:      {"Max_Kesseltemperatur", "max_boiler_temperature"}
+palyoad:    temperatur [°C]
+
+value:      pump logic temperature
+topic:      {"Pumplogik", "pump_logic_temp"}
+palyoad:    temperatur [°C]
+
+value:      exhaust gas temperature threshold
+topic:      {"Abgastemperaturschwelle", "exhaust_gas_temperature_threshold"}
+palyoad:    temperatur [°C]
+
+value:      burner [min]imum modulation time
+topic:      {"Brenner_Min_Modulation", "burner_min_modulation"}
+palyoad:    time [min]
+
+value:      burner modulation runtime
+topic:      {"Brenner_Mod_Laufzeit", "burner_modulation_runtime"}
+palyoad:    time [min]
+
+value:      time offset
+topic:      {"Uhrzeit_Offset", "time_offset"}
+palyoad:    time [min]
+
+
+
+=================================================================================================
+
+Logamatic STATUS values (read)
+
+This values are read at startup and they will also send if they change during runtime.
+
+=================================================================================================
+
+------- h e a t i n g - c i r c u i t - 1 / 2 ---------------------------------------------------
+(The same values are available for heating circuit 2. The topic change from HK1->HK2 / hc1->hc2)
+
+value:      heating circuit 1: operating value 1: OFF time optimization
+topic:      {"HK1_BW1_Ausschaltoptimierung", "hc1_ov1_off_time_optimization"}
+payload:    0/1
+
+value:      heating circuit 1: operating value 1: ON time optimization
+topic:      {"HK1_BW1_Einschaltoptimierung", "hc1_ov1_on_time_optimization"}
+payload:    0/1
+
+value:      heating circuit 1: operating value 1: automatic
+topic:      {"HK1_BW1_Automatik", "hc1_ov1_automatic"}
+payload:    0/1
+
+value:      heating circuit 1: operating value 1: warm water priority
+topic:      {"HK1_BW1_Warmwasservorrang", "hc1_ov1_ww_priority"}
+payload:    0/1
+
+value:      heating circuit 1: operating value 1: screed drying
+topic:      {"HK1_BW1_Estrichtrocknung", "hc1_ov1_screed_drying"}
+payload:    0/1
+
+value:      heating circuit 1: operating value 1: holiday mode
+topic:      {"HK1_BW1_Ferien", "hc1_ov1_holiday"}
+payload:    0/1
+
+value:      heating circuit 1: operating value 1: frost protection active
+topic:      {"HK1_BW1_Frostschutz", "hc1_ov1_frost_protection"}
+payload:    0/1
+
+value:      heating circuit 1: operating value 1: manual mode
+topic:      {"HK1_BW1_Manuell", "hc1_ov1_manual"}
+payload:    0/1
+
+value:      heating circuit 1: operating value 2 - summer mode
+topic:      {"HK1_BW2_Sommer", "hc1_ov2_summer"}
+payload:    0/1
+
+value:      heating circuit 1: operating value 2 - day mode
+topic:      {"HK1_BW2_Tag", "hc1_ov2_day"}
+payload:    0/1
+
+value:      heating circuit 1: operating value 2 - remote control no connection
+topic:      {"HK1_BW2_Keine_Komm_mit_FB", "hc1_ov2_no_conn_to_remotectrl"}
+payload:    0/1
+
+value:      heating circuit 1: operating value 2 - remote control error
+topic:      {"HK1_BW2_FB_fehlerhaft", "hc1_ov2_remotectrl_error"}
+payload:    0/1
+
+value:      heating circuit 1: operating value 2 - failure flow sensor
+topic:      {"HK1_BW2_Fehler_Vorlauffuehler", "hc1_ov2_failure_flow_sensor"}
+payload:    0/1
+
+value:      heating circuit 1: operating value 2 - failure flow at maximum
+topic:      {"HK1_BW2_Maximaler_Vorlauf", "hc1_ov2_flow_at_maximum"}
+payload:    0/1
+
+value:      heating circuit 1: operating value 2 - failure external signal input
+topic:      {"HK1_BW2_Externer_Stoereingang", "hc1_ov2_external_signal_input"}
+payload:    0/1
+
+value:      heating circuit 1: flow setpoint temperature
+topic:      {"HK1_Vorlaufsolltemperatur", "hc1_flow_setpoint"};
+payload:    temp [°C]
+
+value:      heating circuit 1: flow actual temperature
+topic:      {"HK1_Vorlaufisttemperatur", "hc1_flow_temp"}
+payload:    temp [°C]
+
+value:      heating circuit 1: room setpoint temperatue
+topic:      {"HK1_Raumsolltemperatur", "hc1_room_setpoint"}
+payload:    temp [°C]
+
+value:      heating circuit 1: room actual temperatue
+topic:      {"HK1_Raumisttemperatur", "hc1_room_temp"}
+payload:    temp [°C]
+
+value:      heating circuit 1: on time optimization duration
+topic:      {"HK1_Einschaltoptimierung", "hc1_on_time_opt_duration"}
+payload:    time [min]
+
+value:      heating circuit 1: off time optimization duration
+topic:      {"HK1_Ausschaltoptimierung", "hc1_off_time_opt_duration"};
+payload:    time [min]
+
+value:      heating circuit 1: pump power
+topic:      {"HK1_Pumpe", "hc1_pump"}
+payload:    power [%]
+
+value:      heating circuit 1: Mixer value
+topic:      {"HK1_Mischerstellung", "hc1_mixer"}
+payload:    value [%]
+
+value:      heating circuit 1: heating curve reference temp at +10°C
+topic:      {"HK1_Heizkennlinie_10_Grad", "hc1_heat_curve_10C"}
+payload:    temp [°C]
+
+value:      heating circuit 1: heating curve reference temp at 0°C
+topic:      {"HK1_Heizkennlinie_0_Grad", "hc1_heat_curve_0C"}
+payload:    temp [°C]
+
+value:      heating circuit 1: heating curve reference temp at -10°C
+topic:      {"HK1_Heizkennlinie_-10_Grad", "hc1_heat_curve_-10C"}
+payload:    temp [°C]
+
+------- w a r m -  w a t e r ------------------------------------------------------------------
+
+value:      warm water: operatig values 1 - automatic mode
+topic:      {"WW_BW1_Automatik", "ww_ov1_auto"}
+payload:    0/1
+
+value:      warm water: operatig values 1 - desinfaction active
+topic:      {"WW_BW1_Desinfektion", "ww_ov1_disinfection"}
+payload:    0/1
+
+value:      warm water: operatig values 1 - reload active
+topic:      {"WW_BW1_Nachladung", "ww_ov1_reload"};
+payload:    0/1
+
+value:      warm water: operatig values 1 - holiday mode
+topic:      {"WW_BW1_Ferien", "ww_ov1_holiday"}
+payload:    0/1
+
+value:      warm water: operatig values 1 - desinfaction failure
+topic:      {"WW_BW1_Fehler_Desinfektion", "ww_ov1_err_disinfection"}
+payload:    0/1
+
+value:      warm water: operatig values 1 - sensor failure
+topic:      {"WW_BW1_Fehler_Fuehler", "ww_ov1_err_sensor"}
+payload:    0/1
+
+value:      warm water: operatig values 1 - failure stays cold
+topic:      {"WW_BW1_Fehler_WW_bleibt_kalt", "ww_ov1_ww_stays_cold"}
+payload:    0/1
+
+value:      warm water: operatig values 1 - failure anode
+topic:      {"WW_BW1_Fehler_Anode", "ww_ov1_err_anode"}
+payload:    0/1
+
+value:      warm water: operatig values 2 - load active
+topic:      {"WW_BW2_Laden", "ww_ov2_load"}
+payload:    0/1
+
+value:      warm water: operatig values 2 - manual mode
+topic:      {"WW_BW2_Manuell", "ww_ov2_manual"}
+payload:    0/1
+
+value:      warm water: operatig values 2 - reload active
+topic:      {"WW_BW2_Nachladen", "ww_ov2_reload"}
+payload:    0/1
+
+value:      warm water: operatig values 2 - off time optimization duration active
+topic:      {"WW_BW2_Ausschaltoptimierung", "ww_ov2_off_time_opt_duration"}
+payload:    0/1
+
+value:      warm water: operatig values 2 - on time optimization duration active
+topic:      {"WW_BW2_Einschaltoptimierung", "ww_ov2_on_time_opt_duration"}
+payload:    0/1
+
+value:      warm water: operatig values 2 - day mode
+topic:      {"WW_BW2_Tag", "ww_ov2_day"}
+payload:    0/1
+
+value:      warm water: operatig values 2 - water is hot (inside threshold)
+topic:      {"WW_BW2_Warm", "ww_ov2_hot"};
+payload:    0/1
+
+value:      warm water: operatig values 2 - priority
+topic:      {"WW_BW2_Vorrang", "ww_ov2_priority"}
+payload:    0/1
+
+value:      warm water: setpoint temperature
+topic:      {"WW_Solltemperatur", "ww_setpoint"}
+payload:    temp [°C]
+
+value:      warm water: actual temperature
+topic:      {"WW_Isttemperatur", "ww_temp"}
+payload:    temp [°C]
+
+value:      warm water: on time optimization duration
+topic:      {"WW_Einschaltoptimierung", "ww_on_time_opt_duration"}
+payload:    temp [min]
+
+value:      warm water: pump type is "charge"
+topic:      {"WW_Pumpentyp_Ladepumpe", "ww_pump_type_charge"}
+payload:    0/1
+
+value:      warm water: pump type is "circulation"
+topic:      {"WW_Pumpentyp_Zirkulationspumpe", "ww_pump_type_circulation"}
+payload:    0/1
+
+value:      warm water: pump type is "groundwater solar"
+topic:      {"WW_Pumpentyp_Absenkung_Solar", "ww_pump_type_groundwater_solar"}
+payload:    0/1
+
+
+------- b o i l e r / b u r n e r --------------------------------------------------------------
+
+value:      boiler: setpoint temperature
+topic:      {"Kessel_Vorlaufsolltemperatur", "boiler_setpoint"}
+payload:    temp [°C]
+
+value:      boiler: actual temperature
+topic:      {"Kessel_Vorlaufisttemperatur", "boiler_temp"}
+payload:    temp [°C]
+
+value:      boiler: switch on temperature
+topic:      {"Brenner_Einschalttemperatur", "boiler_switch_on_temp"}
+payload:    temp [°C]
+
+value:      boiler: switch off temperature
+topic:      {"Brenner_Ausschalttemperatur", "boiler_switch_off_temp"}
+payload:    temp [°C]
+
+value:      boiler: error - failure burner
+topic:      {"Kessel_Fehler_Brennerstoerung", "boiler_failure_burner"}
+payload:    0/1
+
+value:      boiler: error - failure boiler sensor
+topic:      {"Kessel_Fehler_Kesselfuehler", "boiler_failure_boiler_sensor"}
+payload:    0/1
+
+value:      boiler: error - failure auxiliary sensor
+topic:      {"Kessel_Fehler_Zusatzfuehler", "boiler_failure_aux_sensor"}
+payload:    0/1
+
+value:      boiler: error - failure boiler stays cold
+topic:      {"Kessel_Fehler_Kessel_bleibt_kalt", "boiler_failure_boiler_stays_cold"}
+payload:    0/1
+
+value:      boiler: error - failure exhaust gas sensor
+topic:      {"Kessel_Fehler_Abgasfuehler", "boiler_failure_exhaust_gas_sensor"}
+payload:    0/1
+
+value:      boiler: error - failure exhaust gas sensor over limit
+topic:      {"Kessel_Fehler_Abgas_max_Grenzwert", "boiler_failure_exhaust_gas_over_limit"}
+payload:    0/1
+
+value:      boiler: error - failure safety chain
+topic:      {"Kessel_Fehler_Sicherungskette", "boiler_failure_safety_chain"}
+payload:    0/1
+
+value:      boiler: error - failure external
+topic:      {"Kessel_Fehler_Externe_Stoerung", "boiler_failure_external"}
+payload:    0/1
+
+value:      boiler: stage - exhaust gas test
+topic:      {"Kessel_Betrieb_Abgastest", "boiler_state_exhaust_gas_test"}
+payload:    0/1
+
+value:      boiler: state - stage1
+topic:      {"Kessel_Betrieb_Betrieb_Stufe1", "boiler_state_stage1"}
+payload:    0/1
+
+value:      boiler: state - stage2
+topic:      {"Kessel_Betrieb_Betrieb_Stufe2", "boiler_state_stage2"}
+payload:    0/1
+
+value:      boiler: state - boiler protection
+topic:      {"Kessel_Betrieb_Kesselschutz", "boiler_state_boiler_protection"}
+payload:    0/1
+
+value:      boiler: state - state active
+topic:      {"Kessel_Betrieb_Unter_Betrieb", "boiler_state_active"}
+payload:    0/1
+
+value:      boiler: state - performance free
+topic:      {"Kessel_Betrieb_Leistung_frei", "boiler_state_performance_free"}
+payload:    0/1
+
+value:      boiler: state - performance high
+topic:      {"Kessel_Betrieb_Leistung_hoch", "boiler_state_performance_high"}
+payload:    0/1
+
+value:      boiler: control state
+topic:      {"Brenner_Ansteuerung", "burner_control"}
+payload:    0/1
+
+value:      boiler: exhaust gas temperature
+topic:      {"Abgastemperatur", "exhaust_gas_temp"};
+payload:    temp [°C]
+
+value:      boiler: runtime (minutes * 65536)
+topic:      {"Brenner_Laufzeit_Minuten65536", "burner_runtime_minutes65536"}
+payload:    runtime [min]
+
+value:      boiler: runtime (minutes * 256)
+topic:      {"Brenner_Laufzeit_Minuten256", "burner_runtime_minutes256"}
+payload:    runtime [min]
+
+value:      boiler: runtime (minutes)
+topic:      {"Brenner_Laufzeit_Minuten", "burner_runtime_minutes"}
+payload:    runtime [min]
+
+value:      boiler: runtime (minutes + minutes*256 + minutes*65536)
+topic:      {"Brenner_Laufzeit_Summe", "burner_runtime_overall"};
+payload:    runtime [min]
+
+value:      boiler: calculated oil consumption based on runtime
+topic:      {"Oelverbrauch_Gesamt_berechnet", "oil_consumption_overall_calc"}
+payload:    consumption [L] BurnerOperatingDuration_Sum / 60 * CFG_CONSUMPTION_KG_H / CFG_OIL_DENSITY_KG_L
+
+------- g e n e r a l -  v a l u e s ------------------------------------------------------------
+
+value:      outside temperature
+topic:      {"Aussentemperatur", "outside_temp"}
+payload:    temp [°C]
+
+value:      outside temperature (damped)
+topic:      {"Aussentemperatur_gedaempft", "outside_temp_damped"}
+payload:    temp [°C]
+
+value:      logamatic version number (VK)
+topic:      {"Versionsnummer_VK", "version_vk"}
+payload:    version_vk
+
+value:      logamatic version number (NK)
+topic:      {"Versionsnummer_NK", "version_nk"}
+payload:    version_vk
+
+value:      logamatic mdule id
+topic:      {"Modulkennung", "module_id"};
+payload:    module_id
+
+------- e r r o r - f l a g s ------------------------------------------------------------
+
+value:      error flag: exhaust alarm
+topic:      {"ERR_Alarmstatus_Abgasfuehler", "err_alarm_exhaust"}
+payload:    0/1
+
+value:      error flag: boiler flow sensor
+topic:      {"ERR_Alarmstatus_Kesselvorlauffuehler", "err_alarm_boiler_flow_sensor"}
+payload:    0/1
+
+value:      error flag: burner failure
+topic:      {"ERR_Alarmstatus_Brenner", "err_alarm_burner"}
+payload:    0/1
+
+value:      error flag: heating circuit 2 flow sensor
+topic:      {"ERR_Alarmstatus_HK2-Vorlauffuehler", "err_alarm_HK2-flow_sensor"}
+payload:    0/1
+
+value:      error flag: "unknown 02"
+topic:      {"ERR_Alarmstatus_02", "err_alarm_02"}
+payload:    0/1
+
+value:      error flag: "unknown 08"
+topic:      {"ERR_Alarmstatus_02", "err_alarm_08"}
+payload:    0/1
+
+value:      error flag: "unknown 20"
+topic:      {"ERR_Alarmstatus_20", "err_alarm_20"}
+payload:    0/1
+
+value:      error flag: "unknown 80"
+topic:      {"ERR_Alarmstatus_80", "err_alarm_80"}
+payload:    0/1
+
+
+
+
