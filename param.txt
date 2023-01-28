@@ -101,6 +101,9 @@ command:    heating circuit 2: count of days for holiday mode (Logamatic will de
 topic:      {"setvalue/hk2_ferien_tage", setvalue/hc2_holidays"}
 payload:    count of days 0 .. 99
 
+command:    warm water pump cycles
+topic:      {"setvalue/ww_pumpen_zyklus", setvalue/ww_pump_cycles"}
+payload:    Resolution: 1 [cyles/hour] - Range: 0:OFF | 1..6 | 7:ON
 
 =================================================================================================
 
@@ -168,6 +171,10 @@ payload:    {"Eigen","Familie","Frueh","Spaet","Vormittag","Nachmittag","Mittag"
 value:      heating circuit 1: timer configuration (Timer01..Timer14)
 topic:      {"HK1_Timer01", "hc1_timer01"} .. {"HK1_Timer14", "hc1_timer14"}
 payload:    example: {SP01: Mo 05:40  (An)  | SP02: Mo 22:10  (Aus)  | SP03: Di 05:30  (An)}
+
+value:      heating circuit 1: remaining holiday days
+topic:      {"HK2_Ferien_Tage", "hc2_holiday_days"}
+payload:    0..99 {Tage / days}
 
 ------- w a r m -  w a t e r ----------------------------------------------------------------
 

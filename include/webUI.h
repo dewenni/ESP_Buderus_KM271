@@ -264,6 +264,9 @@ uint16_t hc2_holidays;
 uint16_t oilmeter_input;
 uint16_t oilmeter_button;
 uint16_t oilmeter_output;
+uint16_t hc1_holiday_days;
+uint16_t hc2_holiday_days;
+uint16_t ww_pump_cycles;
 } s_webui_id_control;
 
 typedef struct {

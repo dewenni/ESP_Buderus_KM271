@@ -22,7 +22,7 @@ Hardware Configuration
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION             "v2.1.0"    // internal program version
+#define VERSION             "v2.2.0"    // internal program version
 #define DEBUG_ON                        // enable debug messages
 #define LANG                0           // 0=GERMAN / 1=ENGLISH
 

@@ -7,7 +7,7 @@
 ![GitHub watchers](https://img.shields.io/github/watchers/dewenni/ESP_Buderus_KM271?style=social)    
 [![GitHub stars](https://img.shields.io/github/stars/dewenni/ESP_Buderus_KM271.svg?style=social&label=Star)](https://github.com/dewenni/ESP_Buderus_KM271/stargazers/)
 ---
-Control your Buderus Logamatic R2107 with ESP and MQTT
+Control your Buderus Logamatic R2107 / HS 2105 with ESP and MQTT
 
 The information from the heater provides a better understanding of how the heater works and offers opportunities for optimization.
 
@@ -19,7 +19,7 @@ But there is also a build in WebUI to view and control your Logamatic without an
 
 -----
 
->**Note**  
+>**Note:**  
 >for more informations take a look at the **[wiki](https://github.com/dewenni/ESP_Buderus_KM271/wiki)**
 
 ## Functional description
@@ -45,7 +45,10 @@ this values will mostly change during runtime and will automatically send if cha
 - **alarm**:  
 here you get the information about the last 4 Errors/Faults that are registered by the Logamatic. The payload of the values is a String.
 
-A complete List of supportet values can be found in the **[/include/language.h](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/include/language.h)**
+
+>**Note:**  
+>A complete List of supportet values can be found in the **[param.txt](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/param.txt)**
+
 
 ### additional and optional Oilcounter / Oil Meter
 The project includes also an additional and optional oilcounter implementation. I have installed an Braun HZ-5 Meter to measure the oil consumtion.  
@@ -83,56 +86,81 @@ Logamattic R2107 => KM271 => RS232/TTL Adapter => ESP
 ### You can control the Logamatic with commands like this:
 
 ```
-Topic: esp_heizung/setvalue/hk1_betriebsart  
-Payload:  0:Nacht | 1:Tag | 2:AUTO
+command:    restart ESP
+topic:      {cmd/restart", cmd/restart"}
+payload:    none
 
-Topic: esp_heizung/setvalue/hk1_programm 
-Payload:  Programmnummer 0..8 (see documentation)
+command:    set date & time of Logamatic
+topic:      {"setvalue/setdatetime", setvalue/setdatetime"}
+payload:    none
 
-Topic: esp_heizung/setvalue/hk1_auslegung  
-Payload:  Resolution: 1 °C Range: 30 – 90 °C WE: 75 °C
+command:    set oilcounter to given value
+topic:      {"setvalue/oilcounter", setvalue/oilcounter"}
+payload:    counter value including decimals (123,45L = 1234) 
 
-Topic: esp_heizung/setvalue/hk1_aussenhalt_ab  
-Payload:  -20..10 (°C)
+command:    heating circuit 1: operation mode 
+topic:      {"setvalue/hk1_betriebsart", setvalue/hc1_opmode"}
+payload:    0=night / 1=day / 2=auto  
 
-Topic: esp_heizung/setvalue/hk2_betriebsart  
-Payload:  0:Nacht | 1:Tag | 2:AUTO
+command:    heating circuit 1: program
+topic:      {"setvalue/hk1_programm", setvalue/hc1_program"}
+palyoad:    (0=custom / 1=family / 2=early / 3=late / 4=AM / 5=PM / 6=noon / 7=single / 8=senior)
 
-Topic: esp_heizung/setvalue/hk2_programm 
-Payload:  Programmnummer 0..8 (see documentation)
+command:    heating circuit 1: design temperature for heating curves
+topic:      {"setvalue/hk1_auslegung", setvalue/hc1_interpretation"}
+payload:    Resolution: 1 [°C] - Range: 30 ... 90 [°C]
 
-Topic: esp_heizung/setvalue/hk2_auslegung  
-Payload:  Resolution: 1 °C Range: 30 – 90 °C WE: 75 °C
+command:    heating circuit 1: switch off threshold for reduction mode
+topic:      {"setvalue/hk1_aussenhalt_ab", setvalue/hc1_switch_off_threshold"}
+payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
 
-Topic: esp_heizung/setvalue/hk2_aussenhalt_ab  
-Payload:  -20..10 (°C)
+command:    heating circuit 1: day temperature ww_setpoint
+topic:      {"setvalue/hk1_tag_soll", setvalue/hc1_day_setpoint"}
+payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
-Topic: esp_heizung/setvalue/ww_betriebsart  
-Payload:  0:Nacht | 1:Tag | 2:AUTO
+command:    heating circuit 1: nigth temperature ww_setpoint
+topic:      {"setvalue/hk1_nacht_soll", setvalue/hc1_night_setpoint"}
+payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
-Topic: esp_heizung/setvalue/ww_soll  
-Payload:  30..60 (°C)
+command:    heating circuit 1: nigth temperature ww_setpoint
+topic:      {"setvalue/hk1_ferien_soll", setvalue/hc1_holiday_setpoint"}
+payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
-Topic: esp_heizung/setvalue/sommer_ab  
-Payload:  9:Winter | 10..30 (°C) | 31:Sommer
+command:    warm water: operation mode
+topic:      {"setvalue/ww_betriebsart", setvalue/ww_opmode"}
+payload:    0=night / 1=day / 2=auto
 
-Topic: esp_heizung/setvalue/frost_ab  
-Payload:   -20..10 (°C)
+command:    summer mode threshold Temperature
+topic:      {"setvalue/sommer_ab", setvalue/summer_mode_threshold"}
+payload:    Resolution: 1 [°C] - Range: 9:Winter | 10°..30° | 31:Summer
 
-Topic: esp_heizung/setvalue/setdatetime  
-Payload: none - it will be set by NTP Server
+command:    frost mode threshold Temperature
+topic:      {"setvalue/frost_ab", setvalue/frost_mode_threshold"}
+payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
+
+command:    warm water: setpoint temperature
+topic:      {"setvalue/ww_soll", setvalue/ww_setpoint"}
+payload:    Resolution: 1 [°C] - Range: 30 ... 60 [°C]
+
+command:    heating circuit 1: count of days for holiday mode (Logamatic will dekrement every day by one)
+topic:      {"setvalue/hk1_ferien_tage", setvalue/hc1_holidays"}
+payload:    count of days 0 .. 99
+
+command:    warm water pump cycles
+topic:      {"setvalue/ww_pumpen_zyklus", setvalue/ww_pump_cycles"}
+payload:    Resolution: 1 [cyles/hour] - Range: 0:OFF | 1..6 | 7:ON
 
 ```
 
-### As Status you will get informations:
+### Logamatic will send informations by event:
 
-Config values as single topics (see list in [language.h](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/include/language.h))
+Config values as single topics (see list in [param.txt](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/param.txt))
 ```
 example:
 Topic: esp_heizung/config/frost_protection_threshold
 Payload:   -1.00 °C     (String)
 ```
-Status values as single topics (see list in [language.h](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/include/language.h))
+Status values as single topics (see list in [param.txt](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/param.txt))
 ```
 example:
 Topic: esp_heizung/status/hc1_ov1_automatic
@@ -158,6 +186,7 @@ Topic: esp_heizung/info = {
 ```
 
 you can also change the mqtt topics for your needs by editig: **[/include/language.h](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/include/language.h)**
+
 
 ---
 

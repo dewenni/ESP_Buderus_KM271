@@ -157,6 +157,7 @@ typedef struct {
   char burner_min_modulation[CFG_MAX_CHAR_VALUE]={'\0'};
   char burner_modulation_runtime[CFG_MAX_CHAR_VALUE]={'\0'};
   char hc1_program[CFG_MAX_CHAR_VALUE]={'\0'};
+  char hc1_holiday_days[CFG_MAX_CHAR_VALUE]={'\0'};
   char hc1_timer01[CFG_MAX_CHAR_TIMER]={'\0'};
   char hc1_timer02[CFG_MAX_CHAR_TIMER]={'\0'};
   char hc1_timer03[CFG_MAX_CHAR_TIMER]={'\0'};
@@ -172,6 +173,7 @@ typedef struct {
   char hc1_timer13[CFG_MAX_CHAR_TIMER]={'\0'};
   char hc1_timer14[CFG_MAX_CHAR_TIMER]={'\0'};
   char hc2_program[CFG_MAX_CHAR_VALUE]={'\0'};
+  char hc2_holiday_days[CFG_MAX_CHAR_VALUE]={'\0'};
   char hc2_timer01[CFG_MAX_CHAR_TIMER]={'\0'};
   char hc2_timer02[CFG_MAX_CHAR_TIMER]={'\0'};
   char hc2_timer03[CFG_MAX_CHAR_TIMER]={'\0'};
@@ -245,6 +247,8 @@ typedef struct {
   uint8_t hc1_program;
   uint8_t hc2_program;
   float   time_offset;
+  uint8_t hc1_holiday_days;
+  uint8_t hc2_holiday_days;
 } s_km271_config_num;
 
 
@@ -256,26 +260,27 @@ typedef enum {
 
 // send commands to KM271
 typedef enum {
-  KM271_SENDCMD_HC1_OPMODE,               // HK1 Betriebsart
-  KM271_SENDCMD_HC1_DESIGN_TEMP,          // HK1 Auslegung
-  KM271_SENDCMD_HC1_PROGRAMM,             // HK1 Programm
-  KM271_SENDCMD_HC1_SWITCH_OFF_THRESHOLD, // HK1 Aussehnhalt ab
-  KM271_SENDCMD_HC1_DAY_SETPOINT,         // HK1 Tag-Soll
-  KM271_SENDCMD_HC1_NIGHT_SETPOINT,       // HK1 Nacht-Soll
-  KM271_SENDCMD_HC1_HOLIDAY_SETPOINT,     // HK1 Ferien-Soll
-  KM271_SENDCMD_HC2_OPMODE,               // HK2 Betriebsart
-  KM271_SENDCMD_HC2_DESIGN_TEMP,          // HK2 Auslegung
-  KM271_SENDCMD_HC2_PROGRAMM,             // HK2 Programm
-  KM271_SENDCMD_HC2_SWITCH_OFF_THRESHOLD, // HK2 Aussehnhalt ab
-  KM271_SENDCMD_HC2_DAY_SETPOINT,         // HK2 Tag-Soll
-  KM271_SENDCMD_HC2_NIGHT_SETPOINT,       // HK2 Nacht-Soll
-  KM271_SENDCMD_HC2_HOLIDAY_SETPOINT,     // HK2 Ferien-Soll
-  KM271_SENDCMD_WW_OPMODE,                // Warmwasser Vetriebsart
-  KM271_SENDCMD_SUMMER,                   // Sommer ab
-  KM271_SENDCMD_FROST,                    // Frost ab
+  KM271_SENDCMD_HC1_OPMODE,               // HC1 OperationMode
+  KM271_SENDCMD_HC1_DESIGN_TEMP,          // HC1 Design Temperature
+  KM271_SENDCMD_HC1_PROGRAMM,             // HC1 Program
+  KM271_SENDCMD_HC1_SWITCH_OFF_THRESHOLD, // HC1 SwitchOff Threshold
+  KM271_SENDCMD_HC1_DAY_SETPOINT,         // HC1 Day Setpoint Temperature
+  KM271_SENDCMD_HC1_NIGHT_SETPOINT,       // HC1 Night Setpoint Temperature
+  KM271_SENDCMD_HC1_HOLIDAY_SETPOINT,     // HC1 Holiday Setpoint Temperature
+  KM271_SENDCMD_HC2_OPMODE,               // HC2 OperationMode
+  KM271_SENDCMD_HC2_DESIGN_TEMP,          // HC2 Design Temperature
+  KM271_SENDCMD_HC2_PROGRAMM,             // HC2 Program
+  KM271_SENDCMD_HC2_SWITCH_OFF_THRESHOLD, // HC2 SwitchOff Threshold
+  KM271_SENDCMD_HC2_DAY_SETPOINT,         // HC2 Day Setpoint Temperature
+  KM271_SENDCMD_HC2_NIGHT_SETPOINT,       // HC2 Night Setpoint Temperature
+  KM271_SENDCMD_HC2_HOLIDAY_SETPOINT,     // HC2 Holiday Setpoint Temperature
+  KM271_SENDCMD_WW_OPMODE,                // WarmWater OperationMode
+  KM271_SENDCMD_SUMMER,                   // Summer threshold
+  KM271_SENDCMD_FROST,                    // Frost threshold
   KM271_SENDCMD_WW_SETPOINT,              // Warmwasser soll
-  KM271_SENDCMD_HC1_HOLIDAYS,             // HK1 Ferien Tage
-  KM271_SENDCMD_HC2_HOLIDAYS,             // HK2 Ferien Tage
+  KM271_SENDCMD_HC1_HOLIDAYS,             // HC1 Holiday Days
+  KM271_SENDCMD_HC2_HOLIDAYS,             // HC2 Holiday Days
+  KM271_SENDCMD_WW_PUMP_CYCLES,           // WarmWater Pump cycles
 } e_km271_sendCmd;
 
 

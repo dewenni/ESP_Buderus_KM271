@@ -140,6 +140,10 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   else if (strcmp (topic, addTopic(mqttCmd.HC2_HOLIDAYS[LANG])) == 0){
     km271sendCmd(KM271_SENDCMD_HC2_HOLIDAYS, intVal);
   } 
+  // WW Pump Cycles
+  else if (strcmp (topic, addTopic(mqttCmd.WW_PUMP_CYCLES[LANG])) == 0){
+    km271sendCmd(KM271_SENDCMD_WW_PUMP_CYCLES, intVal);
+  } 
 }
 
 

@@ -68,6 +68,8 @@ const char* INFO_DESIGNTEMP[MAX_LANG] =             {"Auslegungstemperatur Heizk
 const char* INFO_SWITCHOFF[MAX_LANG] =              {"Umschaltschwelle für Absenkung Aussenhalt",       "Threshold for reduction mode"};
 const char* INFO_WWTEMP[MAX_LANG] =                 {"Solltemperatur für Warmwasser",                   "Setpoint for Wot-Water"};
 const char* INFO_UNIT_C[MAX_LANG] =                 {"Einheit: °C",                                     "Unit: °C"};
+const char* INFO_WW_PUMP_CIRC1[MAX_LANG] =          {"Anzahl der Zyklen pro Stunde",                    "count of operation cycles per hour"};
+const char* INFO_WW_PUMP_CIRC2[MAX_LANG] =          {"0:AUS | 1..6: Zykluen/Stunde | 7:EIN",            "0:OFF | 1..6: cycles/hour | 7:ON"};
 const char* OILMETER[MAX_LANG] =                    {"Ölzähler",                                        "Oil-Meter"};
 const char* INFO_UNIT_L[MAX_LANG] =                 {"Einheit: Liter",                                  "Unit: Litre"};
 const char* OILMETER_ACT[MAX_LANG] =                {"Ölzählerstand",                                   "Oil-Meter value"};
@@ -97,29 +99,30 @@ const char* TIME[MAX_LANG] =                        {"Uhrzeit",                 
 // mqtt commands : texts that are used as topics for KM271 commands
 // ======================================================================================
 typedef struct {
-const char* RESTART[MAX_LANG] =                     {"/cmd/restart",                "/cmd/restart"};
-const char* DATETIME[MAX_LANG] =                    {"/setvalue/setdatetime",       "/setvalue/setdatetime"};
-const char* OILCNT[MAX_LANG] =                      {"/setvalue/oilcounter",        "/setvalue/oilcounter"};
-const char* HC1_OPMODE[MAX_LANG] =                  {"/setvalue/hk1_betriebsart",   "/setvalue/hc1_opmode"};
-const char* HC2_OPMODE[MAX_LANG] =                  {"/setvalue/hk2_betriebsart",   "/setvalue/hc2_opmode"};
-const char* HC1_PRG[MAX_LANG] =                     {"/setvalue/hk1_programm",      "/setvalue/hc1_program"};
-const char* HC2_PRG[MAX_LANG] =                     {"/setvalue/hk2_programm",      "/setvalue/hc2_program"};
-const char* HC1_INTERPRET[MAX_LANG] =               {"/setvalue/hk1_auslegung",     "/setvalue/hc1_interpretation"};
-const char* HC2_INTERPRET[MAX_LANG] =               {"/setvalue/hk2_auslegung",     "/setvalue/hc2_interpretation"};
-const char* HC1_SWITCH_OFF_THRESHOLD[MAX_LANG] =    {"/setvalue/hk1_aussenhalt_ab", "/setvalue/hc1_switch_off_threshold"};
-const char* HC2_SWITCH_OFF_THRESHOLD[MAX_LANG] =    {"/setvalue/hk2_aussenhalt_ab", "/setvalue/hc2_switch_off_threshold"};
-const char* HC1_DAY_SETPOINT[MAX_LANG] =            {"/setvalue/hk1_tag_soll",      "/setvalue/hc1_day_setpoint"};
-const char* HC2_DAY_SETPOINT[MAX_LANG] =            {"/setvalue/hk2_tag_soll",      "/setvalue/hc2_day_setpoint"};
-const char* HC1_NIGHT_SETPOINT[MAX_LANG] =          {"/setvalue/hk1_nacht_soll",    "/setvalue/hc1_night_setpoint"};
-const char* HC2_NIGHT_SETPOINT[MAX_LANG] =          {"/setvalue/hk2_nacht_soll",    "/setvalue/hc2_night_setpoint"};
-const char* HC1_HOLIDAY_SETPOINT[MAX_LANG] =        {"/setvalue/hk1_ferien_soll",   "/setvalue/hc1_holiday_setpoint"};
-const char* HC2_HOLIDAY_SETPOINT[MAX_LANG] =        {"/setvalue/hk2_ferien_soll",   "/setvalue/hc2_holiday_setpoint"};
-const char* WW_OPMODE[MAX_LANG] =                   {"/setvalue/ww_betriebsart",    "/setvalue/ww_opmode"};
-const char* SUMMER[MAX_LANG] =                      {"/setvalue/sommer_ab",         "/setvalue/summer_mode_threshold"};
-const char* FROST[MAX_LANG] =                       {"/setvalue/frost_ab",          "/setvalue/frost_mode_threshold"};
-const char* WW_SETPOINT[MAX_LANG] =                 {"/setvalue/ww_soll",           "/setvalue/ww_setpoint"};
-const char* HC1_HOLIDAYS[MAX_LANG] =                {"/setvalue/hk1_ferien_tage",   "/setvalue/hc1_holidays"};
-const char* HC2_HOLIDAYS[MAX_LANG] =                {"/setvalue/hk2_ferien_tage",   "/setvalue/hc2_holidays"};
+const char* RESTART[MAX_LANG] =                     {"/cmd/restart",                    "/cmd/restart"};
+const char* DATETIME[MAX_LANG] =                    {"/setvalue/setdatetime",           "/setvalue/setdatetime"};
+const char* OILCNT[MAX_LANG] =                      {"/setvalue/oilcounter",            "/setvalue/oilcounter"};
+const char* HC1_OPMODE[MAX_LANG] =                  {"/setvalue/hk1_betriebsart",       "/setvalue/hc1_opmode"};
+const char* HC2_OPMODE[MAX_LANG] =                  {"/setvalue/hk2_betriebsart",       "/setvalue/hc2_opmode"};
+const char* HC1_PRG[MAX_LANG] =                     {"/setvalue/hk1_programm",          "/setvalue/hc1_program"};
+const char* HC2_PRG[MAX_LANG] =                     {"/setvalue/hk2_programm",          "/setvalue/hc2_program"};
+const char* HC1_INTERPRET[MAX_LANG] =               {"/setvalue/hk1_auslegung",         "/setvalue/hc1_interpretation"};
+const char* HC2_INTERPRET[MAX_LANG] =               {"/setvalue/hk2_auslegung",         "/setvalue/hc2_interpretation"};
+const char* HC1_SWITCH_OFF_THRESHOLD[MAX_LANG] =    {"/setvalue/hk1_aussenhalt_ab",     "/setvalue/hc1_switch_off_threshold"};
+const char* HC2_SWITCH_OFF_THRESHOLD[MAX_LANG] =    {"/setvalue/hk2_aussenhalt_ab",     "/setvalue/hc2_switch_off_threshold"};
+const char* HC1_DAY_SETPOINT[MAX_LANG] =            {"/setvalue/hk1_tag_soll",          "/setvalue/hc1_day_setpoint"};
+const char* HC2_DAY_SETPOINT[MAX_LANG] =            {"/setvalue/hk2_tag_soll",          "/setvalue/hc2_day_setpoint"};
+const char* HC1_NIGHT_SETPOINT[MAX_LANG] =          {"/setvalue/hk1_nacht_soll",        "/setvalue/hc1_night_setpoint"};
+const char* HC2_NIGHT_SETPOINT[MAX_LANG] =          {"/setvalue/hk2_nacht_soll",        "/setvalue/hc2_night_setpoint"};
+const char* HC1_HOLIDAY_SETPOINT[MAX_LANG] =        {"/setvalue/hk1_ferien_soll",       "/setvalue/hc1_holiday_setpoint"};
+const char* HC2_HOLIDAY_SETPOINT[MAX_LANG] =        {"/setvalue/hk2_ferien_soll",       "/setvalue/hc2_holiday_setpoint"};
+const char* WW_OPMODE[MAX_LANG] =                   {"/setvalue/ww_betriebsart",        "/setvalue/ww_opmode"};
+const char* SUMMER[MAX_LANG] =                      {"/setvalue/sommer_ab",             "/setvalue/summer_mode_threshold"};
+const char* FROST[MAX_LANG] =                       {"/setvalue/frost_ab",              "/setvalue/frost_mode_threshold"};
+const char* WW_SETPOINT[MAX_LANG] =                 {"/setvalue/ww_soll",               "/setvalue/ww_setpoint"};
+const char* HC1_HOLIDAYS[MAX_LANG] =                {"/setvalue/hk1_ferien_tage",       "/setvalue/hc1_holidays"};
+const char* HC2_HOLIDAYS[MAX_LANG] =                {"/setvalue/hk2_ferien_tage",       "/setvalue/hc2_holidays"};
+const char* WW_PUMP_CYCLES[MAX_LANG] =              {"/setvalue/ww_pumpen_zyklus",      "/setvalue/ww_pump_cycles"};
 } s_mqtt_cmds; 
 
 
@@ -180,6 +183,8 @@ const char* HC1_HOLIDAYS_RECV[MAX_LANG]                 =    {"setvalue: hk1_fer
 const char* HC1_HOLIDAYS_INVALID[MAX_LANG]              =    {"setvalue: hk1_ferien_tage - ungültig",        "setvalue: hc1_holidays - invalid"};
 const char* HC2_HOLIDAYS_RECV[MAX_LANG]                 =    {"setvalue: hk2_ferien_tage - empfangen",       "setvalue: hc2_holidays - received"};
 const char* HC2_HOLIDAYS_INVALID[MAX_LANG]              =    {"setvalue: hk2_ferien_tage - ungültig",        "setvalue: hc2_holidays - invalid"};
+const char* WW_PUMP_CYCLE_RECV[MAX_LANG]                 =   {"setvalue: ww_pumpen_zyklus - empfangen",      "setvalue: ww_pump_cycles - received"};
+const char* WW_PUMP_CYCLE_INVALID[MAX_LANG]              =   {"setvalue: ww_pumpen_zyklus - ungültig",       "setvalue: ww_pump_cycles - invalid"};
 } s_mqtt_messags;   
 
 
@@ -228,6 +233,7 @@ const char* EXHAUST_THRESHOLD[MAX_LANG]         =    {"Abgastemperaturschwelle",
 const char* BURNER_MIN_MOD[MAX_LANG]            =    {"Brenner_Min_Modulation",      "burner_min_modulation"};
 const char* BURNER_MOD_TIME[MAX_LANG]           =    {"Brenner_Mod_Laufzeit",        "burner_modulation_runtime"};
 const char* HC1_PROGRAM[MAX_LANG]               =    {"HK1_Programm",                "hc1_program"};
+const char* HC1_HOLIDAY_DAYS[MAX_LANG]          =    {"HK1_Ferien_Tage",             "hc1_holiday_days"};
 const char* HC1_TIMER01[MAX_LANG]               =    {"HK1_Timer01",                 "hc1_timer01"};
 const char* HC1_TIMER02[MAX_LANG]               =    {"HK1_Timer02",                 "hc1_timer02"};
 const char* HC1_TIMER03[MAX_LANG]               =    {"HK1_Timer03",                 "hc1_timer03"};
@@ -243,6 +249,7 @@ const char* HC1_TIMER12[MAX_LANG]               =    {"HK1_Timer12",            
 const char* HC1_TIMER13[MAX_LANG]               =    {"HK1_Timer13",                 "hc1_timer13"};
 const char* HC1_TIMER14[MAX_LANG]               =    {"HK1_Timer14",                 "hc1_timer14"};
 const char* HC2_PROGRAM[MAX_LANG]               =    {"HK2_Programm",                "hc2_program"};
+const char* HC2_HOLIDAY_DAYS[MAX_LANG]          =    {"HK2_Ferien_Tage",             "hc2_holiday_days"};
 const char* HC2_TIMER01[MAX_LANG]               =    {"HK2_Timer01",                 "hc2_timer01"};
 const char* HC2_TIMER02[MAX_LANG]               =    {"HK2_Timer02",                 "hc2_timer02"};
 const char* HC2_TIMER03[MAX_LANG]               =    {"HK2_Timer03",                 "hc2_timer03"};

@@ -304,6 +304,15 @@ void webUISetup(){
     #endif
   #endif
 
+  // HC-Holidays
+  #ifdef USE_HC1
+    id.ctrl.hc1_holiday_days = ESPUI.addControl(Number, km271CfgTopics.HC1_HOLIDAY_DAYS[LANG], "", Dark, id.tab.control, generalCallback);
+  #else
+    #ifdef USE_HC2
+      id.ctrl.hc2_holiday_days = ESPUI.addControl(Number, km271CfgTopics.HC2_HOLIDAY_DAYS[LANG], "", Dark, id.tab.control, generalCallback);
+    #endif
+  #endif
+
   ESPUI.addControl(ControlType::Separator, webText.TEMPERATURES[LANG], "", ControlColor::None, id.tab.control);
 
   // Frost Threshold
@@ -366,6 +375,13 @@ void webUISetup(){
 	ESPUI.addControl(Max, "", "60", None, id.ctrl.ww_setpoint);
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_WWTEMP[LANG], None, ww_temp_control), LABLE_STYLE_DESCRIPTION);
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[LANG], None, ww_temp_control), LABLE_STYLE_DESCRIPTION);
+
+  auto ww_pump_cycles_control = addGroupHelper(km271CfgTopics.WW_CIRCULATION[LANG], Dark, id.tab.control);
+  id.ctrl.ww_pump_cycles = ESPUI.addControl(Slider, "", "0", Dark, ww_pump_cycles_control, generalCallback);
+	ESPUI.addControl(Min, "", "0", None, id.ctrl.ww_pump_cycles);
+	ESPUI.addControl(Max, "", "7", None, id.ctrl.ww_pump_cycles);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_WW_PUMP_CIRC1[LANG], None, ww_pump_cycles_control), LABLE_STYLE_DESCRIPTION);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_WW_PUMP_CIRC2[LANG], None, ww_pump_cycles_control), LABLE_STYLE_DESCRIPTION);
 
 
   #ifdef USE_OILMETER
@@ -465,6 +481,9 @@ void webUISetup(){
     ESPUI.setPanelWide(hc1prg_config, true);
 
   #endif /* USE_HC1 */
+
+
+
 
   /*-------------------------------------------------------------------------
   // TAB: Heating Circuit 2
@@ -1071,71 +1090,72 @@ void updateConfigValues(){
     ESPUI.updateSlider(id.ctrl.hc1_interpretation, kmConfigNumCpy.hc1_interpretation);
     ESPUI.updateSlider(id.ctrl.hc1_switch_off_threshold, kmConfigNumCpy.hc1_switch_off_threshold);
 
+    ESPUI.updateNumber(id.ctrl.hc1_holiday_days, kmConfigNumCpy.hc1_holiday_days);
+#else
 
-  #else
+#ifdef USE_HC2
+  ESPUI.updateLabel(id.cfg.hc2_night_temp, kmConfigStrCpy.hc2_night_temp);
+  ESPUI.updateLabel(id.cfg.hc2_day_temp, kmConfigStrCpy.hc2_day_temp);
+  ESPUI.updateLabel(id.cfg.hc2_operation_mode, kmConfigStrCpy.hc2_operation_mode);
+  ESPUI.updateLabel(id.cfg.hc2_holiday_temp, kmConfigStrCpy.hc2_holiday_temp);
+  ESPUI.updateLabel(id.cfg.hc2_max_temp, kmConfigStrCpy.hc2_max_temp);
+  ESPUI.updateLabel(id.cfg.hc2_interpretation, kmConfigStrCpy.hc2_interpretation);
+  ESPUI.updateLabel(id.cfg.hc2_switch_on_temperature, kmConfigStrCpy.hc2_switch_on_temperature);
+  ESPUI.updateLabel(id.cfg.hc2_switch_off_threshold, kmConfigStrCpy.hc2_switch_off_threshold);
+  ESPUI.updateLabel(id.cfg.hc2_reduction_mode, kmConfigStrCpy.hc2_reduction_mode);
+  ESPUI.updateLabel(id.cfg.hc2_heating_system, kmConfigStrCpy.hc2_heating_system);
+  ESPUI.updateLabel(id.cfg.hc2_temp_offset, kmConfigStrCpy.hc2_temp_offset);
+  ESPUI.updateLabel(id.cfg.hc2_remotecontrol, kmConfigStrCpy.hc2_remotecontrol);
 
-    #ifdef USE_HC2
-      ESPUI.updateLabel(id.cfg.hc2_night_temp,					          kmConfigStrCpy.hc2_night_temp);			          
-      ESPUI.updateLabel(id.cfg.hc2_day_temp,					            kmConfigStrCpy.hc2_day_temp);			            
-      ESPUI.updateLabel(id.cfg.hc2_operation_mode,					      kmConfigStrCpy.hc2_operation_mode);					      
-      ESPUI.updateLabel(id.cfg.hc2_holiday_temp,					        kmConfigStrCpy.hc2_holiday_temp);			        
-      ESPUI.updateLabel(id.cfg.hc2_max_temp,					            kmConfigStrCpy.hc2_max_temp);		            
-      ESPUI.updateLabel(id.cfg.hc2_interpretation,					      kmConfigStrCpy.hc2_interpretation);					      
-      ESPUI.updateLabel(id.cfg.hc2_switch_on_temperature,					kmConfigStrCpy.hc2_switch_on_temperature);					
-      ESPUI.updateLabel(id.cfg.hc2_switch_off_threshold,					kmConfigStrCpy.hc2_switch_off_threshold);				
-      ESPUI.updateLabel(id.cfg.hc2_reduction_mode,					      kmConfigStrCpy.hc2_reduction_mode);	      
-      ESPUI.updateLabel(id.cfg.hc2_heating_system,					      kmConfigStrCpy.hc2_heating_system);				      
-      ESPUI.updateLabel(id.cfg.hc2_temp_offset,					          kmConfigStrCpy.hc2_temp_offset);			          
-      ESPUI.updateLabel(id.cfg.hc2_remotecontrol,					        kmConfigStrCpy.hc2_remotecontrol);
+  ESPUI.updateLabel(id.cfg.hc2_program, kmConfigStrCpy.hc2_program);
+  ESPUI.updateLabel(id.cfg.hc2_timer01, kmConfigStrCpy.hc2_timer01);
+  ESPUI.updateLabel(id.cfg.hc2_timer02, kmConfigStrCpy.hc2_timer02);
+  ESPUI.updateLabel(id.cfg.hc2_timer03, kmConfigStrCpy.hc2_timer03);
+  ESPUI.updateLabel(id.cfg.hc2_timer04, kmConfigStrCpy.hc2_timer04);
+  ESPUI.updateLabel(id.cfg.hc2_timer05, kmConfigStrCpy.hc2_timer05);
+  ESPUI.updateLabel(id.cfg.hc2_timer06, kmConfigStrCpy.hc2_timer06);
+  ESPUI.updateLabel(id.cfg.hc2_timer07, kmConfigStrCpy.hc2_timer07);
+  ESPUI.updateLabel(id.cfg.hc2_timer08, kmConfigStrCpy.hc2_timer08);
+  ESPUI.updateLabel(id.cfg.hc2_timer09, kmConfigStrCpy.hc2_timer09);
+  ESPUI.updateLabel(id.cfg.hc2_timer10, kmConfigStrCpy.hc2_timer10);
+  ESPUI.updateLabel(id.cfg.hc2_timer11, kmConfigStrCpy.hc2_timer11);
+  ESPUI.updateLabel(id.cfg.hc2_timer12, kmConfigStrCpy.hc2_timer12);
+  ESPUI.updateLabel(id.cfg.hc2_timer13, kmConfigStrCpy.hc2_timer13);
+  ESPUI.updateLabel(id.cfg.hc2_timer14, kmConfigStrCpy.hc2_timer14);
 
-      ESPUI.updateLabel(id.cfg.hc2_program,					              kmConfigStrCpy.hc2_program);
-      ESPUI.updateLabel(id.cfg.hc2_timer01,					              kmConfigStrCpy.hc2_timer01);
-      ESPUI.updateLabel(id.cfg.hc2_timer02,					              kmConfigStrCpy.hc2_timer02);
-      ESPUI.updateLabel(id.cfg.hc2_timer03,					              kmConfigStrCpy.hc2_timer03);
-      ESPUI.updateLabel(id.cfg.hc2_timer04,					              kmConfigStrCpy.hc2_timer04);
-      ESPUI.updateLabel(id.cfg.hc2_timer05,					              kmConfigStrCpy.hc2_timer05);
-      ESPUI.updateLabel(id.cfg.hc2_timer06,					              kmConfigStrCpy.hc2_timer06);
-      ESPUI.updateLabel(id.cfg.hc2_timer07,					              kmConfigStrCpy.hc2_timer07);
-      ESPUI.updateLabel(id.cfg.hc2_timer08,					              kmConfigStrCpy.hc2_timer08);
-      ESPUI.updateLabel(id.cfg.hc2_timer09,					              kmConfigStrCpy.hc2_timer09);
-      ESPUI.updateLabel(id.cfg.hc2_timer10,					              kmConfigStrCpy.hc2_timer10);
-      ESPUI.updateLabel(id.cfg.hc2_timer11,					              kmConfigStrCpy.hc2_timer11);
-      ESPUI.updateLabel(id.cfg.hc2_timer12,					              kmConfigStrCpy.hc2_timer12);
-      ESPUI.updateLabel(id.cfg.hc2_timer13,					              kmConfigStrCpy.hc2_timer13);
-      ESPUI.updateLabel(id.cfg.hc2_timer14,					              kmConfigStrCpy.hc2_timer14);
+  ESPUI.updateSelect(id.ctrl.hc2_opmode, hc_opmode_optval[kmConfigNumCpy.hc2_operation_mode]);
+  ESPUI.updateSelect(id.ctrl.hc2_program, cfgArrayTexts.HC_PROGRAM[kmConfigNumCpy.hc2_program]);
+  ESPUI.updateSlider(id.ctrl.hc2_interpretation, kmConfigNumCpy.hc2_interpretation);
+  ESPUI.updateSlider(id.ctrl.hc2_switch_off_threshold, kmConfigNumCpy.hc2_switch_off_threshold);
 
-      ESPUI.updateSelect(id.ctrl.hc2_opmode, hc_opmode_optval[kmConfigNumCpy.hc2_operation_mode]);
-      ESPUI.updateSelect(id.ctrl.hc2_program, cfgArrayTexts.HC_PROGRAM[kmConfigNumCpy.hc2_program]);
-      ESPUI.updateSlider(id.ctrl.hc2_interpretation, kmConfigNumCpy.hc2_interpretation);
-      ESPUI.updateSlider(id.ctrl.hc2_switch_off_threshold, kmConfigNumCpy.hc2_switch_off_threshold);
+  ESPUI.updateNumber(id.ctrl.hc2_holiday_days, kmConfigNumCpy.hc2_holiday_days);
+#endif
 
-    #endif
+#endif
 
-  #endif
+    ESPUI.updateLabel(id.cfg.ww_priority, kmConfigStrCpy.ww_priority);
+    ESPUI.updateLabel(id.cfg.ww_temp, kmConfigStrCpy.ww_temp);
+    ESPUI.updateLabel(id.cfg.ww_operation_mode, kmConfigStrCpy.ww_operation_mode);
+    ESPUI.updateLabel(id.cfg.ww_processing, kmConfigStrCpy.ww_processing);
+    ESPUI.updateLabel(id.cfg.ww_circulation, kmConfigStrCpy.ww_circulation);
+    ESPUI.updateLabel(id.cfg.frost_protection_threshold, kmConfigStrCpy.frost_protection_threshold);
+    ESPUI.updateLabel(id.cfg.summer_mode_threshold, kmConfigStrCpy.summer_mode_threshold);
+    ESPUI.updateLabel(id.cfg.max_boiler_temperature, kmConfigStrCpy.max_boiler_temperature);
+    ESPUI.updateLabel(id.cfg.pump_logic_temp, kmConfigStrCpy.pump_logic_temp);
+    ESPUI.updateLabel(id.cfg.building_type, kmConfigStrCpy.building_type);
+    ESPUI.updateLabel(id.cfg.burner_type, kmConfigStrCpy.burner_type);
+    ESPUI.updateLabel(id.cfg.burner_min_modulation, kmConfigStrCpy.burner_min_modulation);
+    ESPUI.updateLabel(id.cfg.burner_modulation_runtime, kmConfigStrCpy.burner_modulation_runtime);
+    ESPUI.updateLabel(id.cfg.exhaust_gas_temperature_threshold, kmConfigStrCpy.exhaust_gas_temperature_threshold);
+    ESPUI.updateLabel(id.cfg.language, kmConfigStrCpy.language);
+    ESPUI.updateLabel(id.cfg.display, kmConfigStrCpy.display);
+    ESPUI.updateLabel(id.cfg.time_offset, kmConfigStrCpy.time_offset);
 
-  ESPUI.updateLabel(id.cfg.ww_priority,					              kmConfigStrCpy.ww_priority);		              
-  ESPUI.updateLabel(id.cfg.ww_temp,					                  kmConfigStrCpy.ww_temp);			                  
-  ESPUI.updateLabel(id.cfg.ww_operation_mode,					        kmConfigStrCpy.ww_operation_mode);			        
-  ESPUI.updateLabel(id.cfg.ww_processing,					            kmConfigStrCpy.ww_processing);			            
-  ESPUI.updateLabel(id.cfg.ww_circulation,					          kmConfigStrCpy.ww_circulation);					          
-  ESPUI.updateLabel(id.cfg.frost_protection_threshold,				kmConfigStrCpy.frost_protection_threshold);				
-  ESPUI.updateLabel(id.cfg.summer_mode_threshold,					    kmConfigStrCpy.summer_mode_threshold);		    
-  ESPUI.updateLabel(id.cfg.max_boiler_temperature,					  kmConfigStrCpy.max_boiler_temperature);					  
-  ESPUI.updateLabel(id.cfg.pump_logic_temp,					          kmConfigStrCpy.pump_logic_temp);	          
-  ESPUI.updateLabel(id.cfg.building_type,					            kmConfigStrCpy.building_type);				            
-  ESPUI.updateLabel(id.cfg.burner_type,					              kmConfigStrCpy.burner_type);			              
-  ESPUI.updateLabel(id.cfg.burner_min_modulation,					    kmConfigStrCpy.burner_min_modulation);				    
-  ESPUI.updateLabel(id.cfg.burner_modulation_runtime,					kmConfigStrCpy.burner_modulation_runtime);					
-  ESPUI.updateLabel(id.cfg.exhaust_gas_temperature_threshold,	kmConfigStrCpy.exhaust_gas_temperature_threshold);
-  ESPUI.updateLabel(id.cfg.language,					                kmConfigStrCpy.language);
-  ESPUI.updateLabel(id.cfg.display,					                  kmConfigStrCpy.display);				                  
-  ESPUI.updateLabel(id.cfg.time_offset,					              kmConfigStrCpy.time_offset);
-  
-  ESPUI.updateSelect(id.ctrl.ww_opmode, hc_opmode_optval[kmConfigNumCpy.ww_operation_mode]);
-  ESPUI.updateSlider(id.ctrl.frost_mode_threshold, kmConfigNumCpy.frost_protection_threshold);
-  ESPUI.updateSlider(id.ctrl.summer_mode_threshold, kmConfigNumCpy.summer_mode_threshold);
-  ESPUI.updateSlider(id.ctrl.ww_setpoint, kmConfigNumCpy.ww_temp);
-
+    ESPUI.updateSelect(id.ctrl.ww_opmode, hc_opmode_optval[kmConfigNumCpy.ww_operation_mode]);
+    ESPUI.updateSlider(id.ctrl.frost_mode_threshold, kmConfigNumCpy.frost_protection_threshold);
+    ESPUI.updateSlider(id.ctrl.summer_mode_threshold, kmConfigNumCpy.summer_mode_threshold);
+    ESPUI.updateSlider(id.ctrl.ww_setpoint, kmConfigNumCpy.ww_temp);
+    ESPUI.updateSlider(id.ctrl.ww_pump_cycles, kmConfigNumCpy.ww_circulation);
 }
 
 /**
@@ -1280,9 +1300,24 @@ void generalCallback(Control *sender, int type) {
     km271sendCmd(KM271_SENDCMD_HC2_SWITCH_OFF_THRESHOLD, sender->value.toInt());
   }
 
+  // HC1-Holiday days
+  if(sender->id == id.ctrl.hc1_holiday_days) {
+    km271sendCmd(KM271_SENDCMD_HC1_HOLIDAYS, sender->value.toInt());
+  }
+
+  // HC2-Holiday days
+  if(sender->id == id.ctrl.hc2_holiday_days) {
+    km271sendCmd(KM271_SENDCMD_HC2_HOLIDAYS, sender->value.toInt());
+  }
+
   // WW-Temp
   if(sender->id == id.ctrl.ww_setpoint) {
     km271sendCmd(KM271_SENDCMD_WW_SETPOINT, sender->value.toInt());
+  }
+
+  // WW-Pump Cycles
+  if(sender->id == id.ctrl.ww_pump_cycles) {
+    km271sendCmd(KM271_SENDCMD_WW_PUMP_CYCLES, sender->value.toInt());
   }
 
   // Set new Oilcounter value

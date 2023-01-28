@@ -690,7 +690,6 @@ void parseInfo(uint8_t *data, int len) {
       break; 
 
 
-
     /*
     **********************************************************************************
     * config values beginnig with 0x00 
@@ -922,6 +921,9 @@ void parseInfo(uint8_t *data, int len) {
       kmConfigNum.hc1_program = data[2];
       snprintf(kmConfigStr.hc1_program, sizeof(kmConfigStr.hc1_program), "%s", cfgArray.HC_PROGRAM[limit(0, kmConfigNum.hc1_program, 8)]); 
       mqttPublish(addCfgTopic(cfgTopic.HC1_PROGRAM[LANG]), kmConfigStr.hc1_program, false);     // "CFG_HK1_Programm"  => "0100:0"
+      kmConfigNum.hc1_holiday_days = data[2+3];
+      snprintf(kmConfigStr.hc1_holiday_days, sizeof(kmConfigStr.hc1_holiday_days), "%i %s", kmConfigNum.hc1_holiday_days, mqttMsg.DAYS[LANG]); 
+      mqttPublish(addCfgTopic(cfgTopic.HC1_HOLIDAY_DAYS[LANG]), kmConfigStr.hc1_holiday_days, false);     // "CFG_HK1_Ferien_Tage"  => "0100:5"   
       #endif
       break;
    
@@ -930,6 +932,9 @@ void parseInfo(uint8_t *data, int len) {
       kmConfigNum.hc2_program = data[2];
       snprintf(kmConfigStr.hc2_program, sizeof(kmConfigStr.hc2_program), "%s", cfgArray.HC_PROGRAM[limit(0, kmConfigNum.hc2_program, 8)]); 
       mqttPublish(addCfgTopic(cfgTopic.HC2_PROGRAM[LANG]), kmConfigStr.hc2_program, false);     // "CFG_HK2_Programm"  => "0169:0"
+      kmConfigNum.hc2_holiday_days = data[2+3];
+      snprintf(kmConfigStr.hc2_holiday_days, sizeof(kmConfigStr.hc2_holiday_days), "%i %s", kmConfigNum.hc2_holiday_days, mqttMsg.DAYS[LANG]); 
+      mqttPublish(addCfgTopic(cfgTopic.HC2_HOLIDAY_DAYS[LANG]), kmConfigStr.hc2_holiday_days, false);     // "CFG_HK2_Ferien_Tage"  => "0169:5"  
       #endif
       break;
 
@@ -1476,7 +1481,7 @@ void km271SetDateTimeDTI(tm dti){
   send_buf[7]= dti.tm_year;                           // year year < 100 means 19xx / year > 100 means 20xx
   
   char wday[4] = {'\0'};
-  switch (dti.tm_wday)
+  switch ((dti.tm_wday+6) %7)
   {
   case 0: snprintf(wday, sizeof(wday), "%s", mqttMsg.MON[LANG]); break;
   case 1: snprintf(wday, sizeof(wday), "%s", mqttMsg.TUE[LANG]); break;
@@ -1526,7 +1531,7 @@ void km271SetDateTimeNTP(){
   send_buf[7]= dti.tm_year;                           // year 
   
   char wday[4] = {'\0'};
-  switch (dti.tm_wday)
+  switch ((dti.tm_wday+6) %7)
   {
   case 0: snprintf(wday, sizeof(wday), "%s", mqttMsg.MON[LANG]); break;
   case 1: snprintf(wday, sizeof(wday), "%s", mqttMsg.TUE[LANG]); break;
@@ -1619,10 +1624,10 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
 
   case KM271_SENDCMD_HC1_PROGRAMM:
     if (cmdPara>=0 && cmdPara<=8){     
-      send_buf[0]= 0x11;        // Data-Type
+      send_buf[0]= 0x11;        // Data-Type HK1 Schaltuhr
       send_buf[1]= 0x00;        // Offset
       send_buf[2]= cmdPara;     // Programmnummer 0..8
-      send_buf[3]= 0x65;
+      send_buf[3]= 0x65;        
       send_buf[4]= 0x65;
       send_buf[5]= 0x65;     
       send_buf[6]= 0x65; 
@@ -1630,6 +1635,22 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
       mqttPublish(addTopic("/message"), mqttMsg.HC1_PROG_RECV[LANG], false);
     } else {
       mqttPublish(addTopic("/message"), mqttMsg.HC1_PROG_INVALID[LANG], false);
+    }
+    break;
+
+  case KM271_SENDCMD_HC1_HOLIDAYS:
+    if (cmdPara>=0 && cmdPara<=99){    
+      send_buf[0]= 0x11;        // Data-Type HK1 Schaltuhr
+      send_buf[1]= 0x00;        // Offset
+      send_buf[2]= 0x65;        
+      send_buf[3]= 0x65;        
+      send_buf[4]= 0x65;        
+      send_buf[5]= cmdPara;     // Holiday days -  Resolution: 1 Day - Range: 0 – 99 Days 
+      send_buf[6]= 0x65;
+      send_buf[7]= 0x65;    
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_HOLIDAYS_RECV[LANG], false);
+    } else {
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_HOLIDAYS_INVALID[LANG], false);
     }
     break;
 
@@ -1649,6 +1670,22 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
     }
     break;
 
+  case KM271_SENDCMD_HC2_HOLIDAYS:
+    if (cmdPara>=0 && cmdPara<=99){    
+      send_buf[0]= 0x12;        // Data-Type HK2
+      send_buf[1]= 0x00;        // Offset
+      send_buf[2]= 0x65;
+      send_buf[3]= 0x65;
+      send_buf[4]= 0x65;
+      send_buf[5]= cmdPara;     // Resolution: 1 Day - Range: 0 – 99 Days 
+      send_buf[6]= 0x65;
+      send_buf[7]= 0x65;    
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_HOLIDAYS_RECV[LANG], false);
+    } else {
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_HOLIDAYS_INVALID[LANG], false);
+    }
+    break;
+    
   case KM271_SENDCMD_WW_OPMODE:
     if (cmdPara>=0 && cmdPara<=2){     
       send_buf[0]= 0x0C;      // Data-Type für Warmwasser (0x0C)
@@ -1745,35 +1782,19 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
     }
     break;
 
-  case KM271_SENDCMD_HC1_HOLIDAYS:
-    if (cmdPara>=0 && cmdPara<=99){    
-      send_buf[0]= 0x11;        // Data-Type HK1
-      send_buf[1]= 0x00;        // Offset
+  case KM271_SENDCMD_WW_PUMP_CYCLES:
+    if (cmdPara>=0 && cmdPara<=7){    
+      send_buf[0]= 0x0C;        // Data-Type für Warmwater (0x0C) 
+      send_buf[1]= 0x0E;        // Offset
       send_buf[2]= 0x65;
-      send_buf[3]= 0x65;
+      send_buf[3]= 0x65;       
       send_buf[4]= 0x65;
-      send_buf[5]= cmdPara;     // Resolution: 1 Day - Range: 0 – 99 Days 
+      send_buf[5]= 0x65;     
       send_buf[6]= 0x65;
-      send_buf[7]= 0x65;    
-      mqttPublish(addTopic("/message"), mqttMsg.HC1_HOLIDAYS_RECV[LANG], false);
+      send_buf[7]= cmdPara;     // 0:OFF - 1..6 - 7:ON
+      mqttPublish(addTopic("/message"), mqttMsg.WW_PUMP_CYCLE_RECV[LANG], false);
     } else {
-      mqttPublish(addTopic("/message"), mqttMsg.HC1_HOLIDAYS_INVALID[LANG], false);
-    }
-    break;
-
-  case KM271_SENDCMD_HC2_HOLIDAYS:
-    if (cmdPara>=0 && cmdPara<=99){    
-      send_buf[0]= 0x12;        // Data-Type HK2
-      send_buf[1]= 0x00;        // Offset
-      send_buf[2]= 0x65;
-      send_buf[3]= 0x65;
-      send_buf[4]= 0x65;
-      send_buf[5]= cmdPara;     // Resolution: 1 Day - Range: 0 – 99 Days 
-      send_buf[6]= 0x65;
-      send_buf[7]= 0x65;    
-      mqttPublish(addTopic("/message"), mqttMsg.HC2_HOLIDAYS_RECV[LANG], false);
-    } else {
-      mqttPublish(addTopic("/message"), mqttMsg.HC2_HOLIDAYS_INVALID[LANG], false);
+      mqttPublish(addTopic("/message"), mqttMsg.WW_PUMP_CYCLE_INVALID[LANG], false);
     }
     break;
 
