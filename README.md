@@ -47,7 +47,7 @@ here you get the information about the last 4 Errors/Faults that are registered 
 
 
 >**Note:**  
->A complete List of supportet values can be found in the **[param.txt](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/param.txt)**
+>A complete List of supportet values can be found in the **[param.txt](https://github.com/dewenni/ESP_Buderus_KM271/blob/1c3b92ba8c515077c627aaf876f2f54df3c393f8/param.txt)**
 
 
 ### additional and optional Oilcounter / Oil Meter
@@ -154,13 +154,13 @@ payload:    Resolution: 1 [cyles/hour] - Range: 0:OFF | 1..6 | 7:ON
 
 ### Logamatic will send informations by event:
 
-Config values as single topics (see list in [param.txt](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/param.txt))
+Config values as single topics (see list in [param.txt](https://github.com/dewenni/ESP_Buderus_KM271/blob/1c3b92ba8c515077c627aaf876f2f54df3c393f8/param.txt))
 ```
 example:
 Topic: esp_heizung/config/frost_protection_threshold
 Payload:   -1.00 °C     (String)
 ```
-Status values as single topics (see list in [param.txt](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/param.txt))
+Status values as single topics (see list in [param.txt](https://github.com/dewenni/ESP_Buderus_KM271/blob/1c3b92ba8c515077c627aaf876f2f54df3c393f8/param.txt))
 ```
 example:
 Topic: esp_heizung/status/hc1_ov1_automatic
