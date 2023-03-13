@@ -10,7 +10,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <ArduinoOTA.h> 
-#include <ArduinoJSON.h>
+#include <ArduinoJson.h>
 #include <muTimer.h>
 
 
