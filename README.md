@@ -1,5 +1,4 @@
-# ESP_Buderus_KM271
-![Buderus_s](https://user-images.githubusercontent.com/46074831/209479478-c89a3a4e-e987-468a-82b2-b60f09ca56c3.png)
+![Buderus_s2](https://user-images.githubusercontent.com/46074831/215314329-1440a687-2e59-43d2-beec-dd33f0e1bc4b.png)
 ---
 [![Current Release](https://img.shields.io/github/release/dewenni/ESP_Buderus_KM271.svg)](https://github.com/dewenni/ESP_Buderus_KM271/releases/latest)    
 ![GitHub Release Date](https://img.shields.io/github/release-date/dewenni/ESP_Buderus_KM271)    

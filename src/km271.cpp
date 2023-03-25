@@ -1381,10 +1381,10 @@ e_ret km271ProtInit(int rxPin, int txPin) {
  * *******************************************************************/
 void sendKM271Info(){
   DynamicJsonDocument infoJSON(255);
-  infoJSON[0]["burner"] = kmStatus.BurnerStates;
-  infoJSON[0]["pump"] = kmStatus.HC1_PumpPower;
-  infoJSON[0]["ww_temp"] = kmStatus.HotWaterActualTemp;
-  infoJSON[0]["boiler_temp"] = kmStatus.BoilerForwardActualTemp;
+  infoJSON["burner"] = kmStatus.BurnerStates;
+  infoJSON["pump"] = kmStatus.HC1_PumpPower;
+  infoJSON["ww_temp"] = kmStatus.HotWaterActualTemp;
+  infoJSON["boiler_temp"] = kmStatus.BoilerForwardActualTemp;
   char sendInfoJSON[255] = {'\0'};
   serializeJson(infoJSON, sendInfoJSON);
   mqttPublish(addTopic("/info"),sendInfoJSON, false);
@@ -1398,10 +1398,10 @@ void sendKM271Info(){
  * *******************************************************************/
 void sendKM271Debug(){
   DynamicJsonDocument infoJSON(255);
-  infoJSON[0]["logmode"] = km271LogModeActive;
-  infoJSON[0]["send_cmd_busy"] = (send_buf[0]!=0);
-  infoJSON[0]["sw_version"] = VERSION;
-  infoJSON[0]["date-time"] = getDateTimeString();
+  infoJSON["logmode"] = km271LogModeActive;
+  infoJSON["send_cmd_busy"] = (send_buf[0]!=0);
+  infoJSON["sw_version"] = VERSION;
+  infoJSON["date-time"] = getDateTimeString();
   char sendInfoJSON[255]={'\0'}; ;
   serializeJson(infoJSON, sendInfoJSON);
   mqttPublish(addTopic("/debug"),sendInfoJSON, false);

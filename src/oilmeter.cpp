@@ -119,7 +119,7 @@ void cyclicOilmeter()
       sendOilmeter();                                   // send new Countervalue via MQTT
   }
 
-  if (writeCounter >= 100)                              // save water meter every 100 counts = 2 liter)
+  if (writeCounter >= 50)                              // save water meter every 50 counts = 1 liter)
   {
     writeCounter = 0;
     cmdStoreOilmeter();                                 // store new value in flash
