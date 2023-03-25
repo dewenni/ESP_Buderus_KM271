@@ -832,11 +832,17 @@ void updateStatusValues(){
   #ifdef USE_HC1  
     
     // HC-Operating States 1
-    if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2))
+    if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) {              // AUTOMATIC
       snprintf(tmpMessage, sizeof(tmpMessage), "%s  🔄", webText.AUTOMATIC[LANG]);
-    else
-      snprintf(tmpMessage, sizeof(tmpMessage), "%s  ✋", webText.MANUAL[LANG]);
-    
+    }
+    else {                                                            // MANUAL
+      if (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1)) {            // DAY
+        snprintf(tmpMessage, sizeof(tmpMessage), "✋ %s : %s", webText.MANUAL[LANG], webText.DAY[LANG]);
+      }
+      else {                                                          // NIGHT
+        snprintf(tmpMessage, sizeof(tmpMessage), "✋ %s : %s", webText.MANUAL[LANG], webText.NIGHT[LANG]);
+      }
+    }
     ESPUI.updateLabel(id.dash.hc1_opmode, tmpMessage);
 
     // Summer / Winter
@@ -897,10 +903,17 @@ void updateStatusValues(){
     // HC2-Values
     #ifdef USE_HC2  
 
-      if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2))
+      if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) {              // AUTOMATIC
         snprintf(tmpMessage, sizeof(tmpMessage), "%s  🔄", webText.AUTOMATIC[LANG]);
-      else
-        snprintf(tmpMessage, sizeof(tmpMessage), "%s  ✋", webText.MANUAL[LANG]);
+      }
+      else {                                                            // MANUAL
+        if (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1)) {            // DAY
+          snprintf(tmpMessage, sizeof(tmpMessage), "✋ %s : %s", webText.MANUAL[LANG], webText.DAY[LANG]);
+        }
+        else {                                                          // NIGHT
+          snprintf(tmpMessage, sizeof(tmpMessage), "✋ %s : %s", webText.MANUAL[LANG], webText.NIGHT[LANG]);
+        }
+      }
       
       ESPUI.updateLabel(id.dash.hc2_opmode, tmpMessage);
 
@@ -1033,11 +1046,16 @@ void updateStatusValues(){
   ESPUI.updateLabel(id.dash.burnerState, tmpMessage);
 
   // WW-Operating State
-  if (bitRead(kmStatusCpy.HotWaterOperatingStates_1, 0))
+  if (bitRead(kmStatusCpy.HotWaterOperatingStates_1, 0)) {       // AUTOMATIC
     snprintf(tmpMessage, sizeof(tmpMessage), "%s  🔄", webText.AUTOMATIC[LANG]);
-  else
-    snprintf(tmpMessage, sizeof(tmpMessage), "%s  ✋", webText.MANUAL[LANG]);
-    
+    }
+  else {                                                         // MANUAL
+    if (bitRead(kmStatusCpy.HotWaterOperatingStates_2, 5))       // DAY
+      snprintf(tmpMessage, sizeof(tmpMessage), "✋ %s : %s", webText.MANUAL[LANG], webText.DAY[LANG]);
+    else {                                                       // NIGHT
+      snprintf(tmpMessage, sizeof(tmpMessage), "✋ %s : %s", webText.MANUAL[LANG], webText.NIGHT[LANG]);
+    }
+  }
   ESPUI.updateLabel(id.dash.ww_opmode, tmpMessage);
 
   // caclulated oilconsumption
@@ -1228,8 +1246,9 @@ void generalCallback(Control *sender, int type) {
   // HC1-OPMODE
   if(sender->id == id.ctrl.hc1_opmode) {
     for(int i=0; i<=2; i++) {
-      if (strcmp(sender->value.c_str(), hc_opmode_optval[i]) ) {
+      if (strcmp(sender->value.c_str(), hc_opmode_optval[i]) == 0 ) {
         km271sendCmd(KM271_SENDCMD_HC1_OPMODE, i);
+        Serial.println(i);
       }
     }
   }
@@ -1237,7 +1256,7 @@ void generalCallback(Control *sender, int type) {
   // HC2-OPMODE
   if(sender->id == id.ctrl.hc2_opmode) {
     for(int i=0; i<=2; i++) {
-      if (strcmp(sender->value.c_str(), hc_opmode_optval[i]) ) {
+      if (strcmp(sender->value.c_str(), hc_opmode_optval[i]) == 0 ) {
         km271sendCmd(KM271_SENDCMD_HC2_OPMODE, i);
       }
     }
@@ -1246,7 +1265,7 @@ void generalCallback(Control *sender, int type) {
   // WW-OPMODE
   if(sender->id == id.ctrl.ww_opmode) {
     for(int i=0; i<=2; i++) {
-      if (strcmp(sender->value.c_str(), hc_opmode_optval[i]) ) {
+      if (strcmp(sender->value.c_str(), hc_opmode_optval[i]) == 0 ) {
         km271sendCmd(KM271_SENDCMD_WW_OPMODE, i);
       }
     }
@@ -1255,7 +1274,7 @@ void generalCallback(Control *sender, int type) {
   // HC1-Program
   if(sender->id == id.ctrl.hc1_program) {
     for(int i=0; i<=8; i++) {
-      if (strcmp(sender->value.c_str(), cfgArrayTexts.HC_PROGRAM[i]) ) {
+      if (strcmp(sender->value.c_str(), cfgArrayTexts.HC_PROGRAM[i]) == 0 ) {
         km271sendCmd(KM271_SENDCMD_HC1_PROGRAMM, i);
       }
     }
@@ -1264,7 +1283,7 @@ void generalCallback(Control *sender, int type) {
   // HC2-Program
   if(sender->id == id.ctrl.hc2_program) {
     for(int i=0; i<=8; i++) {
-      if (strcmp(sender->value.c_str(), cfgArrayTexts.HC_PROGRAM[i]) ) {
+      if (strcmp(sender->value.c_str(), cfgArrayTexts.HC_PROGRAM[i]) == 0 ) {
         km271sendCmd(KM271_SENDCMD_HC2_PROGRAMM, i);
       }
     }
