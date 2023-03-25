@@ -1,11 +1,19 @@
 ![Buderus_s2](https://user-images.githubusercontent.com/46074831/215314329-1440a687-2e59-43d2-beec-dd33f0e1bc4b.png)
----
+
+-----
+
 [![Current Release](https://img.shields.io/github/release/dewenni/ESP_Buderus_KM271.svg)](https://github.com/dewenni/ESP_Buderus_KM271/releases/latest)    
 ![GitHub Release Date](https://img.shields.io/github/release-date/dewenni/ESP_Buderus_KM271)    
 ![GitHub last commit](https://img.shields.io/github/last-commit/dewenni/ESP_Buderus_KM271)    
 ![GitHub watchers](https://img.shields.io/github/watchers/dewenni/ESP_Buderus_KM271?style=social)    
 [![GitHub stars](https://img.shields.io/github/stars/dewenni/ESP_Buderus_KM271.svg?style=social&label=Star)](https://github.com/dewenni/ESP_Buderus_KM271/stargazers/)
----
+
+-----
+
+If you like this, please push the Star ⭐️ 
+
+-----
+
 Control your Buderus Logamatic R2107 / HS 2105 with ESP and MQTT
 
 The information from the heater provides a better understanding of how the heater works and offers opportunities for optimization.
