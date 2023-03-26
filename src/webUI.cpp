@@ -292,13 +292,13 @@ void webUISetup(){
   // HC-Program
   #ifdef USE_HC1
     id.ctrl.hc1_program = ESPUI.addControl(Select, km271CfgTopics.HC1_PROGRAM[LANG], "", Dark, id.tab.control, generalCallback);
-    for(auto const& v : cfgArrayTexts.HC_PROGRAM) {
+    for(auto const& v : cfgArrayTexts.HC_PROGRAM[LANG]) {
       ESPUI.addControl(Option, v, v, None, id.ctrl.hc1_program);
-    }
+    } 
   #else
     #ifdef USE_HC2
       id.ctrl.hc2_program = ESPUI.addControl(Select, km271CfgTopics.HC2_PROGRAM[LANG], "", Dark, id.tab.control, generalCallback);
-      for(auto const& v : cfgArrayTexts.HC_PROGRAM) {
+      for(auto const& v : cfgArrayTexts.HC_PROGRAM[LANG]) {
         ESPUI.addControl(Option, v, v, None, id.ctrl.hc2_program);
       }
     #endif
@@ -1017,7 +1017,7 @@ void updateStatusValues(){
   ESPUI.updateLabel(id.stat.ww_ov1_auto,          onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 0)));          
   ESPUI.updateLabel(id.stat.ww_ontime_opt,        onOffString(kmStatusCpy.HotWaterOptimizationTime));       
 
-  ESPUI.updateLabel(id.stat.boiler_ctrl,            cfgArrayTexts.BURNER_STATE[kmStatusCpy.BurnerStates]);          
+  ESPUI.updateLabel(id.stat.boiler_ctrl,            cfgArrayTexts.BURNER_STATE[LANG][kmStatusCpy.BurnerStates]);          
   ESPUI.updateLabel(id.stat.boiler_temp,            uint8ToString(kmStatusCpy.BoilerForwardActualTemp));          
   ESPUI.updateLabel(id.stat.boiler_setpoint,        uint8ToString(kmStatusCpy.BoilerForwardTargetTemp));      
   ESPUI.updateLabel(id.stat.boiler_err_aux_sens,    errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 2)));  
@@ -1124,7 +1124,7 @@ void updateConfigValues(){
     ESPUI.updateLabel(id.cfg.hc1_timer14,					              kmConfigStrCpy.hc1_timer14);
 
     ESPUI.updateSelect(id.ctrl.hc1_opmode, hc_opmode_optval[kmConfigNumCpy.hc1_operation_mode]);
-    ESPUI.updateSelect(id.ctrl.hc1_program, cfgArrayTexts.HC_PROGRAM[kmConfigNumCpy.hc1_program]);
+    ESPUI.updateSelect(id.ctrl.hc1_program, cfgArrayTexts.HC_PROGRAM[LANG][kmConfigNumCpy.hc1_program]);
     ESPUI.updateSlider(id.ctrl.hc1_interpretation, kmConfigNumCpy.hc1_interpretation);
     ESPUI.updateSlider(id.ctrl.hc1_switch_off_threshold, kmConfigNumCpy.hc1_switch_off_threshold);
 
@@ -1162,7 +1162,7 @@ void updateConfigValues(){
   ESPUI.updateLabel(id.cfg.hc2_timer14, kmConfigStrCpy.hc2_timer14);
 
   ESPUI.updateSelect(id.ctrl.hc2_opmode, hc_opmode_optval[kmConfigNumCpy.hc2_operation_mode]);
-  ESPUI.updateSelect(id.ctrl.hc2_program, cfgArrayTexts.HC_PROGRAM[kmConfigNumCpy.hc2_program]);
+  ESPUI.updateSelect(id.ctrl.hc2_program, cfgArrayTexts.HC_PROGRAM[LANG][kmConfigNumCpy.hc2_program]);
   ESPUI.updateSlider(id.ctrl.hc2_interpretation, kmConfigNumCpy.hc2_interpretation);
   ESPUI.updateSlider(id.ctrl.hc2_switch_off_threshold, kmConfigNumCpy.hc2_switch_off_threshold);
 
@@ -1298,7 +1298,7 @@ void generalCallback(Control *sender, int type) {
   // HC1-Program
   if(sender->id == id.ctrl.hc1_program) {
     for(int i=0; i<=8; i++) {
-      if (strcmp(sender->value.c_str(), cfgArrayTexts.HC_PROGRAM[i]) == 0 ) {
+      if (strcmp(sender->value.c_str(), cfgArrayTexts.HC_PROGRAM[LANG][i]) == 0 ) {
         km271sendCmd(KM271_SENDCMD_HC1_PROGRAMM, i);
       }
     }
@@ -1307,7 +1307,7 @@ void generalCallback(Control *sender, int type) {
   // HC2-Program
   if(sender->id == id.ctrl.hc2_program) {
     for(int i=0; i<=8; i++) {
-      if (strcmp(sender->value.c_str(), cfgArrayTexts.HC_PROGRAM[i]) == 0 ) {
+      if (strcmp(sender->value.c_str(), cfgArrayTexts.HC_PROGRAM[LANG][i]) == 0 ) {
         km271sendCmd(KM271_SENDCMD_HC2_PROGRAMM, i);
       }
     }

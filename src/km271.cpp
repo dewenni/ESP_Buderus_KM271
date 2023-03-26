@@ -704,7 +704,7 @@ void parseInfo(uint8_t *data, int len) {
 
     case 0x0000: 
       kmConfigNum.hc1_summer_mode_threshold = data[2+1];
-      snprintf(kmConfigStr.hc1_summer_mode_threshold, sizeof(kmConfigStr.hc1_summer_mode_threshold), "%s", cfgArray.SUMMER[limit(0, kmConfigNum.hc1_summer_mode_threshold-9, 22)]);
+      snprintf(kmConfigStr.hc1_summer_mode_threshold, sizeof(kmConfigStr.hc1_summer_mode_threshold), "%s", cfgArray.SUMMER[LANG][limit(0, kmConfigNum.hc1_summer_mode_threshold-9, 22)]);
       mqttPublish(addCfgTopic(cfgTopic.HC1_SUMMER_THRESHOLD[LANG]), kmConfigStr.hc1_summer_mode_threshold, false);                                // "CFG_Sommer_ab"            => "0000:1,p:-9,a"
       
       #ifdef USE_HC1
@@ -717,7 +717,7 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addCfgTopic(cfgTopic.HC1_DAY_TEMP[LANG]), kmConfigStr.hc1_day_temp, false);                                     // "CFG_HK1_Tagtemperatur"     => "0000:3,d:2"
       
       kmConfigNum.hc1_operation_mode = data[2+4];
-      snprintf(kmConfigStr.hc1_operation_mode, sizeof(kmConfigStr.hc1_operation_mode), "%s", cfgArray.OPMODE[limit(0, kmConfigNum.hc1_operation_mode, 2)]); 
+      snprintf(kmConfigStr.hc1_operation_mode, sizeof(kmConfigStr.hc1_operation_mode), "%s", cfgArray.OPMODE[LANG][limit(0, kmConfigNum.hc1_operation_mode, 2)]); 
       mqttPublish(addCfgTopic(cfgTopic.HC1_OPMODE[LANG]), kmConfigStr.hc1_operation_mode, false);                                 // "CFG_HK1_Betriebsart"       => "0000:4,a:4"
       
       kmConfigNum.hc1_holiday_temp = decode05cTemp(data[2+5]);
@@ -741,7 +741,7 @@ void parseInfo(uint8_t *data, int len) {
     case 0x0015: 
       #ifdef USE_HC1
       kmConfigNum.hc1_switch_on_temperature = data[2+4];
-      snprintf(kmConfigStr.hc1_switch_on_temperature, sizeof(kmConfigStr.hc1_switch_on_temperature), "%s", cfgArray.SWITCH_ON_TEMP[limit(0, kmConfigNum.hc1_switch_on_temperature, 10)]);
+      snprintf(kmConfigStr.hc1_switch_on_temperature, sizeof(kmConfigStr.hc1_switch_on_temperature), "%s", cfgArray.SWITCH_ON_TEMP[LANG][limit(0, kmConfigNum.hc1_switch_on_temperature, 10)]);
       mqttPublish(addCfgTopic(cfgTopic.HC1_SWITCH_ON_TEMP[LANG]), kmConfigStr.hc1_switch_on_temperature, false);              // "CFG_HK1_Aufschalttemperatur"  => "0015:0,a"
       
       kmConfigNum.hc1_switch_off_threshold = decodeNegValue(data[2+2]);
@@ -753,11 +753,11 @@ void parseInfo(uint8_t *data, int len) {
     case 0x001c: 
       #ifdef USE_HC1
       kmConfigNum.hc1_reduction_mode = data[2+1];
-      snprintf(kmConfigStr.hc1_reduction_mode, sizeof(kmConfigStr.hc1_reduction_mode), "%s", cfgArray.REDUCT_MODE[limit(0, kmConfigNum.hc1_reduction_mode, 3)]);
+      snprintf(kmConfigStr.hc1_reduction_mode, sizeof(kmConfigStr.hc1_reduction_mode), "%s", cfgArray.REDUCT_MODE[LANG][limit(0, kmConfigNum.hc1_reduction_mode, 3)]);
       mqttPublish(addCfgTopic(cfgTopic.HC1_REDUCTION_MODE[LANG]), kmConfigStr.hc1_reduction_mode, false);              // "CFG_HK1_Absenkungsart"    => "001c:1,a"
       
       kmConfigNum.hc1_heating_system = data[2+2];
-      snprintf(kmConfigStr.hc1_heating_system, sizeof(kmConfigStr.hc1_heating_system), "%s", cfgArray.HEATING_SYSTEM[limit(0, kmConfigNum.hc1_heating_system, 3)]);
+      snprintf(kmConfigStr.hc1_heating_system, sizeof(kmConfigStr.hc1_heating_system), "%s", cfgArray.HEATING_SYSTEM[LANG][limit(0, kmConfigNum.hc1_heating_system, 3)]);
       mqttPublish(addCfgTopic(cfgTopic.HC1_HEATING_SYSTEM[LANG]), kmConfigStr.hc1_heating_system, false);             // "CFG_HK1_Heizsystem"       => "001c:2,a"
       #endif
       break;
@@ -769,7 +769,7 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addCfgTopic(cfgTopic.HC1_TEMP_OFFSET[LANG]), kmConfigStr.hc1_temp_offset, false);                              // "CFG_HK1_Temperatur_Offset"    => "0031:3,s,d:2"
       
       kmConfigNum.hc1_remotecontrol = data[2+4];
-      snprintf(kmConfigStr.hc1_remotecontrol, sizeof(kmConfigStr.hc1_remotecontrol), "%s", cfgArray.ON_OFF[limit(0, kmConfigNum.hc1_remotecontrol, 1)]);
+      snprintf(kmConfigStr.hc1_remotecontrol, sizeof(kmConfigStr.hc1_remotecontrol), "%s", cfgArray.ON_OFF[LANG][limit(0, kmConfigNum.hc1_remotecontrol, 1)]);
       mqttPublish(addCfgTopic(cfgTopic.HC1_REMOTECTRL[LANG]), kmConfigStr.hc1_remotecontrol, false);                             // "CFG_HK1_Fernbedienung"        => "0031:4,a"  
       #endif
       
@@ -782,7 +782,7 @@ void parseInfo(uint8_t *data, int len) {
       
       #ifdef USE_HC2
       kmConfigNum.hc2_summer_mode_threshold = data[2+1];
-      snprintf(kmConfigStr.hc2_summer_mode_threshold, sizeof(kmConfigStr.hc2_summer_mode_threshold), "%s", cfgArray.SUMMER[limit(0, kmConfigNum.hc2_summer_mode_threshold-9, 22)]);
+      snprintf(kmConfigStr.hc2_summer_mode_threshold, sizeof(kmConfigStr.hc2_summer_mode_threshold), "%s", cfgArray.SUMMER[LANG][limit(0, kmConfigNum.hc2_summer_mode_threshold-9, 22)]);
       mqttPublish(addCfgTopic(cfgTopic.HC2_SUMMER_THRESHOLD[LANG]), kmConfigStr.hc2_summer_mode_threshold, false);               // "CFG_Sommer_ab"            => "0038:1,p:-9,a"
 
       kmConfigNum.hc2_night_temp = decode05cTemp(data[2+2]);
@@ -794,7 +794,7 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addCfgTopic(cfgTopic.HC2_DAY_TEMP[LANG]), kmConfigStr.hc2_day_temp, false);                                     // "CFG_HK2_Tagtemperatur"     => "0038:3,d:2"
       
       kmConfigNum.hc2_operation_mode = data[2+4];
-      snprintf(kmConfigStr.hc2_operation_mode, sizeof(kmConfigStr.hc2_operation_mode), "%s", cfgArray.OPMODE[limit(0, kmConfigNum.hc2_operation_mode, 2)]);
+      snprintf(kmConfigStr.hc2_operation_mode, sizeof(kmConfigStr.hc2_operation_mode), "%s", cfgArray.OPMODE[LANG][limit(0, kmConfigNum.hc2_operation_mode, 2)]);
       mqttPublish(addCfgTopic(cfgTopic.HC2_OPMODE[LANG]), kmConfigStr.hc2_operation_mode, false);                                 // "CFG_HK2_Betriebsart"       => "0038:4,a:4"
       
       kmConfigNum.hc2_holiday_temp = decode05cTemp(data[2+5]);
@@ -817,12 +817,12 @@ void parseInfo(uint8_t *data, int len) {
 
     case 0x004d: 
       kmConfigNum.ww_priority = data[2+1];
-      snprintf(kmConfigStr.ww_priority, sizeof(kmConfigStr.ww_priority), "%s", cfgArray.ON_OFF[limit(0, kmConfigNum.ww_priority, 1)]);
+      snprintf(kmConfigStr.ww_priority, sizeof(kmConfigStr.ww_priority), "%s", cfgArray.ON_OFF[LANG][limit(0, kmConfigNum.ww_priority, 1)]);
       mqttPublish(addCfgTopic(cfgTopic.WW_PRIO[LANG]), kmConfigStr.ww_priority, false);                                         // "CFG_WW_Vorrang"   => "004d:1,a"
       
       #ifdef USE_HC2
       kmConfigNum.hc2_switch_on_temperature = data[2];
-      snprintf(kmConfigStr.hc2_switch_on_temperature, sizeof(kmConfigStr.hc2_switch_on_temperature), "%s", cfgArray.SWITCH_ON_TEMP[limit(0, kmConfigNum.hc2_switch_on_temperature, 10)]);       
+      snprintf(kmConfigStr.hc2_switch_on_temperature, sizeof(kmConfigStr.hc2_switch_on_temperature), "%s", cfgArray.SWITCH_ON_TEMP[LANG][limit(0, kmConfigNum.hc2_switch_on_temperature, 10)]);       
       mqttPublish(addCfgTopic(cfgTopic.HC2_SWITCH_ON_TEMP[LANG]), kmConfigStr.hc2_switch_on_temperature, false);                // "CFG_HK1_Aufschalttemperatur"  => "004d:0,a"
       
       kmConfigNum.hc2_switch_off_threshold = decodeNegValue(data[2+2]);
@@ -834,11 +834,11 @@ void parseInfo(uint8_t *data, int len) {
     case 0x0054: 
       #ifdef USE_HC2
       kmConfigNum.hc2_reduction_mode = data[2+1];
-      snprintf(kmConfigStr.hc2_reduction_mode, sizeof(kmConfigStr.hc2_reduction_mode), "%s", cfgArray.REDUCT_MODE[limit(0, kmConfigNum.hc2_reduction_mode, 3)]); 
+      snprintf(kmConfigStr.hc2_reduction_mode, sizeof(kmConfigStr.hc2_reduction_mode), "%s", cfgArray.REDUCT_MODE[LANG][limit(0, kmConfigNum.hc2_reduction_mode, 3)]); 
       mqttPublish(addCfgTopic(cfgTopic.HC2_REDUCTION_MODE[LANG]), kmConfigStr.hc2_reduction_mode, false);                          // "CFG_HK1_Absenkungsart"    => "0054:1,a"
       
       kmConfigNum.hc2_heating_system = data[2+1];
-      snprintf(kmConfigStr.hc2_heating_system, sizeof(kmConfigStr.hc2_heating_system), "%s", cfgArray.HEATING_SYSTEM[limit(0, kmConfigNum.hc2_heating_system, 3)]);    
+      snprintf(kmConfigStr.hc2_heating_system, sizeof(kmConfigStr.hc2_heating_system), "%s", cfgArray.HEATING_SYSTEM[LANG][limit(0, kmConfigNum.hc2_heating_system, 3)]);    
       mqttPublish(addCfgTopic(cfgTopic.HC2_HEATING_SYSTEM[LANG]), kmConfigStr.hc2_heating_system, false);                       // "CFG_HK1_Heizsystem"       => "0054:2,a"
       #endif
       break;
@@ -850,7 +850,7 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addCfgTopic(cfgTopic.HC2_TEMP_OFFSET[LANG]), kmConfigStr.hc2_temp_offset, false);                         // "CFG_HK2_Temperatur_Offset"    => "0069:3,s,d:2"
       
       kmConfigNum.hc2_remotecontrol = data[2+4];
-      snprintf(kmConfigStr.hc2_remotecontrol, sizeof(kmConfigStr.hc2_remotecontrol), "%s", cfgArray.ON_OFF[limit(0, kmConfigNum.hc2_remotecontrol, 1)]); 
+      snprintf(kmConfigStr.hc2_remotecontrol, sizeof(kmConfigStr.hc2_remotecontrol), "%s", cfgArray.ON_OFF[LANG][limit(0, kmConfigNum.hc2_remotecontrol, 1)]); 
       mqttPublish(addCfgTopic(cfgTopic.HC2_REMOTECTRL[LANG]), kmConfigStr.hc2_remotecontrol, false);                                                   // "CFG_HK2_Fernbedienung"        => "0069:4,a"  
       
       kmConfigNum.hc2_frost_protection_threshold = decodeNegValue(data[2+5]);
@@ -861,7 +861,7 @@ void parseInfo(uint8_t *data, int len) {
 
     case 0x0070: 
       kmConfigNum.building_type = data[2+2];
-      snprintf(kmConfigStr.building_type, sizeof(kmConfigStr.building_type), "%s", cfgArray.BUILDING_TYPE[limit(0, kmConfigNum.building_type, 2)]); 
+      snprintf(kmConfigStr.building_type, sizeof(kmConfigStr.building_type), "%s", cfgArray.BUILDING_TYPE[LANG][limit(0, kmConfigNum.building_type, 2)]); 
       mqttPublish(addCfgTopic(cfgTopic.BUILDING_TYP[LANG]), kmConfigStr.building_type, false);              // "CFG_Gebaeudeart"   => "0070:2,a" 
       break;
 
@@ -873,31 +873,31 @@ void parseInfo(uint8_t *data, int len) {
 
     case 0x0085: 
       kmConfigNum.ww_operation_mode = data[2];
-      snprintf(kmConfigStr.ww_operation_mode, sizeof(kmConfigStr.ww_operation_mode), "%s", cfgArray.OPMODE[limit(0, kmConfigNum.ww_operation_mode, 2)]); 
+      snprintf(kmConfigStr.ww_operation_mode, sizeof(kmConfigStr.ww_operation_mode), "%s", cfgArray.OPMODE[LANG][limit(0, kmConfigNum.ww_operation_mode, 2)]); 
       mqttPublish(addCfgTopic(cfgTopic.WW_OPMODE[LANG]), kmConfigStr.ww_operation_mode, false);                // "CFG_WW_Betriebsart"  => "0085:0,a"
       
       kmConfigNum.ww_processing = data[2+3];
-      snprintf(kmConfigStr.ww_processing, sizeof(kmConfigStr.ww_processing), "%s", cfgArray.ON_OFF[limit(0, kmConfigNum.ww_processing, 1)]); 
+      snprintf(kmConfigStr.ww_processing, sizeof(kmConfigStr.ww_processing), "%s", cfgArray.ON_OFF[LANG][limit(0, kmConfigNum.ww_processing, 1)]); 
       mqttPublish(addCfgTopic(cfgTopic.WW_PROCESSING[LANG]), kmConfigStr.ww_processing, false);               // "CFG_WW_Aufbereitung"  => "0085:3,a"
       
       kmConfigNum.ww_circulation = data[2+5];
-      snprintf(kmConfigStr.ww_circulation, sizeof(kmConfigStr.ww_circulation), "%s", cfgArray.CIRC_INTERVAL[limit(0, kmConfigNum.ww_circulation, 7)]); 
+      snprintf(kmConfigStr.ww_circulation, sizeof(kmConfigStr.ww_circulation), "%s", cfgArray.CIRC_INTERVAL[LANG][limit(0, kmConfigNum.ww_circulation, 7)]); 
       mqttPublish(addCfgTopic(cfgTopic.WW_CIRCULATION[LANG]), kmConfigStr.ww_circulation, false);             // "CFG_WW_Zirkulation"   => "0085:5,a"
       break;
 
     case 0x0093: 
       kmConfigNum.language = data[2];
-      snprintf(kmConfigStr.language, sizeof(kmConfigStr.language), "%s", cfgArray.LANGUAGE[limit(0, kmConfigNum.language, 5)]); 
+      snprintf(kmConfigStr.language, sizeof(kmConfigStr.language), "%s", cfgArray.LANGUAGE[LANG][limit(0, kmConfigNum.language, 5)]); 
       mqttPublish(addCfgTopic(cfgTopic.LANGUAGE[LANG]), kmConfigStr.language, false);    // "CFG_Sprache"   => "0093:0"
       
       kmConfigNum.display = data[2+1];
-      snprintf(kmConfigStr.display, sizeof(kmConfigStr.display), "%s", cfgArray.SCREEN[limit(0, kmConfigNum.display, 3)]); 
+      snprintf(kmConfigStr.display, sizeof(kmConfigStr.display), "%s", cfgArray.SCREEN[LANG][limit(0, kmConfigNum.display, 3)]); 
       mqttPublish(addCfgTopic(cfgTopic.SCREEN[LANG]), kmConfigStr.display, false);    // "CFG_Anzeige"   => "0093:1,a"
       break;
 
     case 0x009a: 
       kmConfigNum.burner_type = data[2+1];
-      snprintf(kmConfigStr.burner_type, sizeof(kmConfigStr.burner_type), "%s", cfgArray.BURNER_TYPE[limit(0, kmConfigNum.burner_type-1, 2)]); 
+      snprintf(kmConfigStr.burner_type, sizeof(kmConfigStr.burner_type), "%s", cfgArray.BURNER_TYPE[LANG][limit(0, kmConfigNum.burner_type-1, 2)]); 
       mqttPublish(addCfgTopic(cfgTopic.BURNER_TYP[LANG]), kmConfigStr.burner_type, false);                        // "CFG_Brennerart"             => "009a:1,p:-1,a:12"),
       kmConfigNum.max_boiler_temperature = data[2+3];
       snprintf(kmConfigStr.max_boiler_temperature, sizeof(kmConfigStr.max_boiler_temperature), "%i °C", kmConfigNum.max_boiler_temperature); 
@@ -910,7 +910,7 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addCfgTopic(cfgTopic.PUMP_LOGIC[LANG]), kmConfigStr.pump_logic_temp, false);                    // "CFG_Pumplogik"                => "00a1:0"
       
       kmConfigNum.exhaust_gas_temperature_threshold = data[2+5];
-      snprintf(kmConfigStr.exhaust_gas_temperature_threshold, sizeof(kmConfigStr.exhaust_gas_temperature_threshold), "%s", cfgArray.EXHAUST_GAS_THRESHOLD[limit(0, kmConfigNum.exhaust_gas_temperature_threshold-9, 41)]); 
+      snprintf(kmConfigStr.exhaust_gas_temperature_threshold, sizeof(kmConfigStr.exhaust_gas_temperature_threshold), "%s", cfgArray.EXHAUST_GAS_THRESHOLD[LANG][limit(0, kmConfigNum.exhaust_gas_temperature_threshold-9, 41)]); 
       mqttPublish(addCfgTopic(cfgTopic.EXHAUST_THRESHOLD[LANG]), kmConfigStr.exhaust_gas_temperature_threshold, false);           // "CFG_Abgastemperaturschwelle"  => "00a1:5,p:-9,a"
       break;
 
@@ -928,7 +928,7 @@ void parseInfo(uint8_t *data, int len) {
     case 0x0100:
       #ifdef USE_HC1
       kmConfigNum.hc1_program = data[2];
-      snprintf(kmConfigStr.hc1_program, sizeof(kmConfigStr.hc1_program), "%s", cfgArray.HC_PROGRAM[limit(0, kmConfigNum.hc1_program, 8)]); 
+      snprintf(kmConfigStr.hc1_program, sizeof(kmConfigStr.hc1_program), "%s", cfgArray.HC_PROGRAM[LANG][limit(0, kmConfigNum.hc1_program, 8)]); 
       mqttPublish(addCfgTopic(cfgTopic.HC1_PROGRAM[LANG]), kmConfigStr.hc1_program, false);     // "CFG_HK1_Programm"  => "0100:0"
       kmConfigNum.hc1_holiday_days = data[2+3];
       snprintf(kmConfigStr.hc1_holiday_days, sizeof(kmConfigStr.hc1_holiday_days), "%i %s", kmConfigNum.hc1_holiday_days, mqttMsg.DAYS[LANG]); 
@@ -939,7 +939,7 @@ void parseInfo(uint8_t *data, int len) {
     case 0x0169:
       #ifdef USE_HC2
       kmConfigNum.hc2_program = data[2];
-      snprintf(kmConfigStr.hc2_program, sizeof(kmConfigStr.hc2_program), "%s", cfgArray.HC_PROGRAM[limit(0, kmConfigNum.hc2_program, 8)]); 
+      snprintf(kmConfigStr.hc2_program, sizeof(kmConfigStr.hc2_program), "%s", cfgArray.HC_PROGRAM[LANG][limit(0, kmConfigNum.hc2_program, 8)]); 
       mqttPublish(addCfgTopic(cfgTopic.HC2_PROGRAM[LANG]), kmConfigStr.hc2_program, false);     // "CFG_HK2_Programm"  => "0169:0"
       kmConfigNum.hc2_holiday_days = data[2+3];
       snprintf(kmConfigStr.hc2_holiday_days, sizeof(kmConfigStr.hc2_holiday_days), "%i %s", kmConfigNum.hc2_holiday_days, mqttMsg.DAYS[LANG]); 
@@ -2083,18 +2083,18 @@ uint8_t getErrorTextIndex(uint8_t errorNr){
 void decodeErrorMsg(char * errorMsg, unsigned int size, uint8_t *data){
   // no error
   if(data[2]==0){
-    snprintf(errorMsg, size, "%s", errMsgText.idx[0]);
+    snprintf(errorMsg, size, "%s", errMsgText.idx[LANG][0]);
   }
   else { 
     // error already acknowledged
     if(data[6]!=0xFF) {
         // Aussenfuehler defekt (>> 16:31 -3 Tage | << 20:40 -2 Tage)
-        snprintf(errorMsg, size, "%s (>> %02i:%02i -%i %s | << %02i:%02i -%i %s)", errMsgText.idx[getErrorTextIndex(data[2])], data[3], data[4], (data[5]+data[8]), mqttMsg.DAYS[LANG], data[6], data[7], data[8], mqttMsg.DAYS[LANG]);
+        snprintf(errorMsg, size, "%s (>> %02i:%02i -%i %s | << %02i:%02i -%i %s)", errMsgText.idx[LANG][getErrorTextIndex(data[2])], data[3], data[4], (data[5]+data[8]), mqttMsg.DAYS[LANG], data[6], data[7], data[8], mqttMsg.DAYS[LANG]);
     }
     // unacknowledged error 
     else {
         // example: Aussenfuehler defekt (>> 16:31 -3 Tage)
-        snprintf(errorMsg, size, "%s (>> %02i:%02i -%i %s)", errMsgText.idx[getErrorTextIndex(data[2])], data[3], data[4], data[5], mqttMsg.DAYS[LANG]);
+        snprintf(errorMsg, size, "%s (>> %02i:%02i -%i %s)", errMsgText.idx[LANG][getErrorTextIndex(data[2])], data[3], data[4], data[5], mqttMsg.DAYS[LANG]);
     }
   } 
 }

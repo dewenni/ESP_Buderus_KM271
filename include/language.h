@@ -423,110 +423,130 @@ const char* ERR_BUFF_4[MAX_LANG]                =    {"Fehlerspeicher4",        
 // ======================================================================================
 // decription for encode different config value arrays
 // ======================================================================================
-#if LANG==0 // GERMAN
 typedef struct {
-const char* OPMODE[3]={"Nacht", "Tag", "Automatik"};
-const char* SCREEN[4]={"Automatik", "Kessel", "Warmwasser", "Aussen"};
-const char* LANGUAGE[6]={"DE", "FR", "IT", "NL", "EN", "PL"};
-const char* REDUCT_MODE[4]={"Abschalt", "Reduziert", "Raumhalt", "Aussenhalt"};
-const char* SUMMER[23]={"Sommer","10 °C","11 °C","12 °C","13 °C","14 °C","15 °C","16 °C","17 °C","18 °C","19 °C","20 °C","21 °C","22 °C","23 °C","24 °C","25 °C","26 °C","27 °C","28 °C","29 °C","30 °C","Winter"};
-const char* SWITCH_ON_TEMP[11]={"Aus","1","2","3","4","5","6","7","8","9","10"};
-const char* HEATING_SYSTEM[4]={"Aus","Heizkoerper","-","Fussboden"};
-const char* ON_OFF[2]={"Aus","An"};
-const char* BUILDING_TYPE[3]={"Leicht","Mittel","Schwer"};
-const char* CIRC_INTERVAL[8]={"Aus","1","2","3","4","5","6","An"};
-const char* BURNER_TYPE[3]={"1-stufig","2-stufig","Modulierend"};
-const char* EXHAUST_GAS_THRESHOLD[42]={"Aus","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250"};
-const char* HC_PROGRAM[9]={"Eigen","Familie","Frueh","Spaet","Vormittag","Nachmittag","Mittag","Single","Senior"};
-const char* BURNER_STATE[5]={"Kessel AUS", "EIN (Stufe 1)", "-", "-", "EIN (Stufe 2)"};
+    const char* OPMODE[MAX_LANG][3]={
+        {"Nacht", "Tag", "Automatik"},
+        {"night", "day", "auto"}
+    };
+    const char* SCREEN[MAX_LANG][4]={
+        {"Automatik", "Kessel", "Warmwasser", "Aussen"},
+        {"auto", "boiler", "DHW", "outdoor"}
+    };
+    const char* LANGUAGE[MAX_LANG][6]={
+        {"DE", "FR", "IT", "NL", "EN", "PL"},
+        {"DE", "FR", "IT", "NL", "EN", "PL"}
+    };
+    const char* REDUCT_MODE[MAX_LANG][4]={
+        {"Abschalt", "Reduziert", "Raumhalt", "Aussenhalt"},
+        {"off", "fixed", "room", "outdoors"}
+    };
+    const char* SUMMER[MAX_LANG][23]={
+        {"Sommer","10 °C","11 °C","12 °C","13 °C","14 °C","15 °C","16 °C","17 °C","18 °C","19 °C","20 °C","21 °C","22 °C","23 °C","24 °C","25 °C","26 °C","27 °C","28 °C","29 °C","30 °C","Winter"},
+        {"summer","10 °C","11 °C","12 °C","13 °C","14 °C","15 °C","16 °C","17 °C","18 °C","19 °C","20 °C","21 °C","22 °C","23 °C","24 °C","25 °C","26 °C","27 °C","28 °C","29 °C","30 °C","winter"}
+    };
+    const char* SWITCH_ON_TEMP[MAX_LANG][11]={
+        {"Aus","1","2","3","4","5","6","7","8","9","10"},
+        {"off","1","2","3","4","5","6","7","8","9","10"}
+    };
+    const char* HEATING_SYSTEM[MAX_LANG][4]={
+        {"Aus","Heizkoerper","-","Fussboden"},
+        {"off","radiator","-","underfloor"}
+    };
+    const char* ON_OFF[2][2]={
+        {"Aus","An"},
+        {"off","on"}
+    };
+    const char* BUILDING_TYPE[MAX_LANG][3]={
+        {"Leicht","Mittel","Schwer"},
+        {"light","medium","heavy"}
+    };
+    const char* CIRC_INTERVAL[MAX_LANG][8]={
+        {"Aus","1","2","3","4","5","6","An"},
+        {"off","1","2","3","4","5","6","on"}
+    };
+    const char* BURNER_TYPE[MAX_LANG][3]={
+        {"1-stufig","2-stufig","Modulierend"},
+        {"1-stage","2-stage","modulated"}
+    };
+    const char* EXHAUST_GAS_THRESHOLD[MAX_LANG][42]={
+        {"Aus","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250"},
+        {"off","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250"}
+    };
+    const char* HC_PROGRAM[MAX_LANG][9]={
+        {"Eigen","Familie","Frueh","Spaet","Vormittag","Nachmittag","Mittag","Single","Senior"},
+        {"custom","family","early","late","AM","PM","noon","single","senior"}
+    };
+    const char* BURNER_STATE[MAX_LANG][5]={
+        {"Kessel AUS", "EIN (Stufe 1)", "-", "-", "EIN (Stufe 2)"},
+        {"Burner OFF", "ON (Stage 1)", "-", "-", "ON (Stage 2)"}
+    };
 } s_cfg_arrays;
 
-#else // ENGLISH
-typedef struct {
-const char* OPMODE[3]={"night", "day", "auto"};
-const char* SCREEN[4]={"auto", "boiler", "DHW", "outdoor"};
-const char* LANGUAGE[6]={"DE", "FR", "IT", "NL", "EN", "PL"};
-const char* REDUCT_MODE[4]={"off", "fixed", "room", "outdoors"};
-const char* SUMMER[23]={"summer","10 °C","11 °C","12 °C","13 °C","14 °C","15 °C","16 °C","17 °C","18 °C","19 °C","20 °C","21 °C","22 °C","23 °C","24 °C","25 °C","26 °C","27 °C","28 °C","29 °C","30 °C","winter"};
-const char* SWITCH_ON_TEMP[11]={"off","1","2","3","4","5","6","7","8","9","10"};
-const char* HEATING_SYSTEM[4]={"off","radiator","-","underfloor"};
-const char* ON_OFF[2]={"off","on"};
-const char* BUILDING_TYPE[3]={"light","medium","heavy"};
-const char* CIRC_INTERVAL[8]={"off","1","2","3","4","5","6","on"};
-const char* BURNER_TYPE[3]={"1-stage","2-stage","modulated"};
-const char* EXHAUST_GAS_THRESHOLD[42]={"off","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250"};
-const char* HC_PROGRAM[9]={"custom","family","early","late","AM","PM","noon","single","senior"};
-const char* BURNER_STATE[5]={"Burner OFF", "ON (Stage 1)", "-", "-", "ON (Stage 2)"};
-} s_cfg_arrays;
-#endif
 
 // ======================================================================================
 // decription for encode error messages
 // ======================================================================================
-#if LANG==0 // GERMAN
 typedef struct {
-const char* idx[28] = {
-                        "Kein Fehler",
-                        "Aussenfuehler defekt",
-                        "HK1-Vorlauffuehler defekt",
-                        "HK2-Vorlauffuehler defekt",
-                        "Warmwasserfuehler defekt",
-                        "Warmwasser bleibt kalt",
-                        "Stoerung thermische Desinfektion",
-                        "HK1-Fernbedienung defekt",
-                        "HK2-Fernbedienung defekt",
-                        "Keine Kommunikation mit HK1-Fernbedienung",
-                        "Keine Kommunikation mit HK2-Fernbedienung",
-                        "Stoerung Brenner 1",
-                        "Keine Verbindung mit Kessel 1",
-                        "Interner Fehler Nr. 1",
-                        "Interner Fehler Nr. 2",
-                        "Interner Fehler Nr. 3",
-                        "Interner Fehler Nr. 4",
-                        "Kesselvorlauffuehler defekt",
-                        "Kesselzusatzfuehler defekt",
-                        "Kessel bleibt kalt",
-                        "Stoerung Brenner",
-                        "Stoerung Sicherheitskette",
-                        "Externe Stoerung Kessel",
-                        "Abgasfuehler defekt",
-                        "Abgasgrenze ueberschritten",
-                        "Ruecklauffuehler defekt",
-                        "RESET",
-                        "unbekannter Fehler"
-                        };
+    const char* idx[2][28] = {
+        {   // GERMAN
+            "Kein Fehler",
+            "Aussenfuehler defekt",
+            "HK1-Vorlauffuehler defekt",
+            "HK2-Vorlauffuehler defekt",
+            "Warmwasserfuehler defekt",
+            "Warmwasser bleibt kalt",
+            "Stoerung thermische Desinfektion",
+            "HK1-Fernbedienung defekt",
+            "HK2-Fernbedienung defekt",
+            "Keine Kommunikation mit HK1-Fernbedienung",
+            "Keine Kommunikation mit HK2-Fernbedienung",
+            "Stoerung Brenner 1",
+            "Keine Verbindung mit Kessel 1",
+            "Interner Fehler Nr. 1",
+            "Interner Fehler Nr. 2",
+            "Interner Fehler Nr. 3",
+            "Interner Fehler Nr. 4",
+            "Kesselvorlauffuehler defekt",
+            "Kesselzusatzfuehler defekt",
+            "Kessel bleibt kalt",
+            "Stoerung Brenner",
+            "Stoerung Sicherheitskette",
+            "Externe Stoerung Kessel",
+            "Abgasfuehler defekt",
+            "Abgasgrenze ueberschritten",
+            "Ruecklauffuehler defekt",
+            "RESET",
+            "unbekannter Fehler"
+        },
+        {   // ENGLISH
+            "no error",
+            "failure outdoor sensor",
+            "failure hc1-flow sensor",
+            "failure hc1-flow sensor",
+            "failure warm water sensor",
+            "Warmwasser bleibt kalt",
+            "Fault thermal disinfection",
+            "Fault hc1-remotecontrol",
+            "Fault hc1-remotecontrol",
+            "no communication to hc1-remote control",
+            "no communication to hc1-remote control",
+            "Fault Burner 1",
+            "no connection with boiler 1",
+            "internal Error Nr. 1",
+            "internal Error Nr. 2",
+            "internal Error Nr. 3",
+            "internal Error Nr. 4",
+            "failure Boiler flow sensor",
+            "failure Boiler auxiliary sensor",
+            "Boiler remains cold",
+            "Fault Burner",
+            "Fault safety chain",
+            "External fault boiler",
+            "failure Exhaust gas sensor",
+            "Exhaust limit exceeded",
+            "failure Return flow sensor",
+            "RESET",
+            "unknown error"
+        }
+    };
 } s_err_array;
-#else // ENGLISH
-typedef struct {
-const char* idx[28] = {
-                        "no error",
-                        "failure outdoor sensor",
-                        "failure hc1-flow sensor",
-                        "failure hc1-flow sensor",
-                        "failure warm water sensor",
-                        "Warmwasser bleibt kalt",
-                        "Fault thermal disinfection",
-                        "Fault hc1-remotecontrol",
-                        "Fault hc1-remotecontrol",
-                        "no communication to hc1-remote control",
-                        "no communication to hc1-remote control",
-                        "Fault Burner 1",
-                        "no connection with boiler 1",
-                        "internal Error Nr. 1",
-                        "internal Error Nr. 2",
-                        "internal Error Nr. 3",
-                        "internal Error Nr. 4",
-                        "failure Boiler flow sensor",
-                        "failure Boiler auxiliary sensor",
-                        "Boiler remains cold",
-                        "Fault Burner",
-                        "Fault safety chain",
-                        "External fault boiler",
-                        "failure Exhaust gas sensor",
-                        "Exhaust limit exceeded",
-                        "failure Return flow sensor",
-                        "RESET",
-                        "unknown error"
-                        };
-} s_err_array;
-#endif
