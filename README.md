@@ -137,12 +137,12 @@ command:    warm water: operation mode
 topic:      {"setvalue/ww_betriebsart", setvalue/ww_opmode"}
 payload:    0=night / 1=day / 2=auto
 
-command:    summer mode threshold Temperature
-topic:      {"setvalue/sommer_ab", setvalue/summer_mode_threshold"}
-payload:    Resolution: 1 [°C] - Range: 9:Winter | 10°..30° | 31:Summer
+command:    heating circuit 1: summer mode threshold Temperature
+topic:      {"setvalue/hk1_sommer_ab", setvalue/hc1_summer_mode_threshold"}
+payload:    Resolution: 1 [°C] - Range: 9:Summer | 10°..30° | 31:Winter
 
-command:    frost mode threshold Temperature
-topic:      {"setvalue/frost_ab", setvalue/frost_mode_threshold"}
+command:    heating circuit 1: frost mode threshold Temperature
+topic:      {"setvalue/hk1_frost_ab", setvalue/hc1_frost_mode_threshold"}
 payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
 
 command:    warm water: setpoint temperature
