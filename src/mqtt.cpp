@@ -120,13 +120,21 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   else if (strcmp (topic, addTopic(mqttCmd.WW_OPMODE[LANG])) == 0){
     km271sendCmd(KM271_SENDCMD_WW_OPMODE, intVal);
   }
-  // Sommer-Ab Temperatur
-  else if (strcmp (topic, addTopic(mqttCmd.SUMMER[LANG])) == 0){
-    km271sendCmd(KM271_SENDCMD_SUMMER, intVal);
+  // HK1 Sommer-Ab Temperatur
+  else if (strcmp (topic, addTopic(mqttCmd.HC1_SUMMER[LANG])) == 0){
+    km271sendCmd(KM271_SENDCMD_HC1_SUMMER, intVal);
   }  
-  // Frost-Ab Temperatur
-  else if (strcmp (topic, addTopic(mqttCmd.FROST[LANG])) == 0){
-    km271sendCmd(KM271_SENDCMD_FROST, intVal);
+  // HK1 Frost-Ab Temperatur
+  else if (strcmp (topic, addTopic(mqttCmd.HC1_FROST[LANG])) == 0){
+    km271sendCmd(KM271_SENDCMD_HC1_FROST, intVal);
+  } 
+  // HK2 Sommer-Ab Temperatur
+  else if (strcmp (topic, addTopic(mqttCmd.HC2_SUMMER[LANG])) == 0){
+    km271sendCmd(KM271_SENDCMD_HC2_SUMMER, intVal);
+  }  
+  // HK2 Frost-Ab Temperatur
+  else if (strcmp (topic, addTopic(mqttCmd.HC2_FROST[LANG])) == 0){
+    km271sendCmd(KM271_SENDCMD_HC2_FROST, intVal);
   } 
   // WW-Temperatur
   else if (strcmp (topic, addTopic(mqttCmd.WW_SETPOINT[LANG])) == 0){

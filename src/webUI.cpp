@@ -316,20 +316,42 @@ void webUISetup(){
   ESPUI.addControl(ControlType::Separator, webText.TEMPERATURES[LANG], "", ControlColor::None, id.tab.control);
 
   // Frost Threshold
-  auto frost_control = addGroupHelper(km271CfgTopics.FROST_THRESHOLD[LANG], Dark, id.tab.control);
-  id.ctrl.frost_mode_threshold = ESPUI.addControl(Slider, "", "-20", Dark, frost_control, generalCallback);
-	ESPUI.addControl(Min, "", "-20", None, id.ctrl.frost_mode_threshold);
-	ESPUI.addControl(Max, "", "10", None, id.ctrl.frost_mode_threshold);
-  ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_FROST[LANG], None, frost_control), LABLE_STYLE_DESCRIPTION);
-  ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[LANG], None, frost_control), LABLE_STYLE_DESCRIPTION);
-
+  #ifdef USE_HC1
+    auto frost_control = addGroupHelper(km271CfgTopics.HC1_FROST_THRESHOLD[LANG], Dark, id.tab.control);
+    id.ctrl.hc1_frost_mode_threshold = ESPUI.addControl(Slider, "", "-20", Dark, frost_control, generalCallback);
+    ESPUI.addControl(Min, "", "-20", None, id.ctrl.hc1_frost_mode_threshold);
+    ESPUI.addControl(Max, "", "10", None, id.ctrl.hc1_frost_mode_threshold);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_FROST[LANG], None, frost_control), LABLE_STYLE_DESCRIPTION);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[LANG], None, frost_control), LABLE_STYLE_DESCRIPTION);
+  #else
+    #ifdef USE_HC2
+      auto frost_control = addGroupHelper(km271CfgTopics.HC2_FROST_THRESHOLD[LANG], Dark, id.tab.control);
+      id.ctrl.hc2_frost_mode_threshold = ESPUI.addControl(Slider, "", "-20", Dark, frost_control, generalCallback);
+      ESPUI.addControl(Min, "", "-20", None, id.ctrl.hc2_frost_mode_threshold);
+      ESPUI.addControl(Max, "", "10", None, id.ctrl.hc2_frost_mode_threshold);
+      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_FROST[LANG], None, frost_control), LABLE_STYLE_DESCRIPTION);
+      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[LANG], None, frost_control), LABLE_STYLE_DESCRIPTION);
+     #endif
+  #endif   
+  
   // Summer Threshold
-  auto summer_control = addGroupHelper(km271CfgTopics.SUMMER_THRESHOLD[LANG], Dark, id.tab.control);
-  id.ctrl.summer_mode_threshold = ESPUI.addControl(Slider, "", "9", Dark, summer_control, generalCallback);
-	ESPUI.addControl(Min, "", "9", None, id.ctrl.summer_mode_threshold);
-	ESPUI.addControl(Max, "", "31", None, id.ctrl.summer_mode_threshold);
-  ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_SUMMER1[LANG], None, summer_control), LABLE_STYLE_DESCRIPTION);
-  ESPUI.setElementStyle(ESPUI.addControl(Label, " ", webText.INFO_SUMMER2[LANG], None, summer_control), LABLE_STYLE_DESCRIPTION);
+  #ifdef USE_HC1
+    auto summer_control = addGroupHelper(km271CfgTopics.HC1_SUMMER_THRESHOLD[LANG], Dark, id.tab.control);
+    id.ctrl.hc1_summer_mode_threshold = ESPUI.addControl(Slider, "", "9", Dark, summer_control, generalCallback);
+    ESPUI.addControl(Min, "", "9", None, id.ctrl.hc1_summer_mode_threshold);
+    ESPUI.addControl(Max, "", "31", None, id.ctrl.hc1_summer_mode_threshold);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_SUMMER1[LANG], None, summer_control), LABLE_STYLE_DESCRIPTION);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, " ", webText.INFO_SUMMER2[LANG], None, summer_control), LABLE_STYLE_DESCRIPTION);
+  #else
+    #ifdef USE_HC2
+      auto summer_control = addGroupHelper(km271CfgTopics.HC2_SUMMER_THRESHOLD[LANG], Dark, id.tab.control);
+      id.ctrl.hc2_summer_mode_threshold = ESPUI.addControl(Slider, "", "9", Dark, summer_control, generalCallback);
+      ESPUI.addControl(Min, "", "9", None, id.ctrl.hc2_summer_mode_threshold);
+      ESPUI.addControl(Max, "", "31", None, id.ctrl.hc2_summer_mode_threshold);
+      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_SUMMER1[LANG], None, summer_control), LABLE_STYLE_DESCRIPTION);
+      ESPUI.setElementStyle(ESPUI.addControl(Label, " ", webText.INFO_SUMMER2[LANG], None, summer_control), LABLE_STYLE_DESCRIPTION);
+     #endif
+  #endif   
 
   // HC-DesignTemp
   #ifdef USE_HC1
@@ -404,21 +426,21 @@ void webUISetup(){
     id.tab.hc1 = ESPUI.addControl(Tab, "", webText.HC1[LANG], ControlColor::None, 0, generalCallback);
     
     // config
-    auto hc1_config                       = addGroupHelper(webText.CONFIG[LANG], Dark, id.tab.hc1);
-    id.cfg.hc1_night_temp                 = addGroupCfgHelper(km271CfgTopics.HC1_NIGHT_TEMP[LANG], "--", hc1_config);
-    id.cfg.hc1_day_temp                   = addGroupCfgHelper(km271CfgTopics.HC1_DAY_TEMP[LANG], "--", hc1_config);
-    id.cfg.hc1_operation_mode             = addGroupCfgHelper(km271CfgTopics.HC1_OPMODE[LANG], "--", hc1_config);
-    id.cfg.hc1_holiday_temp               = addGroupCfgHelper(km271CfgTopics.HC1_HOLIDAY_TEMP[LANG], "--", hc1_config);
-    id.cfg.hc1_max_temp                   = addGroupCfgHelper(km271CfgTopics.HC1_MAX_TEMP[LANG], "--", hc1_config);
-    id.cfg.hc1_interpretation             = addGroupCfgHelper(km271CfgTopics.HC1_INTERPR[LANG], "--", hc1_config);
-    id.cfg.hc1_switch_on_temperature      = addGroupCfgHelper(km271CfgTopics.HC1_SWITCH_ON_TEMP[LANG], "--", hc1_config);
-    id.cfg.hc1_switch_off_threshold       = addGroupCfgHelper(km271CfgTopics.HC1_SWITCH_OFF_THRESHOLD[LANG], "--", hc1_config);
-    id.cfg.hc1_reduction_mode             = addGroupCfgHelper(km271CfgTopics.HC1_REDUCTION_MODE[LANG], "--", hc1_config);
-    id.cfg.hc1_heating_system             = addGroupCfgHelper(km271CfgTopics.HC1_HEATING_SYSTEM[LANG], "--", hc1_config);
-    id.cfg.hc1_temp_offset                = addGroupCfgHelper(km271CfgTopics.HC1_TEMP_OFFSET[LANG], "--", hc1_config);
-    id.cfg.hc1_remotecontrol              = addGroupCfgHelper(km271CfgTopics.HC1_REMOTECTRL[LANG], "--", hc1_config);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, hc1_config), "background-color: unset; width: 100%"); // only spacer
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, hc1_config), "background-color: unset; width: 100%"); // only spacer
+    auto hc1_config                          = addGroupHelper(webText.CONFIG[LANG], Dark, id.tab.hc1);
+    id.cfg.hc1_night_temp                    = addGroupCfgHelper(km271CfgTopics.HC1_NIGHT_TEMP[LANG], "--", hc1_config);
+    id.cfg.hc1_day_temp                      = addGroupCfgHelper(km271CfgTopics.HC1_DAY_TEMP[LANG], "--", hc1_config);
+    id.cfg.hc1_operation_mode                = addGroupCfgHelper(km271CfgTopics.HC1_OPMODE[LANG], "--", hc1_config);
+    id.cfg.hc1_holiday_temp                  = addGroupCfgHelper(km271CfgTopics.HC1_HOLIDAY_TEMP[LANG], "--", hc1_config);
+    id.cfg.hc1_max_temp                      = addGroupCfgHelper(km271CfgTopics.HC1_MAX_TEMP[LANG], "--", hc1_config);
+    id.cfg.hc1_interpretation                = addGroupCfgHelper(km271CfgTopics.HC1_INTERPR[LANG], "--", hc1_config);
+    id.cfg.hc1_switch_on_temperature         = addGroupCfgHelper(km271CfgTopics.HC1_SWITCH_ON_TEMP[LANG], "--", hc1_config);
+    id.cfg.hc1_switch_off_threshold          = addGroupCfgHelper(km271CfgTopics.HC1_SWITCH_OFF_THRESHOLD[LANG], "--", hc1_config);
+    id.cfg.hc1_reduction_mode                = addGroupCfgHelper(km271CfgTopics.HC1_REDUCTION_MODE[LANG], "--", hc1_config);
+    id.cfg.hc1_heating_system                = addGroupCfgHelper(km271CfgTopics.HC1_HEATING_SYSTEM[LANG], "--", hc1_config);
+    id.cfg.hc1_temp_offset                   = addGroupCfgHelper(km271CfgTopics.HC1_TEMP_OFFSET[LANG], "--", hc1_config);
+    id.cfg.hc1_remotecontrol                 = addGroupCfgHelper(km271CfgTopics.HC1_REMOTECTRL[LANG], "--", hc1_config);
+    id.cfg.hc1_frost_protection_threshold    = addGroupCfgHelper(km271CfgTopics.HC1_FROST_THRESHOLD[LANG], "--", hc1_config);
+    id.cfg.hc1_summer_mode_threshold         = addGroupCfgHelper(km271CfgTopics.HC1_SUMMER_THRESHOLD[LANG], "--", hc1_config);
 
     // status
     auto hc1_status = addGroupHelper(webText.STATUS[LANG], Dark, id.tab.hc1);
@@ -495,21 +517,21 @@ void webUISetup(){
     id.tab.hc2 = ESPUI.addControl(Tab, "", webText.HC2[LANG], ControlColor::None, 0, generalCallback);
 
     // config values
-    auto hc2_config                       = addGroupHelper(webText.CONFIG[LANG], Dark, id.tab.hc2);
-    id.cfg.hc2_night_temp                 = addGroupCfgHelper(km271CfgTopics.HC2_NIGHT_TEMP[LANG], "--", hc2_config);
-    id.cfg.hc2_day_temp                   = addGroupCfgHelper(km271CfgTopics.HC2_DAY_TEMP[LANG], "--", hc2_config);
-    id.cfg.hc2_operation_mode             = addGroupCfgHelper(km271CfgTopics.HC2_OPMODE[LANG], "--", hc2_config);
-    id.cfg.hc2_holiday_temp               = addGroupCfgHelper(km271CfgTopics.HC2_HOLIDAY_TEMP[LANG], "--", hc2_config);
-    id.cfg.hc2_max_temp                   = addGroupCfgHelper(km271CfgTopics.HC2_MAX_TEMP[LANG], "--", hc2_config);
-    id.cfg.hc2_interpretation             = addGroupCfgHelper(km271CfgTopics.HC2_INTERPR[LANG], "--", hc2_config);
-    id.cfg.hc2_switch_on_temperature      = addGroupCfgHelper(km271CfgTopics.HC2_SWITCH_ON_TEMP[LANG], "--", hc2_config);
-    id.cfg.hc2_switch_off_threshold       = addGroupCfgHelper(km271CfgTopics.HC2_SWITCH_OFF_THRESHOLD[LANG], "--", hc2_config);
-    id.cfg.hc2_reduction_mode             = addGroupCfgHelper(km271CfgTopics.HC2_REDUCTION_MODE[LANG], "--", hc2_config);
-    id.cfg.hc2_heating_system             = addGroupCfgHelper(km271CfgTopics.HC2_HEATING_SYSTEM[LANG], "--", hc2_config);
-    id.cfg.hc2_temp_offset                = addGroupCfgHelper(km271CfgTopics.HC2_TEMP_OFFSET[LANG], "--", hc2_config);
-    id.cfg.hc2_remotecontrol              = addGroupCfgHelper(km271CfgTopics.HC2_REMOTECTRL[LANG], "--", hc2_config);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, hc2_config), "background-color: unset; width: 100%"); // only spacer
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, hc2_config), "background-color: unset; width: 100%"); // only spacer
+    auto hc2_config                         = addGroupHelper(webText.CONFIG[LANG], Dark, id.tab.hc2);
+    id.cfg.hc2_night_temp                   = addGroupCfgHelper(km271CfgTopics.HC2_NIGHT_TEMP[LANG], "--", hc2_config);
+    id.cfg.hc2_day_temp                     = addGroupCfgHelper(km271CfgTopics.HC2_DAY_TEMP[LANG], "--", hc2_config);
+    id.cfg.hc2_operation_mode               = addGroupCfgHelper(km271CfgTopics.HC2_OPMODE[LANG], "--", hc2_config);
+    id.cfg.hc2_holiday_temp                 = addGroupCfgHelper(km271CfgTopics.HC2_HOLIDAY_TEMP[LANG], "--", hc2_config);
+    id.cfg.hc2_max_temp                     = addGroupCfgHelper(km271CfgTopics.HC2_MAX_TEMP[LANG], "--", hc2_config);
+    id.cfg.hc2_interpretation               = addGroupCfgHelper(km271CfgTopics.HC2_INTERPR[LANG], "--", hc2_config);
+    id.cfg.hc2_switch_on_temperature        = addGroupCfgHelper(km271CfgTopics.HC2_SWITCH_ON_TEMP[LANG], "--", hc2_config);
+    id.cfg.hc2_switch_off_threshold         = addGroupCfgHelper(km271CfgTopics.HC2_SWITCH_OFF_THRESHOLD[LANG], "--", hc2_config);
+    id.cfg.hc2_reduction_mode               = addGroupCfgHelper(km271CfgTopics.HC2_REDUCTION_MODE[LANG], "--", hc2_config);
+    id.cfg.hc2_heating_system               = addGroupCfgHelper(km271CfgTopics.HC2_HEATING_SYSTEM[LANG], "--", hc2_config);
+    id.cfg.hc2_temp_offset                  = addGroupCfgHelper(km271CfgTopics.HC2_TEMP_OFFSET[LANG], "--", hc2_config);
+    id.cfg.hc2_remotecontrol                = addGroupCfgHelper(km271CfgTopics.HC2_REMOTECTRL[LANG], "--", hc2_config);
+    id.cfg.hc2_frost_protection_threshold   = addGroupCfgHelper(km271CfgTopics.HC2_FROST_THRESHOLD[LANG], "--", hc2_config);
+    id.cfg.hc2_summer_mode_threshold        = addGroupCfgHelper(km271CfgTopics.HC2_SUMMER_THRESHOLD[LANG], "--", hc2_config);
     
     // status
     auto hc2_status = addGroupHelper(webText.STATUS[LANG], Dark, id.tab.hc2);
@@ -677,15 +699,13 @@ void webUISetup(){
   id.cfg.display                              = addGroupCfgHelper(km271CfgTopics.SCREEN[LANG], "--", general_config);
   id.cfg.time_offset                          = addGroupCfgHelper(km271CfgTopics.TIME_OFFSET[LANG], "--", general_config);
   id.cfg.burner_type                          = addGroupCfgHelper(km271CfgTopics.BURNER_TYP[LANG], "--", general_config);
-  ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, general_config), "background-color: unset; width: 100%"); // only spacer
 
   auto general_limits = addGroupHelper(webText.LIMITS[LANG], Dark, id.tab.general);
-  id.cfg.frost_protection_threshold           = addGroupCfgHelper(km271CfgTopics.FROST_THRESHOLD[LANG], "--", general_limits);
-  id.cfg.summer_mode_threshold                = addGroupCfgHelper(km271CfgTopics.SUMMER_THRESHOLD[LANG], "--", general_limits);
   id.cfg.pump_logic_temp                      = addGroupCfgHelper(km271CfgTopics.PUMP_LOGIC[LANG], "--", general_limits);
   id.cfg.exhaust_gas_temperature_threshold    = addGroupCfgHelper(km271CfgTopics.EXHAUST_THRESHOLD[LANG], "--", general_limits);
   id.cfg.burner_min_modulation                = addGroupCfgHelper(km271CfgTopics.BURNER_MIN_MOD[LANG], "--", general_limits);
   id.cfg.burner_modulation_runtime            = addGroupCfgHelper(km271CfgTopics.BURNER_MOD_TIME[LANG], "--", general_limits);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, general_limits), "background-color: unset; width: 100%"); // only spacer
 
   auto general_temp = addGroupHelper(webText.TEMPERATURES[LANG], Dark, id.tab.general);
   id.stat.outside_temp                = addGroupValueHelper(km271StatTopics.OUTSIDE_TEMP[LANG], "--", "°C", general_temp);
@@ -903,6 +923,7 @@ void updateStatusValues(){
     // HC2-Values
     #ifdef USE_HC2  
 
+      // HC2-Operating State
       if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) {              // AUTOMATIC
         snprintf(tmpMessage, sizeof(tmpMessage), "%s  🔄", webText.AUTOMATIC[LANG]);
       }
@@ -914,7 +935,6 @@ void updateStatusValues(){
           snprintf(tmpMessage, sizeof(tmpMessage), "✋ %s : %s", webText.MANUAL[LANG], webText.NIGHT[LANG]);
         }
       }
-      
       ESPUI.updateLabel(id.dash.hc2_opmode, tmpMessage);
 
       // Summer / Winter
@@ -1156,8 +1176,10 @@ void updateConfigValues(){
     ESPUI.updateLabel(id.cfg.ww_operation_mode, kmConfigStrCpy.ww_operation_mode);
     ESPUI.updateLabel(id.cfg.ww_processing, kmConfigStrCpy.ww_processing);
     ESPUI.updateLabel(id.cfg.ww_circulation, kmConfigStrCpy.ww_circulation);
-    ESPUI.updateLabel(id.cfg.frost_protection_threshold, kmConfigStrCpy.frost_protection_threshold);
-    ESPUI.updateLabel(id.cfg.summer_mode_threshold, kmConfigStrCpy.summer_mode_threshold);
+    ESPUI.updateLabel(id.cfg.hc1_frost_protection_threshold, kmConfigStrCpy.hc1_frost_protection_threshold);
+    ESPUI.updateLabel(id.cfg.hc1_summer_mode_threshold, kmConfigStrCpy.hc1_summer_mode_threshold);
+    ESPUI.updateLabel(id.cfg.hc2_frost_protection_threshold, kmConfigStrCpy.hc2_frost_protection_threshold);
+    ESPUI.updateLabel(id.cfg.hc2_summer_mode_threshold, kmConfigStrCpy.hc2_summer_mode_threshold);
     ESPUI.updateLabel(id.cfg.max_boiler_temperature, kmConfigStrCpy.max_boiler_temperature);
     ESPUI.updateLabel(id.cfg.pump_logic_temp, kmConfigStrCpy.pump_logic_temp);
     ESPUI.updateLabel(id.cfg.building_type, kmConfigStrCpy.building_type);
@@ -1170,8 +1192,10 @@ void updateConfigValues(){
     ESPUI.updateLabel(id.cfg.time_offset, kmConfigStrCpy.time_offset);
 
     ESPUI.updateSelect(id.ctrl.ww_opmode, hc_opmode_optval[kmConfigNumCpy.ww_operation_mode]);
-    ESPUI.updateSlider(id.ctrl.frost_mode_threshold, kmConfigNumCpy.frost_protection_threshold);
-    ESPUI.updateSlider(id.ctrl.summer_mode_threshold, kmConfigNumCpy.summer_mode_threshold);
+    ESPUI.updateSlider(id.ctrl.hc1_frost_mode_threshold, kmConfigNumCpy.hc1_frost_protection_threshold);
+    ESPUI.updateSlider(id.ctrl.hc1_summer_mode_threshold, kmConfigNumCpy.hc1_summer_mode_threshold);
+    ESPUI.updateSlider(id.ctrl.hc2_frost_mode_threshold, kmConfigNumCpy.hc2_frost_protection_threshold);
+    ESPUI.updateSlider(id.ctrl.hc2_summer_mode_threshold, kmConfigNumCpy.hc2_summer_mode_threshold);
     ESPUI.updateSlider(id.ctrl.ww_setpoint, kmConfigNumCpy.ww_temp);
     ESPUI.updateSlider(id.ctrl.ww_pump_cycles, kmConfigNumCpy.ww_circulation);
 }
@@ -1289,14 +1313,24 @@ void generalCallback(Control *sender, int type) {
     }
   }
 
-  // Frost Threshold
-  if(sender->id == id.ctrl.frost_mode_threshold) {
-    km271sendCmd(KM271_SENDCMD_FROST, sender->value.toInt());
+  // HC1-Frost Threshold
+  if(sender->id == id.ctrl.hc1_frost_mode_threshold) {
+    km271sendCmd(KM271_SENDCMD_HC1_FROST, sender->value.toInt());
   }
 
-  // Summer Threshold
-  if(sender->id == id.ctrl.summer_mode_threshold) {
-    km271sendCmd(KM271_SENDCMD_SUMMER, sender->value.toInt());
+  // HC1-Summer Threshold
+  if(sender->id == id.ctrl.hc1_summer_mode_threshold) {
+    km271sendCmd(KM271_SENDCMD_HC1_SUMMER, sender->value.toInt());
+  }
+
+  // HC2-Frost Threshold
+  if(sender->id == id.ctrl.hc2_frost_mode_threshold) {
+    km271sendCmd(KM271_SENDCMD_HC2_FROST, sender->value.toInt());
+  }
+
+  // HC2-Summer Threshold
+  if(sender->id == id.ctrl.hc2_summer_mode_threshold) {
+    km271sendCmd(KM271_SENDCMD_HC2_SUMMER, sender->value.toInt());
   }
 
   // HC1-DesignTemp
