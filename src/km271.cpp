@@ -703,9 +703,9 @@ void parseInfo(uint8_t *data, int len) {
     
 
     case 0x0000: 
-      kmConfigNum.summer_mode_threshold = data[2+1];
-      snprintf(kmConfigStr.summer_mode_threshold, sizeof(kmConfigStr.summer_mode_threshold), "%s", cfgArray.SUMMER[limit(0, kmConfigNum.summer_mode_threshold-9, 22)]);
-      mqttPublish(addCfgTopic(cfgTopic.SUMMER_THRESHOLD[LANG]), kmConfigStr.summer_mode_threshold, false);                                // "CFG_Sommer_ab"            => "0000:1,p:-9,a"
+      kmConfigNum.hc1_summer_mode_threshold = data[2+1];
+      snprintf(kmConfigStr.hc1_summer_mode_threshold, sizeof(kmConfigStr.hc1_summer_mode_threshold), "%s", cfgArray.SUMMER[limit(0, kmConfigNum.hc1_summer_mode_threshold-9, 22)]);
+      mqttPublish(addCfgTopic(cfgTopic.HC1_SUMMER_THRESHOLD[LANG]), kmConfigStr.hc1_summer_mode_threshold, false);                                // "CFG_Sommer_ab"            => "0000:1,p:-9,a"
       
       #ifdef USE_HC1
       kmConfigNum.hc1_night_temp = decode05cTemp(data[2+2]);
@@ -773,13 +773,18 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addCfgTopic(cfgTopic.HC1_REMOTECTRL[LANG]), kmConfigStr.hc1_remotecontrol, false);                             // "CFG_HK1_Fernbedienung"        => "0031:4,a"  
       #endif
       
-      kmConfigNum.frost_protection_threshold = decodeNegValue(data[2+5]);
-      snprintf(kmConfigStr.frost_protection_threshold, sizeof(kmConfigStr.frost_protection_threshold), "%i °C", kmConfigNum.frost_protection_threshold);
-      mqttPublish(addCfgTopic(cfgTopic.FROST_THRESHOLD[LANG]), kmConfigStr.frost_protection_threshold, false);                    // "CFG_Frost_ab"                 => "0031:5,s"
+      kmConfigNum.hc1_frost_protection_threshold = decodeNegValue(data[2+5]);
+      snprintf(kmConfigStr.hc1_frost_protection_threshold, sizeof(kmConfigStr.hc1_frost_protection_threshold), "%i °C", kmConfigNum.hc1_frost_protection_threshold);
+      mqttPublish(addCfgTopic(cfgTopic.HC1_FROST_THRESHOLD[LANG]), kmConfigStr.hc1_frost_protection_threshold, false);                    // "CFG_Frost_ab"                 => "0031:5,s"
       break;
 
     case 0x0038:                                     
+      
       #ifdef USE_HC2
+      kmConfigNum.hc2_summer_mode_threshold = data[2+1];
+      snprintf(kmConfigStr.hc2_summer_mode_threshold, sizeof(kmConfigStr.hc2_summer_mode_threshold), "%s", cfgArray.SUMMER[limit(0, kmConfigNum.hc2_summer_mode_threshold-9, 22)]);
+      mqttPublish(addCfgTopic(cfgTopic.HC2_SUMMER_THRESHOLD[LANG]), kmConfigStr.hc2_summer_mode_threshold, false);               // "CFG_Sommer_ab"            => "0038:1,p:-9,a"
+
       kmConfigNum.hc2_night_temp = decode05cTemp(data[2+2]);
       snprintf(kmConfigStr.hc2_night_temp, sizeof(kmConfigStr.hc2_night_temp), "%0.1f °C", kmConfigNum.hc2_night_temp);  
       mqttPublish(addCfgTopic(cfgTopic.HC2_NIGHT_TEMP[LANG]), kmConfigStr.hc2_night_temp, false);                                 // "CFG_HK2_Nachttemperatur"   => "0038:2,d:2"
@@ -847,6 +852,10 @@ void parseInfo(uint8_t *data, int len) {
       kmConfigNum.hc2_remotecontrol = data[2+4];
       snprintf(kmConfigStr.hc2_remotecontrol, sizeof(kmConfigStr.hc2_remotecontrol), "%s", cfgArray.ON_OFF[limit(0, kmConfigNum.hc2_remotecontrol, 1)]); 
       mqttPublish(addCfgTopic(cfgTopic.HC2_REMOTECTRL[LANG]), kmConfigStr.hc2_remotecontrol, false);                                                   // "CFG_HK2_Fernbedienung"        => "0069:4,a"  
+      
+      kmConfigNum.hc2_frost_protection_threshold = decodeNegValue(data[2+5]);
+      snprintf(kmConfigStr.hc2_frost_protection_threshold, sizeof(kmConfigStr.hc2_frost_protection_threshold), "%i °C", kmConfigNum.hc2_frost_protection_threshold);
+      mqttPublish(addCfgTopic(cfgTopic.HC2_FROST_THRESHOLD[LANG]), kmConfigStr.hc2_frost_protection_threshold, false);                    // "CFG_Frost_ab"                 => "0069:5,s"
       #endif
       break;
 
@@ -1702,7 +1711,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
     }
     break;
 
-  case KM271_SENDCMD_SUMMER:
+  case KM271_SENDCMD_HC1_SUMMER:
     if (cmdPara>=9 && cmdPara<=31){     
       send_buf[0]= 0x07;      // Data-Type für HK1 (0x07) 
       send_buf[1]= 0x00;      // Offset 
@@ -1712,13 +1721,29 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
       send_buf[5]= 0x65; 
       send_buf[6]= 0x65;
       send_buf[7]= 0x65;
-      mqttPublish(addTopic("/message"), mqttMsg.SUMMER_RECV[LANG], false);
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_SUMMER_RECV[LANG], false);
     } else {
-      mqttPublish(addTopic("/message"), mqttMsg.SUMMER_INVALID[LANG], false);
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_SUMMER_INVALID[LANG], false);
     }
     break;
 
-  case KM271_SENDCMD_FROST:
+  case KM271_SENDCMD_HC2_SUMMER:
+    if (cmdPara>=9 && cmdPara<=31){     
+      send_buf[0]= 0x08;      // Data-Type für HK2 (0x08) 
+      send_buf[1]= 0x00;      // Offset 
+      send_buf[2]= 0x65;
+      send_buf[3]= cmdPara;   // 9:Winter | 10°-30° | 31:Summer
+      send_buf[4]= 0x65;
+      send_buf[5]= 0x65; 
+      send_buf[6]= 0x65;
+      send_buf[7]= 0x65;
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_SUMMER_RECV[LANG], false);
+    } else {
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_SUMMER_INVALID[LANG], false);
+    }
+    break;
+
+  case KM271_SENDCMD_HC1_FROST:
     if (cmdPara>=-20 && cmdPara<=10){    
       send_buf[0]= 0x07;      // Data-Type für HK1 (0x07) 
       send_buf[1]= 0x31;      // Offset
@@ -1728,9 +1753,25 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
       send_buf[5]= 0x65; 
       send_buf[6]= 0x65;
       send_buf[7]= (cmdPara>0) ? cmdPara:cmdPara+256;    // -20° ... +10° (add 256 if value is negative)
-      mqttPublish(addTopic("/message"), mqttMsg.FROST_RECV[LANG], false);
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_FROST_RECV[LANG], false);
     } else {
-      mqttPublish(addTopic("/message"), mqttMsg.FROST_INVALID[LANG], false);
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_FROST_INVALID[LANG], false);
+    }
+    break;
+
+  case KM271_SENDCMD_HC2_FROST:
+    if (cmdPara>=-20 && cmdPara<=10){    
+      send_buf[0]= 0x08;      // Data-Type für HK2 (0x08) 
+      send_buf[1]= 0x31;      // Offset
+      send_buf[2]= 0x65;
+      send_buf[3]= 0x65;      
+      send_buf[4]= 0x65;
+      send_buf[5]= 0x65; 
+      send_buf[6]= 0x65;
+      send_buf[7]= (cmdPara>0) ? cmdPara:cmdPara+256;    // -20° ... +10° (add 256 if value is negative)
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_FROST_RECV[LANG], false);
+    } else {
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_FROST_INVALID[LANG], false);
     }
     break;
 

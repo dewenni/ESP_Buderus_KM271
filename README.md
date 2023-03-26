@@ -10,7 +10,7 @@
 
 -----
 
-If you like this, please push the Star ⭐️ 
+If you like this, please push the ```Star ⭐️``` and klick on ```watch 👁``` to stay tuned
 
 -----
 

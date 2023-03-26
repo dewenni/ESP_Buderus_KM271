@@ -116,8 +116,10 @@ typedef struct {
 #define CFG_MAX_CHAR_TEXT 64
 #define CFG_MAX_CHAR_TIMER 128
 typedef struct {
-  char frost_protection_threshold[CFG_MAX_CHAR_VALUE]={'\0'};
-  char summer_mode_threshold[CFG_MAX_CHAR_VALUE]={'\0'};
+  char hc1_frost_protection_threshold[CFG_MAX_CHAR_VALUE]={'\0'};
+  char hc1_summer_mode_threshold[CFG_MAX_CHAR_VALUE]={'\0'};
+  char hc2_frost_protection_threshold[CFG_MAX_CHAR_VALUE]={'\0'};
+  char hc2_summer_mode_threshold[CFG_MAX_CHAR_VALUE]={'\0'};
   char hc1_night_temp[CFG_MAX_CHAR_VALUE]={'\0'};
   char hc1_day_temp[CFG_MAX_CHAR_VALUE]={'\0'};
   char hc1_operation_mode[CFG_MAX_CHAR_VALUE]={'\0'};
@@ -204,8 +206,10 @@ typedef struct {
 // This struicure contains all config values read from the heating controller.
 // This structure is kept up-to-date automatically by the km271.cpp.
 typedef struct {
-  int8_t  frost_protection_threshold;
-  uint8_t summer_mode_threshold;
+  int8_t  hc1_frost_protection_threshold;
+  uint8_t hc1_summer_mode_threshold;
+  int8_t  hc2_frost_protection_threshold;
+  uint8_t hc2_summer_mode_threshold;
   float   hc1_night_temp;
   float   hc1_day_temp;
   uint8_t hc1_operation_mode;
@@ -275,8 +279,10 @@ typedef enum {
   KM271_SENDCMD_HC2_NIGHT_SETPOINT,       // HC2 Night Setpoint Temperature
   KM271_SENDCMD_HC2_HOLIDAY_SETPOINT,     // HC2 Holiday Setpoint Temperature
   KM271_SENDCMD_WW_OPMODE,                // WarmWater OperationMode
-  KM271_SENDCMD_SUMMER,                   // Summer threshold
-  KM271_SENDCMD_FROST,                    // Frost threshold
+  KM271_SENDCMD_HC1_SUMMER,               // HC1 Summer threshold
+  KM271_SENDCMD_HC1_FROST,                // HC1 Frost threshold
+  KM271_SENDCMD_HC2_SUMMER,               // HC2 Summer threshold
+  KM271_SENDCMD_HC2_FROST,                // HC2 Frost threshold
   KM271_SENDCMD_WW_SETPOINT,              // Warmwasser soll
   KM271_SENDCMD_HC1_HOLIDAYS,             // HC1 Holiday Days
   KM271_SENDCMD_HC2_HOLIDAYS,             // HC2 Holiday Days
