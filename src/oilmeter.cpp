@@ -4,6 +4,7 @@
 // hardware   : Braun HZ5DR / HZ5R / HZ5 (modified with reed contact)
 // Remark     : if you dont want to use this, you can disable this in config.h
 //*****************************************************************************
+#include <config.h>
 #include <oilmeter.h>
 #include <mqtt.h>
 #include <basics.h>
@@ -14,9 +15,6 @@ int addr = 0;                             // start address for EEPROM
 int writeCounter =0;                      // counter for write to EEPROM
 bool reboot = true;                       // flag for reboot
 char tmpMsg[300]={'\0'};
-
-#define DI_OIL_CNT 26                     // input for oilmeter sensor
-#define DO_OIL_CNT 25                     // LED signal oilmeter trigger
 
 #define OILTRIGGER_TIME 1000              // 1.000 = 1sec
 #define OILCYCLICINFO_TIME 3600000        // 360.000 = 1 hour
@@ -93,11 +91,6 @@ void setupOilmeter(){
   snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %i", data.oilcounter);
   mqttPublish(addTopic("/message"), tmpMsg, false);
 
-
-  // IO Setup
-  pinMode(DI_OIL_CNT, INPUT_PULLUP);    // Trigger Input
-  pinMode(DO_OIL_CNT, OUTPUT);          // Status LED
-
 }
 
 /**
@@ -108,10 +101,10 @@ void setupOilmeter(){
  * *******************************************************************/
 void cyclicOilmeter()
 {
-  digitalWrite(DO_OIL_CNT, digitalRead(DI_OIL_CNT));    // signal for every incomming impulse with Onboard LED
+  digitalWrite(config.gpio.led_oilcounter, digitalRead(config.gpio.trigger_oilcounter));    // signal for every incomming impulse with Onboard LED
 
   // debounce input trigger with timer function
-  bool statusTrigger = oilTrigger.delayOnOffTrigger(!digitalRead(DI_OIL_CNT), 0, OILTRIGGER_TIME) == 1;
+  bool statusTrigger = oilTrigger.delayOnOffTrigger(!digitalRead(config.gpio.trigger_oilcounter), 0, OILTRIGGER_TIME) == 1;
   if (statusTrigger && !reboot) {
       data.oilcounter = data.oilcounter + 2;            // one impulse = 0,02 litre
       writeCounter++;                                   // increase counter for writing to EEPROM

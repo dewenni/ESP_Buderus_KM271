@@ -1,61 +1,79 @@
 #pragma once
-#include <Credentials.h>
-
-/*--------------------------------------------------------------------------------
-Introduction:
-you can enable/disable different options/configurations using the different #defines
-
-Example:
-#define USE_OILMETER  => will activate the oilcounter function
-//#define USE_OILMETER  => will disable the oilcounter function
-
-/*-------------------------------------------------------------------------------
-Hardware Configuration
---------------------------------------------------------------------------------*/
-#define LED_WIFI        21      // LED for WiFi Status
-#define LED_HEARBEAT    22      // LED for heartbeat
-#define LED_LOGMODE     23      // LED for LogMode
-
-#define RXD2   4                // ESP32 RX-pin for KM271 communication, align with hardware
-#define TXD2   2                // ESP32 TX-pin for KM271 communication, align with hardware
 
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
 #define VERSION             "v2.3.0"    // internal program version
 #define DEBUG_ON                        // enable debug messages
-#define LANG                0           // 0=GERMAN / 1=ENGLISH
-
-#define HOSTNAME "ESP_Buderus_KM271"    // WiFi Hostname
-#define MQTT_TOPIC "esp_heizung"        // MQTT Topic Prefix
 
 #define WIFI_RECONNECT      10000        // Delay between wifi reconnection tries
 #define MQTT_RECONNECT      10000        // Delay between mqtt reconnection tries
 
-/*--------------------------------------------------------------------------------
-Feature Configuration
---------------------------------------------------------------------------------*/
-#define USE_OILMETER                    // disable if you dont use the oilmeter
-#define USE_WEBUI                       // disable WebUI if you dont want to use it
 
-/*--------------------------------------------------------------------------------
-Logamatic Configuration
---------------------------------------------------------------------------------*/
-#define USE_HC1                                 // Use HeatingCircuit_1
-//#define USE_HC2                                 // Use HeatingCircuit_2
+typedef struct {
+    bool use_hardware_meter;
+    bool use_virtual_meter = false;
+    float consumption_kg_h = 2.0;
+    float oil_density_kg_l = 0.85;
+} s_cfg_oilmeter;
 
-#define USE_ALARM_MSG                           // activates the use of Messages based on 0x0300, 0x0307, 0x030e, 0x0315 that are not supportet for every Logamatic models (e.g. HS 2105M)
+typedef struct {
+    bool enable = true;
+} s_cfg_webUI;
 
-#define USE_NTP                                 // Use NTP (Network-Time-Protocol) to set date and time of Logamatic
-#define NTP_SERVER "de.pool.ntp.org"            // NTP Server
-#define NTP_TZ "CET-1CEST,M3.5.0,M10.5.0/3 "    // NTP TimeZone
+typedef struct {
+    bool use_hc1;
+    bool use_hc2;
+    bool use_ww;
+    bool use_alarmMsg;
+} s_cfg_km271;
 
-/*--------------------------------------------------------------------------------
-Optional: calculation of oil consumption based on burner runtime
---------------------------------------------------------------------------------*/
-//#define USE_CALCULATED_CONSUMPTION      // use calculated oil consumption
-                                        // calculation: Consumption_Litre = Runtime_Minutes / 60 * CFG_CONSUMPTION_KG_H / CFG_OIL_DENSITY_KG_L
+typedef struct {
+    char ssid[128];               // WiFi SSID
+    char password[128];           // WiFi Password
+    char hostname[128];           // HOSTNAME
+} s_cfg_wifi;
 
-#define CFG_CONSUMPTION_KG_H 2.0        // oil consumption in "kilograms per hour" - see documentation of your heater
-#define CFG_OIL_DENSITY_KG_L 0.85       // densitiy of oil in "kilograms per Litre"
+typedef struct {
+    bool enable;           // Enable or disable the MQTT server
+    char server[20];       // MQTT Server IP
+    char user[128];        // MQTT User Name
+    char password[128];    // MQTT User Password
+    char topic[128];       // MQTT Topic Prefix
+    int port = 1883;       // MQTT Server Port
+} s_cfg_mqtt;
 
+
+typedef struct {
+    bool enable = true;
+    char server[128] = {"de.pool.ntp.org"};                                                   
+    char tz[128] = {"CET-1CEST,M3.5.0,M10.5.0/3"};                                                
+} s_cfg_ntp;
+
+
+typedef struct {
+    int led_wifi;
+    int led_heartbeat;
+    int led_logmode;
+    int led_oilcounter;
+    int trigger_oilcounter;
+    int km271_RX;
+    int km271_TX;
+} s_cfg_gpio;
+
+typedef struct {
+    int lang;
+    s_cfg_oilmeter oilmeter;
+    s_cfg_wifi wifi;
+    s_cfg_mqtt mqtt;
+    s_cfg_ntp ntp;
+    s_cfg_gpio gpio;
+    s_cfg_webUI webUI;
+    s_cfg_km271 km271;
+} s_config;
+
+extern s_config config;
+extern bool setupMode;
+void configSetup();
+void configSaveToFile();
+void configLoadFromFile();

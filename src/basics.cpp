@@ -1,4 +1,5 @@
 #include <basics.h>
+#include <AsyncElegantOTA.h>
 
 /* P R O T O T Y P E S ********************************************************/ 
 void ntpSetup();
@@ -7,8 +8,7 @@ void setup_wifi();
 
 /* D E C L A R A T I O N S ****************************************************/  
 s_wifi wifi;  // global WiFi Informations
-
-
+AsyncWebServer webOTAserver(8080);
 
 /**
  * *******************************************************************
@@ -19,15 +19,14 @@ s_wifi wifi;  // global WiFi Informations
 void ntpSetup(){
   #ifdef ARDUINO_ARCH_ESP32
     // ESP32 seems to be a little more complex:
-    configTime(0, 0, NTP_SERVER); // 0, 0 because we will use TZ in the next line
-    setenv("TZ", NTP_TZ, 1); // Set environment variable with your time zone
+    configTime(0, 0, config.ntp.server); // 0, 0 because we will use TZ in the next line
+    setenv("TZ", config.ntp.tz, 1); // Set environment variable with your time zone
     tzset();
   #else
     // ESP8266
     configTime(NTP_TZ, NTP_SERVER); // --> for the ESP8266 only
   #endif
 }
-
 
 /**
  * *******************************************************************
@@ -95,15 +94,13 @@ const char * getTimeString() {
  * @return  none
  * *******************************************************************/
 void setupOTA(){
- ArduinoOTA
-    .onStart([]() {
-      // actions to do when OTA starts
-      storeData(); // store Data before update
-      delay(500);
-    });
 
-  ArduinoOTA.setHostname(HOSTNAME);
-  ArduinoOTA.begin();
+  webOTAserver.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/plain", "OTA Firmware Update");
+  });
+
+  AsyncElegantOTA.begin(&webOTAserver);    // Start ElegantOTA
+  webOTAserver.begin();
 }
 
 /**
@@ -113,9 +110,30 @@ void setupOTA(){
  * @return  none
  * *******************************************************************/
 void setup_wifi() {
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PW);
-  WiFi.hostname(HOSTNAME);
+  
+  if (setupMode) {
+    // start Accesspoint for initial setup
+    IPAddress ip(192,168,1,1);
+    IPAddress gateway(192,168,1,1); 
+    IPAddress subnet(255,255,255,0);
+    WiFi.softAPConfig(ip, gateway, subnet);
+    WiFi.softAP("ESP-Buderus-km271");
+    Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+    Serial.println("> WiFi Mode: AccessPoint <");
+    Serial.println("1. connect your device to SSID: ESP-Buderus-km271");
+    Serial.println("2. open Browser and go to Address: http://192.168.1.1");
+    Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+  }
+  else {
+    // connect to configured wifi AP
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(config.wifi.ssid, config.wifi.password);
+    WiFi.hostname(config.wifi.hostname);
+    MDNS.begin(config.wifi.hostname);
+    Serial.print("WiFi Mode STA - Trying connect to: ");
+    Serial.println(config.wifi.ssid);
+  }
+  
 }
 
 /**
@@ -130,12 +148,13 @@ void check_wifi(){
    int wifi_retry = 0;
    while(WiFi.status() != WL_CONNECTED && wifi_retry < 5 ) {
      wifi_retry++;
-     Serial.println("WiFi not connected. Trying to connect...");
+     Serial.print("WiFi not connected. Trying connect to: ");
+     Serial.println(config.wifi.ssid);
      WiFi.disconnect();
      WiFi.mode(WIFI_OFF);
      delay(10);
      WiFi.mode(WIFI_STA);
-     WiFi.begin(WIFI_SSID, WIFI_PW);
+     WiFi.begin(config.wifi.ssid, config.wifi.password);
      delay(WIFI_RECONNECT);
    }
    if(wifi_retry >= 5) {
@@ -160,12 +179,12 @@ void check_wifi(){
 void basic_setup() {
     // WiFi
     setup_wifi();
-
-    // OTA
-    setupOTA();
     
     //NTP
     ntpSetup();
+
+    // OTA
+    setupOTA();
 }
 
 /**
@@ -248,6 +267,18 @@ const char* int8ToString(int8_t value){
 const char* floatToString(float value){
   static char ret_str[64];
   snprintf(ret_str, sizeof(ret_str), "%.1f", value);
+  return ret_str;
+}
+
+/**
+ * *******************************************************************
+ * @brief   create String from integer - with 3 digits
+ * @param   value as float
+ * @return  pointer to char array - pay attention, it is local static
+ * *******************************************************************/
+const char* floatToString4(float value){
+  static char ret_str[64];
+  snprintf(ret_str, sizeof(ret_str), "%.4f", value);
   return ret_str;
 }
 
