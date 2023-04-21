@@ -1,4 +1,4 @@
-![Buderus_s2](https://user-images.githubusercontent.com/46074831/215314329-1440a687-2e59-43d2-beec-dd33f0e1bc4b.png)
+![esp_buderus_km271](Doc/esp_buderus_km271.png)
 
 -----
 
@@ -26,20 +26,37 @@ But there is also a build in WebUI to view and control your Logamatic without an
 
 -----
 
->**Note:**  
->for more informations take a look at the **[wiki](https://github.com/dewenni/ESP_Buderus_KM271/wiki)**
+- [Overview](#overview)
+- [Dependencies](#dependencies)
+    * [Hardware](#hardware)
+- [Getting started](#getting-started)
+    * [Platform-IO](#platform-io)
+    * [ESP-Flash-Tool](#esp-flash-tool)
+    * [OTA-Updates](#ota)
+- [Web-UI](#web-ui)
+    * [Configuration](#configuration)
+    * [Pages](#pages)
+- [MQTT](#mqtt)
+    * [Status](#status)
+    * [Commands](#commands)
+- [Optional Components](#optional-components)
+    * [Oilcounter](#oilcounter)
+    * [node-red](#node-red)
+    * [grafana](#grafana)
 
-## Functional description
+-----
+
+# Overview
 
 The heart of the project is the reverse engineered Buderus interface, that is based on the 3964R Protocol.  
 The main code is based on the work of **Michael Mayer** who has set a really good base for the communication.
 It has been extended with the possibility not only to read values, but also to write some common values to the Logamatic.
 
-The software supports multi language support. 
-You can switch between german and english mqtt topics. (see: **[config.h](https://github.com/dewenni/ESP_Buderus_KM271/blob/aa369b0bc6e71b8ec41ad1284f3467846cb56dcc/include/config.h)**)  
-Feel free to add more languages. The texts are located in: **[language.h](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/include/language.h)**
+The software has multi language support and there is already german, and english texts available. It is also possible to add more languages.
 
-### List of supported values
+Feel free to add more languages. The texts are located in: **[language.h](include/language.h)**
+
+## List of supported values
 
 The Software handles different kind of values:
 
@@ -54,10 +71,10 @@ here you get the information about the last 4 Errors/Faults that are registered 
 
 
 >**Note:**  
->A complete List of supportet values can be found in the **[param.txt](https://github.com/dewenni/ESP_Buderus_KM271/blob/1c3b92ba8c515077c627aaf876f2f54df3c393f8/param.txt)**
+>A complete List of supportet values can be found in the **[param.txt](Doc/param.txt)**
 
 
-### additional and optional Oilcounter / Oil Meter
+## additional and optional Oilcounter / Oil Meter
 The project includes also an additional and optional oilcounter implementation. I have installed an Braun HZ-5 Meter to measure the oil consumtion.  
 There are diffeent models with (HZ 5R, HZ 5DR) and without pulse output (HZ 5).  
 I have used the normal one without pulse output and modified it with a small reed contact - that works fine and was simple to install.
@@ -65,17 +82,19 @@ If you are not interested in the Oil Meter function you can simple disable it in
 
 ---
 
-## Hardware Requirements
+# Dependencies
+
+## Hardware
 
 ### Option 1 - Board from the78mole
 the easiest, smartest and even cheapest option is the DIY Interface that was build by Daniel Glaser. Big thanks for his engagement in this Topic!  
-You can find more information here: [https://the78mole.de](https://the78mole.de/reverse-engineering-the-buderus-km217/)  
+You can find more information here: https://github.com/the78mole/km271-wifi   
 You can order it here: https://www.tindie.com/products/24664/
 
 In this case you only need this DIY interface and nothing more.
 It includes the RS232/TTL Adapter and also an ESP32.  
 
-![KM217_mod](https://user-images.githubusercontent.com/46074831/206558276-ef8727ac-384c-4b7b-866f-8c3fe644a2cb.jpg)
+![KM217_mod](/Doc/board_v005.jpeg)
 (this is my board with the customized connector for the oil meter instead of the "USER 1" button)
 
 ### Option 2 - original Buderus KM271
@@ -84,13 +103,97 @@ In combination with a RS232 TTL Adapter (MAX3232) it can be connected to the TX/
 
 Logamattic R2107 => KM271 => RS232/TTL Adapter => ESP
 
-![km271_orig](https://user-images.githubusercontent.com/46074831/206558264-3d17b69a-e2ac-4e23-8ed6-b17977599c50.jpg)
+Example configuration:
+```
+(ESP32)GPIO17/TXD2  -> (MAX3232)TXD -> (serial cable) -> (KM271-SUBD)PIN2:RXD
+(ESP32)GPIO16/RXD2 <- (MAX3232)RXD <- (serial cable) <- (KM271-SUBD)PIN3:TXD
+(ESP32)GND <-> (MAX3232)GND <-> (serial cable) <-> (KM271-SUBD)PIN5:GND
+```
+
+![km271_orig](/Doc/esp32_with_km271.jpeg)
+
+### Optional: Hardware Oilmeter
+The software is also prepared to connect an Oil Meter. A well-known manufacturer of oil meters is Braun with the models HZ-5 or HZ6.
+These are already available with a potential-free contact.  
+I have used one without potential-free contact and have subsequently attached a reed contact. This was also very simple and works very reliably.
+
+![braun_hz5](/Doc/oilmeter.jpeg)
+
+> :information_source:  **INFO:**  
+> but this is only optional and can be used additionally to the informations that the software will read from the Logamatic.
+
 
 ---
 
-## MQTT Communication
+# Getting started
 
-### You can control the Logamatic with commands like this:
+## Platform-IO
+The software is created with [Visual Studio Code](https://code.visualstudio.com) and the [PlatformIO-Plugin](https://platformio.org).  
+After installing the software you can clone the project from GitHub or you can download it as zip and open it in PlatformIO.
+Then adapt the `upload_port` and corresponding settings in platformio.ini to your USB-to-serial Adapter and upload the code to the ESP.
+
+## ESP-Flash-Tool
+
+
+## OTA-Updates
+
+
+> :warning:   **Attention!**  
+> To run the software, a valid WiFi & MQTT connection is mandatory!  
+> After 5 retries to connect to WiFi or the MQTT Server, the ESP will reboot.
+
+---
+
+# Web-UI
+
+## Configuration
+
+## Pages
+
+---
+
+
+# MQTT
+
+## Status
+
+**Logamatic will send informations by event**:
+
+Config values as single topics (see list in [param.txt](Doc/param.txt))
+```
+example:
+Topic: esp_heizung/config/frost_protection_threshold
+Payload:   -1.00 °C     (String)
+```
+Status values as single topics (see list in [param.txt](Doc/param.txt))
+```
+example:
+Topic: esp_heizung/status/hc1_ov1_automatic
+Payload:   1    (integer)
+```
+status information about WiFi:
+```
+Topic: esp_heizung/wifi = {  
+    "status":"online",  
+    "rssi":"-50",  
+    "signal":"90",  
+    "ip":"192.168.1.1",  
+    "date-time":"01.01.2022 - 10:20:30"  
+}
+```
+debug information:
+```
+Topic: esp_heizung/info = {  
+    "logmode":true,
+    "send_cmd_busy":false,
+    "date-time":"01.01.2022 - 10:20:30"  
+}
+```
+
+you can also change the mqtt topics for your needs by editig: **[language.h](include/language.h)**
+
+## Command
+**You can control the Logamatic with commands like this:**
 
 ```
 command:    restart ESP
@@ -158,48 +261,44 @@ topic:      {"setvalue/ww_pumpen_zyklus", setvalue/ww_pump_cycles"}
 payload:    Resolution: 1 [cyles/hour] - Range: 0:OFF | 1..6 | 7:ON
 
 ```
+---
 
-### Logamatic will send informations by event:
+# Optional Components
 
-Config values as single topics (see list in [param.txt](https://github.com/dewenni/ESP_Buderus_KM271/blob/1c3b92ba8c515077c627aaf876f2f54df3c393f8/param.txt))
-```
-example:
-Topic: esp_heizung/config/frost_protection_threshold
-Payload:   -1.00 °C     (String)
-```
-Status values as single topics (see list in [param.txt](https://github.com/dewenni/ESP_Buderus_KM271/blob/1c3b92ba8c515077c627aaf876f2f54df3c393f8/param.txt))
-```
-example:
-Topic: esp_heizung/status/hc1_ov1_automatic
-Payload:   1    (integer)
-```
-status information about WiFi:
-```
-Topic: esp_heizung/wifi = {  
-    "status":"online",  
-    "rssi":"-50",  
-    "signal":"90",  
-    "ip":"192.168.1.1",  
-    "date-time":"01.01.2022 - 10:20:30"  
-}
-```
-debug information:
-```
-Topic: esp_heizung/info = {  
-    "logmode":true,
-    "send_cmd_busy":false,
-    "date-time":"01.01.2022 - 10:20:30"  
-}
-```
+## node-red
 
-you can also change the mqtt topics for your needs by editig: **[language.h](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/include/language.h)**
+I´m writing all informations that are transmitted over MQTT into a influxDB Database.  
+In my case I'm using node red to receive the MQTT messages and to write it into the influxDB.  
+Everything runs in Docker on my Synology NAS.  
+But there are a lot of other possibilities - use the one that fits you best.
 
+![node-red](/Doc/node-red.png)
+
+If you are interested in this flows, you can use this export file:
+[node-red.json](/Doc/node-red.json)
+
+## grafana
+
+To visualize the informations, I'm using [grafana](https://grafana.com) that gets the data out of the influxDB.  
+For me this gets me more possibilities to analyze the behavior of the heating system compared to a static dashboard.  
+
+#  Examples
+Here are some impressions of what I did with all the informations that comes out of the Logamatic:
+
+![grafana1](/Doc/grafana1.png)
+![grafana2](/Doc/grafana2.png)
+![grafana3](/Doc/grafana3.png)
+
+If you are interested in this dashboard, you can use this export file:
+[grafana.json](/Doc/grafana.json)
 
 ---
 
-# use at own risk!
+# ❗️ use at own risk ❗️
 
 **feel free to use and adopt to your needs!**
 
 **If you have something to improve, let us all know about you ideas!**
 
+Discussions => https://github.com/dewenni/ESP_Buderus_KM271/discussions
+Issues => https://github.com/dewenni/ESP_Buderus_KM271/issues
