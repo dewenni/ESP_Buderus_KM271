@@ -8,90 +8,125 @@
 // mqtt messages : texts that are used for mqtt messages from KM271
 // ======================================================================================
 typedef struct {
-const char* SYSTEM[MAX_LANG] =                      {"System",                                          "System"};
-const char* CONTROL[MAX_LANG] =                     {"Bedienung",                                       "Control"};
-const char* DASHBORAD[MAX_LANG] =                   {"Dashboard",                                       "Dashboard"};
-const char* BOILER[MAX_LANG] =                      {"Kessel",                                          "Boiler"};
-const char* AUTOMATIC[MAX_LANG] =                   {"Automatik",                                       "Automatic"};  
-const char* OPMODES[MAX_LANG] =                     {"Betriebsarten",                                   "Operation Modes"};
-const char* PROGRAMS[MAX_LANG] =                    {"Programme",                                       "Programs"};
-const char* CONFIG[MAX_LANG] =                      {"Konfiguration",                                   "Config"};
-const char* STATUS[MAX_LANG] =                      {"Status",                                          "Status"};
-const char* OP_VALUES[MAX_LANG] =                   {"Betriebswerte",                                   "Operating-States"};
-const char* TEMPERATURES[MAX_LANG] =                {"Temperaturen",                                    "Temperatures"};      
-const char* MANUAL[MAX_LANG] =                      {"Handbetrieb",                                     "Manual"}; 
-const char* DAY[MAX_LANG] =                         {"Tag",                                             "Day"};    
-const char* NIGHT[MAX_LANG] =                       {"Nacht",                                           "Night"};
-const char* HC1_DAY_NIGHT[MAX_LANG] =               {"HK1 Tag/Nacht",                                   "HC1 Day/Night"};
-const char* HC2_DAY_NIGHT[MAX_LANG] =               {"HK2 Tag/Nacht",                                   "HC2 Day/Night"};
-const char* SUMMER[MAX_LANG] =                      {"Sommer",                                          "Summer"};    
-const char* WINTER[MAX_LANG] =                      {"Winter",                                          "Winter"};
-const char* HC1_SUMMER_WINTER[MAX_LANG] =           {"HK1 Sommer/Winter",                               "HC1 Summer/Winter"};
-const char* HC2_SUMMER_WINTER[MAX_LANG] =           {"HK2 Sommer/Winter",                               "HC2 Summer/Winter"};
-const char* SETPOINT[MAX_LANG] =                    {"Sollwert",                                        "Setpoint"};    
-const char* ACT_VALUE[MAX_LANG] =                   {"Istwert",                                         "Actual Value"};    
-const char* SET_TEMP[MAX_LANG] =                    {"Solltemperatur",                                  "Set Temperature"};
-const char* SET_TEMP_C[MAX_LANG] =                  {"Solltemperatur °C",                               "Set Temperature °C"};
-const char* ACT_TEMP[MAX_LANG] =                    {"Isttemperatur",                                   "Actual Temperature"}; 
-const char* ACT_TEMP_C[MAX_LANG] =                  {"Isttemperatur °C",                                "Actual Temperature °C"}; 
-const char* HC1_OPMODE[MAX_LANG] =                  {"HK1-Betriebsart",                                 "HC1 Operation Mode"}; 
-const char* HC2_OPMODE[MAX_LANG] =                  {"HK2-Betriebsart",                                 "HC2 Operation Mode"}; 
-const char* WW_OPMODE[MAX_LANG] =                   {"WW-Betriebsart",                                  "WW Operation Mode"}; 
-const char* ON[MAX_LANG] =                          {"EIN",                                             "ON"}; 
-const char* OFF[MAX_LANG] =                         {"AUS",                                             "OFF"};
-const char* OK[MAX_LANG] =                          {"OK",                                              "OK"};
-const char* ERROR[MAX_LANG] =                       {"FEHLER",                                          "ERROR"};
-const char* ERROR_FLAGS[MAX_LANG] =                 {"Fehlermeldungen",                                 "Error Flags"};
-const char* BURNER[MAX_LANG] =                      {"Brenner",                                         "Burner"}; 
-const char* HC1_PUMP[MAX_LANG] =                    {"HK1-Umwälzpumpe",                                 "HC1 Flow Pump"};
-const char* HC2_PUMP[MAX_LANG] =                    {"HK2-Umwälzpumpe",                                 "HC2 Flow Pump"}; 
-const char* WW[MAX_LANG] =                          {"Warmwasser",                                      "Warm Water"}; 
-const char* BURNER_TEMP[MAX_LANG] =                 {"Kessel-Vorlauf",                                  "Boiler Temperatures"};
-const char* HC1_FLOW[MAX_LANG] =                    {"HK1-Vorlauf",                                     "HC1 Flow Temperatures"};
-const char* HC2_FLOW[MAX_LANG] =                    {"HK2-Vorlauf",                                     "HC2 Flow Temperatures"};
-const char* WIFI_INFO[MAX_LANG] =                   {"WiFi-Information",                                "WiFi-Informations"};
-const char* WIFI_IP[MAX_LANG] =                     {"IP-Adresse",                                      "IP-Address"};
-const char* HC1[MAX_LANG] =                         {"Heizkreis 1",                                     "Heating Circuit 1"};
-const char* HC2[MAX_LANG] =                         {"Heizkreis 2",                                     "Heating Circuit 2"};
-const char* HC[MAX_LANG] =                          {"Heizkreise",                                      "Heating Circuits"};
-const char* GENERAL[MAX_LANG] =                     {"Allgemeine Werte",                                "General Values"};
-const char* SW_VERSION[MAX_LANG] =                  {"Software-Version",                                "Software-Version"};
-const char* LOGAMATIC_VERSION[MAX_LANG] =           {"Logamatic-Version",                               "Logamatic-Version"};
-const char* LOGAMATIC_MODUL[MAX_LANG] =             {"Logamatic-Modul",                                 "Logamatic-Module"};
-const char* VERSION_INFO[MAX_LANG] =                {"Versionsinformationen",                           "Version Informations"};
-const char* HC1_PRG[MAX_LANG] =                     {"HK1-Programm",                                    "HC1 Program"}; 
-const char* HC2_PRG[MAX_LANG] =                     {"HK2-Programm",                                    "HC2 Program"};
-const char* INFO_SUMMER1[MAX_LANG] =                {"Umschalttemperatur zwischen Sommer / Winter",     "Threshold to switch between Summer/Winter"};
-const char* INFO_SUMMER2[MAX_LANG] =                {"9:Sommer | 10..30:Schwelle (°C) | 31:Winter",     "9:Sommer | 10..30:Threshold (°C) | 31:Winter"};
-const char* INFO_FROST[MAX_LANG] =                  {"Umschalttemperatur Frostschutz",                  "Threshold for Frostprotection"};
-const char* INFO_DESIGNTEMP[MAX_LANG] =             {"Auslegungstemperatur Heizkennlinie",              "Designtemperature for heating curve"};
-const char* INFO_SWITCHOFF[MAX_LANG] =              {"Umschaltschwelle für Absenkung Aussenhalt",       "Threshold for reduction mode"};
-const char* INFO_WWTEMP[MAX_LANG] =                 {"Solltemperatur für Warmwasser",                   "Setpoint for Wot-Water"};
-const char* INFO_UNIT_C[MAX_LANG] =                 {"Einheit: °C",                                     "Unit: °C"};
-const char* INFO_WW_PUMP_CIRC1[MAX_LANG] =          {"Anzahl der Zyklen pro Stunde",                    "count of operation cycles per hour"};
-const char* INFO_WW_PUMP_CIRC2[MAX_LANG] =          {"0:AUS | 1..6: Zyklen/Stunde | 7:EIN",             "0:OFF | 1..6: cycles/hour | 7:ON"};
-const char* OILMETER[MAX_LANG] =                    {"Ölzähler",                                        "Oil-Meter"};
-const char* INFO_UNIT_L[MAX_LANG] =                 {"Einheit: Liter",                                  "Unit: Litre"};
-const char* OILMETER_ACT[MAX_LANG] =                {"Ölzählerstand",                                   "Oil-Meter value"};
-const char* BUTTON_SET[MAX_LANG] =                  {"setzen",                                          "set"};
-const char* BUTTON_NTP[MAX_LANG] =                  {"setzen NTP",                                      "set NTP"};
-const char* BUTTON_DTI[MAX_LANG] =                  {"setzen manuell",                                  "set manually"};
-const char* VOLTAGE[MAX_LANG] =                     {"Spannung",                                        "Voltage"};
-const char* ESP_HEAPSIZE[MAX_LANG] =                {"ESP HeapSize",                                    "ESP HeapSize"};
-const char* ESP_FREEHEAP[MAX_LANG] =                {"ESP FreeHeap",                                    "ESP FreeHeap"};
-const char* ESP_MAXALLOCHEAP[MAX_LANG] =            {"ESP MaxAllocHeap",                                "ESP MaxAllocHeap"};
-const char* ESP_MINFREEHEAP[MAX_LANG] =             {"ESP MinFreeHeap",                                 "ESP MinFreeHeap"};
-const char* SYSINFO[MAX_LANG] =                     {"Systeminformationen",                             "System Informations"};
-const char* ALARM[MAX_LANG] =                       {"Alarme",                                          "Alarms"};
-const char* ALARMINFO[MAX_LANG] =                   {"letzte Alarm Meldungen",                          "latest Alarm Messages"};
-const char* MESSAGE[MAX_LANG] =                     {"Meldung",                                         "Message"};
-const char* ESP_INFO[MAX_LANG] =                    {"ESP-Info",                                        "ESP-Info"};
-const char* OPERATION[MAX_LANG] =                   {"Betrieb",                                         "Operation"};
-const char* LIFETIMES[MAX_LANG] =                   {"Laufzeiten",                                      "Runtimes"};
-const char* LIMITS[MAX_LANG] =                      {"Grenzwerte",                                      "Limits"};
-const char* DATETIME[MAX_LANG] =                    {"Datum und Uhrzeit",                               "Date and Time"};
-const char* DATE[MAX_LANG] =                        {"Datum",                                           "Date"};
-const char* TIME[MAX_LANG] =                        {"Uhrzeit",                                         "Time"};
+const char* SYSTEM[MAX_LANG] =                   {"System",                                                     "System"};
+const char* CONTROL[MAX_LANG] =                  {"Bedienung",                                                  "Control"};
+const char* DASHBORAD[MAX_LANG] =                {"Dashboard",                                                  "Dashboard"};
+const char* BOILER[MAX_LANG] =                   {"Kessel",                                                     "Boiler"};
+const char* AUTOMATIC[MAX_LANG] =                {"Automatik",                                                  "Automatic"};  
+const char* OPMODES[MAX_LANG] =                  {"Betriebsarten",                                              "Operation Modes"};
+const char* PROGRAMS[MAX_LANG] =                 {"Programme",                                                  "Programs"};
+const char* CONFIG[MAX_LANG] =                   {"Konfiguration",                                              "Config"};
+const char* STATUS[MAX_LANG] =                   {"Status",                                                     "Status"};
+const char* SETTINGS[MAX_LANG] =                 {"Einstellungen",                                              "Settings"};
+const char* OP_VALUES[MAX_LANG] =                {"Betriebswerte",                                              "Operating-States"};
+const char* TEMPERATURES[MAX_LANG] =             {"Temperaturen",                                               "Temperatures"};      
+const char* MANUAL[MAX_LANG] =                   {"Handbetrieb",                                                "Manual"}; 
+const char* DAY[MAX_LANG] =                      {"Tag",                                                        "Day"};    
+const char* NIGHT[MAX_LANG] =                    {"Nacht",                                                      "Night"};
+const char* HC1_DAY_NIGHT[MAX_LANG] =            {"HK1 Tag/Nacht",                                              "HC1 Day/Night"};
+const char* HC2_DAY_NIGHT[MAX_LANG] =            {"HK2 Tag/Nacht",                                              "HC2 Day/Night"};
+const char* SUMMER[MAX_LANG] =                   {"Sommer",                                                     "Summer"};    
+const char* WINTER[MAX_LANG] =                   {"Winter",                                                     "Winter"};
+const char* HC1_SUMMER_WINTER[MAX_LANG] =        {"HK1 Sommer/Winter",                                          "HC1 Summer/Winter"};
+const char* HC2_SUMMER_WINTER[MAX_LANG] =        {"HK2 Sommer/Winter",                                          "HC2 Summer/Winter"};
+const char* SETPOINT[MAX_LANG] =                 {"Sollwert",                                                   "Setpoint"};    
+const char* ACT_VALUE[MAX_LANG] =                {"Istwert",                                                    "Actual Value"};    
+const char* SET_TEMP[MAX_LANG] =                 {"Solltemperatur",                                             "Set Temperature"};
+const char* SET_TEMP_C[MAX_LANG] =               {"Solltemperatur °C",                                          "Set Temperature °C"};
+const char* ACT_TEMP[MAX_LANG] =                 {"Isttemperatur",                                              "Actual Temperature"}; 
+const char* ACT_TEMP_C[MAX_LANG] =               {"Isttemperatur °C",                                           "Actual Temperature °C"}; 
+const char* HC1_OPMODE[MAX_LANG] =               {"HK1-Betriebsart",                                            "HC1 Operation Mode"}; 
+const char* HC2_OPMODE[MAX_LANG] =               {"HK2-Betriebsart",                                            "HC2 Operation Mode"}; 
+const char* WW_OPMODE[MAX_LANG] =                {"WW-Betriebsart",                                             "WW Operation Mode"}; 
+const char* ON[MAX_LANG] =                       {"EIN",                                                        "ON"}; 
+const char* OFF[MAX_LANG] =                      {"AUS",                                                        "OFF"};
+const char* OK[MAX_LANG] =                       {"OK",                                                         "OK"};
+const char* ERROR[MAX_LANG] =                    {"FEHLER",                                                     "ERROR"};
+const char* ERROR_FLAGS[MAX_LANG] =              {"Fehlermeldungen",                                            "Error Flags"};
+const char* BURNER[MAX_LANG] =                   {"Brenner",                                                    "Burner"}; 
+const char* HC1_PUMP[MAX_LANG] =                 {"HK1-Umwälzpumpe",                                            "HC1 Flow Pump"};
+const char* HC2_PUMP[MAX_LANG] =                 {"HK2-Umwälzpumpe",                                            "HC2 Flow Pump"}; 
+const char* WW[MAX_LANG] =                       {"Warmwasser",                                                 "Warm Water"}; 
+const char* BURNER_TEMP[MAX_LANG] =              {"Kessel-Vorlauf",                                             "Boiler Temperatures"};
+const char* HC1_FLOW[MAX_LANG] =                 {"HK1-Vorlauf",                                                "HC1 Flow Temperatures"};
+const char* HC2_FLOW[MAX_LANG] =                 {"HK2-Vorlauf",                                                "HC2 Flow Temperatures"};
+const char* WIFI_INFO[MAX_LANG] =                {"WiFi-Information",                                           "WiFi-Informations"};
+const char* WIFI_IP[MAX_LANG] =                  {"IP-Adresse",                                                 "IP-Address"};
+const char* HC1[MAX_LANG] =                      {"Heizkreis 1",                                                "Heating Circuit 1"};
+const char* HC2[MAX_LANG] =                      {"Heizkreis 2",                                                "Heating Circuit 2"};
+const char* HC[MAX_LANG] =                       {"Heizkreise",                                                 "Heating Circuits"};
+const char* GENERAL[MAX_LANG] =                  {"Allgemeine Werte",                                           "General Values"};
+const char* SW_VERSION[MAX_LANG] =               {"Software-Version",                                           "Software-Version"};
+const char* LOGAMATIC_VERSION[MAX_LANG] =        {"Logamatic-Version",                                          "Logamatic-Version"};
+const char* LOGAMATIC_MODUL[MAX_LANG] =          {"Logamatic-Modul",                                            "Logamatic-Module"};
+const char* VERSION_INFO[MAX_LANG] =             {"Versionsinformationen",                                      "Version Informations"};
+const char* HC1_PRG[MAX_LANG] =                  {"HK1-Programm",                                               "HC1 Program"}; 
+const char* HC2_PRG[MAX_LANG] =                  {"HK2-Programm",                                               "HC2 Program"};
+const char* INFO_SUMMER1[MAX_LANG] =             {"Umschalttemperatur zwischen Sommer / Winter",                "Threshold to switch between Summer/Winter"};
+const char* INFO_SUMMER2[MAX_LANG] =             {"9:Sommer | 10..30:Schwelle (°C) | 31:Winter",                "9:Sommer | 10..30:Threshold (°C) | 31:Winter"};
+const char* INFO_FROST[MAX_LANG] =               {"Umschalttemperatur Frostschutz",                             "Threshold for Frostprotection"};
+const char* INFO_DESIGNTEMP[MAX_LANG] =          {"Auslegungstemperatur Heizkennlinie",                         "Designtemperature for heating curve"};
+const char* INFO_SWITCHOFF[MAX_LANG] =           {"Umschaltschwelle für Absenkung Aussenhalt",                  "Threshold for reduction mode"};
+const char* INFO_WWTEMP[MAX_LANG] =              {"Solltemperatur für Warmwasser",                              "Setpoint for Wot-Water"};
+const char* INFO_UNIT_C[MAX_LANG] =              {"Einheit: °C",                                                "Unit: °C"};
+const char* INFO_WW_PUMP_CIRC1[MAX_LANG] =       {"Anzahl der Zyklen pro Stunde",                               "count of operation cycles per hour"};
+const char* INFO_WW_PUMP_CIRC2[MAX_LANG] =       {"0:AUS | 1..6: Zyklen/Stunde | 7:EIN",                        "0:OFF | 1..6: cycles/hour | 7:ON"};
+const char* OILMETER[MAX_LANG] =                 {"Ölzähler",                                                   "Oil-Meter"};
+const char* INFO_UNIT_L[MAX_LANG] =              {"Einheit: Liter",                                             "Unit: Litre"};
+const char* OILMETER_ACT[MAX_LANG] =             {"Ölzählerstand",                                              "Oil-Meter value"};
+const char* BUTTON_SET[MAX_LANG] =               {"setzen",                                                     "set"};
+const char* BUTTON_NTP[MAX_LANG] =               {"setzen NTP",                                                 "set NTP"};
+const char* BUTTON_DTI[MAX_LANG] =               {"setzen manuell",                                             "set manually"};
+const char* VOLTAGE[MAX_LANG] =                  {"Spannung",                                                   "Voltage"};
+const char* ESP_HEAPSIZE[MAX_LANG] =             {"ESP HeapSize",                                               "ESP HeapSize"};
+const char* ESP_FREEHEAP[MAX_LANG] =             {"ESP FreeHeap",                                               "ESP FreeHeap"};
+const char* ESP_MAXALLOCHEAP[MAX_LANG] =         {"ESP MaxAllocHeap",                                           "ESP MaxAllocHeap"};
+const char* ESP_MINFREEHEAP[MAX_LANG] =          {"ESP MinFreeHeap",                                            "ESP MinFreeHeap"};
+const char* SYSINFO[MAX_LANG] =                  {"Systeminformationen",                                        "System Informations"};
+const char* ALARM[MAX_LANG] =                    {"Alarme",                                                     "Alarms"};
+const char* ALARMINFO[MAX_LANG] =                {"letzte Alarm Meldungen",                                     "latest Alarm Messages"};
+const char* MESSAGE[MAX_LANG] =                  {"Meldung",                                                    "Message"};
+const char* ESP_INFO[MAX_LANG] =                 {"ESP-Info",                                                   "ESP-Info"};
+const char* OPERATION[MAX_LANG] =                {"Betrieb",                                                    "Operation"};
+const char* LIFETIMES[MAX_LANG] =                {"Laufzeiten",                                                 "Runtimes"};
+const char* LIMITS[MAX_LANG] =                   {"Grenzwerte",                                                 "Limits"};
+const char* DATETIME[MAX_LANG] =                 {"Datum und Uhrzeit",                                          "Date and Time"};
+const char* DATE[MAX_LANG] =                     {"Datum",                                                      "Date"};
+const char* TIME[MAX_LANG] =                     {"Uhrzeit",                                                    "Time"};
+const char* LOGAMATIC[MAX_LANG] =                {"Logamatic",                                                  "Logamatic"};
+const char* WIFI[MAX_LANG] =                     {"WiFi",                                                       "WiFi"};
+const char* SSID[MAX_LANG] =                     {"SSID",                                                       "SSID"};
+const char* PASSWORD[MAX_LANG] =                 {"Passwort",                                                   "Password"};
+const char* USER[MAX_LANG] =                     {"Benutzer",                                                   "Benutzer"};
+const char* HOSTNAME[MAX_LANG] =                 {"Hostname",                                                   "Hostname"};
+const char* SERVER[MAX_LANG] =                   {"Server",                                                     "Server"};
+const char* TOPIC[MAX_LANG] =                    {"Topic",                                                      "Topic"};
+const char* MQTT[MAX_LANG] =                     {"MQTT",                                                       "MQTT"};
+const char* PORT[MAX_LANG] =                     {"Port",                                                       "Port"};
+const char* NTP[MAX_LANG] =                      {"NTP-Server",                                                 "NTP-Server"};
+const char* NTP_TZ[MAX_LANG] =                   {"Time-Zone",                                                  "Time-Zone"};
+const char* SPRACHE[MAX_LANG] =                  {"Sprache",                                                    "Sprache"};
+const char* GPIO[MAX_LANG] =                     {"GPIO-Zuweisung",                                             "GPIO-Settings"};
+const char* LED_WIFI[MAX_LANG] =                 {"LED-WiFi",                                                   "LED-WiFi"};
+const char* LED_HEARTBEAT[MAX_LANG] =            {"LED-Heartbeat",                                              "LED-Heartbeat"};
+const char* LED_LOGMODE[MAX_LANG] =              {"LED-Logmode",                                                "LED-Logmode"};
+const char* LED_OILCOUNTER[MAX_LANG] =           {"LED-Ölzähler",                                               "LED-Oilcounter"};
+const char* TRIG_OILCOUNTER[MAX_LANG] =          {"Impuls-Ölzähler",                                            "Trigger-Oilcounter"};
+const char* KM271_TX[MAX_LANG] =                 {"KM271-TX",                                                   "KM271-TX"};
+const char* KM271_RX[MAX_LANG] =                 {"KM271-RX",                                                   "KM271-RX"};
+const char* WEBUI[MAX_LANG] =                    {"Webserver",                                                  "Webserver"};
+const char* SAVE_RESTART[MAX_LANG] =             {"Speichern und Neustart",                                     "save and restart"};
+const char* OIL_HARDWARE[MAX_LANG] =             {"Ölzähler Hardware",                                          "Oilmeter Hardware"};
+const char* OIL_VIRTUAL[MAX_LANG] =              {"Ölzähler virtuell",                                          "Oilmeter virtual"};
+const char* OIL_PAR1_KG_H[MAX_LANG] =            {"Verbrauch Kg/h",                                             "consumption Kg/h"};
+const char* OIL_PAR2_KG_L[MAX_LANG] =            {"Öl-Dichte Kg/L",                                             "oil density Kg/L"};
+const char* WIFI_AP_INFO_1[MAX_LANG] =           {"\n⚠️ um den ESP in den Accesspoint Mode zu versetzen ⚠️",      "\n⚠️ to set the ESP in Accesspoint Mode ⚠️"};
+const char* WIFI_AP_INFO_2[MAX_LANG] =           {"Reset drücken und nach 5s erneut Reset drücken",             "press reset and after 5s press reset again"};
+const char* LANGUAGE[MAX_LANG] =                 {"Sprache",                                                    "Language"};
+const char* PREDEFINE[MAX_LANG] =                {"Voreinstellung",                                             "Predefine"};
+const char* GPIO_UNUSED[MAX_LANG] =              {"⚠️ \"-1\" = unbenutzt ⚠️",                                     "⚠️ \"-1\" = unused ⚠️"};
+const char* OTA_1[MAX_LANG] =                    {"OTA Firmware Update",                                        "OTA Firmware Update"};
+const char* OTA_2[MAX_LANG] =                    {"Für OTA Update gehe zu: ",                                   "for OTA update go to: "};
 } s_webui_texts; 
 
 
@@ -422,111 +457,133 @@ const char* ERR_BUFF_4[MAX_LANG]                =    {"Fehlerspeicher4",        
 
 // ======================================================================================
 // decription for encode different config value arrays
+// 1. GERMAN
+// 2. ENGLISH
 // ======================================================================================
-#if LANG==0 // GERMAN
 typedef struct {
-const char* OPMODE[3]={"Nacht", "Tag", "Automatik"};
-const char* SCREEN[4]={"Automatik", "Kessel", "Warmwasser", "Aussen"};
-const char* LANGUAGE[6]={"DE", "FR", "IT", "NL", "EN", "PL"};
-const char* REDUCT_MODE[4]={"Abschalt", "Reduziert", "Raumhalt", "Aussenhalt"};
-const char* SUMMER[23]={"Sommer","10 °C","11 °C","12 °C","13 °C","14 °C","15 °C","16 °C","17 °C","18 °C","19 °C","20 °C","21 °C","22 °C","23 °C","24 °C","25 °C","26 °C","27 °C","28 °C","29 °C","30 °C","Winter"};
-const char* SWITCH_ON_TEMP[11]={"Aus","1","2","3","4","5","6","7","8","9","10"};
-const char* HEATING_SYSTEM[4]={"Aus","Heizkoerper","-","Fussboden"};
-const char* ON_OFF[2]={"Aus","An"};
-const char* BUILDING_TYPE[3]={"Leicht","Mittel","Schwer"};
-const char* CIRC_INTERVAL[8]={"Aus","1","2","3","4","5","6","An"};
-const char* BURNER_TYPE[3]={"1-stufig","2-stufig","Modulierend"};
-const char* EXHAUST_GAS_THRESHOLD[42]={"Aus","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250"};
-const char* HC_PROGRAM[9]={"Eigen","Familie","Frueh","Spaet","Vormittag","Nachmittag","Mittag","Single","Senior"};
-const char* BURNER_STATE[5]={"Kessel AUS", "EIN (Stufe 1)", "-", "-", "EIN (Stufe 2)"};
+    const char* OPMODE[MAX_LANG][3]={
+        {"Nacht", "Tag", "Automatik"},
+        {"night", "day", "auto"}
+    };
+    const char* SCREEN[MAX_LANG][4]={
+        {"Automatik", "Kessel", "Warmwasser", "Aussen"},
+        {"auto", "boiler", "DHW", "outdoor"}
+    };
+    const char* LANGUAGE[MAX_LANG][6]={
+        {"DE", "FR", "IT", "NL", "EN", "PL"},
+        {"DE", "FR", "IT", "NL", "EN", "PL"}
+    };
+    const char* REDUCT_MODE[MAX_LANG][4]={
+        {"Abschalt", "Reduziert", "Raumhalt", "Aussenhalt"},
+        {"off", "fixed", "room", "outdoors"}
+    };
+    const char* SUMMER[MAX_LANG][23]={
+        {"Sommer","10 °C","11 °C","12 °C","13 °C","14 °C","15 °C","16 °C","17 °C","18 °C","19 °C","20 °C","21 °C","22 °C","23 °C","24 °C","25 °C","26 °C","27 °C","28 °C","29 °C","30 °C","Winter"},
+        {"summer","10 °C","11 °C","12 °C","13 °C","14 °C","15 °C","16 °C","17 °C","18 °C","19 °C","20 °C","21 °C","22 °C","23 °C","24 °C","25 °C","26 °C","27 °C","28 °C","29 °C","30 °C","winter"}
+    };
+    const char* SWITCH_ON_TEMP[MAX_LANG][11]={
+        {"Aus","1","2","3","4","5","6","7","8","9","10"},
+        {"off","1","2","3","4","5","6","7","8","9","10"}
+    };
+    const char* HEATING_SYSTEM[MAX_LANG][4]={
+        {"Aus","Heizkoerper","-","Fussboden"},
+        {"off","radiator","-","underfloor"}
+    };
+    const char* ON_OFF[2][2]={
+        {"Aus","An"},
+        {"off","on"}
+    };
+    const char* BUILDING_TYPE[MAX_LANG][3]={
+        {"Leicht","Mittel","Schwer"},
+        {"light","medium","heavy"}
+    };
+    const char* CIRC_INTERVAL[MAX_LANG][8]={
+        {"Aus","1","2","3","4","5","6","An"},
+        {"off","1","2","3","4","5","6","on"}
+    };
+    const char* BURNER_TYPE[MAX_LANG][3]={
+        {"1-stufig","2-stufig","Modulierend"},
+        {"1-stage","2-stage","modulated"}
+    };
+    const char* EXHAUST_GAS_THRESHOLD[MAX_LANG][42]={
+        {"Aus","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250"},
+        {"off","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250"}
+    };
+    const char* HC_PROGRAM[MAX_LANG][9]={
+        {"Eigen","Familie","Frueh","Spaet","Vormittag","Nachmittag","Mittag","Single","Senior"},
+        {"custom","family","early","late","AM","PM","noon","single","senior"}
+    };
+    const char* BURNER_STATE[MAX_LANG][5]={
+        {"Kessel AUS", "EIN (Stufe 1)", "-", "-", "EIN (Stufe 2)"},
+        {"Burner OFF", "ON (Stage 1)", "-", "-", "ON (Stage 2)"}
+    };
 } s_cfg_arrays;
 
-#else // ENGLISH
-typedef struct {
-const char* OPMODE[3]={"night", "day", "auto"};
-const char* SCREEN[4]={"auto", "boiler", "DHW", "outdoor"};
-const char* LANGUAGE[6]={"DE", "FR", "IT", "NL", "EN", "PL"};
-const char* REDUCT_MODE[4]={"off", "fixed", "room", "outdoors"};
-const char* SUMMER[23]={"summer","10 °C","11 °C","12 °C","13 °C","14 °C","15 °C","16 °C","17 °C","18 °C","19 °C","20 °C","21 °C","22 °C","23 °C","24 °C","25 °C","26 °C","27 °C","28 °C","29 °C","30 °C","winter"};
-const char* SWITCH_ON_TEMP[11]={"off","1","2","3","4","5","6","7","8","9","10"};
-const char* HEATING_SYSTEM[4]={"off","radiator","-","underfloor"};
-const char* ON_OFF[2]={"off","on"};
-const char* BUILDING_TYPE[3]={"light","medium","heavy"};
-const char* CIRC_INTERVAL[8]={"off","1","2","3","4","5","6","on"};
-const char* BURNER_TYPE[3]={"1-stage","2-stage","modulated"};
-const char* EXHAUST_GAS_THRESHOLD[42]={"off","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250"};
-const char* HC_PROGRAM[9]={"custom","family","early","late","AM","PM","noon","single","senior"};
-const char* BURNER_STATE[5]={"Burner OFF", "ON (Stage 1)", "-", "-", "ON (Stage 2)"};
-} s_cfg_arrays;
-#endif
 
 // ======================================================================================
 // decription for encode error messages
 // ======================================================================================
-#if LANG==0 // GERMAN
 typedef struct {
-const char* idx[28] = {
-                        "Kein Fehler",
-                        "Aussenfuehler defekt",
-                        "HK1-Vorlauffuehler defekt",
-                        "HK2-Vorlauffuehler defekt",
-                        "Warmwasserfuehler defekt",
-                        "Warmwasser bleibt kalt",
-                        "Stoerung thermische Desinfektion",
-                        "HK1-Fernbedienung defekt",
-                        "HK2-Fernbedienung defekt",
-                        "Keine Kommunikation mit HK1-Fernbedienung",
-                        "Keine Kommunikation mit HK2-Fernbedienung",
-                        "Stoerung Brenner 1",
-                        "Keine Verbindung mit Kessel 1",
-                        "Interner Fehler Nr. 1",
-                        "Interner Fehler Nr. 2",
-                        "Interner Fehler Nr. 3",
-                        "Interner Fehler Nr. 4",
-                        "Kesselvorlauffuehler defekt",
-                        "Kesselzusatzfuehler defekt",
-                        "Kessel bleibt kalt",
-                        "Stoerung Brenner",
-                        "Stoerung Sicherheitskette",
-                        "Externe Stoerung Kessel",
-                        "Abgasfuehler defekt",
-                        "Abgasgrenze ueberschritten",
-                        "Ruecklauffuehler defekt",
-                        "RESET",
-                        "unbekannter Fehler"
-                        };
+    const char* idx[2][28] = {
+        {   // GERMAN
+            "Kein Fehler",
+            "Aussenfuehler defekt",
+            "HK1-Vorlauffuehler defekt",
+            "HK2-Vorlauffuehler defekt",
+            "Warmwasserfuehler defekt",
+            "Warmwasser bleibt kalt",
+            "Stoerung thermische Desinfektion",
+            "HK1-Fernbedienung defekt",
+            "HK2-Fernbedienung defekt",
+            "Keine Kommunikation mit HK1-Fernbedienung",
+            "Keine Kommunikation mit HK2-Fernbedienung",
+            "Stoerung Brenner 1",
+            "Keine Verbindung mit Kessel 1",
+            "Interner Fehler Nr. 1",
+            "Interner Fehler Nr. 2",
+            "Interner Fehler Nr. 3",
+            "Interner Fehler Nr. 4",
+            "Kesselvorlauffuehler defekt",
+            "Kesselzusatzfuehler defekt",
+            "Kessel bleibt kalt",
+            "Stoerung Brenner",
+            "Stoerung Sicherheitskette",
+            "Externe Stoerung Kessel",
+            "Abgasfuehler defekt",
+            "Abgasgrenze ueberschritten",
+            "Ruecklauffuehler defekt",
+            "RESET",
+            "unbekannter Fehler"
+        },
+        {   // ENGLISH
+            "no error",
+            "failure outdoor sensor",
+            "failure hc1-flow sensor",
+            "failure hc1-flow sensor",
+            "failure warm water sensor",
+            "Warmwasser bleibt kalt",
+            "Fault thermal disinfection",
+            "Fault hc1-remotecontrol",
+            "Fault hc1-remotecontrol",
+            "no communication to hc1-remote control",
+            "no communication to hc1-remote control",
+            "Fault Burner 1",
+            "no connection with boiler 1",
+            "internal Error Nr. 1",
+            "internal Error Nr. 2",
+            "internal Error Nr. 3",
+            "internal Error Nr. 4",
+            "failure Boiler flow sensor",
+            "failure Boiler auxiliary sensor",
+            "Boiler remains cold",
+            "Fault Burner",
+            "Fault safety chain",
+            "External fault boiler",
+            "failure Exhaust gas sensor",
+            "Exhaust limit exceeded",
+            "failure Return flow sensor",
+            "RESET",
+            "unknown error"
+        }
+    };
 } s_err_array;
-#else // ENGLISH
-typedef struct {
-const char* idx[28] = {
-                        "no error",
-                        "failure outdoor sensor",
-                        "failure hc1-flow sensor",
-                        "failure hc1-flow sensor",
-                        "failure warm water sensor",
-                        "Warmwasser bleibt kalt",
-                        "Fault thermal disinfection",
-                        "Fault hc1-remotecontrol",
-                        "Fault hc1-remotecontrol",
-                        "no communication to hc1-remote control",
-                        "no communication to hc1-remote control",
-                        "Fault Burner 1",
-                        "no connection with boiler 1",
-                        "internal Error Nr. 1",
-                        "internal Error Nr. 2",
-                        "internal Error Nr. 3",
-                        "internal Error Nr. 4",
-                        "failure Boiler flow sensor",
-                        "failure Boiler auxiliary sensor",
-                        "Boiler remains cold",
-                        "Fault Burner",
-                        "Fault safety chain",
-                        "External fault boiler",
-                        "failure Exhaust gas sensor",
-                        "Exhaust limit exceeded",
-                        "failure Return flow sensor",
-                        "RESET",
-                        "unknown error"
-                        };
-} s_err_array;
-#endif

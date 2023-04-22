@@ -1,21 +1,26 @@
 
+#include <config.h>
 #include <basics.h>
 #include <mqtt.h>
 #include <km271.h>
 #include <webUI.h>
 #include <oilmeter.h>
 
-
-
+// Double-Reset-Detector
+#define ESP_DRD_USE_LITTLEFS    true
+#define DRD_TIMEOUT 10
+#define DRD_ADDRESS 0
+#include <ESP_DoubleResetDetector.h>
+DoubleResetDetector* drd;
 
 /* D E C L A R A T I O N S ****************************************************/  
-muTimer mainTimer = muTimer();    // timer for cyclic info
-muTimer heartbeat = muTimer();    // timer for heartbeat signal
-muTimer dstTimer = muTimer();     // timer to check daylight saving time change
-
+muTimer mainTimer = muTimer();        // timer for cyclic info
+muTimer heartbeat = muTimer();        // timer for heartbeat signal
+muTimer setupModeTimer = muTimer();   // timer for heartbeat signal
+muTimer dstTimer = muTimer();         // timer to check daylight saving time change
 
 bool main_reboot = true;        // reboot flag
-int dst_old;                    // reminder for change of daylight saving time 
+int dst_old;                    // reminder for change of daylight saving time
 
 /**
  * *******************************************************************
@@ -24,9 +29,9 @@ int dst_old;                    // reminder for change of daylight saving time
  * @return  none
  * *******************************************************************/
 void storeData(){
-  #ifdef USE_OILMETER
+  if (config.oilmeter.use_hardware_meter) {
     cmdStoreOilmeter();
-  #endif
+  }
 }
 
 /**
@@ -37,37 +42,49 @@ void storeData(){
  * *******************************************************************/
 void setup()
 {
-  // basic setup function (WiFi, OTA)
-  basic_setup();
-
-  // MQTT
-  mqttSetup();
-
   //Enable serial port
   Serial.begin(115200);
   while(!Serial) {} // Wait
 
-  pinMode(LED_WIFI, OUTPUT);        // LED for Wifi-Status
-  pinMode(LED_HEARBEAT, OUTPUT);    // LED for heartbeat
-  pinMode(LED_LOGMODE, OUTPUT);     // LED for LogMode-Status
+  // check for double reset
+  drd = new DoubleResetDetector(DRD_TIMEOUT, DRD_ADDRESS);
+  if (drd->detectDoubleReset())
+  {
+    setupMode = true;
+  }
+
+  // initial configuration
+  configSetup();
+
+  // basic setup function (WiFi, OTA)
+  basic_setup();
+
+  // MQTT
+  if (config.mqtt.enable && !setupMode) {
+    mqttSetup();
+  }
 
   // send initial WiFi infos
-  sendWiFiInfo();
-
+  if (!setupMode) {
+    sendWiFiInfo();
+  }
+  
   // setup for km271
-  km271ProtInit(RXD2, TXD2);
+  if (!setupMode) {
+    km271ProtInit(config.gpio.km271_RX, config.gpio.km271_TX);
+  }
 
   // setup Oilmeter
-  #ifdef USE_OILMETER
+  if (config.oilmeter.use_hardware_meter && !setupMode) {
     setupOilmeter();
-  #endif
+  }
 
   // webUI Setup
-  #ifdef USE_WEBUI
-    webUISetup(); 
-  #endif
+  if (config.webUI.enable) { 
+    webUISetup();
+  }
 
-}
+} 
 
 /**
  * *******************************************************************
@@ -77,42 +94,62 @@ void setup()
  * *******************************************************************/
 void loop()
 {
-  // WiFi + MQTT
-  check_wifi();
-  mqttCyclic();
 
-  // LED for WiFi connected
-  digitalWrite(LED_WIFI, WiFi.status() != WL_CONNECTED); // (true=LED off)
-  // LED for KM271 LogMode active
-  digitalWrite(LED_LOGMODE, !km271GetLogMode()); // (true=LED off)
-  // LED for heartbeat
-  digitalWrite(LED_HEARBEAT, heartbeat.cycleOnOff(1000,1000));
+  // double reset detector
+  drd->loop();
 
-  // OTA Update
-  ArduinoOTA.handle();
+  // chck WiFi
+  if (!setupMode) {
+    check_wifi();
+  }
+
+  // chck MQTT
+  if (config.mqtt.enable && !setupMode) {
+    mqttCyclic();
+  }
+
+  
+  if (setupMode){
+    // LED to Signal Setup-Mode
+    digitalWrite(LED_BUILTIN, setupModeTimer.cycleOnOff(100,500));
+    digitalWrite(21, setupModeTimer.cycleOnOff(100,500));
+  }
+  else {
+    // LED for WiFi connected
+    if (config.gpio.led_wifi != -1)
+      digitalWrite(config.gpio.led_wifi, WiFi.status() != WL_CONNECTED); // (true=LED off)
+    // LED for KM271 LogMode active
+    if (config.gpio.led_logmode != -1)
+      digitalWrite(config.gpio.led_logmode, !km271GetLogMode()); // (true=LED off)
+    // LED for heartbeat
+    if (config.gpio.led_heartbeat != -1)
+      digitalWrite(config.gpio.led_heartbeat, heartbeat.cycleOnOff(1000,1000));
+  }
 
   // cyclic call for KM271
-  cyclicKM271();
+  if (!setupMode) {
+    cyclicKM271();
+  }
 
   // cyclic Oilmeter
-  #ifdef USE_OILMETER
+  if (config.oilmeter.use_hardware_meter && !setupMode) {
     cyclicOilmeter();
-  #endif
+  }
 
   // send cyclic infos
-  if (mainTimer.cycleTrigger(10000))
+  if (mainTimer.cycleTrigger(10000) && !setupMode)
   {
     sendWiFiInfo();
     sendKM271Info();
     sendKM271Debug();
   }
 
-  #ifdef USE_WEBUI
+  if (config.webUI.enable) {
     webUICylic(); // call webUI
-  #endif
+  }
 
   // check every hour if DST has changed
-  #ifdef USE_NTP
+  if (config.ntp.enable) {
     if (dstTimer.cycleTrigger(3600000))
     {
       time_t now;                       
@@ -124,7 +161,7 @@ void loop()
       }
       dst_old=dti.tm_isdst;    
     }
-  #endif
+  }
 
 
   main_reboot = false; // reset reboot flag

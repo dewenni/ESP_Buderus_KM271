@@ -9,8 +9,9 @@
 // include extern
 #include <Arduino.h>
 #include <SPI.h>
-#include <ArduinoOTA.h> 
+#include <WiFi.h>
 #include <ArduinoJson.h>
+#include <ESPmDNS.h>
 #include <muTimer.h>
 
 
@@ -21,6 +22,7 @@ typedef struct {
   char ipAddress[20];
 } s_wifi;
 extern s_wifi wifi;
+
 
 /* P R O T O T Y P E S ********************************************************/ 
 void check_wifi();
@@ -34,4 +36,5 @@ const char* uint8ToString(uint8_t value);
 const char* uint64ToString(uint64_t value);
 const char* int8ToString(int8_t value);
 const char* floatToString(float value);
+const char* floatToString4(float value);
 const char* doubleToString(double value);
