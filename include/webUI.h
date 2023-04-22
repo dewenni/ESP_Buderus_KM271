@@ -311,6 +311,9 @@ uint16_t general_config;
 uint16_t general_temp;
 uint16_t general_limits;
 uint16_t alarm;
+uint16_t system_wifi;
+uint16_t system_esp;
+uint16_t system_version;
 } s_webui_id_tables;
 
 typedef struct {

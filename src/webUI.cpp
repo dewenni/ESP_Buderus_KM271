@@ -601,6 +601,7 @@ void addAlarmTab(){
   id.tab.alarm = ESPUI.addControl(Tab, "", webText.ALARM[config.lang], ControlColor::None, 0, generalCallback);
   auto alarmGroup = addGroupHelper(webText.ALARMINFO[config.lang], Dark, id.tab.alarm);
   id.tables.alarm = addEmtyElement(alarmGroup);
+  ESPUI.setPanelWide(alarmGroup, true);
 }
 
 /**
@@ -611,22 +612,15 @@ void addSystemTab(){
   id.tab.system = ESPUI.addControl(Tab, "", webText.SYSTEM[config.lang], ControlColor::None, 0, generalCallback);
   
   auto wiFiGroup = addGroupHelper(webText.WIFI_INFO[config.lang], Dark, id.tab.system);
-  id.sys.wifiIP      = addGroupValueHelper(webText.WIFI_IP[config.lang], "--", "", wiFiGroup);
-  id.sys.wifiSignal  = addGroupValueHelper("WiFi-Signal", "--", "%", wiFiGroup);
-  id.sys.wifiRssi    = addGroupValueHelper("WiFi-Rssi", "--", "dbm", wiFiGroup);
+  id.tables.system_wifi = addEmtyElement(wiFiGroup);
 
   auto versionGroup = addGroupHelper(webText.VERSION_INFO[config.lang], Dark, id.tab.system);
-  id.sys.sw_version         = addGroupValueHelper(webText.SW_VERSION[config.lang], "--", "", versionGroup);
-  id.sys.logamatic_version  = addGroupValueHelper(webText.LOGAMATIC_VERSION[config.lang], "--", "", versionGroup);
-  id.sys.logamatic_modul    = addGroupValueHelper(webText.LOGAMATIC_MODUL[config.lang], "--", "", versionGroup);
+  id.tables.system_version = addEmtyElement(versionGroup);
 
   ESPUI.addControl(ControlType::Separator, "", "", ControlColor::None, id.tab.system);
 
   auto EspGroup = addGroupHelper(webText.ESP_INFO[config.lang], Dark, id.tab.system);
-  id.sys.espHeapSize        = addGroupValueHelper(webText.ESP_HEAPSIZE[config.lang], "--", "KB", EspGroup);
-  id.sys.espFreeHeap        = addGroupValueHelper(webText.ESP_FREEHEAP[config.lang], "--", "KB", EspGroup);
-  id.sys.espMaxAllocHeap    = addGroupValueHelper(webText.ESP_MAXALLOCHEAP[config.lang], "--", "KB", EspGroup);
-  id.sys.espMinFreeHeap     = addGroupValueHelper(webText.ESP_MINFREEHEAP[config.lang], "--", "KB", EspGroup);
+  id.tables.system_esp = addEmtyElement(EspGroup);
 
   auto dateTimeGroup = addGroupHelper(webText.DATETIME[config.lang], Dark, id.tab.system);
   
@@ -753,8 +747,10 @@ void webUISetup(){
   memset(&kmConfigNumCpy, 0, sizeof(s_km271_config_num));
   memset(&kmConfigStrCpy, 0, sizeof(s_km271_config_num));
 
-  // add additional css styles
-  ESPUI.setPanelStyle(ESPUI.addControl(ControlType::Label, "CUSTOM CSS INJECTION", CUSTOM_CSS, ControlColor::None, 0), "display: none");
+  // add additional css styles to a hidden label
+  ESPUI.setPanelStyle(ESPUI.label("CUSTOM CSS INJECTION", ControlColor::None, CUSTOM_CSS), "display: none");
+  
+  // Log-Mode
   ESPUI.setVerbosity(Verbosity::Verbose);
 
   if (setupMode){
@@ -937,7 +933,6 @@ void updateStatusValues(){
     addElement(km271StatTopics.HC1_OV2_FLOW_SENS_ERR[config.lang],  errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 4)));
     addElement(km271StatTopics.HC1_OV2_FLOW_AT_MAX[config.lang],    errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 5)));
     addElement(km271StatTopics.HC1_OV2_EXT_SENS_ERR[config.lang],   errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 6))); 
-    
     updateElements(id.tables.hc1_bw2);
 
   }
@@ -1114,11 +1109,6 @@ void updateStatusValues(){
   ESPUI.updateLabel(id.dash.burnerSetTemp,  uint8ToString(kmStatusCpy.BoilerForwardTargetTemp));
   ESPUI.updateLabel(id.dash.burnerActTemp,  uint8ToString(kmStatusCpy.BoilerForwardActualTemp));
 
-  // Logamatic Version
-  snprintf(tmpMessage, sizeof(tmpMessage), "%i.%i", kmStatusCpy.ControllerVersionMain, kmStatusCpy.ControllerVersionSub);
-  ESPUI.updateLabel(id.sys.logamatic_version, tmpMessage);
-  ESPUI.updateLabel(id.sys.logamatic_modul, uint8ToString(kmStatusCpy.Modul));
-
   // Burner Status
   if (kmStatusCpy.BurnerStates==0)
     snprintf(tmpMessage, sizeof(tmpMessage), "%s  ⚪️", webText.OFF[config.lang]);
@@ -1265,7 +1255,6 @@ void updateConfigValues(){
     addElement(km271CfgTopics.WW_OPMODE[config.lang], kmConfigStrCpy.ww_operation_mode);
     addElement(km271CfgTopics.WW_PROCESSING[config.lang], kmConfigStrCpy.ww_processing);
     addElement(km271CfgTopics.WW_CIRCULATION[config.lang], kmConfigStrCpy.ww_circulation);
-    
     updateElements(id.tables.ww_config);
 
     // update control elements
@@ -1281,7 +1270,6 @@ void updateConfigValues(){
   addElement(km271CfgTopics.SCREEN[config.lang], kmConfigStrCpy.display);
   addElement(km271CfgTopics.TIME_OFFSET[config.lang], kmConfigStrCpy.time_offset);
   addElement(km271CfgTopics.BURNER_TYP[config.lang], kmConfigStrCpy.burner_type);
-  
   updateElements(id.tables.general_config);
 
   // table: general values - limits
@@ -1303,17 +1291,27 @@ void updateConfigValues(){
 void updateSystemInfo(){
   
   // WiFi
-  ESPUI.updateLabel(id.sys.wifiIP, wifi.ipAddress);
-  ESPUI.updateLabel(id.sys.wifiSignal, uint8ToString(wifi.signal));
-  ESPUI.updateLabel(id.sys.wifiRssi,    int8ToString(wifi.rssi));
+  initElements();
+  addElementUnit(webText.WIFI_IP[config.lang],   wifi.ipAddress, "");
+  addElementUnit("WiFi-Signal",   uint8ToString(wifi.signal), "%");
+  addElementUnit("WiFi-Rssi",   int8ToString(wifi.rssi), "dbm");
+  updateElements(id.tables.system_wifi);
 
-  ESPUI.updateLabel(id.sys.sw_version, VERSION);       
+  // Version informations
+  initElements();
+  addElement(webText.SW_VERSION[config.lang], VERSION);
+  snprintf(tmpMessage, sizeof(tmpMessage), "%i.%i", kmStatusCpy.ControllerVersionMain, kmStatusCpy.ControllerVersionSub);
+  addElement(webText.LOGAMATIC_VERSION[config.lang], tmpMessage);
+  addElement(webText.LOGAMATIC_MODUL[config.lang], uint8ToString(kmStatusCpy.Modul));
+  updateElements(id.tables.system_version);  
 
   // ESP informations
-  ESPUI.updateLabel(id.sys.espHeapSize,     floatToString((float)ESP.getHeapSize()/1000.0));
-  ESPUI.updateLabel(id.sys.espFreeHeap,     floatToString((float)ESP.getFreeHeap()/1000.0));
-  ESPUI.updateLabel(id.sys.espMaxAllocHeap, floatToString((float)ESP.getMaxAllocHeap()/1000.0));
-  ESPUI.updateLabel(id.sys.espMinFreeHeap,  floatToString((float)ESP.getMinFreeHeap()/1000.0));
+  initElements();
+  addElementUnit(webText.ESP_HEAPSIZE[config.lang],floatToString((float)ESP.getHeapSize()/1000.0), "KB");
+  addElementUnit(webText.ESP_FREEHEAP[config.lang], floatToString((float)ESP.getFreeHeap()/1000.0), "KB");
+  addElementUnit(webText.ESP_MAXALLOCHEAP[config.lang], floatToString((float)ESP.getMaxAllocHeap()/1000.0), "KB");
+  addElementUnit(webText.ESP_MINFREEHEAP[config.lang], floatToString((float)ESP.getMinFreeHeap()/1000.0), "KB");
+  updateElements(id.tables.system_esp);
 
   // Date and Time
   if (config.ntp.enable) {
@@ -1342,11 +1340,11 @@ void updateAlarmTab(){
     snprintf(alarmLabel4, sizeof(alarmLabel4), "⚠️ %s 4", webText.MESSAGE[config.lang]);
 
     initElements();
-    addElement(alarmLabel1, kmAlarmMsgCpy.alarm1);  
-    addElement(alarmLabel2, kmAlarmMsgCpy.alarm2);
-    addElement(alarmLabel3, kmAlarmMsgCpy.alarm3);
-    addElement(alarmLabel4, kmAlarmMsgCpy.alarm4);
-    updateElements(id.tables.general_limits);
+    addElementWide(alarmLabel1, kmAlarmMsgCpy.alarm1);  
+    addElementWide(alarmLabel2, kmAlarmMsgCpy.alarm2);
+    addElementWide(alarmLabel3, kmAlarmMsgCpy.alarm3);
+    addElementWide(alarmLabel4, kmAlarmMsgCpy.alarm4);
+    updateElements(id.tables.alarm);
   }
 }
 
@@ -1387,6 +1385,7 @@ void updateSettingsValues(){
   ESPUI.updateText(id.settings.wifi_passw, config.wifi.password);
   ESPUI.updateText(id.settings.wifi_hostname, config.wifi.hostname);
 
+  ESPUI.updateSwitcher(id.settings.mqtt_enable, config.mqtt.enable);
   ESPUI.updateText(id.settings.mqtt_server, config.mqtt.server);
   ESPUI.updateText(id.settings.mqtt_port, uint64ToString(config.mqtt.port));
   ESPUI.updateText(id.settings.mqtt_topic, config.mqtt.topic);

@@ -116,11 +116,14 @@ void loop()
   }
   else {
     // LED for WiFi connected
-    digitalWrite(config.gpio.led_wifi, WiFi.status() != WL_CONNECTED); // (true=LED off)
+    if (config.gpio.led_wifi != -1)
+      digitalWrite(config.gpio.led_wifi, WiFi.status() != WL_CONNECTED); // (true=LED off)
     // LED for KM271 LogMode active
-    digitalWrite(config.gpio.led_logmode, !km271GetLogMode()); // (true=LED off)
+    if (config.gpio.led_logmode != -1)
+      digitalWrite(config.gpio.led_logmode, !km271GetLogMode()); // (true=LED off)
     // LED for heartbeat
-    digitalWrite(config.gpio.led_heartbeat, heartbeat.cycleOnOff(1000,1000));
+    if (config.gpio.led_heartbeat != -1)
+      digitalWrite(config.gpio.led_heartbeat, heartbeat.cycleOnOff(1000,1000));
   }
 
   // cyclic call for KM271

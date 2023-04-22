@@ -47,17 +47,17 @@ void configGPIO(){
     pinMode(25, OUTPUT);            // red LED
   }
   else {
-    if (config.gpio.led_wifi!= -1)
+    if (config.gpio.led_wifi != -1)
       pinMode(config.gpio.led_wifi, OUTPUT);        // LED for Wifi-Status
-    if (config.gpio.led_heartbeat!= -1)
+    if (config.gpio.led_heartbeat != -1)
       pinMode(config.gpio.led_heartbeat, OUTPUT);   // LED for heartbeat
-    if (config.gpio.led_logmode!= -1)
+    if (config.gpio.led_logmode != -1)
     pinMode(config.gpio.led_logmode, OUTPUT);       // LED for LogMode-Status
     
     if (config.oilmeter.use_hardware_meter){
-      if (config.gpio.trigger_oilcounter!= -1)
+      if (config.gpio.trigger_oilcounter != -1)
         pinMode(config.gpio.trigger_oilcounter, INPUT_PULLUP);    // Trigger Input
-      if (config.gpio.led_oilcounter!= -1)
+      if (config.gpio.led_oilcounter != -1)
         pinMode(config.gpio.led_oilcounter, OUTPUT);              // Status LED
     }
   }

@@ -101,15 +101,19 @@ void setupOilmeter(){
  * *******************************************************************/
 void cyclicOilmeter()
 {
-  digitalWrite(config.gpio.led_oilcounter, digitalRead(config.gpio.trigger_oilcounter));    // signal for every incomming impulse with Onboard LED
+  if (config.gpio.led_oilcounter != -1) {
+    digitalWrite(config.gpio.led_oilcounter, digitalRead(config.gpio.trigger_oilcounter));    // signal for every incomming impulse with Onboard LED
+  }
 
-  // debounce input trigger with timer function
-  bool statusTrigger = oilTrigger.delayOnOffTrigger(!digitalRead(config.gpio.trigger_oilcounter), 0, OILTRIGGER_TIME) == 1;
-  if (statusTrigger && !reboot) {
+  if (config.gpio.trigger_oilcounter != -1) {
+    // debounce input trigger with timer function
+    bool statusTrigger = oilTrigger.delayOnOffTrigger(!digitalRead(config.gpio.trigger_oilcounter), 0, OILTRIGGER_TIME) == 1;
+    if (statusTrigger && !reboot) {
       data.oilcounter = data.oilcounter + 2;            // one impulse = 0,02 litre
       writeCounter++;                                   // increase counter for writing to EEPROM
       Serial.println(data.oilcounter);
       sendOilmeter();                                   // send new Countervalue via MQTT
+    }
   }
 
   if (writeCounter >= 50)                              // save water meter every 50 counts = 1 liter)

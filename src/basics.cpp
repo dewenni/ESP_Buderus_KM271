@@ -113,15 +113,15 @@ void setup_wifi() {
   
   if (setupMode) {
     // start Accesspoint for initial setup
-    IPAddress ip(192,168,1,1);
-    IPAddress gateway(192,168,1,1); 
+    IPAddress ip(192,168,4,1);
+    IPAddress gateway(192,168,4,1); 
     IPAddress subnet(255,255,255,0);
     WiFi.softAPConfig(ip, gateway, subnet);
     WiFi.softAP("ESP-Buderus-km271");
     Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
     Serial.println("> WiFi Mode: AccessPoint <");
     Serial.println("1. connect your device to SSID: ESP-Buderus-km271");
-    Serial.println("2. open Browser and go to Address: http://192.168.1.1");
+    Serial.println("2. open Browser and go to Address: http://192.168.4.1");
     Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
   }
   else {
