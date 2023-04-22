@@ -63,9 +63,9 @@ const char* VERSION_INFO[MAX_LANG] =             {"Versionsinformationen",      
 const char* HC1_PRG[MAX_LANG] =                  {"HK1-Programm",                                               "HC1 Program"}; 
 const char* HC2_PRG[MAX_LANG] =                  {"HK2-Programm",                                               "HC2 Program"};
 const char* INFO_SUMMER1[MAX_LANG] =             {"Umschalttemperatur zwischen Sommer / Winter",                "Threshold to switch between Summer/Winter"};
-const char* INFO_SUMMER2[MAX_LANG] =             {"9:Sommer | 10..30:Schwelle (°C) | 31:Winter",                "9:Sommer | 10..30:Threshold (°C) | 31:Winter"};
+const char* INFO_SUMMER2[MAX_LANG] =             {"9:Sommer | 10..30:Schwelle (°C) | 31:Winter",                "9:Summer | 10..30:Threshold (°C) | 31:Winter"};
 const char* INFO_FROST[MAX_LANG] =               {"Umschalttemperatur Frostschutz",                             "Threshold for Frostprotection"};
-const char* INFO_DESIGNTEMP[MAX_LANG] =          {"Auslegungstemperatur Heizkennlinie",                         "Designtemperature for heating curve"};
+const char* INFO_DESIGNTEMP[MAX_LANG] =          {"Auslegungstemperatur Heizkennlinie",                         "Design Temperature for heating curve"};
 const char* INFO_SWITCHOFF[MAX_LANG] =           {"Umschaltschwelle für Absenkung Aussenhalt",                  "Threshold for reduction mode"};
 const char* INFO_WWTEMP[MAX_LANG] =              {"Solltemperatur für Warmwasser",                              "Setpoint for Wot-Water"};
 const char* INFO_UNIT_C[MAX_LANG] =              {"Einheit: °C",                                                "Unit: °C"};
@@ -97,7 +97,7 @@ const char* LOGAMATIC[MAX_LANG] =                {"Logamatic",                  
 const char* WIFI[MAX_LANG] =                     {"WiFi",                                                       "WiFi"};
 const char* SSID[MAX_LANG] =                     {"SSID",                                                       "SSID"};
 const char* PASSWORD[MAX_LANG] =                 {"Passwort",                                                   "Password"};
-const char* USER[MAX_LANG] =                     {"Benutzer",                                                   "Benutzer"};
+const char* USER[MAX_LANG] =                     {"Benutzer",                                                   "User"};
 const char* HOSTNAME[MAX_LANG] =                 {"Hostname",                                                   "Hostname"};
 const char* SERVER[MAX_LANG] =                   {"Server",                                                     "Server"};
 const char* TOPIC[MAX_LANG] =                    {"Topic",                                                      "Topic"};
@@ -105,7 +105,7 @@ const char* MQTT[MAX_LANG] =                     {"MQTT",                       
 const char* PORT[MAX_LANG] =                     {"Port",                                                       "Port"};
 const char* NTP[MAX_LANG] =                      {"NTP-Server",                                                 "NTP-Server"};
 const char* NTP_TZ[MAX_LANG] =                   {"Time-Zone",                                                  "Time-Zone"};
-const char* SPRACHE[MAX_LANG] =                  {"Sprache",                                                    "Sprache"};
+const char* SPRACHE[MAX_LANG] =                  {"Sprache",                                                    "Language"};
 const char* GPIO[MAX_LANG] =                     {"GPIO-Zuweisung",                                             "GPIO-Settings"};
 const char* LED_WIFI[MAX_LANG] =                 {"LED-WiFi",                                                   "LED-WiFi"};
 const char* LED_HEARTBEAT[MAX_LANG] =            {"LED-Heartbeat",                                              "LED-Heartbeat"};
@@ -178,7 +178,7 @@ const char* FRI[MAX_LANG]               =    {"Fr",                             
 const char* SAT[MAX_LANG]               =    {"Sa",                              "Sat"};
 const char* SUN[MAX_LANG]               =    {"So",                              "Sun"};
 const char* DAYS[MAX_LANG]              =    {"Tage",                            "days"};
-const char* HOURS[MAX_LANG]             =    {"Stunden",                         "days"};
+const char* HOURS[MAX_LANG]             =    {"Stunden",                         "hours"};
 
 const char* HC1_OPMODE_RECV[MAX_LANG]                   =    {"setvalue: hk1_betriebsart - empfangen",       "setvalue: hc1_opmode - received"};
 const char* HC1_OPMODE_INVALID[MAX_LANG]                =    {"setvalue: hk1_betriebsart - ungültig",        "setvalue: hc1_opmode - invalid"};
@@ -561,7 +561,7 @@ typedef struct {
             "failure hc1-flow sensor",
             "failure hc1-flow sensor",
             "failure warm water sensor",
-            "Warmwasser bleibt kalt",
+            "Warm Water remains col",
             "Fault thermal disinfection",
             "Fault hc1-remotecontrol",
             "Fault hc1-remotecontrol",
