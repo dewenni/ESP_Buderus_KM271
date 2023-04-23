@@ -59,8 +59,8 @@ Feel free to add more languages. The texts are located in: **[language.h](includ
 
 ## additional and optional Oilcounter / Oilmeter
 
-The project includes also an additional and optional oilcounter implementation. I have installed an Braun HZ-5 Meter to measure the oil consumtion.  
-There are diffeent models with (HZ 5R, HZ 5DR) and without pulse output (HZ 5).  
+The project includes also an additional and optional oilcounter implementation. I have installed a Braun HZ-5 Meter to measure the oil consumption.  
+There are different models with (HZ 5R, HZ 5DR) and without pulse output (HZ 5).  
 I have used the normal one without pulse output and modified it with a small reed contact - that works fine and was simple to install.
 If you are not interested in the Oil Meter function you can simple disable it in config.h
 
@@ -106,7 +106,7 @@ I have used one without potential-free contact and have subsequently attached a 
 ![braun_hz5](/Doc/oilmeter.jpeg)
 
 > ℹ️ **INFO:**  
-> but this is only optional and can be used additionally to the informations that the software will read from the Logamatic.
+> but this is only optional and can be used additionally to the Information´s that the software will read from the Logamatic.
 
 -----
 
@@ -127,7 +127,7 @@ One of them is [ESPHome-Flasher](https://github.com/esphome/esphome-flasher/rele
 ## OTA-Updates
 
 since software version 3.0, you can also update the software with the new Elegant OTA web upload.
-you can finde the link to that separate webserver in the settings tab of the normal webUI
+you can find the link to that separate webserver in the settings tab of the normal webUI.
 
 ![ota-ip](Doc/ota-ip.png)
 
@@ -159,7 +159,7 @@ After you are connected to this network, you can open the webUI on ip-address
 Here you can setup all the configuration that fits to your heating system and your infrastructure.
 
 - **WiFi**  
-enter your WiFi credentials to cennect the ESP to your network
+enter your WiFi credentials to connect the ESP to your network
 
 - **MQTT**  
 here you can activate the MQTT communication and enter mandatory parameters
@@ -167,20 +167,22 @@ All the parameters are mandatory!
 
 - **NTP Server**  
 the ESP can connect to a NTP server to get the right Time information.
-The default Time-Zone shoult fit if you are located in germany. Otherwise you can change it manually
+The default Time-Zone should fit if you are located in germany. Otherwise you can change it manually
 
 - **Logamatic**  
-here you can select, which comoments of your Logamatic should be used.
+here you can select, which components of your Logamatic should be used.
 
 - **Oilmeter**  
 here you can enable the optional hardware or virtual oilmeter.
-If you use a hardware baed oilmeter, you have to configure also to regarding gpio´s
+If you use a hardware based oilmeter, you have to configure also to regarding gpio´s.
+If you want to calculate the consumption based on the runtime, you have to configure the additional calculation parameters.
 
 - **GPIO**  
 Here you can configure the GPIO of your ESP-Board. You can use the options in the dropdown to get default values depending of the selected type of board.
 
 - **Language**  
-There are two langueges available. Choose what you prefer
+There are two languages available. Choose what you prefer.
+The language take effect on the webUI and also on the mqtt messages!
 
 - **Safe and Restart**  
 All settings are only applied after a restart
@@ -219,7 +221,7 @@ Topic: esp_heizung/status/hc1_ov1_automatic
 Payload:   1    (integer)
 ```
 
-### additional informations (read only)
+### additional information's (read only)
 
 status information about WiFi:
 
@@ -248,9 +250,9 @@ Topic: esp_heizung/info = {
 here you get the information about the last 4 Errors/Faults that are registered by the Logamatic. The payload of the values is a String.
 
 >ℹ️ **Note:**  
->A complete List of supportet values can be found in the **[param.txt](Doc/param.txt)**
+>A complete List of supported values can be found in the **[param.txt](Doc/param.txt)**
 
-you can also change the mqtt topics for your needs by editig: **[language.h](include/language.h)**
+you can also change the mqtt topics for your needs by editing: **[language.h](include/language.h)**
 
 ## Commands
 
@@ -316,13 +318,13 @@ command:    warm water: setpoint temperature
 topic:      {"setvalue/ww_soll", setvalue/ww_setpoint"}
 payload:    Resolution: 1 [°C] - Range: 30 ... 60 [°C]
 
-command:    heating circuit 1: count of days for holiday mode (Logamatic will dekrement every day by one)
+command:    heating circuit 1: count of days for holiday mode (Logamatic will decrement every day by one)
 topic:      {"setvalue/hk1_ferien_tage", setvalue/hc1_holidays"}
 payload:    count of days 0 .. 99
 
 command:    warm water pump cycles
 topic:      {"setvalue/ww_pumpen_zyklus", setvalue/ww_pump_cycles"}
-payload:    Resolution: 1 [cyles/hour] - Range: 0:OFF | 1..6 | 7:ON
+payload:    Resolution: 1 [cycles/hour] - Range: 0:OFF | 1..6 | 7:ON
 
 ```
 
@@ -332,7 +334,7 @@ payload:    Resolution: 1 [cyles/hour] - Range: 0:OFF | 1..6 | 7:ON
 
 ## node-red
 
-I´m writing all informations that are transmitted over MQTT into a influxDB Database.  
+I´m writing all information's that are transmitted over MQTT into a influxDB Database.  
 In my case I'm using [node-red](https://nodered.org/) to receive the MQTT messages and to write it into the [influxDB](https://www.influxdata.com/m).  
 Everything runs in Docker on my Synology NAS.  
 But there are a lot of other possibilities - use the one that fits you best.
@@ -344,10 +346,10 @@ If you are interested in my flows, you can use this export file:
 
 ## grafana
 
-To visualize the informations, I'm using [grafana](https://grafana.com) that gets the data out of the influxDB.  
+To visualize the information's, I'm using [grafana](https://grafana.com) that gets the data out of the influxDB.  
 For me this gets me more possibilities to analyze the behavior of the heating system compared to a static dashboard.  
 
-Here are some impressions of what I did with all the informations that comes out of the Logamatic:
+Here are some impressions of what I did with all the information's that comes out of the Logamatic:
 
 ![grafana1](/Doc/grafana1.png)
 ![grafana2](/Doc/grafana2.png)
