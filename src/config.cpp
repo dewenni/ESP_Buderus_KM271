@@ -44,7 +44,7 @@ void configGPIO(){
 
   if (setupMode){
     pinMode(LED_BUILTIN, OUTPUT);   // onboard LED
-    pinMode(25, OUTPUT);            // red LED
+    pinMode(21, OUTPUT);            // green LED D1 on the78mole boards
   }
   else {
     if (config.gpio.led_wifi != -1)

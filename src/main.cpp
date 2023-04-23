@@ -112,7 +112,7 @@ void loop()
   if (setupMode){
     // LED to Signal Setup-Mode
     digitalWrite(LED_BUILTIN, setupModeTimer.cycleOnOff(100,500));
-    digitalWrite(21, setupModeTimer.cycleOnOff(100,500));
+    digitalWrite(21, setupModeTimer.cycleOnOff(500,100));
   }
   else {
     // LED for WiFi connected
