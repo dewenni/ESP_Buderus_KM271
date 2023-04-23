@@ -1387,7 +1387,7 @@ void updateSettingsValues(){
 
   ESPUI.updateSwitcher(id.settings.mqtt_enable, config.mqtt.enable);
   ESPUI.updateText(id.settings.mqtt_server, config.mqtt.server);
-  ESPUI.updateText(id.settings.mqtt_port, uint64ToString(config.mqtt.port));
+  ESPUI.updateText(id.settings.mqtt_port, uint16ToString(config.mqtt.port));
   ESPUI.updateText(id.settings.mqtt_topic, config.mqtt.topic);
   ESPUI.updateText(id.settings.mqtt_user, config.mqtt.user);
   ESPUI.updateText(id.settings.mqtt_passw, config.mqtt.password);

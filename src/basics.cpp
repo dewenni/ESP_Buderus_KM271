@@ -225,12 +225,36 @@ void sendWiFiInfo() {
 /**
  * *******************************************************************
  * @brief   create String from integer
+ * @param   value as int8_t
+ * @return  pointer to char array - pay attention, it is local static
+ * *******************************************************************/
+const char* int8ToString(int8_t value){
+  static char ret_str[4];
+  snprintf(ret_str, sizeof(ret_str), "%hhi", value);
+  return ret_str;
+}
+
+/**
+ * *******************************************************************
+ * @brief   create String from integer
  * @param   value as uint8_t
  * @return  pointer to char array - pay attention, it is local static
  * *******************************************************************/
 const char* uint8ToString(uint8_t value){
   static char ret_str[4];
-  snprintf(ret_str, sizeof(ret_str), "%u", value);
+  snprintf(ret_str, sizeof(ret_str), "%hhu", value);
+  return ret_str;
+}
+
+/**
+ * *******************************************************************
+ * @brief   create String from integer
+ * @param   value as uint16_t
+ * @return  pointer to char array - pay attention, it is local static
+ * *******************************************************************/
+const char* uint16ToString(uint16_t value){
+  static char ret_str[10];
+  snprintf(ret_str, sizeof(ret_str), "%hu", value);
   return ret_str;
 }
 
@@ -243,18 +267,6 @@ const char* uint8ToString(uint8_t value){
 const char* uint64ToString(uint64_t value){
   static char ret_str[64];
   snprintf(ret_str, sizeof(ret_str), "%llu", value);
-  return ret_str;
-}
-
-/**
- * *******************************************************************
- * @brief   create String from integer
- * @param   value as int8_t
- * @return  pointer to char array - pay attention, it is local static
- * *******************************************************************/
-const char* int8ToString(int8_t value){
-  static char ret_str[4];
-  snprintf(ret_str, sizeof(ret_str), "%i", value);
   return ret_str;
 }
 

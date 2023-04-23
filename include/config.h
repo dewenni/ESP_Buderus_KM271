@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 
 /*-------------------------------------------------------------------------------
 General Configuration
@@ -29,18 +30,18 @@ typedef struct {
 } s_cfg_km271;
 
 typedef struct {
-    char ssid[128];               // WiFi SSID
-    char password[128];           // WiFi Password
-    char hostname[128];           // HOSTNAME
-} s_cfg_wifi;
+    char ssid[128];                 // WiFi SSID
+    char password[128];             // WiFi Password
+    char hostname[128];             // HOSTNAME
+} s_cfg_wifi;   
 
 typedef struct {
-    bool enable;           // Enable or disable the MQTT server
-    char server[20];       // MQTT Server IP
-    char user[128];        // MQTT User Name
-    char password[128];    // MQTT User Password
-    char topic[128];       // MQTT Topic Prefix
-    int port = 1883;       // MQTT Server Port
+    bool enable;                    // Enable or disable the MQTT server
+    char server[20];                // MQTT Server IP
+    char user[128];                 // MQTT User Name
+    char password[128];             // MQTT User Password
+    char topic[128];                // MQTT Topic Prefix
+    uint16_t port = 1883;       // MQTT Server Port
 } s_cfg_mqtt;
 
 
