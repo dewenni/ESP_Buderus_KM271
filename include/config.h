@@ -36,7 +36,7 @@ typedef struct {
 
 typedef struct {
     bool enable;           // Enable or disable the MQTT server
-    char server[20];       // MQTT Server IP
+    char server[128];       // MQTT Server IP
     char user[128];        // MQTT User Name
     char password[128];    // MQTT User Password
     char topic[128];       // MQTT Topic Prefix
