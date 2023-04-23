@@ -29,12 +29,11 @@ s_km271_alarm_str   kmAlarmMsgCpy;
 muTimer valeCompareTimer = muTimer();     // timer to refresh id.tab.config
 s_config configSave;
 
-const char* hc_opmode_optval[3] = {webText.NIGHT[config.lang], webText.DAY[config.lang], webText.AUTOMATIC[config.lang]};    // array of operating modes for select control
 char tmpMessage[300]={'\0'};              // temp string
 long oilcounter, oilcounterOld;           // actual and old oilcounter value
 const char* LANGUAGES[MAX_LANG] = {"🇩🇪 Deutsch", "🇬🇧 English"};
 const char* BOARDS[4] = {"select Board...", "generic ESP32", "KM271-WiFi v0.0.5", "KM271-WiFi v0.0.6"};
-
+char hc_opmode_optval[3][100]={'\0'};
 char elementBuffer[5000]={'\0'};          // Buffer to create table content
 char elementString[500]={'\0'};           // temp string
 IPAddress tmpIpAddress;                   // temporary IP address
@@ -301,156 +300,164 @@ void addDashboardTab(){
  * @brief   Elements for Control Tab
  * *******************************************************************/
  void addControlTab(){
-    id.tab.control = ESPUI.addControl(Tab, "", webText.CONTROL[config.lang], ControlColor::None, 0, generalCallback);
-    ESPUI.addControl(ControlType::Separator, webText.OPMODES[config.lang], "", ControlColor::None, id.tab.control);
-
-    // HC-Operation Mode
-    if (config.km271.use_hc1) {
-      id.ctrl.hc1_opmode = ESPUI.addControl(Select, km271CfgTopics.HC1_OPMODE[config.lang], "", Dark, id.tab.control, generalCallback);
-      for(auto const& v : hc_opmode_optval) {
-        ESPUI.addControl(Option, v, v, None, id.ctrl.hc1_opmode);
-      }
-    }
-    if (config.km271.use_hc2) {
-      id.ctrl.hc2_opmode = ESPUI.addControl(Select, km271CfgTopics.HC2_OPMODE[config.lang], "", Dark, id.tab.control, generalCallback);
-      for(auto const& v : hc_opmode_optval) {
-        ESPUI.addControl(Option, v, v, None, id.ctrl.hc2_opmode);
-      }
-    }
     
-    // WW-Operation Mode
-    if (config.km271.use_ww) {
-      id.ctrl.ww_opmode = ESPUI.addControl(Select, km271CfgTopics.WW_OPMODE[config.lang], "", Dark, id.tab.control, generalCallback);
-      for(auto const& v : hc_opmode_optval) {
-        ESPUI.addControl(Option, v, v, None, id.ctrl.ww_opmode);
-      }
-    }
-    ESPUI.addControl(ControlType::Separator, webText.PROGRAMS[config.lang], "", ControlColor::None, id.tab.control);
+  // array of operating modes for select control
+  strcpy(hc_opmode_optval[0], webText.NIGHT[config.lang]);
+  strcpy(hc_opmode_optval[1], webText.DAY[config.lang]);
+  strcpy(hc_opmode_optval[2], webText.AUTOMATIC[config.lang]);
 
-    // HC-Program
-    if (config.km271.use_hc1) {
-      id.ctrl.hc1_program = ESPUI.addControl(Select, km271CfgTopics.HC1_PROGRAM[config.lang], "", Dark, id.tab.control, generalCallback);
-      for(auto const& v : cfgArrayTexts.HC_PROGRAM[config.lang]) {
-        ESPUI.addControl(Option, v, v, None, id.ctrl.hc1_program);
-      } 
-    }
-    if (config.km271.use_hc2) {
-      id.ctrl.hc2_program = ESPUI.addControl(Select, km271CfgTopics.HC2_PROGRAM[config.lang], "", Dark, id.tab.control, generalCallback);
-      for(auto const& v : cfgArrayTexts.HC_PROGRAM[config.lang]) {
-        ESPUI.addControl(Option, v, v, None, id.ctrl.hc2_program);
-      }
-    }
+  id.tab.control = ESPUI.addControl(Tab, "", webText.CONTROL[config.lang], ControlColor::None, 0, generalCallback);
+  ESPUI.addControl(ControlType::Separator, webText.OPMODES[config.lang], "", ControlColor::None, id.tab.control);
+
+  // HC-Operation Mode
+  if (config.km271.use_hc1)
+  {
+    id.ctrl.hc1_opmode = ESPUI.addControl(Select, km271CfgTopics.HC1_OPMODE[config.lang], "", Dark, id.tab.control, generalCallback);
+    ESPUI.addControl(Option, hc_opmode_optval[0], "0", None, id.ctrl.hc1_opmode);
+    ESPUI.addControl(Option, hc_opmode_optval[1], "1", None, id.ctrl.hc1_opmode);
+    ESPUI.addControl(Option, hc_opmode_optval[2], "2", None, id.ctrl.hc1_opmode);
+  }
+  if (config.km271.use_hc2) {
+    id.ctrl.hc2_opmode = ESPUI.addControl(Select, km271CfgTopics.HC2_OPMODE[config.lang], "", Dark, id.tab.control, generalCallback);
+    ESPUI.addControl(Option, hc_opmode_optval[0], "0", None, id.ctrl.hc2_opmode);
+    ESPUI.addControl(Option, hc_opmode_optval[1], "1", None, id.ctrl.hc2_opmode);
+    ESPUI.addControl(Option, hc_opmode_optval[2], "2", None, id.ctrl.hc2_opmode);
+  }
     
-    // HC-Holidays
-    if (config.km271.use_hc1) {
-      id.ctrl.hc1_holiday_days = ESPUI.addControl(Number, km271CfgTopics.HC1_HOLIDAY_DAYS[config.lang], "", Dark, id.tab.control, generalCallback);
+  // WW-Operation Mode
+  if (config.km271.use_ww) {
+    id.ctrl.ww_opmode = ESPUI.addControl(Select, km271CfgTopics.WW_OPMODE[config.lang], "", Dark, id.tab.control, generalCallback);
+    ESPUI.addControl(Option, hc_opmode_optval[0], "0", None, id.ctrl.ww_opmode);
+    ESPUI.addControl(Option, hc_opmode_optval[1], "1", None, id.ctrl.ww_opmode);
+    ESPUI.addControl(Option, hc_opmode_optval[2], "2", None, id.ctrl.ww_opmode);   
+  }
+
+  ESPUI.addControl(ControlType::Separator, webText.PROGRAMS[config.lang], "", ControlColor::None, id.tab.control);
+
+  // HC-Program
+  if (config.km271.use_hc1) {
+    id.ctrl.hc1_program = ESPUI.addControl(Select, km271CfgTopics.HC1_PROGRAM[config.lang], "", Dark, id.tab.control, generalCallback);
+    for (int i = 0; i < 9; i++) {
+      ESPUI.addControl(Option, cfgArrayTexts.HC_PROGRAM[config.lang][i], int8ToString(i), None, id.ctrl.hc1_program);
     }
-    if (config.km271.use_hc2) {
-      id.ctrl.hc2_holiday_days = ESPUI.addControl(Number, km271CfgTopics.HC2_HOLIDAY_DAYS[config.lang], "", Dark, id.tab.control, generalCallback);
+  }
+  if (config.km271.use_hc2) {
+    id.ctrl.hc2_program = ESPUI.addControl(Select, km271CfgTopics.HC2_PROGRAM[config.lang], "", Dark, id.tab.control, generalCallback);
+    for (int i = 0; i < 9; i++) {
+      ESPUI.addControl(Option, cfgArrayTexts.HC_PROGRAM[config.lang][i], int8ToString(i), None, id.ctrl.hc2_program);
     }
+  }
+  
+  // HC-Holidays
+  if (config.km271.use_hc1) {
+    id.ctrl.hc1_holiday_days = ESPUI.addControl(Number, km271CfgTopics.HC1_HOLIDAY_DAYS[config.lang], "", Dark, id.tab.control, generalCallback);
+  }
+  if (config.km271.use_hc2) {
+    id.ctrl.hc2_holiday_days = ESPUI.addControl(Number, km271CfgTopics.HC2_HOLIDAY_DAYS[config.lang], "", Dark, id.tab.control, generalCallback);
+  }
+  
+  ESPUI.addControl(ControlType::Separator, webText.TEMPERATURES[config.lang], "", ControlColor::None, id.tab.control);
+
+  // Frost Threshold
+  if (config.km271.use_hc1) {
+    auto frost_control = addGroupHelper(km271CfgTopics.HC1_FROST_THRESHOLD[config.lang], Dark, id.tab.control);
+    id.ctrl.hc1_frost_mode_threshold = ESPUI.addControl(Slider, "", "-20", Dark, frost_control, generalCallback);
+    ESPUI.addControl(Min, "", "-20", None, id.ctrl.hc1_frost_mode_threshold);
+    ESPUI.addControl(Max, "", "10", None, id.ctrl.hc1_frost_mode_threshold);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_FROST[config.lang], None, frost_control), LABLE_STYLE_DESCRIPTION);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[config.lang], None, frost_control), LABLE_STYLE_DESCRIPTION);
+  }
+  if (config.km271.use_hc2) {
+    auto frost_control = addGroupHelper(km271CfgTopics.HC2_FROST_THRESHOLD[config.lang], Dark, id.tab.control);
+    id.ctrl.hc2_frost_mode_threshold = ESPUI.addControl(Slider, "", "-20", Dark, frost_control, generalCallback);
+    ESPUI.addControl(Min, "", "-20", None, id.ctrl.hc2_frost_mode_threshold);
+    ESPUI.addControl(Max, "", "10", None, id.ctrl.hc2_frost_mode_threshold);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_FROST[config.lang], None, frost_control), LABLE_STYLE_DESCRIPTION);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[config.lang], None, frost_control), LABLE_STYLE_DESCRIPTION);
+  }
+  
+  // Summer Threshold
+  if (config.km271.use_hc1) {
+    auto summer_control = addGroupHelper(km271CfgTopics.HC1_SUMMER_THRESHOLD[config.lang], Dark, id.tab.control);
+    id.ctrl.hc1_summer_mode_threshold = ESPUI.addControl(Slider, "", "9", Dark, summer_control, generalCallback);
+    ESPUI.addControl(Min, "", "9", None, id.ctrl.hc1_summer_mode_threshold);
+    ESPUI.addControl(Max, "", "31", None, id.ctrl.hc1_summer_mode_threshold);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_SUMMER1[config.lang], None, summer_control), LABLE_STYLE_DESCRIPTION);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, " ", webText.INFO_SUMMER2[config.lang], None, summer_control), LABLE_STYLE_DESCRIPTION);
+  }
+  if (config.km271.use_hc2) {
+    auto summer_control = addGroupHelper(km271CfgTopics.HC2_SUMMER_THRESHOLD[config.lang], Dark, id.tab.control);
+    id.ctrl.hc2_summer_mode_threshold = ESPUI.addControl(Slider, "", "9", Dark, summer_control, generalCallback);
+    ESPUI.addControl(Min, "", "9", None, id.ctrl.hc2_summer_mode_threshold);
+    ESPUI.addControl(Max, "", "31", None, id.ctrl.hc2_summer_mode_threshold);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_SUMMER1[config.lang], None, summer_control), LABLE_STYLE_DESCRIPTION);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, " ", webText.INFO_SUMMER2[config.lang], None, summer_control), LABLE_STYLE_DESCRIPTION);
+  }
     
-    ESPUI.addControl(ControlType::Separator, webText.TEMPERATURES[config.lang], "", ControlColor::None, id.tab.control);
+  // HC-DesignTemp
+  if (config.km271.use_hc1) {
+    auto hc1_designtemp_control = addGroupHelper(km271CfgTopics.HC1_INTERPR[config.lang], Dark, id.tab.control);
+    id.ctrl.hc1_interpretation = ESPUI.addControl(Slider, "", "30", Dark, hc1_designtemp_control, generalCallback);
+    ESPUI.addControl(Min, "", "30", None, id.ctrl.hc1_interpretation);
+    ESPUI.addControl(Max, "", "90", None, id.ctrl.hc1_interpretation);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_DESIGNTEMP[config.lang], None, hc1_designtemp_control), LABLE_STYLE_DESCRIPTION);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[config.lang], None, hc1_designtemp_control), LABLE_STYLE_DESCRIPTION);
+  }
+  if (config.km271.use_hc2) {
+    auto hc2_designtemp_control = addGroupHelper(km271CfgTopics.HC2_INTERPR[config.lang], Dark, id.tab.control);
+    id.ctrl.hc2_interpretation = ESPUI.addControl(Slider, "", "30", Dark, hc2_designtemp_control, generalCallback);
+    ESPUI.addControl(Min, "", "30", None, id.ctrl.hc2_interpretation);
+    ESPUI.addControl(Max, "", "90", None, id.ctrl.hc2_interpretation);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_DESIGNTEMP[config.lang], None, hc2_designtemp_control), LABLE_STYLE_DESCRIPTION);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[config.lang], None, hc2_designtemp_control), LABLE_STYLE_DESCRIPTION);
+  }
 
-    // Frost Threshold
-    if (config.km271.use_hc1) {
-      auto frost_control = addGroupHelper(km271CfgTopics.HC1_FROST_THRESHOLD[config.lang], Dark, id.tab.control);
-      id.ctrl.hc1_frost_mode_threshold = ESPUI.addControl(Slider, "", "-20", Dark, frost_control, generalCallback);
-      ESPUI.addControl(Min, "", "-20", None, id.ctrl.hc1_frost_mode_threshold);
-      ESPUI.addControl(Max, "", "10", None, id.ctrl.hc1_frost_mode_threshold);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_FROST[config.lang], None, frost_control), LABLE_STYLE_DESCRIPTION);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[config.lang], None, frost_control), LABLE_STYLE_DESCRIPTION);
-    }
-    if (config.km271.use_hc2) {
-      auto frost_control = addGroupHelper(km271CfgTopics.HC2_FROST_THRESHOLD[config.lang], Dark, id.tab.control);
-      id.ctrl.hc2_frost_mode_threshold = ESPUI.addControl(Slider, "", "-20", Dark, frost_control, generalCallback);
-      ESPUI.addControl(Min, "", "-20", None, id.ctrl.hc2_frost_mode_threshold);
-      ESPUI.addControl(Max, "", "10", None, id.ctrl.hc2_frost_mode_threshold);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_FROST[config.lang], None, frost_control), LABLE_STYLE_DESCRIPTION);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[config.lang], None, frost_control), LABLE_STYLE_DESCRIPTION);
-    }
-    
-    // Summer Threshold
-    if (config.km271.use_hc1) {
-      auto summer_control = addGroupHelper(km271CfgTopics.HC1_SUMMER_THRESHOLD[config.lang], Dark, id.tab.control);
-      id.ctrl.hc1_summer_mode_threshold = ESPUI.addControl(Slider, "", "9", Dark, summer_control, generalCallback);
-      ESPUI.addControl(Min, "", "9", None, id.ctrl.hc1_summer_mode_threshold);
-      ESPUI.addControl(Max, "", "31", None, id.ctrl.hc1_summer_mode_threshold);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_SUMMER1[config.lang], None, summer_control), LABLE_STYLE_DESCRIPTION);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, " ", webText.INFO_SUMMER2[config.lang], None, summer_control), LABLE_STYLE_DESCRIPTION);
-    }
-    if (config.km271.use_hc2) {
-      auto summer_control = addGroupHelper(km271CfgTopics.HC2_SUMMER_THRESHOLD[config.lang], Dark, id.tab.control);
-      id.ctrl.hc2_summer_mode_threshold = ESPUI.addControl(Slider, "", "9", Dark, summer_control, generalCallback);
-      ESPUI.addControl(Min, "", "9", None, id.ctrl.hc2_summer_mode_threshold);
-      ESPUI.addControl(Max, "", "31", None, id.ctrl.hc2_summer_mode_threshold);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_SUMMER1[config.lang], None, summer_control), LABLE_STYLE_DESCRIPTION);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, " ", webText.INFO_SUMMER2[config.lang], None, summer_control), LABLE_STYLE_DESCRIPTION);
-    }
-      
-    // HC-DesignTemp
-    if (config.km271.use_hc1) {
-      auto hc1_designtemp_control = addGroupHelper(km271CfgTopics.HC1_INTERPR[config.lang], Dark, id.tab.control);
-      id.ctrl.hc1_interpretation = ESPUI.addControl(Slider, "", "30", Dark, hc1_designtemp_control, generalCallback);
-      ESPUI.addControl(Min, "", "30", None, id.ctrl.hc1_interpretation);
-      ESPUI.addControl(Max, "", "90", None, id.ctrl.hc1_interpretation);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_DESIGNTEMP[config.lang], None, hc1_designtemp_control), LABLE_STYLE_DESCRIPTION);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[config.lang], None, hc1_designtemp_control), LABLE_STYLE_DESCRIPTION);
-    }
-    if (config.km271.use_hc2) {
-      auto hc2_designtemp_control = addGroupHelper(km271CfgTopics.HC2_INTERPR[config.lang], Dark, id.tab.control);
-      id.ctrl.hc2_interpretation = ESPUI.addControl(Slider, "", "30", Dark, hc2_designtemp_control, generalCallback);
-      ESPUI.addControl(Min, "", "30", None, id.ctrl.hc2_interpretation);
-      ESPUI.addControl(Max, "", "90", None, id.ctrl.hc2_interpretation);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_DESIGNTEMP[config.lang], None, hc2_designtemp_control), LABLE_STYLE_DESCRIPTION);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[config.lang], None, hc2_designtemp_control), LABLE_STYLE_DESCRIPTION);
-    }
+  // HC-Switch Off Theshold
+  if (config.km271.use_hc1) {
+    auto hc1_switchoff_control = addGroupHelper(km271CfgTopics.HC1_SWITCH_OFF_THRESHOLD[config.lang], Dark, id.tab.control);
+    id.ctrl.hc1_switch_off_threshold = ESPUI.addControl(Slider, "", "-20", Dark, hc1_switchoff_control, generalCallback);
+    ESPUI.addControl(Min, "", "-20", None, id.ctrl.hc1_switch_off_threshold);
+    ESPUI.addControl(Max, "", "10", None, id.ctrl.hc1_switch_off_threshold);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_SWITCHOFF[config.lang], None, hc1_switchoff_control), LABLE_STYLE_DESCRIPTION);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[config.lang], None, hc1_switchoff_control), LABLE_STYLE_DESCRIPTION);
+  }
+  if (config.km271.use_hc2) {
+    auto hc2_switchoff_control = addGroupHelper(km271CfgTopics.HC2_SWITCH_OFF_THRESHOLD[config.lang], Dark, id.tab.control);
+    id.ctrl.hc2_switch_off_threshold = ESPUI.addControl(Slider, "", "-20", Dark, hc2_switchoff_control, generalCallback);
+    ESPUI.addControl(Min, "", "-20", None, id.ctrl.hc2_switch_off_threshold);
+    ESPUI.addControl(Max, "", "10", None, id.ctrl.hc2_switch_off_threshold);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_SWITCHOFF[config.lang], None, hc2_switchoff_control), LABLE_STYLE_DESCRIPTION);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[config.lang], None, hc2_switchoff_control), LABLE_STYLE_DESCRIPTION);
+  }
+  
+  if (config.km271.use_ww) {
+    auto ww_temp_control = addGroupHelper(km271CfgTopics.WW_TEMP[config.lang], Dark, id.tab.control);
+    id.ctrl.ww_setpoint = ESPUI.addControl(Slider, "", "30", Dark, ww_temp_control, generalCallback);
+    ESPUI.addControl(Min, "", "30", None, id.ctrl.ww_setpoint);
+    ESPUI.addControl(Max, "", "60", None, id.ctrl.ww_setpoint);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_WWTEMP[config.lang], None, ww_temp_control), LABLE_STYLE_DESCRIPTION);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[config.lang], None, ww_temp_control), LABLE_STYLE_DESCRIPTION);
 
-    // HC-Switch Off Theshold
-    if (config.km271.use_hc1) {
-      auto hc1_switchoff_control = addGroupHelper(km271CfgTopics.HC1_SWITCH_OFF_THRESHOLD[config.lang], Dark, id.tab.control);
-      id.ctrl.hc1_switch_off_threshold = ESPUI.addControl(Slider, "", "-20", Dark, hc1_switchoff_control, generalCallback);
-      ESPUI.addControl(Min, "", "-20", None, id.ctrl.hc1_switch_off_threshold);
-      ESPUI.addControl(Max, "", "10", None, id.ctrl.hc1_switch_off_threshold);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_SWITCHOFF[config.lang], None, hc1_switchoff_control), LABLE_STYLE_DESCRIPTION);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[config.lang], None, hc1_switchoff_control), LABLE_STYLE_DESCRIPTION);
-    }
-    if (config.km271.use_hc2) {
-      auto hc2_switchoff_control = addGroupHelper(km271CfgTopics.HC2_SWITCH_OFF_THRESHOLD[config.lang], Dark, id.tab.control);
-      id.ctrl.hc2_switch_off_threshold = ESPUI.addControl(Slider, "", "-20", Dark, hc2_switchoff_control, generalCallback);
-      ESPUI.addControl(Min, "", "-20", None, id.ctrl.hc2_switch_off_threshold);
-      ESPUI.addControl(Max, "", "10", None, id.ctrl.hc2_switch_off_threshold);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_SWITCHOFF[config.lang], None, hc2_switchoff_control), LABLE_STYLE_DESCRIPTION);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[config.lang], None, hc2_switchoff_control), LABLE_STYLE_DESCRIPTION);
-    }
-    
-    if (config.km271.use_ww) {
-      auto ww_temp_control = addGroupHelper(km271CfgTopics.WW_TEMP[config.lang], Dark, id.tab.control);
-      id.ctrl.ww_setpoint = ESPUI.addControl(Slider, "", "30", Dark, ww_temp_control, generalCallback);
-      ESPUI.addControl(Min, "", "30", None, id.ctrl.ww_setpoint);
-      ESPUI.addControl(Max, "", "60", None, id.ctrl.ww_setpoint);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_WWTEMP[config.lang], None, ww_temp_control), LABLE_STYLE_DESCRIPTION);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_UNIT_C[config.lang], None, ww_temp_control), LABLE_STYLE_DESCRIPTION);
+    auto ww_pump_cycles_control = addGroupHelper(km271CfgTopics.WW_CIRCULATION[config.lang], Dark, id.tab.control);
+    id.ctrl.ww_pump_cycles = ESPUI.addControl(Slider, "", "0", Dark, ww_pump_cycles_control, generalCallback);
+    ESPUI.addControl(Min, "", "0", None, id.ctrl.ww_pump_cycles);
+    ESPUI.addControl(Max, "", "7", None, id.ctrl.ww_pump_cycles);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_WW_PUMP_CIRC1[config.lang], None, ww_pump_cycles_control), LABLE_STYLE_DESCRIPTION);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_WW_PUMP_CIRC2[config.lang], None, ww_pump_cycles_control), LABLE_STYLE_DESCRIPTION);
+  }
 
-      auto ww_pump_cycles_control = addGroupHelper(km271CfgTopics.WW_CIRCULATION[config.lang], Dark, id.tab.control);
-      id.ctrl.ww_pump_cycles = ESPUI.addControl(Slider, "", "0", Dark, ww_pump_cycles_control, generalCallback);
-      ESPUI.addControl(Min, "", "0", None, id.ctrl.ww_pump_cycles);
-      ESPUI.addControl(Max, "", "7", None, id.ctrl.ww_pump_cycles);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_WW_PUMP_CIRC1[config.lang], None, ww_pump_cycles_control), LABLE_STYLE_DESCRIPTION);
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.INFO_WW_PUMP_CIRC2[config.lang], None, ww_pump_cycles_control), LABLE_STYLE_DESCRIPTION);
-    }
-
-    if (config.oilmeter.use_hardware_meter) {
-      ESPUI.addControl(ControlType::Separator, webText.OILMETER[config.lang], "", ControlColor::None, id.tab.control);
-      auto oilmeter_control = addGroupHelper(webText.OILMETER[config.lang], Dark, id.tab.control);
-      id.ctrl.oilmeter_input = ESPUI.addControl(Text, "", "0", Dark, oilmeter_control, generalCallback);
-      ESPUI.setElementStyle(id.ctrl.oilmeter_input, "width: 50%; font-size: 24px; color: black");
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, oilmeter_control), "background-color: unset; width: 10%"); // only spacer
-      id.ctrl.oilmeter_button = ESPUI.addControl(Button, "", webText.BUTTON_SET[config.lang], Dark, oilmeter_control, generalCallback);
-      ESPUI.setElementStyle(id.ctrl.oilmeter_button, "width: 38%");
-      ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, oilmeter_control), "background-color: unset; width: 100%"); // only spacer
-      id.ctrl.oilmeter_output = addGroupValueHelper(webText.OILMETER_ACT[config.lang], "--", "Liter", oilmeter_control);
-    }
-  } // end addControlElements()
+  if (config.oilmeter.use_hardware_meter) {
+    ESPUI.addControl(ControlType::Separator, webText.OILMETER[config.lang], "", ControlColor::None, id.tab.control);
+    auto oilmeter_control = addGroupHelper(webText.OILMETER[config.lang], Dark, id.tab.control);
+    id.ctrl.oilmeter_input = ESPUI.addControl(Text, "", "0", Dark, oilmeter_control, generalCallback);
+    ESPUI.setElementStyle(id.ctrl.oilmeter_input, "width: 50%; font-size: 24px; color: black");
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, oilmeter_control), "background-color: unset; width: 10%"); // only spacer
+    id.ctrl.oilmeter_button = ESPUI.addControl(Button, "", webText.BUTTON_SET[config.lang], Dark, oilmeter_control, generalCallback);
+    ESPUI.setElementStyle(id.ctrl.oilmeter_button, "width: 38%");
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, oilmeter_control), "background-color: unset; width: 100%"); // only spacer
+    id.ctrl.oilmeter_output = addGroupValueHelper(webText.OILMETER_ACT[config.lang], "--", "Liter", oilmeter_control);
+  }
+} // end addControlElements()
 
 /**
  * *******************************************************************
@@ -1188,8 +1195,8 @@ void updateConfigValues(){
     updateElements(id.tables.hc1_prog);
 
     // update control elements
-    ESPUI.updateSelect(id.ctrl.hc1_opmode, hc_opmode_optval[kmConfigNumCpy.hc1_operation_mode]);
-    ESPUI.updateSelect(id.ctrl.hc1_program, cfgArrayTexts.HC_PROGRAM[config.lang][kmConfigNumCpy.hc1_program]);
+    ESPUI.updateSelect(id.ctrl.hc1_opmode, int8ToString(kmConfigNumCpy.hc1_operation_mode));
+    ESPUI.updateSelect(id.ctrl.hc1_program, int8ToString(kmConfigNumCpy.hc1_program));
     ESPUI.updateSlider(id.ctrl.hc1_interpretation, kmConfigNumCpy.hc1_interpretation);
     ESPUI.updateSlider(id.ctrl.hc1_switch_off_threshold, kmConfigNumCpy.hc1_switch_off_threshold);
     ESPUI.updateNumber(id.ctrl.hc1_holiday_days, kmConfigNumCpy.hc1_holiday_days);
@@ -1237,8 +1244,8 @@ void updateConfigValues(){
     updateElements(id.tables.hc2_prog);
 
     // control elements
-    ESPUI.updateSelect(id.ctrl.hc2_opmode, hc_opmode_optval[kmConfigNumCpy.hc2_operation_mode]);
-    ESPUI.updateSelect(id.ctrl.hc2_program, cfgArrayTexts.HC_PROGRAM[config.lang][kmConfigNumCpy.hc2_program]);
+    ESPUI.updateSelect(id.ctrl.hc2_opmode, int8ToString(kmConfigNumCpy.hc2_operation_mode));
+    ESPUI.updateSelect(id.ctrl.hc2_program, int8ToString(kmConfigNumCpy.hc2_program));
     ESPUI.updateSlider(id.ctrl.hc2_interpretation, kmConfigNumCpy.hc2_interpretation);
     ESPUI.updateSlider(id.ctrl.hc2_switch_off_threshold, kmConfigNumCpy.hc2_switch_off_threshold);
     ESPUI.updateNumber(id.ctrl.hc2_holiday_days, kmConfigNumCpy.hc2_holiday_days);
@@ -1258,7 +1265,7 @@ void updateConfigValues(){
     updateElements(id.tables.ww_config);
 
     // update control elements
-    ESPUI.updateSelect(id.ctrl.ww_opmode, hc_opmode_optval[kmConfigNumCpy.ww_operation_mode]);
+    ESPUI.updateSelect(id.ctrl.ww_opmode, int8ToString(kmConfigNumCpy.ww_operation_mode));
     ESPUI.updateSlider(id.ctrl.ww_setpoint, kmConfigNumCpy.ww_temp);
     ESPUI.updateSlider(id.ctrl.ww_pump_cycles, kmConfigNumCpy.ww_circulation);
   }
@@ -1430,50 +1437,34 @@ void generalCallback(Control *sender, int type) {
 
   // HC1-OPMODE
   if(sender->id == id.ctrl.hc1_opmode) {
-    for(int i=0; i<=2; i++) {
-      if (strcmp(sender->value.c_str(), hc_opmode_optval[i]) == 0 ) {
-        km271sendCmd(KM271_SENDCMD_HC1_OPMODE, i);
-        Serial.println(i);
-      }
-    }
+    km271sendCmd(KM271_SENDCMD_HC1_OPMODE, sender->value.toInt());
+    Serial.println(sender->value.toInt());
   }
 
   // HC2-OPMODE
   if(sender->id == id.ctrl.hc2_opmode) {
-    for(int i=0; i<=2; i++) {
-      if (strcmp(sender->value.c_str(), hc_opmode_optval[i]) == 0 ) {
-        km271sendCmd(KM271_SENDCMD_HC2_OPMODE, i);
-      }
-    }
+    km271sendCmd(KM271_SENDCMD_HC2_OPMODE, sender->value.toInt());
+    Serial.println(sender->value.toInt());
   }
 
   // WW-OPMODE
   if(sender->id == id.ctrl.ww_opmode) {
-    for(int i=0; i<=2; i++) {
-      if (strcmp(sender->value.c_str(), hc_opmode_optval[i]) == 0 ) {
-        km271sendCmd(KM271_SENDCMD_WW_OPMODE, i);
-      }
-    }
+    km271sendCmd(KM271_SENDCMD_WW_OPMODE, sender->value.toInt());
+    Serial.println(sender->value.toInt());
   }
 
   // HC1-Program
   if(sender->id == id.ctrl.hc1_program) {
-    for(int i=0; i<=8; i++) {
-      if (strcmp(sender->value.c_str(), cfgArrayTexts.HC_PROGRAM[config.lang][i]) == 0 ) {
-        km271sendCmd(KM271_SENDCMD_HC1_PROGRAMM, i);
-      }
-    }
+    km271sendCmd(KM271_SENDCMD_HC1_PROGRAMM, sender->value.toInt());
+    Serial.println(sender->value.toInt());
   }
 
   // HC2-Program
   if(sender->id == id.ctrl.hc2_program) {
-    for(int i=0; i<=8; i++) {
-      if (strcmp(sender->value.c_str(), cfgArrayTexts.HC_PROGRAM[config.lang][i]) == 0 ) {
-        km271sendCmd(KM271_SENDCMD_HC2_PROGRAMM, i);
-      }
-    }
+    km271sendCmd(KM271_SENDCMD_HC2_PROGRAMM, sender->value.toInt());
+    Serial.println(sender->value.toInt());
   }
-
+  
   // HC1-Frost Threshold
   if(sender->id == id.ctrl.hc1_frost_mode_threshold) {
     km271sendCmd(KM271_SENDCMD_HC1_FROST, sender->value.toInt());

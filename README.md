@@ -71,8 +71,8 @@ If you are not interested in the Oil Meter function you can simple disable it in
 ## Option 1 - Board from the78mole
 
 the easiest, smartest and even cheapest option is the DIY Interface that was build by Daniel Glaser. Big thanks for his engagement in this Topic!  
-You can find more information here: <https://github.com/the78mole/km271-wifi>
-You can order it here: <https://www.tindie.com/products/24664/>
+You can find more information here: <https://github.com/the78mole/km271-wifi>  
+You can order it here: <https://www.tindie.com/products/24664/>  
 
 In this case you only need this DIY interface and nothing more.
 It includes the RS232/TTL Adapter and also an ESP32.  
@@ -149,8 +149,10 @@ There are 3 predefined Options:
 There is a new "Setup Mode" available. The "Setup Mode" is activated, when you press the "reset-button" of the ESP. Press reset and after 5 seconds, press reset again.
 The "Setup Mode" will also activated if there is no wifi connection configured.
 
-If the ESP goes into "Setup Mode", it will automatically create a own network access point with ssid 📶 `"ESP-Buderus-KM271"`  
-After you are connected to this network, you can open the webUI on ip-address **"http://192.168.4.1"**
+If the ESP goes into "Setup Mode", it will automatically create a own network access point with ssid  
+📶 `"ESP-Buderus-KM271"`  
+After you are connected to this network, you can open the webUI on ip-address  
+**"http://192.168.4.1"**
 
 ## Configuration
 
