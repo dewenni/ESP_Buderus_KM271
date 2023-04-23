@@ -1,9 +1,10 @@
 #pragma once
+#include <stdint.h>
 
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION             "v3.0.0"    // internal program version
+#define VERSION             "v3.0.1"    // internal program version
 #define DEBUG_ON                        // enable debug messages
 
 #define WIFI_RECONNECT      10000        // Delay between wifi reconnection tries
@@ -29,18 +30,18 @@ typedef struct {
 } s_cfg_km271;
 
 typedef struct {
-    char ssid[128];               // WiFi SSID
-    char password[128];           // WiFi Password
-    char hostname[128];           // HOSTNAME
-} s_cfg_wifi;
+    char ssid[128];                 // WiFi SSID
+    char password[128];             // WiFi Password
+    char hostname[128];             // HOSTNAME
+} s_cfg_wifi;   
 
 typedef struct {
-    bool enable;           // Enable or disable the MQTT server
-    char server[128];       // MQTT Server IP
-    char user[128];        // MQTT User Name
-    char password[128];    // MQTT User Password
-    char topic[128];       // MQTT Topic Prefix
-    int port = 1883;       // MQTT Server Port
+    bool enable;                    // Enable or disable the MQTT server
+    char server[128];               // MQTT Server IP
+    char user[128];                 // MQTT User Name
+    char password[128];             // MQTT User Password
+    char topic[128];                // MQTT Topic Prefix
+    uint16_t port = 1883;           // MQTT Server Port
 } s_cfg_mqtt;
 
 
