@@ -1105,6 +1105,15 @@ void updateStatusValues(){
   addElement(km271StatTopics.BOILER_LIFETIME_4[config.lang],       uint64ToString(kmStatusCpy.BurnerOperatingDuration_Sum)); 
   updateElements(id.tables.boiler_lifetime);
 
+  if(config.oilmeter.use_virtual_meter && !config.oilmeter.use_hardware_meter) {
+    // Oilmeter value in controlTab
+    snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f", kmStatusCpy.BurnerCalcOilConsumption);
+    ESPUI.updateLabel(id.ctrl.oilmeter_output, tmpMessage);
+    // Oilmeter value in dashboardTab
+    snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f  L  🩸", kmStatusCpy.BurnerCalcOilConsumption);
+    ESPUI.updateLabel(id.dash.oilmeter, tmpMessage); 
+  }
+
   // allgemiene Werte
   initElements();
   addElementUnit(km271StatTopics.OUTSIDE_TEMP[config.lang],         int8ToString(kmStatusCpy.OutsideTemp), "°C");       
@@ -1362,22 +1371,12 @@ void updateAlarmTab(){
  * @return  none
  * *******************************************************************/
 void updateOilmeter(){
-  if (config.oilmeter.use_hardware_meter) {
-    // Oilmeter value in controlTab
-    snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f", float(oilcounter)/100);
-    ESPUI.updateLabel(id.ctrl.oilmeter_output, tmpMessage);
-    // Oilmeter value in dashboardTab
-    snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f  L  🩸", float(oilcounter)/100);
-    ESPUI.updateLabel(id.dash.oilmeter, tmpMessage);
-  }
-  else if(config.oilmeter.use_virtual_meter) {
-    // Oilmeter value in controlTab
-    snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f", kmStatusCpy.BurnerCalcOilConsumption);
-    ESPUI.updateLabel(id.ctrl.oilmeter_output, tmpMessage);
-    // Oilmeter value in dashboardTab
-    snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f  L  🩸", kmStatusCpy.BurnerCalcOilConsumption);
-    ESPUI.updateLabel(id.dash.oilmeter, tmpMessage); 
-  }
+  // Oilmeter value in controlTab
+  snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f", float(oilcounter)/100);
+  ESPUI.updateLabel(id.ctrl.oilmeter_output, tmpMessage);
+  // Oilmeter value in dashboardTab
+  snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f  L  🩸", float(oilcounter)/100);
+  ESPUI.updateLabel(id.dash.oilmeter, tmpMessage);
 }
 
 /**
