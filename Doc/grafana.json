@@ -699,7 +699,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "from(bucket: \"heizung\")\n  |> range(start: -12y, stop: now())\n  |> filter(fn: (r) => r[\"_measurement\"] == \"Sommer_ab\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> filter(fn: (r) => r[\"type\"] == \"config\")\n  |> last()",
+          "query": "from(bucket: \"heizung\")\n  |> range(start: -12mo, stop: now())\n  |> filter(fn: (r) => r[\"_measurement\"] == \"HK1_Sommer_ab\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> filter(fn: (r) => r[\"type\"] == \"config\")\n  |> last()",
           "refId": "A"
         }
       ],
@@ -2145,7 +2145,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2221,7 +2222,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2342,7 +2344,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2507,7 +2510,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2569,7 +2573,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2679,7 +2684,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -2726,7 +2732,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "green"
+                      "color": "green",
+                      "value": null
                     },
                     {
                       "color": "#EAB839",
@@ -2826,7 +2833,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -2873,7 +2881,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "green"
+                      "color": "green",
+                      "value": null
                     }
                   ]
                 }
@@ -2997,7 +3006,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -3088,7 +3098,8 @@
             "mode": "percentage",
             "steps": [
               {
-                "color": "dark-red"
+                "color": "dark-red",
+                "value": null
               },
               {
                 "color": "orange",
@@ -3213,7 +3224,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -3333,7 +3345,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -3480,7 +3493,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -3601,7 +3615,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -3756,7 +3771,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "dark-red",
@@ -3843,7 +3859,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "yellow",
@@ -3920,7 +3937,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "dark-blue"
+                "color": "dark-blue",
+                "value": null
               },
               {
                 "color": "#EAB839",
@@ -4026,7 +4044,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "dark-blue"
+                "color": "dark-blue",
+                "value": null
               },
               {
                 "color": "#EAB839",
@@ -4177,7 +4196,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4503,6 +4523,6 @@
   "timezone": "",
   "title": "Heizung",
   "uid": "d75nNcanz",
-  "version": 115,
+  "version": 116,
   "weekStart": ""
 }
