@@ -176,6 +176,8 @@ uint16_t hc1flowSetTemp;
 uint16_t hc2flowActTemp;
 uint16_t hc2flowSetTemp;
 uint16_t oilmeter;
+uint16_t tmp_out_act;
+uint16_t tmp_out_act_d;
 } s_webui_id_dash;
 
 

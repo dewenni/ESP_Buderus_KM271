@@ -263,7 +263,16 @@ void addDashboardTab(){
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, burnerTemp_Group), "background-color: unset; width: 10%;");
   id.dash.burnerActTemp = ESPUI.addControl(Label, "", "--", None, burnerTemp_Group);
   ESPUI.setElementStyle(id.dash.burnerActTemp, "width: 45%; font-size: 30px");
-  
+  // Outdoor-Temp
+  auto outdoorTemp_Group = addGroupHelper(webText.TEMP_OUT[config.lang], Dark, id.tab.dashboard);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.TEMP_OUT_ACT[config.lang], None, outdoorTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.TEMP_OUT_DMP[config.lang], None, outdoorTemp_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
+  id.dash.tmp_out_act = ESPUI.addControl(Label, "", "--", None, outdoorTemp_Group);
+  ESPUI.setElementStyle(id.dash.tmp_out_act, "width: 45%; font-size: 30px");
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, outdoorTemp_Group), "background-color: unset; width: 10%;");
+  id.dash.tmp_out_act_d = ESPUI.addControl(Label, "", "--", None, outdoorTemp_Group);
+  ESPUI.setElementStyle(id.dash.tmp_out_act_d, "width: 45%; font-size: 30px");
+
   // HC Flow-Temp
   if (config.km271.use_hc1) {
     auto hc1flowTemp_Group = addGroupHelper(webText.HC1_FLOW[config.lang], Dark, id.tab.dashboard);
@@ -755,7 +764,7 @@ void webUISetup(){
   memset(&kmConfigStrCpy, 0, sizeof(s_km271_config_num));
 
   // add additional css styles to a hidden label
-  ESPUI.setPanelStyle(ESPUI.label("CUSTOM CSS INJECTION", ControlColor::None, CUSTOM_CSS), "display: none");
+  ESPUI.setPanelStyle(ESPUI.label("Refresh your browser if you read this", ControlColor::None, CUSTOM_CSS), "display: none");
   
   // Log-Mode
   ESPUI.setVerbosity(Verbosity::Verbose);
@@ -1121,6 +1130,10 @@ void updateStatusValues(){
   addElementUnit(km271StatTopics.EXHAUST_TEMP[config.lang],         uint8ToString(kmStatusCpy.ExhaustTemp), "°C");        
   updateElements(id.tables.general_temp);
 
+  // Outdoor Temp
+  ESPUI.updateLabel(id.dash.tmp_out_act,  uint8ToString(kmStatusCpy.OutsideTemp));
+  ESPUI.updateLabel(id.dash.tmp_out_act_d,  uint8ToString(kmStatusCpy.OutsideDampedTemp));
+  
   // Boiler Temperatures
   ESPUI.updateLabel(id.dash.burnerSetTemp,  uint8ToString(kmStatusCpy.BoilerForwardTargetTemp));
   ESPUI.updateLabel(id.dash.burnerActTemp,  uint8ToString(kmStatusCpy.BoilerForwardActualTemp));
