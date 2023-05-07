@@ -230,7 +230,7 @@ void sendWiFiInfo() {
  * *******************************************************************/
 const char* int8ToString(int8_t value){
   static char ret_str[4];
-  snprintf(ret_str, sizeof(ret_str), "%hhi", value);
+  snprintf(ret_str, sizeof(ret_str), "%i", value);
   return ret_str;
 }
 
@@ -242,7 +242,7 @@ const char* int8ToString(int8_t value){
  * *******************************************************************/
 const char* uint8ToString(uint8_t value){
   static char ret_str[4];
-  snprintf(ret_str, sizeof(ret_str), "%hhu", value);
+  snprintf(ret_str, sizeof(ret_str), "%u", value);
   return ret_str;
 }
 
@@ -254,22 +254,37 @@ const char* uint8ToString(uint8_t value){
  * *******************************************************************/
 const char* uint16ToString(uint16_t value){
   static char ret_str[10];
-  snprintf(ret_str, sizeof(ret_str), "%hu", value);
+  snprintf(ret_str, sizeof(ret_str), "%u", value);
   return ret_str;
 }
 
 /**
  * *******************************************************************
  * @brief   create String from integer
+ * @details because the format specifier %llu is not supported by any 
+ *          platforms, we need to convert it this way
  * @param   value as uint64_t
  * @return  pointer to char array - pay attention, it is local static
  * *******************************************************************/
 const char* uint64ToString(uint64_t value){
-  static char ret_str[64];
-  snprintf(ret_str, sizeof(ret_str), "%llu", value);
+  static char ret_str[21];
+  char* ptr = ret_str;
+  int num_digits = 0;
+  do {
+    *ptr++ = (value % 10) + '0';
+    value /= 10;
+    num_digits++;
+  } while (value != 0);
+  *ptr-- = '\0';
+  char* start_ptr = ret_str;
+  char tmp_char;
+  while (start_ptr < ptr) {
+    tmp_char = *start_ptr;
+    *start_ptr++ = *ptr;
+    *ptr-- = tmp_char;
+  }
   return ret_str;
 }
-
 /**
  * *******************************************************************
  * @brief   create String from integer
