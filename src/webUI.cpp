@@ -689,13 +689,15 @@ void addSettingsTab(){
 
   // MQTT-Settings
   auto setMqttGroup = addGroupHelper(webText.MQTT[config.lang], Dark, id.tab.settings);
-  id.settings.mqtt_enable = addSwitcherInputHelper(webText.MQTT[config.lang], setMqttGroup);
+  id.settings.mqtt_enable = addSwitcherInputHelper(webText.ACTIVATE[config.lang], setMqttGroup);
+  id.settings.mqtt_config_retain = addSwitcherInputHelper(webText.MQTT_CFG_RET[config.lang], setMqttGroup);
   id.settings.mqtt_server = addTextInputHelper(webText.SERVER[config.lang], setMqttGroup);
   id.settings.mqtt_port = addTextInputHelper(webText.PORT[config.lang], setMqttGroup);
   id.settings.mqtt_topic = addTextInputHelper(webText.TOPIC[config.lang], setMqttGroup);
   id.settings.mqtt_user = addTextInputHelper(webText.USER[config.lang], setMqttGroup);
   id.settings.mqtt_passw = addTextInputHelper(webText.PASSWORD[config.lang], setMqttGroup);
   ESPUI.setInputType(id.settings.mqtt_passw, "password"); // input control type: password
+
 
   // NTP-Settings
   auto setNtpGroup = addGroupHelper(webText.NTP[config.lang], Dark, id.tab.settings);
@@ -1410,6 +1412,7 @@ void updateSettingsValues(){
   ESPUI.updateText(id.settings.mqtt_topic, config.mqtt.topic);
   ESPUI.updateText(id.settings.mqtt_user, config.mqtt.user);
   ESPUI.updateText(id.settings.mqtt_passw, config.mqtt.password);
+  ESPUI.updateSwitcher(id.settings.mqtt_config_retain, config.mqtt.config_retain);
 
   ESPUI.updateSwitcher(id.settings.ntp_enable, config.ntp.enable);
   ESPUI.updateText(id.settings.ntp_server, config.ntp.server);
@@ -1618,6 +1621,7 @@ void generalCallback(Control *sender, int type) {
     snprintf(config.mqtt.topic, sizeof(config.mqtt.topic), ESPUI.getControl(id.settings.mqtt_topic)->value.c_str());
     snprintf(config.mqtt.user, sizeof(config.mqtt.user), ESPUI.getControl(id.settings.mqtt_user)->value.c_str());
     snprintf(config.mqtt.password, sizeof(config.mqtt.password), ESPUI.getControl(id.settings.mqtt_passw)->value.c_str());
+    config.mqtt.config_retain = ESPUI.getControl(id.settings.mqtt_config_retain)->value.toInt();
 
     // Settings: NTP
     config.ntp.enable = ESPUI.getControl(id.settings.ntp_enable)->value.toInt();

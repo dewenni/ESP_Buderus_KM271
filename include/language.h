@@ -130,6 +130,8 @@ const char* OTA_2[MAX_LANG] =                    {"Für OTA Update gehe zu: ",  
 const char* TEMP_OUT[MAX_LANG] =                 {"Außentemperatur",                                            "Temperature outdoor"};
 const char* TEMP_OUT_ACT[MAX_LANG] =             {"aktuell °C",                                                 "actually °C"};
 const char* TEMP_OUT_DMP[MAX_LANG] =             {"gedämpft °C",                                                "damped °C"};
+const char* MQTT_CFG_RET[MAX_LANG] =             {"Config Nachrichten als retain",                              "config mssages as retain"};
+const char* ACTIVATE[MAX_LANG] =                 {"Aktivieren",                                                 "activate"};
 } s_webui_texts; 
 
 

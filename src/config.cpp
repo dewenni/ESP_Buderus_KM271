@@ -142,6 +142,7 @@ void configSaveToFile() {
     doc["mqtt"]["password"] = config.mqtt.password;
     doc["mqtt"]["topic"] = config.mqtt.topic;
     doc["mqtt"]["port"] = config.mqtt.port;
+    doc["mqtt"]["config_retain"] = config.mqtt.config_retain;
 
     doc["ntp"]["enable"] = config.ntp.enable;
     doc["ntp"]["server"] = config.ntp.server;
@@ -220,6 +221,7 @@ void configLoadFromFile() {
     snprintf(config.mqtt.password, sizeof(config.mqtt.password), doc["mqtt"]["password"]);
     snprintf(config.mqtt.topic, sizeof(config.mqtt.topic), doc["mqtt"]["topic"]);
     config.mqtt.port = doc["mqtt"]["port"];
+    config.mqtt.config_retain = doc["mqtt"]["config_retain"];
 
     config.ntp.enable = doc["ntp"]["enable"];
     snprintf(config.ntp.server, sizeof(config.ntp.server), doc["ntp"]["server"]);
