@@ -4,7 +4,7 @@
 MQTT commands (write)
 
 With the following commands, you can control your Logamatic.
-There are commands for changing the operation mode and also commands to chage parameters 
+There are commands for changing the operation mode and also commands to change parameters 
 like setpoint temperatures
 
 =================================================================================================
@@ -31,11 +31,11 @@ payload:    (0=night / 1=day / 2=auto)
 
 command:    heating circuit 1: program
 topic:      {"setvalue/hk1_programm", setvalue/hc1_program"}
-palyoad:    (0=custom / 1=family / 2=early / 3=late / 4=AM / 5=PM / 6=noon / 7=single / 8=senior)
+payload:    (0=custom / 1=family / 2=early / 3=late / 4=AM / 5=PM / 6=noon / 7=single / 8=senior)
 
 command:    heating circuit 2: program
 topic:      {"setvalue/hk2_programm", setvalue/hc2_program"}
-palyoad:    (0=custom / 1=family / 2=early / 3=late / 4=AM / 5=PM / 6=noon / 7=single / 8=senior)
+payload:    (0=custom / 1=family / 2=early / 3=late / 4=AM / 5=PM / 6=noon / 7=single / 8=senior)
 
 command:    heating circuit 1: design temperature for heating curves
 topic:      {"setvalue/hk1_auslegung", setvalue/hc1_interpretation"}
@@ -61,7 +61,7 @@ command:    heating circuit 2: day temperature ww_setpoint
 topic:      {"setvalue/hk2_tag_soll", setvalue/hc2_day_setpoint"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
-command:    heating circuit 1: nigth temperature ww_setpoint
+command:    heating circuit 1: night temperature ww_setpoint
 topic:      {"setvalue/hk1_nacht_soll", setvalue/hc1_night_setpoint"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
@@ -69,7 +69,7 @@ command:    heating circuit 2: night temperature ww_setpoint
 topic:      {"setvalue/hk2_nacht_soll", setvalue/hc2_night_setpoint"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
-command:    heating circuit 1: nigth temperature ww_setpoint
+command:    heating circuit 1: night temperature ww_setpoint
 topic:      {"setvalue/hk1_ferien_soll", setvalue/hc1_holiday_setpoint"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
@@ -101,17 +101,17 @@ command:    warm water: setpoint temperature
 topic:      {"setvalue/ww_soll", setvalue/ww_setpoint"}
 payload:    Resolution: 1 [°C] - Range: 30 ... 60 [°C]
 
-command:    heating circuit 1: count of days for holiday mode (Logamatic will dekrement every day by one)
+command:    heating circuit 1: count of days for holiday mode (Logamatic will decrement every day by one)
 topic:      {"setvalue/hk1_ferien_tage", setvalue/hc1_holidays"}
 payload:    count of days 0 .. 99
 
-command:    heating circuit 2: count of days for holiday mode (Logamatic will dekrement every day by one)
-topic:      {"setvalue/hk2_ferien_tage", setvalue/hc2_holidays"}
+command:    heating circuit 2: count of days for holiday mode (Logamatic will decrement every day by one)
+topic:      {"setvalue/hk1_ferien_tage", setvalue/hc1_holidays"}
 payload:    count of days 0 .. 99
 
 command:    warm water pump cycles
 topic:      {"setvalue/ww_pumpen_zyklus", setvalue/ww_pump_cycles"}
-payload:    Resolution: 1 [cyles/hour] - Range: 0:OFF | 1..6 | 7:ON
+payload:    Resolution: 1 [cycles/hour] - Range: 0:OFF | 1..6 | 7:ON
 
 =================================================================================================
 
@@ -124,37 +124,37 @@ This values are read at startup or if you change settings direct on the Logamati
 ------- h e a t i n g - c i r c u i t - 1 / 2 ---------------------------------------------------
 (The same values are available for heating circuit 2. The topic change from HK1->HK2 / hc1->hc2)
 
-value:      heating circuit 1: night setpoint temperatue
+value:      heating circuit 1: night setpoint temperature
 topic:      {"HK1_Nachttemperatur", "hc1_night_temp"}
-payload:    temperatur [°C]
+payload:    temperature [°C]
 
-value:      heating circuit 1: day setpoint temperatue
+value:      heating circuit 1: day setpoint temperature
 topic:      {"HK1_Tagtemperatur", "hc1_day_temp"}
-payload:    temperatur [°C]
+payload:    temperature [°C]
 
 value:      heating circuit 1: operation mode
 topic:      {"HK1_Betriebsart", "hc1_operation_mode"}
 payload:    {"night", "day", "auto"} / {"Nacht", "Tag", "Automatik"};
 
-value:      heating circuit 1: holiday setpoint temperatue
+value:      heating circuit 1: holiday setpoint temperature
 topic:      {"HK1_Urlaubtemperatur", "hc1_holiday_temp"}
-payload:    temperatur [°C]
+payload:    temperature [°C]
 
-value:      heating circuit 1: maximum temperatue
+value:      heating circuit 1: maximum temperature
 topic:      {"HK1_Max_Temperatur", "hc1_max_temp"}
-payload:    temperatur [°C]
+payload:    temperature [°C]
 
 value:      heating circuit 1: design temperature for heating curves
 topic:      {"HK1_Auslegung", "hc1_interpretation"}
-payload:    temperatur [°C]
+payload:    temperature [°C]
 
 value:      heating circuit 1: switch on temperature
 topic:      {"HK1_Aufschalttemperatur", "hc1_switch_on_temperature"}
-payload:    temperatur [°C]
+payload:    temperature [°C]
 
 value:      heating circuit 1: switch off threshold for reduction mode
 topic:      {"HK1_Aussenhalt_ab", "hc1_switch_off_threshold"}
-payload:    temperatur [°C]
+payload:    temperature [°C]
 
 value:      heating circuit 1: reduction mode
 topic:      {"HK1_Absenkungsart", "hc1_reduction_mode"}
@@ -166,7 +166,7 @@ payload:    {"off","radiator","-","underfloor"} / {"Aus","Heizkoerper","-","Fuss
 
 value:      heating circuit 1: temperature offset
 topic:      {"HK1_Temperatur_Offset", "hc1_temp_offset"}
-payload:    temperatur [°C]
+payload:    temperature [°C]
 
 value:      heating circuit 1: remote control
 topic:      {"HK1_Fernbedienung", "hc1_remotecontrol"}
@@ -181,18 +181,26 @@ topic:      {"HK1_Timer01", "hc1_timer01"} .. {"HK1_Timer14", "hc1_timer14"}
 payload:    example: {SP01: Mo 05:40  (An)  | SP02: Mo 22:10  (Aus)  | SP03: Di 05:30  (An)}
 
 value:      heating circuit 1: remaining holiday days
-topic:      {"HK2_Ferien_Tage", "hc2_holiday_days"}
+topic:      {"HK1_Ferien_Tage", "hc1_holiday_days"}
 payload:    0..99 {Tage / days}
+
+value:      heating circuit 1: frost protection threshold temperature
+topic:      {"HK1_Frost_ab", "hc1_frost_protection_threshold"}
+payload:    temperature [°C]
+
+value:      heating circuit 1: summer mode threshold temperature
+topic:      {"HK1_Sommer_ab", "hc1_summer_mode_threshold"}
+payload:    temperature [°C]
 
 ------- w a r m -  w a t e r ----------------------------------------------------------------
 
 value:      warm water: priority
 topic:      {"WW_Vorrang", "ww_priority"}
-palyoad:    {"off","on"} / {"Aus","An"}
+payload:    {"off","on"} / {"Aus","An"}
 
 value:      warm water: setpoint temperature
 topic:      {"WW_Temperatur", "ww_temp"}
-palyoad:    temperatur [°C]
+payload:    temperature [°C]
 
 value:      warm water: operation mode
 topic:      {"WW_Betriebsart", "ww_operation_mode"}
@@ -200,61 +208,53 @@ payload:    {"night", "day", "auto"} / {"Nacht", "Tag", "Automatik"}
 
 value:      warm water: processing
 topic:      {"WW_Aufbereitung", "ww_processing"}
-palyoad:    {"off","on"} / {"Aus","An"}
+payload:    {"off","on"} / {"Aus","An"}
 
 value:      warm water: circulation
 topic:      {"WW_Zirkulation", "ww_circulation"}
-palyoad:    {"off","on"} / {"Aus","An"}
+payload:    {"off","on"} / {"Aus","An"}
 
 ------- g e n e r a l -  v a l u e s ----------------------------------------------------------
 
-value:      frost protection threshold temperatue
-topic:      {"Frost_ab", "frost_protection_threshold"}
-payload:    temperatur [°C]
-
-value:      summer mode threshold temperatue
-topic:      {"Sommer_ab", "summer_mode_threshold"}
-payload:    temperatur [°C]
-
 value:      building type
 topic:      {"Gebaeudeart", "building_type"}
-palyoad:    {"Leicht","Mittel","Schwer"} / {"light","medium","heavy"}
+payload:    {"Leicht","Mittel","Schwer"} / {"light","medium","heavy"}
 
 value:      logamatic display language
 topic:      {"Sprache", "language"}
-palyoad:    {"DE", "FR", "IT", "NL", "EN", "PL"}
+payload:    {"DE", "FR", "IT", "NL", "EN", "PL"}
 
 value:      logamatic display value
 topic:      {"Anzeige", "display"}
-palyoad:    {"Automatik", "Kessel", "Warmwasser", "Aussen"} / {"auto", "boiler", "DHW", "outdoor"}
+payload:    {"Automatik", "Kessel", "Warmwasser", "Aussen"} / {"auto", "boiler", "DHW", "outdoor"}
 
 value:      burner type
 topic:      {"Brennerart", "burner_type"}
-palyoad:    {"1-stufig","2-stufig","Modulierend"} / {"1-stage","2-stage","modulated"}
+payload:    {"1-stufig","2-stufig","Modulierend"} / {"1-stage","2-stage","modulated"}
 
 value:      maximum boiler temperature
 topic:      {"Max_Kesseltemperatur", "max_boiler_temperature"}
-palyoad:    temperatur [°C]
+payload:    temperature [°C]
 
 value:      pump logic temperature
 topic:      {"Pumplogik", "pump_logic_temp"}
-palyoad:    temperatur [°C]
+payload:    temperature [°C]
 
 value:      exhaust gas temperature threshold
 topic:      {"Abgastemperaturschwelle", "exhaust_gas_temperature_threshold"}
-palyoad:    temperatur [°C]
+payload:    temperature [°C]
 
-value:      burner [min]imum modulation time
+value:      burner minimum modulation time
 topic:      {"Brenner_Min_Modulation", "burner_min_modulation"}
-palyoad:    time [min]
+payload:    time [min]
 
 value:      burner modulation runtime
 topic:      {"Brenner_Mod_Laufzeit", "burner_modulation_runtime"}
-palyoad:    time [min]
+payload:    time [min]
 
 value:      time offset
 topic:      {"Uhrzeit_Offset", "time_offset"}
-palyoad:    time [min]
+payload:    time [min]
 
 
 
@@ -337,11 +337,11 @@ value:      heating circuit 1: flow actual temperature
 topic:      {"HK1_Vorlaufisttemperatur", "hc1_flow_temp"}
 payload:    temp [°C]
 
-value:      heating circuit 1: room setpoint temperatue
+value:      heating circuit 1: room setpoint temperature
 topic:      {"HK1_Raumsolltemperatur", "hc1_room_setpoint"}
 payload:    temp [°C]
 
-value:      heating circuit 1: room actual temperatue
+value:      heating circuit 1: room actual temperature
 topic:      {"HK1_Raumisttemperatur", "hc1_room_temp"}
 payload:    temp [°C]
 

@@ -126,8 +126,8 @@ One of them is [ESPHome-Flasher](https://github.com/esphome/esphome-flasher/rele
 
 ## OTA-Updates
 
-since software version 3.0, you can also update the software with the new Elegant OTA web upload.
-you can find the link to that separate webserver in the settings tab of the normal webUI.
+since software version 3.0, you can also update the software with the new Elegant OTA web upload.  
+You can find the link to that separate webserver in the settings tab of the normal webUI.
 
 ![ota-ip](Doc/ota-ip.png)
 
@@ -280,7 +280,7 @@ payload:    0=night / 1=day / 2=auto
 
 command:    heating circuit 1: program
 topic:      {"setvalue/hk1_programm", setvalue/hc1_program"}
-palyoad:    (0=custom / 1=family / 2=early / 3=late / 4=AM / 5=PM / 6=noon / 7=single / 8=senior)
+payload:    (0=custom / 1=family / 2=early / 3=late / 4=AM / 5=PM / 6=noon / 7=single / 8=senior)
 
 command:    heating circuit 1: design temperature for heating curves
 topic:      {"setvalue/hk1_auslegung", setvalue/hc1_interpretation"}
