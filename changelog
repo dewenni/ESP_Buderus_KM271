@@ -1,0 +1,334 @@
+# v0.0.1
+
+first public version
+
+---
+
+# v0.0.2
+
+## what's new
+new command to switch between different heating programs
+
+```
+Topic: esp_heizung/setvalue/hk1_programm 
+Payload: 0..8
+```
+
+0=Eigen
+1=Familie
+2=Frueh
+3=Spaet
+4=Vormittag
+5=Nachmittag
+6=Mittag
+7=Single
+8=Senior
+
+## changelog
+
+- add program information to mqtt messages
+
+---
+
+# v1.0.0
+
+## what's new
+
+add support for "Heating Circuit 2"
+
+- [X] added Config values
+- [X] added Status values
+- [X] added Commands
+
+for more informations take a look at the **[wiki](https://github.com/dewenni/ESP_Buderus_KM271/wiki)**
+
+## changelog
+
+- add support for "Heating Circuit 2"
+
+----------------------------------------------------------------
+
+# v1.1.0
+
+## what's new
+add Program Timer Information to the config values.
+
+Each **program** has up to **42 switch points** (SP).  
+Each switch point includes the **day**, **time** and **switch state** (on/off).
+
+example for heating circuit 1:
+```
+HK1_Timer01 = SP01: Mo  05:30  (An)  | SP02: Mo  22:00  (Aus)  | SP03: Di  05:30  (An)  
+HK1_Timer02 = SP04: Di  22:00  (Aus)  | SP05: Mi  05:30  (An)  | SP06: Mi  22:00  (Aus)  
+HK1_Timer03 = SP07: Do  05:30  (An)  | SP08: Do  22:00  (Aus)  | SP09: Fr  05:30  (An)  
+HK1_Timer04 = SP10: Fr  23:00  (Aus)  | SP11: Sa  06:30  (An)  | SP12: Sa  23:30  (Aus)  
+HK1_Timer05 = SP13: So  07:00  (An)  | SP14: So  22:00  (Aus)  | SP15: frei  
+HK1_Timer06 = SP16: frei | SP17: frei | SP18: frei  
+HK1_Timer07 = SP19: frei | SP20: frei | SP21: frei 
+HK1_Timer08 = SP22: frei | SP23: frei | SP24: frei  
+HK1_Timer09 = SP25: frei | SP26: frei | SP27: frei  
+HK1_Timer10 = SP28: frei | SP29: frei | SP30: frei  
+HK1_Timer11 = SP31: frei | SP32: frei | SP33: frei  
+HK1_Timer12 = SP34: frei | SP35: frei | SP36: frei  
+HK1_Timer13 = SP37: frei | SP38: frei | SP39: frei  
+HK1_Timer14 = SP40: frei | SP41: frei | SP42: frei  
+```
+
+## changelog
+
+- add new timer information to mqtt config messages
+
+---
+
+# v1.2.1
+
+## what's new
+
+You can switch between german and english mqtt topics.  
+
+There is a new config option in **[/include/config.h](https://github.com/dewenni/ESP_Buderus_KM271/blob/aa369b0bc6e71b8ec41ad1284f3467846cb56dcc/include/config.h)**
+```
+#define LANG                0           // 0=GERMAN / 1=ENGLISH
+```
+
+You can also change or add the used texts, by editing **[/include/language.h](https://github.com/dewenni/ESP_Buderus_KM271/blob/0439aeb246c99b3b6733f8a491dcddebd77829e8/include/language.h)**
+
+With that, I hope you have all the flexibility to adapt this software for your needs and your smart home environment.
+
+## changelog
+
+- add multi language support
+
+---
+
+# v1.3.3
+
+---
+
+**:heavy_exclamation_mark: I have changed the linked tag of this release from v1.3.1 to v1.3.3 because the was a mistake in v1.3.1**
+
+---
+
+## what's new
+
+### new alarm messages
+
+with this release, the software also supports the last 4 alarm messages from the Logamatic.
+The informations are from the messages (0x0300, 0x0307, 0x030e, 0x0315), and will be send with the MQTT topic: "/alarm/"
+
+If the failure is still active, you will get a message in this format:
+```
+failure outdoor sensor (>> 16:31 -3 days)
+```
+
+If the failure is already gone, you will get a message in this format:
+```
+failure outdoor sensor (>> 16:31 -3 days | << 20:40 -2 days)
+```
+the language of the alarm texts are also depending on the language config Flag and are available in german and english.
+
+### new set values
+
+- ```/setvalue/hc1_holidays``` and ```/setvalue/hc2_holidays```
+ Resolution: 1 day - Setting range: 0 - 99 days
+ Note: This value is reduced by 1 every day by the controller.
+
+- ```/setvalue/hc1_day_setpoint ``` and ```/setvalue/hc2_day_setpoint```
+ Resolution: 0.5 °C - Range: 10 – 30 °C 
+- ```/setvalue/hc1_night_setpoint``` and ```/setvalue/hc2_night_setpoint```
+ Resolution: 0.5 °C - Range: 10 – 30 °C 
+- ```/setvalue/hc1_holiday_setpoint``` and ```/setvalue/hc2_holiday_setpoint```
+ Resolution: 0.5 °C - Range: 10 – 30 °C 
+
+## changelog
+
+- add alarm messages
+- add new set values
+
+---
+
+# v1.3.4
+
+## what's new
+As not every Logamatic Model seems to support the alarm messages, I have added a config flag to be able to disable this messages.
+
+## changelog
+
+- Alarm message configurable #8 
+
+---
+
+# v2.0.0
+
+## what's new
+this release brings a new onboard webUI to monitor and control your Logamatic from the web browser. 🥳  
+The webUI can be enabled/disabled within the config.h settings and can be accessed by the ip-address of your ESP.  
+The values are automatically refreshed if they change.  
+
+<img width="1062" alt="image" src="https://user-images.githubusercontent.com/46074831/212485914-3ac7b0ae-12a0-479a-bb8a-3af1ae9e0853.png">
+
+**more details and screenshots can be found in the additional [wiki section](https://github.com/dewenni/ESP_Buderus_KM271/wiki/4.-WebUI)**
+
+## changelog
+
+- new webUI
+- improved String handling (changed type String to type char for most variables)
+- added calculated oil consumption (see config.h) #3 
+
+---
+
+# v2.1.0
+
+## what's new
+new function to set date and time from webUI
+If the NTP Server is used, you can set the actual ESP time to the Logamatic.
+But it is also possible to set date and time manually from the webUI.
+
+<img width="472" alt="image" src="https://user-images.githubusercontent.com/46074831/213874759-0197cd4c-2237-43cc-b2d3-01a699afb070.png">
+
+## changelog
+
+    - change remaining Strings from type String to type char  
+    - add limit function for cfgArray index  
+    - km271SetDateTime() - day of week was wrong, fix mqtt response message 
+    - rename km271SetDateTime() to km271SetDateTimeNTP()  
+    - new function km271SetDateTimeDTI() to set time manually from webUI 
+    - config options for NTP-Server and km271SetDateTimeNTP()  
+    - config options for hardware settings
+    - rename mqtt "info message" to "debug"
+    - add new info message with relevant logamatic status values
+
+---
+
+# v2.2.0
+
+## what's new
+
+- new function to set the operation cycles of the warm water circulation pump over mqtt  (#14)
+
+```
+command:    warm water pump cycles
+topic:      {"setvalue/ww_pumpen_zyklus", setvalue/ww_pump_cycles"}  
+payload:    Resolution: 1 [cyles/hour] - Range: 0:OFF | 1..6 | 7:ON
+```
+
+and also from the webUI:
+<img width="471" alt="image" src="https://user-images.githubusercontent.com/46074831/215259504-e05c46c8-2c93-48e2-8328-d9b9b635e2ee.png">
+
+- There is also a new **[param.txt](https://github.com/dewenni/ESP_Buderus_KM271/blob/1c3b92ba8c515077c627aaf876f2f54df3c393f8/param.txt)** that contains a List of all mqtt commands and status values.
+
+---
+
+# v2.3.0
+
+## what's new
+
+CHANGE: ```summer mode threshold``` and ```frost_mode_threshold``` divided into separate values for heating circuit 1 and heating circuit 2 (#19)
+
+❗️Attention: the mqtt commands changed ❗️
+```
+// NEW: Heating circuit 1
+command:    heating circuit 1: summer mode threshold Temperature
+topic:      {"setvalue/hk1_sommer_ab", setvalue/hc1_summer_mode_threshold"}
+payload:    Resolution: 1 [°C] - Range: 9:Summer | 10°..30° | 31:Winter
+
+command:    heating circuit 2: summer mode threshold Temperature
+topic:      {"setvalue/hk2_sommer_ab", setvalue/hc2_summer_mode_threshold"}
+payload:    Resolution: 1 [°C] - Range: 9:Summer | 10°..30° | 31:Winter
+
+// NEW: Heating circuit 2
+command:    heating circuit 1: frost mode threshold Temperature
+topic:      {"setvalue/hk1_frost_ab", setvalue/hc1_frost_mode_threshold"}
+payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
+
+command:    heating circuit 2: frost mode threshold Temperature
+topic:      {"setvalue/hk2_frost_ab", setvalue/hc2_frost_mode_threshold"}
+payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
+```
+
+Also the **webUI** changed a bit depending this values. The values moved from "general values" to "heating circuit 1" and "heating circuit 2"
+
+
+## changelog
+
+- #19 ```summer mode threshold``` and ```frost_mode_threshold``` divided into separate values for heating circuit 1 and heating circuit 2
+- #19 bugfix in callback of operation modes (heating circuit 1, heating circuit 2 and hot water) in webUI - did not work before!
+- bugfix a typo in description for ```summer mode threshold``` (9:winter / 31:summer => 9:summer / 31:winter)
+    
+
+---
+
+# v3.0.0
+
+## what's new
+
+🎉 this is a major update with a lot of cool new features! 🎉
+The webUI was redesigned for a better availability and stability. It reacts faster and the resource problem could hopefully be solved.
+There is also a completely new configuration section in the webUI, where you can configure all the settings.
+Its also now possible to show heating circuit 1 and heating circuit 2 in parallel.
+
+The OTA Library has changed from ArduinoOTA to AsyncElegantOTA. With that, there is also the possibility to update the Software without PlatformIO.  
+In Future you can update the software with the `firmware.bin` files from the release section and upload this directly on the webUI.
+
+To get access to the webUI, even when there is no valid WiFi configuration, there is a new "Setup-Mode".
+The "Setup-Mode" starts automatically if the configuration is invalid or missing and can be activated manually.  
+To enable it manually, press the Reset-Button on the ESP and click it again within 5 Seconds.
+If the ESP goes into "Setup Mode", it will automatically create a own network access point with ssid 📶 `"ESP-Buderus-KM271"`  
+After you are connected to this network, you can open the webUI on ip-address **"http://192.168.4.1"**
+
+## changelog
+
+- re-work of the webUI value Tables for better stability
+- remove `credentials.h`
+- remove configuration options in `config.h`
+- add new possibility to configure everything in the webUI
+- new "Setup-Mode" with fallback Access-Point
+- remove Wiki and extend `README.md`
+
+---
+
+# v3.0.1
+
+## what's new
+
+this is a bugfix Version of the latest major release V3
+see all details of the first V3 release here: [Release v3.0.0](https://github.com/dewenni/ESP_Buderus_KM271/releases/tag/v3.0.0)
+
+## changelog
+
+- fix some Translation issues #23
+- increase char length of mqtt server from 20 to 128
+- change datapoint of mqtt-port from int to uint16_t
+
+---
+
+# v3.1.0
+
+## what's new
+
+- new Widget with outdoor temperatures on the dashboard
+
+see all details of the first V3 release here: [Release v3.0.0](https://github.com/dewenni/ESP_Buderus_KM271/releases/tag/v3.0.0)
+
+
+## changelog
+
+- fix LED config for Setup-Mode (for the78Mole Board, LED on GPIO21 is used to show Setup-Mode)
+- fix virtual oilmeter is not shown in webUI #24
+- fix mqtt info response message for ww_opmode
+
+---
+
+# v3.2.0
+
+## what's new
+
+- new Option to configure config messages from Logamatic in mqtt as retain #28
+
+see all details of the first V3 release here: [Release v3.0.0](https://github.com/dewenni/ESP_Buderus_KM271/releases/tag/v3.0.0)
+
+## changelog
+
+- mqtt option to set config messages as retain #28
+- change format specifier for printf #27
+- fix some typos in [param.txt](Doc/param.txt)
