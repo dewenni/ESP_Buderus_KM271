@@ -1,4 +1,4 @@
 pydantic
 pydantic_yaml
-pyyaml
+ruamel.yaml
 typing
