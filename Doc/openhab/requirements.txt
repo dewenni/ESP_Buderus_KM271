@@ -1,0 +1,4 @@
+pydantic
+pydantic_yaml
+pyyaml
+typing

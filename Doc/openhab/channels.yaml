@@ -1,0 +1,1184 @@
+channels:
+  - id: burner_status
+    channelTypeUID: mqtt:number
+    label: Brenner_Status
+    description: "Burner running 1 or 0"
+    configuration:
+      stateTopic: esp_heizung/info
+      transformationPattern: JSONPATH:$.burner
+  - id: pump_status
+    channelTypeUID: mqtt:number
+    label: Pumpen_Status
+    description: "Pump running 1 or 0"
+    configuration:
+      stateTopic: esp_heizung/info
+      transformationPattern: JSONPATH:$.pump
+  - id: ww_temp
+    channelTypeUID: mqtt:number
+    label: WW_Temperatur
+    description: "Warm water temperature"
+    configuration:
+      stateTopic: esp_heizung/info
+      transformationPattern: JSONPATH:$.ww_temp
+      unit: "�C"
+  - id: boiler_temp
+    channelTypeUID: mqtt:number
+    label: Kessel_Temperatur
+    description: "Boiler temperature"
+    configuration:
+      stateTopic: esp_heizung/info
+      transformationPattern: JSONPATH:$.boiler_temp
+      unit: "�C"
+  - id: , cmd_restart
+    channelTypeUID: mqtt:string
+    label: , cmd_restart
+    description: "restart ESP"
+    configuration:
+      commandTopic: esp_heizung/, cmd/restart
+  - id: setvalue_setdatetime
+    channelTypeUID: mqtt:string
+    label: setvalue_setdatetime
+    description: "set date & time of Logamatic"
+    configuration:
+      commandTopic: esp_heizung/setvalue/setdatetime
+  - id: setvalue_oilcounter
+    channelTypeUID: mqtt:string
+    label: setvalue_oilcounter
+    description: "set oilcounter to given value"
+    configuration:
+      commandTopic: esp_heizung/setvalue/oilcounter
+  - id: setvalue_hk1_betriebsart
+    channelTypeUID: mqtt:string
+    label: setvalue_hk1_betriebsart
+    description: "heating circuit 1: operation mode "
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk1_betriebsart
+  - id: setvalue_hk2_betriebsart
+    channelTypeUID: mqtt:string
+    label: setvalue_hk2_betriebsart
+    description: "heating circuit 2: operation mode "
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk2_betriebsart
+  - id: setvalue_hk1_programm
+    channelTypeUID: mqtt:string
+    label: setvalue_hk1_programm
+    description: "heating circuit 1: program"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk1_programm
+  - id: setvalue_hk2_programm
+    channelTypeUID: mqtt:string
+    label: setvalue_hk2_programm
+    description: "heating circuit 2: program"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk2_programm
+  - id: setvalue_hk1_auslegung
+    channelTypeUID: mqtt:string
+    label: setvalue_hk1_auslegung
+    description: "heating circuit 1: design temperature for heating curves"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk1_auslegung
+  - id: setvalue_hk2_auslegung
+    channelTypeUID: mqtt:string
+    label: setvalue_hk2_auslegung
+    description: "heating circuit 2: design temperature for heating curves"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk2_auslegung
+  - id: setvalue_hk1_aussenhalt_ab
+    channelTypeUID: mqtt:string
+    label: setvalue_hk1_aussenhalt_ab
+    description: "heating circuit 1: switch off threshold for reduction mode"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk1_aussenhalt_ab
+  - id: setvalue_hk2_aussenhalt_ab
+    channelTypeUID: mqtt:string
+    label: setvalue_hk2_aussenhalt_ab
+    description: "heating circuit 2: switch off threshold for reduction mode"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk2_aussenhalt_ab
+  - id: setvalue_hk1_tag_soll
+    channelTypeUID: mqtt:string
+    label: setvalue_hk1_tag_soll
+    description: "heating circuit 1: day temperature ww_setpoint"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk1_tag_soll
+  - id: setvalue_hk2_tag_soll
+    channelTypeUID: mqtt:string
+    label: setvalue_hk2_tag_soll
+    description: "heating circuit 2: day temperature ww_setpoint"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk2_tag_soll
+  - id: setvalue_hk1_nacht_soll
+    channelTypeUID: mqtt:string
+    label: setvalue_hk1_nacht_soll
+    description: "heating circuit 1: night temperature ww_setpoint"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk1_nacht_soll
+  - id: setvalue_hk2_nacht_soll
+    channelTypeUID: mqtt:string
+    label: setvalue_hk2_nacht_soll
+    description: "heating circuit 2: night temperature ww_setpoint"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk2_nacht_soll
+  - id: setvalue_hk1_ferien_soll
+    channelTypeUID: mqtt:string
+    label: setvalue_hk1_ferien_soll
+    description: "heating circuit 1: night temperature ww_setpoint"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk1_ferien_soll
+  - id: setvalue_hk2_ferien_soll
+    channelTypeUID: mqtt:string
+    label: setvalue_hk2_ferien_soll
+    description: "heating circuit 2: night temperature ww_setpoint"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk2_ferien_soll
+  - id: setvalue_ww_betriebsart
+    channelTypeUID: mqtt:string
+    label: setvalue_ww_betriebsart
+    description: "warm water: operation mode"
+    configuration:
+      commandTopic: esp_heizung/setvalue/ww_betriebsart
+  - id: setvalue_hk1_sommer_ab
+    channelTypeUID: mqtt:string
+    label: setvalue_hk1_sommer_ab
+    description: "heating circuit 1: summer mode threshold Temperature"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk1_sommer_ab
+  - id: setvalue_hk2_sommer_ab
+    channelTypeUID: mqtt:string
+    label: setvalue_hk2_sommer_ab
+    description: "heating circuit 2: summer mode threshold Temperature"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk2_sommer_ab
+  - id: setvalue_hk1_frost_ab
+    channelTypeUID: mqtt:string
+    label: setvalue_hk1_frost_ab
+    description: "heating circuit 1: frost mode threshold Temperature"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk1_frost_ab
+  - id: setvalue_hk2_frost_ab
+    channelTypeUID: mqtt:string
+    label: setvalue_hk2_frost_ab
+    description: "heating circuit 2: frost mode threshold Temperature"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk2_frost_ab
+  - id: setvalue_ww_soll
+    channelTypeUID: mqtt:string
+    label: setvalue_ww_soll
+    description: "warm water: setpoint temperature"
+    configuration:
+      commandTopic: esp_heizung/setvalue/ww_soll
+  - id: setvalue_hk1_ferien_tage
+    channelTypeUID: mqtt:string
+    label: setvalue_hk1_ferien_tage
+    description: "heating circuit 1: count of days for holiday mode (Logamatic will
+    decrement every day by one)"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk1_ferien_tage
+  - id: setvalue_hk1_ferien_tage
+    channelTypeUID: mqtt:string
+    label: setvalue_hk1_ferien_tage
+    description: "heating circuit 2: count of days for holiday mode (Logamatic will
+    decrement every day by one)"
+    configuration:
+      commandTopic: esp_heizung/setvalue/hk1_ferien_tage
+  - id: setvalue_ww_pumpen_zyklus
+    channelTypeUID: mqtt:string
+    label: setvalue_ww_pumpen_zyklus
+    description: "warm water pump cycles"
+    configuration:
+      commandTopic: esp_heizung/setvalue/ww_pumpen_zyklus
+  - id: HK1_Nachttemperatur
+    channelTypeUID: mqtt:string
+    label: HK1_Nachttemperatur
+    description: "heating circuit 1: night setpoint temperature"
+    configuration:
+      stateTopic: esp_heizung/config/HK1_Nachttemperatur
+  - id: HK2_Nachttemperatur
+    channelTypeUID: mqtt:string
+    label: HK2_Nachttemperatur
+    description: "heating circuit 2: night setpoint temperature"
+    configuration:
+      stateTopic: esp_heizung/config/HK2_Nachttemperatur
+  - id: HK1_Tagtemperatur
+    channelTypeUID: mqtt:string
+    label: HK1_Tagtemperatur
+    description: "heating circuit 1: day setpoint temperature"
+    configuration:
+      stateTopic: esp_heizung/config/HK1_Tagtemperatur
+  - id: HK2_Tagtemperatur
+    channelTypeUID: mqtt:string
+    label: HK2_Tagtemperatur
+    description: "heating circuit 2: day setpoint temperature"
+    configuration:
+      stateTopic: esp_heizung/config/HK2_Tagtemperatur
+  - id: HK1_Betriebsart
+    channelTypeUID: mqtt:string
+    label: HK1_Betriebsart
+    description: "heating circuit 1: operation mode"
+    configuration:
+      stateTopic: esp_heizung/config/HK1_Betriebsart
+  - id: HK2_Betriebsart
+    channelTypeUID: mqtt:string
+    label: HK2_Betriebsart
+    description: "heating circuit 2: operation mode"
+    configuration:
+      stateTopic: esp_heizung/config/HK2_Betriebsart
+  - id: HK1_Urlaubtemperatur
+    channelTypeUID: mqtt:string
+    label: HK1_Urlaubtemperatur
+    description: "heating circuit 1: holiday setpoint temperature"
+    configuration:
+      stateTopic: esp_heizung/config/HK1_Urlaubtemperatur
+  - id: HK2_Urlaubtemperatur
+    channelTypeUID: mqtt:string
+    label: HK2_Urlaubtemperatur
+    description: "heating circuit 2: holiday setpoint temperature"
+    configuration:
+      stateTopic: esp_heizung/config/HK2_Urlaubtemperatur
+  - id: HK1_Max_Temperatur
+    channelTypeUID: mqtt:string
+    label: HK1_Max_Temperatur
+    description: "heating circuit 1: maximum temperature"
+    configuration:
+      stateTopic: esp_heizung/config/HK1_Max_Temperatur
+  - id: HK2_Max_Temperatur
+    channelTypeUID: mqtt:string
+    label: HK2_Max_Temperatur
+    description: "heating circuit 2: maximum temperature"
+    configuration:
+      stateTopic: esp_heizung/config/HK2_Max_Temperatur
+  - id: HK1_Auslegung
+    channelTypeUID: mqtt:string
+    label: HK1_Auslegung
+    description: "heating circuit 1: design temperature for heating curves"
+    configuration:
+      stateTopic: esp_heizung/config/HK1_Auslegung
+  - id: HK2_Auslegung
+    channelTypeUID: mqtt:string
+    label: HK2_Auslegung
+    description: "heating circuit 2: design temperature for heating curves"
+    configuration:
+      stateTopic: esp_heizung/config/HK2_Auslegung
+  - id: HK1_Aufschalttemperatur
+    channelTypeUID: mqtt:string
+    label: HK1_Aufschalttemperatur
+    description: "heating circuit 1: switch on temperature"
+    configuration:
+      stateTopic: esp_heizung/config/HK1_Aufschalttemperatur
+  - id: HK2_Aufschalttemperatur
+    channelTypeUID: mqtt:string
+    label: HK2_Aufschalttemperatur
+    description: "heating circuit 2: switch on temperature"
+    configuration:
+      stateTopic: esp_heizung/config/HK2_Aufschalttemperatur
+  - id: HK1_Aussenhalt_ab
+    channelTypeUID: mqtt:string
+    label: HK1_Aussenhalt_ab
+    description: "heating circuit 1: switch off threshold for reduction mode"
+    configuration:
+      stateTopic: esp_heizung/config/HK1_Aussenhalt_ab
+  - id: HK2_Aussenhalt_ab
+    channelTypeUID: mqtt:string
+    label: HK2_Aussenhalt_ab
+    description: "heating circuit 2: switch off threshold for reduction mode"
+    configuration:
+      stateTopic: esp_heizung/config/HK2_Aussenhalt_ab
+  - id: HK1_Absenkungsart
+    channelTypeUID: mqtt:string
+    label: HK1_Absenkungsart
+    description: "heating circuit 1: reduction mode"
+    configuration:
+      stateTopic: esp_heizung/config/HK1_Absenkungsart
+  - id: HK2_Absenkungsart
+    channelTypeUID: mqtt:string
+    label: HK2_Absenkungsart
+    description: "heating circuit 2: reduction mode"
+    configuration:
+      stateTopic: esp_heizung/config/HK2_Absenkungsart
+  - id: HK1_Heizsystem
+    channelTypeUID: mqtt:string
+    label: HK1_Heizsystem
+    description: "heating circuit 1: heating system"
+    configuration:
+      stateTopic: esp_heizung/config/HK1_Heizsystem
+  - id: HK2_Heizsystem
+    channelTypeUID: mqtt:string
+    label: HK2_Heizsystem
+    description: "heating circuit 2: heating system"
+    configuration:
+      stateTopic: esp_heizung/config/HK2_Heizsystem
+  - id: HK1_Temperatur_Offset
+    channelTypeUID: mqtt:string
+    label: HK1_Temperatur_Offset
+    description: "heating circuit 1: temperature offset"
+    configuration:
+      stateTopic: esp_heizung/config/HK1_Temperatur_Offset
+  - id: HK2_Temperatur_Offset
+    channelTypeUID: mqtt:string
+    label: HK2_Temperatur_Offset
+    description: "heating circuit 2: temperature offset"
+    configuration:
+      stateTopic: esp_heizung/config/HK2_Temperatur_Offset
+  - id: HK1_Fernbedienung
+    channelTypeUID: mqtt:string
+    label: HK1_Fernbedienung
+    description: "heating circuit 1: remote control"
+    configuration:
+      stateTopic: esp_heizung/config/HK1_Fernbedienung
+  - id: HK2_Fernbedienung
+    channelTypeUID: mqtt:string
+    label: HK2_Fernbedienung
+    description: "heating circuit 2: remote control"
+    configuration:
+      stateTopic: esp_heizung/config/HK2_Fernbedienung
+  - id: HK1_Programm
+    channelTypeUID: mqtt:string
+    label: HK1_Programm
+    description: "heating circuit 1: program"
+    configuration:
+      stateTopic: esp_heizung/config/HK1_Programm
+  - id: HK2_Programm
+    channelTypeUID: mqtt:string
+    label: HK2_Programm
+    description: "heating circuit 2: program"
+    configuration:
+      stateTopic: esp_heizung/config/HK2_Programm
+  - id: HK1_Timer01
+    channelTypeUID: mqtt:string
+    label: HK1_Timer01
+    description: "heating circuit 1: timer configuration (Timer01..Timer14)"
+    configuration:
+      stateTopic: esp_heizung/config/HK1_Timer01
+  - id: HK2_Timer01
+    channelTypeUID: mqtt:string
+    label: HK2_Timer01
+    description: "heating circuit 2: timer configuration (Timer02..Timer24)"
+    configuration:
+      stateTopic: esp_heizung/config/HK2_Timer01
+  - id: HK1_Ferien_Tage
+    channelTypeUID: mqtt:string
+    label: HK1_Ferien_Tage
+    description: "heating circuit 1: remaining holiday days"
+    configuration:
+      stateTopic: esp_heizung/config/HK1_Ferien_Tage
+  - id: HK2_Ferien_Tage
+    channelTypeUID: mqtt:string
+    label: HK2_Ferien_Tage
+    description: "heating circuit 2: remaining holiday days"
+    configuration:
+      stateTopic: esp_heizung/config/HK2_Ferien_Tage
+  - id: HK1_Frost_ab
+    channelTypeUID: mqtt:string
+    label: HK1_Frost_ab
+    description: "heating circuit 1: frost protection threshold temperature"
+    configuration:
+      stateTopic: esp_heizung/config/HK1_Frost_ab
+  - id: HK2_Frost_ab
+    channelTypeUID: mqtt:string
+    label: HK2_Frost_ab
+    description: "heating circuit 2: frost protection threshold temperature"
+    configuration:
+      stateTopic: esp_heizung/config/HK2_Frost_ab
+  - id: HK1_Sommer_ab
+    channelTypeUID: mqtt:string
+    label: HK1_Sommer_ab
+    description: "heating circuit 1: summer mode threshold temperature"
+    configuration:
+      stateTopic: esp_heizung/config/HK1_Sommer_ab
+  - id: HK2_Sommer_ab
+    channelTypeUID: mqtt:string
+    label: HK2_Sommer_ab
+    description: "heating circuit 2: summer mode threshold temperature"
+    configuration:
+      stateTopic: esp_heizung/config/HK2_Sommer_ab
+  - id: WW_Vorrang
+    channelTypeUID: mqtt:string
+    label: WW_Vorrang
+    description: "warm water: priority"
+    configuration:
+      stateTopic: esp_heizung/config/WW_Vorrang
+  - id: WW_Temperatur
+    channelTypeUID: mqtt:string
+    label: WW_Temperatur
+    description: "warm water: setpoint temperature"
+    configuration:
+      stateTopic: esp_heizung/config/WW_Temperatur
+  - id: WW_Betriebsart
+    channelTypeUID: mqtt:string
+    label: WW_Betriebsart
+    description: "warm water: operation mode"
+    configuration:
+      stateTopic: esp_heizung/config/WW_Betriebsart
+  - id: WW_Aufbereitung
+    channelTypeUID: mqtt:string
+    label: WW_Aufbereitung
+    description: "warm water: processing"
+    configuration:
+      stateTopic: esp_heizung/config/WW_Aufbereitung
+  - id: WW_Zirkulation
+    channelTypeUID: mqtt:string
+    label: WW_Zirkulation
+    description: "warm water: circulation"
+    configuration:
+      stateTopic: esp_heizung/config/WW_Zirkulation
+  - id: Gebaeudeart
+    channelTypeUID: mqtt:string
+    label: Gebaeudeart
+    description: "building type"
+    configuration:
+      stateTopic: esp_heizung/config/Gebaeudeart
+  - id: Sprache
+    channelTypeUID: mqtt:string
+    label: Sprache
+    description: "logamatic display language"
+    configuration:
+      stateTopic: esp_heizung/config/Sprache
+  - id: Anzeige
+    channelTypeUID: mqtt:string
+    label: Anzeige
+    description: "logamatic display value"
+    configuration:
+      stateTopic: esp_heizung/config/Anzeige
+  - id: Brennerart
+    channelTypeUID: mqtt:string
+    label: Brennerart
+    description: "burner type"
+    configuration:
+      stateTopic: esp_heizung/config/Brennerart
+  - id: Max_Kesseltemperatur
+    channelTypeUID: mqtt:string
+    label: Max_Kesseltemperatur
+    description: "maximum boiler temperature"
+    configuration:
+      stateTopic: esp_heizung/config/Max_Kesseltemperatur
+  - id: Pumplogik
+    channelTypeUID: mqtt:string
+    label: Pumplogik
+    description: "pump logic temperature"
+    configuration:
+      stateTopic: esp_heizung/config/Pumplogik
+  - id: Abgastemperaturschwelle
+    channelTypeUID: mqtt:string
+    label: Abgastemperaturschwelle
+    description: "exhaust gas temperature threshold"
+    configuration:
+      stateTopic: esp_heizung/config/Abgastemperaturschwelle
+  - id: Brenner_Min_Modulation
+    channelTypeUID: mqtt:string
+    label: Brenner_Min_Modulation
+    description: "burner minimum modulation time"
+    configuration:
+      stateTopic: esp_heizung/config/Brenner_Min_Modulation
+  - id: Brenner_Mod_Laufzeit
+    channelTypeUID: mqtt:string
+    label: Brenner_Mod_Laufzeit
+    description: "burner modulation runtime"
+    configuration:
+      stateTopic: esp_heizung/config/Brenner_Mod_Laufzeit
+  - id: Uhrzeit_Offset
+    channelTypeUID: mqtt:string
+    label: Uhrzeit_Offset
+    description: "time offset"
+    configuration:
+      stateTopic: esp_heizung/config/Uhrzeit_Offset
+  - id: HK1_BW1_Ausschaltoptimierung
+    channelTypeUID: mqtt:number
+    label: HK1_BW1_Ausschaltoptimierung
+    description: "heating circuit 1: operating value 1: OFF time optimization"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_BW1_Ausschaltoptimierung
+  - id: HK2_BW1_Ausschaltoptimierung
+    channelTypeUID: mqtt:number
+    label: HK2_BW1_Ausschaltoptimierung
+    description: "heating circuit 2: operating value 2: OFF time optimization"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_BW1_Ausschaltoptimierung
+  - id: HK1_BW1_Einschaltoptimierung
+    channelTypeUID: mqtt:number
+    label: HK1_BW1_Einschaltoptimierung
+    description: "heating circuit 1: operating value 1: ON time optimization"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_BW1_Einschaltoptimierung
+  - id: HK2_BW1_Einschaltoptimierung
+    channelTypeUID: mqtt:number
+    label: HK2_BW1_Einschaltoptimierung
+    description: "heating circuit 2: operating value 2: ON time optimization"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_BW1_Einschaltoptimierung
+  - id: HK1_BW1_Automatik
+    channelTypeUID: mqtt:number
+    label: HK1_BW1_Automatik
+    description: "heating circuit 1: operating value 1: automatic"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_BW1_Automatik
+  - id: HK2_BW1_Automatik
+    channelTypeUID: mqtt:number
+    label: HK2_BW1_Automatik
+    description: "heating circuit 2: operating value 2: automatic"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_BW1_Automatik
+  - id: HK1_BW1_Warmwasservorrang
+    channelTypeUID: mqtt:number
+    label: HK1_BW1_Warmwasservorrang
+    description: "heating circuit 1: operating value 1: warm water priority"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_BW1_Warmwasservorrang
+  - id: HK2_BW1_Warmwasservorrang
+    channelTypeUID: mqtt:number
+    label: HK2_BW1_Warmwasservorrang
+    description: "heating circuit 2: operating value 2: warm water priority"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_BW1_Warmwasservorrang
+  - id: HK1_BW1_Estrichtrocknung
+    channelTypeUID: mqtt:number
+    label: HK1_BW1_Estrichtrocknung
+    description: "heating circuit 1: operating value 1: screed drying"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_BW1_Estrichtrocknung
+  - id: HK2_BW1_Estrichtrocknung
+    channelTypeUID: mqtt:number
+    label: HK2_BW1_Estrichtrocknung
+    description: "heating circuit 2: operating value 2: screed drying"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_BW1_Estrichtrocknung
+  - id: HK1_BW1_Ferien
+    channelTypeUID: mqtt:number
+    label: HK1_BW1_Ferien
+    description: "heating circuit 1: operating value 1: holiday mode"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_BW1_Ferien
+  - id: HK2_BW1_Ferien
+    channelTypeUID: mqtt:number
+    label: HK2_BW1_Ferien
+    description: "heating circuit 2: operating value 2: holiday mode"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_BW1_Ferien
+  - id: HK1_BW1_Frostschutz
+    channelTypeUID: mqtt:number
+    label: HK1_BW1_Frostschutz
+    description: "heating circuit 1: operating value 1: frost protection active"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_BW1_Frostschutz
+  - id: HK2_BW1_Frostschutz
+    channelTypeUID: mqtt:number
+    label: HK2_BW1_Frostschutz
+    description: "heating circuit 2: operating value 2: frost protection active"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_BW1_Frostschutz
+  - id: HK1_BW1_Manuell
+    channelTypeUID: mqtt:number
+    label: HK1_BW1_Manuell
+    description: "heating circuit 1: operating value 1: manual mode"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_BW1_Manuell
+  - id: HK2_BW1_Manuell
+    channelTypeUID: mqtt:number
+    label: HK2_BW1_Manuell
+    description: "heating circuit 2: operating value 2: manual mode"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_BW1_Manuell
+  - id: HK1_BW2_Sommer
+    channelTypeUID: mqtt:number
+    label: HK1_BW2_Sommer
+    description: "heating circuit 1: operating value 2 - summer mode"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_BW2_Sommer
+  - id: HK2_BW2_Sommer
+    channelTypeUID: mqtt:number
+    label: HK2_BW2_Sommer
+    description: "heating circuit 2: operating value 2 - summer mode"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_BW2_Sommer
+  - id: HK1_BW2_Tag
+    channelTypeUID: mqtt:number
+    label: HK1_BW2_Tag
+    description: "heating circuit 1: operating value 2 - day mode"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_BW2_Tag
+  - id: HK2_BW2_Tag
+    channelTypeUID: mqtt:number
+    label: HK2_BW2_Tag
+    description: "heating circuit 2: operating value 2 - day mode"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_BW2_Tag
+  - id: HK1_BW2_Keine_Komm_mit_FB
+    channelTypeUID: mqtt:number
+    label: HK1_BW2_Keine_Komm_mit_FB
+    description: "heating circuit 1: operating value 2 - remote control no connection"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_BW2_Keine_Komm_mit_FB
+  - id: HK2_BW2_Keine_Komm_mit_FB
+    channelTypeUID: mqtt:number
+    label: HK2_BW2_Keine_Komm_mit_FB
+    description: "heating circuit 2: operating value 2 - remote control no connection"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_BW2_Keine_Komm_mit_FB
+  - id: HK1_BW2_FB_fehlerhaft
+    channelTypeUID: mqtt:number
+    label: HK1_BW2_FB_fehlerhaft
+    description: "heating circuit 1: operating value 2 - remote control error"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_BW2_FB_fehlerhaft
+  - id: HK2_BW2_FB_fehlerhaft
+    channelTypeUID: mqtt:number
+    label: HK2_BW2_FB_fehlerhaft
+    description: "heating circuit 2: operating value 2 - remote control error"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_BW2_FB_fehlerhaft
+  - id: HK1_BW2_Fehler_Vorlauffuehler
+    channelTypeUID: mqtt:number
+    label: HK1_BW2_Fehler_Vorlauffuehler
+    description: "heating circuit 1: operating value 2 - failure flow sensor"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_BW2_Fehler_Vorlauffuehler
+  - id: HK2_BW2_Fehler_Vorlauffuehler
+    channelTypeUID: mqtt:number
+    label: HK2_BW2_Fehler_Vorlauffuehler
+    description: "heating circuit 2: operating value 2 - failure flow sensor"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_BW2_Fehler_Vorlauffuehler
+  - id: HK1_BW2_Maximaler_Vorlauf
+    channelTypeUID: mqtt:number
+    label: HK1_BW2_Maximaler_Vorlauf
+    description: "heating circuit 1: operating value 2 - failure flow at maximum"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_BW2_Maximaler_Vorlauf
+  - id: HK2_BW2_Maximaler_Vorlauf
+    channelTypeUID: mqtt:number
+    label: HK2_BW2_Maximaler_Vorlauf
+    description: "heating circuit 2: operating value 2 - failure flow at maximum"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_BW2_Maximaler_Vorlauf
+  - id: HK1_BW2_Externer_Stoereingang
+    channelTypeUID: mqtt:number
+    label: HK1_BW2_Externer_Stoereingang
+    description: "heating circuit 1: operating value 2 - failure external signal input"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_BW2_Externer_Stoereingang
+  - id: HK2_BW2_Externer_Stoereingang
+    channelTypeUID: mqtt:number
+    label: HK2_BW2_Externer_Stoereingang
+    description: "heating circuit 2: operating value 2 - failure external signal input"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_BW2_Externer_Stoereingang
+  - id: HK1_Vorlaufsolltemperatur
+    channelTypeUID: mqtt:number
+    label: HK1_Vorlaufsolltemperatur
+    description: "heating circuit 1: flow setpoint temperature"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_Vorlaufsolltemperatur
+      unit: "�C"
+  - id: HK2_Vorlaufsolltemperatur
+    channelTypeUID: mqtt:number
+    label: HK2_Vorlaufsolltemperatur
+    description: "heating circuit 2: flow setpoint temperature"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_Vorlaufsolltemperatur
+      unit: "�C"
+  - id: HK1_Vorlaufisttemperatur
+    channelTypeUID: mqtt:number
+    label: HK1_Vorlaufisttemperatur
+    description: "heating circuit 1: flow actual temperature"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_Vorlaufisttemperatur
+      unit: "�C"
+  - id: HK2_Vorlaufisttemperatur
+    channelTypeUID: mqtt:number
+    label: HK2_Vorlaufisttemperatur
+    description: "heating circuit 2: flow actual temperature"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_Vorlaufisttemperatur
+      unit: "�C"
+  - id: HK1_Raumsolltemperatur
+    channelTypeUID: mqtt:number
+    label: HK1_Raumsolltemperatur
+    description: "heating circuit 1: room setpoint temperature"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_Raumsolltemperatur
+      unit: "�C"
+  - id: HK2_Raumsolltemperatur
+    channelTypeUID: mqtt:number
+    label: HK2_Raumsolltemperatur
+    description: "heating circuit 2: room setpoint temperature"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_Raumsolltemperatur
+      unit: "�C"
+  - id: HK1_Raumisttemperatur
+    channelTypeUID: mqtt:number
+    label: HK1_Raumisttemperatur
+    description: "heating circuit 1: room actual temperature"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_Raumisttemperatur
+      unit: "�C"
+  - id: HK2_Raumisttemperatur
+    channelTypeUID: mqtt:number
+    label: HK2_Raumisttemperatur
+    description: "heating circuit 2: room actual temperature"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_Raumisttemperatur
+      unit: "�C"
+  - id: HK1_Einschaltoptimierung
+    channelTypeUID: mqtt:number
+    label: HK1_Einschaltoptimierung
+    description: "heating circuit 1: on time optimization duration"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_Einschaltoptimierung
+  - id: HK2_Einschaltoptimierung
+    channelTypeUID: mqtt:number
+    label: HK2_Einschaltoptimierung
+    description: "heating circuit 2: on time optimization duration"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_Einschaltoptimierung
+  - id: HK1_Ausschaltoptimierung
+    channelTypeUID: mqtt:number
+    label: HK1_Ausschaltoptimierung
+    description: "heating circuit 1: off time optimization duration"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_Ausschaltoptimierung
+  - id: HK2_Ausschaltoptimierung
+    channelTypeUID: mqtt:number
+    label: HK2_Ausschaltoptimierung
+    description: "heating circuit 2: off time optimization duration"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_Ausschaltoptimierung
+  - id: HK1_Pumpe
+    channelTypeUID: mqtt:number
+    label: HK1_Pumpe
+    description: "heating circuit 1: pump power"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_Pumpe
+  - id: HK2_Pumpe
+    channelTypeUID: mqtt:number
+    label: HK2_Pumpe
+    description: "heating circuit 2: pump power"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_Pumpe
+  - id: HK1_Mischerstellung
+    channelTypeUID: mqtt:number
+    label: HK1_Mischerstellung
+    description: "heating circuit 1: Mixer value"
+    configuration:
+      stateTopic: esp_heizung/status/HK1_Mischerstellung
+  - id: HK2_Mischerstellung
+    channelTypeUID: mqtt:number
+    label: HK2_Mischerstellung
+    description: "heating circuit 2: Mixer value"
+    configuration:
+      stateTopic: esp_heizung/status/HK2_Mischerstellung
+  - id: HK1_Heizkennlinie_10_Grad
+    channelTypeUID: mqtt:number
+    label: HK1_Heizkennlinie_10_Grad
+    description: "\"heating circuit 1: heating curve reference temp at +10\xC2�C\""
+    configuration:
+      stateTopic: esp_heizung/status/HK1_Heizkennlinie_10_Grad
+      unit: "�C"
+  - id: HK2_Heizkennlinie_10_Grad
+    channelTypeUID: mqtt:number
+    label: HK2_Heizkennlinie_10_Grad
+    description: "\"heating circuit 2: heating curve reference temp at +20\xC2�C\""
+    configuration:
+      stateTopic: esp_heizung/status/HK2_Heizkennlinie_10_Grad
+      unit: "�C"
+  - id: HK1_Heizkennlinie_0_Grad
+    channelTypeUID: mqtt:number
+    label: HK1_Heizkennlinie_0_Grad
+    description: "\"heating circuit 1: heating curve reference temp at 0\xC2�C\""
+    configuration:
+      stateTopic: esp_heizung/status/HK1_Heizkennlinie_0_Grad
+      unit: "�C"
+  - id: HK2_Heizkennlinie_0_Grad
+    channelTypeUID: mqtt:number
+    label: HK2_Heizkennlinie_0_Grad
+    description: "\"heating circuit 2: heating curve reference temp at 0\xC2�C\""
+    configuration:
+      stateTopic: esp_heizung/status/HK2_Heizkennlinie_0_Grad
+      unit: "�C"
+  - id: HK1_Heizkennlinie_-10_Grad
+    channelTypeUID: mqtt:number
+    label: HK1_Heizkennlinie_-10_Grad
+    description: "\"heating circuit 1: heating curve reference temp at -10\xC2�C\""
+    configuration:
+      stateTopic: esp_heizung/status/HK1_Heizkennlinie_-10_Grad
+      unit: "�C"
+  - id: HK2_Heizkennlinie_-10_Grad
+    channelTypeUID: mqtt:number
+    label: HK2_Heizkennlinie_-10_Grad
+    description: "\"heating circuit 2: heating curve reference temp at -20\xC2�C\""
+    configuration:
+      stateTopic: esp_heizung/status/HK2_Heizkennlinie_-10_Grad
+      unit: "�C"
+  - id: WW_BW1_Automatik
+    channelTypeUID: mqtt:number
+    label: WW_BW1_Automatik
+    description: "warm water: operatig values 1 - automatic mode"
+    configuration:
+      stateTopic: esp_heizung/status/WW_BW1_Automatik
+  - id: WW_BW1_Desinfektion
+    channelTypeUID: mqtt:number
+    label: WW_BW1_Desinfektion
+    description: "warm water: operatig values 1 - desinfaction active"
+    configuration:
+      stateTopic: esp_heizung/status/WW_BW1_Desinfektion
+  - id: WW_BW1_Nachladung
+    channelTypeUID: mqtt:number
+    label: WW_BW1_Nachladung
+    description: "warm water: operatig values 1 - reload active"
+    configuration:
+      stateTopic: esp_heizung/status/WW_BW1_Nachladung
+  - id: WW_BW1_Ferien
+    channelTypeUID: mqtt:number
+    label: WW_BW1_Ferien
+    description: "warm water: operatig values 1 - holiday mode"
+    configuration:
+      stateTopic: esp_heizung/status/WW_BW1_Ferien
+  - id: WW_BW1_Fehler_Desinfektion
+    channelTypeUID: mqtt:number
+    label: WW_BW1_Fehler_Desinfektion
+    description: "warm water: operatig values 1 - desinfaction failure"
+    configuration:
+      stateTopic: esp_heizung/status/WW_BW1_Fehler_Desinfektion
+  - id: WW_BW1_Fehler_Fuehler
+    channelTypeUID: mqtt:number
+    label: WW_BW1_Fehler_Fuehler
+    description: "warm water: operatig values 1 - sensor failure"
+    configuration:
+      stateTopic: esp_heizung/status/WW_BW1_Fehler_Fuehler
+  - id: WW_BW1_Fehler_WW_bleibt_kalt
+    channelTypeUID: mqtt:number
+    label: WW_BW1_Fehler_WW_bleibt_kalt
+    description: "warm water: operatig values 1 - failure stays cold"
+    configuration:
+      stateTopic: esp_heizung/status/WW_BW1_Fehler_WW_bleibt_kalt
+  - id: WW_BW1_Fehler_Anode
+    channelTypeUID: mqtt:number
+    label: WW_BW1_Fehler_Anode
+    description: "warm water: operatig values 1 - failure anode"
+    configuration:
+      stateTopic: esp_heizung/status/WW_BW1_Fehler_Anode
+  - id: WW_BW2_Laden
+    channelTypeUID: mqtt:number
+    label: WW_BW2_Laden
+    description: "warm water: operatig values 2 - load active"
+    configuration:
+      stateTopic: esp_heizung/status/WW_BW2_Laden
+  - id: WW_BW2_Manuell
+    channelTypeUID: mqtt:number
+    label: WW_BW2_Manuell
+    description: "warm water: operatig values 2 - manual mode"
+    configuration:
+      stateTopic: esp_heizung/status/WW_BW2_Manuell
+  - id: WW_BW2_Nachladen
+    channelTypeUID: mqtt:number
+    label: WW_BW2_Nachladen
+    description: "warm water: operatig values 2 - reload active"
+    configuration:
+      stateTopic: esp_heizung/status/WW_BW2_Nachladen
+  - id: WW_BW2_Ausschaltoptimierung
+    channelTypeUID: mqtt:number
+    label: WW_BW2_Ausschaltoptimierung
+    description: "warm water: operatig values 2 - off time optimization duration active"
+    configuration:
+      stateTopic: esp_heizung/status/WW_BW2_Ausschaltoptimierung
+  - id: WW_BW2_Einschaltoptimierung
+    channelTypeUID: mqtt:number
+    label: WW_BW2_Einschaltoptimierung
+    description: "warm water: operatig values 2 - on time optimization duration active"
+    configuration:
+      stateTopic: esp_heizung/status/WW_BW2_Einschaltoptimierung
+  - id: WW_BW2_Tag
+    channelTypeUID: mqtt:number
+    label: WW_BW2_Tag
+    description: "warm water: operatig values 2 - day mode"
+    configuration:
+      stateTopic: esp_heizung/status/WW_BW2_Tag
+  - id: WW_BW2_Warm
+    channelTypeUID: mqtt:number
+    label: WW_BW2_Warm
+    description: "warm water: operatig values 2 - water is hot (inside threshold)"
+    configuration:
+      stateTopic: esp_heizung/status/WW_BW2_Warm
+  - id: WW_BW2_Vorrang
+    channelTypeUID: mqtt:number
+    label: WW_BW2_Vorrang
+    description: "warm water: operatig values 2 - priority"
+    configuration:
+      stateTopic: esp_heizung/status/WW_BW2_Vorrang
+  - id: WW_Solltemperatur
+    channelTypeUID: mqtt:number
+    label: WW_Solltemperatur
+    description: "warm water: setpoint temperature"
+    configuration:
+      stateTopic: esp_heizung/status/WW_Solltemperatur
+      unit: "�C"
+  - id: WW_Isttemperatur
+    channelTypeUID: mqtt:number
+    label: WW_Isttemperatur
+    description: "warm water: actual temperature"
+    configuration:
+      stateTopic: esp_heizung/status/WW_Isttemperatur
+      unit: "�C"
+  - id: WW_Einschaltoptimierung
+    channelTypeUID: mqtt:number
+    label: WW_Einschaltoptimierung
+    description: "warm water: on time optimization duration"
+    configuration:
+      stateTopic: esp_heizung/status/WW_Einschaltoptimierung
+  - id: WW_Pumpentyp_Ladepumpe
+    channelTypeUID: mqtt:number
+    label: WW_Pumpentyp_Ladepumpe
+    description: "warm water: pump type is charge"
+    configuration:
+      stateTopic: esp_heizung/status/WW_Pumpentyp_Ladepumpe
+  - id: WW_Pumpentyp_Zirkulationspumpe
+    channelTypeUID: mqtt:number
+    label: WW_Pumpentyp_Zirkulationspumpe
+    description: "warm water: pump type is circulation"
+    configuration:
+      stateTopic: esp_heizung/status/WW_Pumpentyp_Zirkulationspumpe
+  - id: WW_Pumpentyp_Absenkung_Solar
+    channelTypeUID: mqtt:number
+    label: WW_Pumpentyp_Absenkung_Solar
+    description: "warm water: pump type is groundwater solar"
+    configuration:
+      stateTopic: esp_heizung/status/WW_Pumpentyp_Absenkung_Solar
+  - id: Kessel_Vorlaufsolltemperatur
+    channelTypeUID: mqtt:number
+    label: Kessel_Vorlaufsolltemperatur
+    description: "boiler: setpoint temperature"
+    configuration:
+      stateTopic: esp_heizung/status/Kessel_Vorlaufsolltemperatur
+      unit: "�C"
+  - id: Kessel_Vorlaufisttemperatur
+    channelTypeUID: mqtt:number
+    label: Kessel_Vorlaufisttemperatur
+    description: "boiler: actual temperature"
+    configuration:
+      stateTopic: esp_heizung/status/Kessel_Vorlaufisttemperatur
+      unit: "�C"
+  - id: Brenner_Einschalttemperatur
+    channelTypeUID: mqtt:number
+    label: Brenner_Einschalttemperatur
+    description: "boiler: switch on temperature"
+    configuration:
+      stateTopic: esp_heizung/status/Brenner_Einschalttemperatur
+      unit: "�C"
+  - id: Brenner_Ausschalttemperatur
+    channelTypeUID: mqtt:number
+    label: Brenner_Ausschalttemperatur
+    description: "boiler: switch off temperature"
+    configuration:
+      stateTopic: esp_heizung/status/Brenner_Ausschalttemperatur
+      unit: "�C"
+  - id: Kessel_Fehler_Brennerstoerung
+    channelTypeUID: mqtt:number
+    label: Kessel_Fehler_Brennerstoerung
+    description: "boiler: error - failure burner"
+    configuration:
+      stateTopic: esp_heizung/status/Kessel_Fehler_Brennerstoerung
+  - id: Kessel_Fehler_Kesselfuehler
+    channelTypeUID: mqtt:number
+    label: Kessel_Fehler_Kesselfuehler
+    description: "boiler: error - failure boiler sensor"
+    configuration:
+      stateTopic: esp_heizung/status/Kessel_Fehler_Kesselfuehler
+  - id: Kessel_Fehler_Zusatzfuehler
+    channelTypeUID: mqtt:number
+    label: Kessel_Fehler_Zusatzfuehler
+    description: "boiler: error - failure auxiliary sensor"
+    configuration:
+      stateTopic: esp_heizung/status/Kessel_Fehler_Zusatzfuehler
+  - id: Kessel_Fehler_Kessel_bleibt_kalt
+    channelTypeUID: mqtt:number
+    label: Kessel_Fehler_Kessel_bleibt_kalt
+    description: "boiler: error - failure boiler stays cold"
+    configuration:
+      stateTopic: esp_heizung/status/Kessel_Fehler_Kessel_bleibt_kalt
+  - id: Kessel_Fehler_Abgasfuehler
+    channelTypeUID: mqtt:number
+    label: Kessel_Fehler_Abgasfuehler
+    description: "boiler: error - failure exhaust gas sensor"
+    configuration:
+      stateTopic: esp_heizung/status/Kessel_Fehler_Abgasfuehler
+  - id: Kessel_Fehler_Abgas_max_Grenzwert
+    channelTypeUID: mqtt:number
+    label: Kessel_Fehler_Abgas_max_Grenzwert
+    description: "boiler: error - failure exhaust gas sensor over limit"
+    configuration:
+      stateTopic: esp_heizung/status/Kessel_Fehler_Abgas_max_Grenzwert
+  - id: Kessel_Fehler_Sicherungskette
+    channelTypeUID: mqtt:number
+    label: Kessel_Fehler_Sicherungskette
+    description: "boiler: error - failure safety chain"
+    configuration:
+      stateTopic: esp_heizung/status/Kessel_Fehler_Sicherungskette
+  - id: Kessel_Fehler_Externe_Stoerung
+    channelTypeUID: mqtt:number
+    label: Kessel_Fehler_Externe_Stoerung
+    description: "boiler: error - failure external"
+    configuration:
+      stateTopic: esp_heizung/status/Kessel_Fehler_Externe_Stoerung
+  - id: Kessel_Betrieb_Abgastest
+    channelTypeUID: mqtt:number
+    label: Kessel_Betrieb_Abgastest
+    description: "boiler: stage - exhaust gas test"
+    configuration:
+      stateTopic: esp_heizung/status/Kessel_Betrieb_Abgastest
+  - id: Kessel_Betrieb_Betrieb_Stufe1
+    channelTypeUID: mqtt:number
+    label: Kessel_Betrieb_Betrieb_Stufe1
+    description: "boiler: state - stage1"
+    configuration:
+      stateTopic: esp_heizung/status/Kessel_Betrieb_Betrieb_Stufe1
+  - id: Kessel_Betrieb_Betrieb_Stufe2
+    channelTypeUID: mqtt:number
+    label: Kessel_Betrieb_Betrieb_Stufe2
+    description: "boiler: state - stage2"
+    configuration:
+      stateTopic: esp_heizung/status/Kessel_Betrieb_Betrieb_Stufe2
+  - id: Kessel_Betrieb_Kesselschutz
+    channelTypeUID: mqtt:number
+    label: Kessel_Betrieb_Kesselschutz
+    description: "boiler: state - boiler protection"
+    configuration:
+      stateTopic: esp_heizung/status/Kessel_Betrieb_Kesselschutz
+  - id: Kessel_Betrieb_Unter_Betrieb
+    channelTypeUID: mqtt:number
+    label: Kessel_Betrieb_Unter_Betrieb
+    description: "boiler: state - state active"
+    configuration:
+      stateTopic: esp_heizung/status/Kessel_Betrieb_Unter_Betrieb
+  - id: Kessel_Betrieb_Leistung_frei
+    channelTypeUID: mqtt:number
+    label: Kessel_Betrieb_Leistung_frei
+    description: "boiler: state - performance free"
+    configuration:
+      stateTopic: esp_heizung/status/Kessel_Betrieb_Leistung_frei
+  - id: Kessel_Betrieb_Leistung_hoch
+    channelTypeUID: mqtt:number
+    label: Kessel_Betrieb_Leistung_hoch
+    description: "boiler: state - performance high"
+    configuration:
+      stateTopic: esp_heizung/status/Kessel_Betrieb_Leistung_hoch
+  - id: Brenner_Ansteuerung
+    channelTypeUID: mqtt:number
+    label: Brenner_Ansteuerung
+    description: "boiler: control state"
+    configuration:
+      stateTopic: esp_heizung/status/Brenner_Ansteuerung
+  - id: Abgastemperatur
+    channelTypeUID: mqtt:number
+    label: Abgastemperatur
+    description: "boiler: exhaust gas temperature"
+    configuration:
+      stateTopic: esp_heizung/status/Abgastemperatur
+      unit: "�C"
+  - id: Brenner_Laufzeit_Minuten65536
+    channelTypeUID: mqtt:number
+    label: Brenner_Laufzeit_Minuten65536
+    description: "boiler: runtime (minutes * 65536)"
+    configuration:
+      stateTopic: esp_heizung/status/Brenner_Laufzeit_Minuten65536
+  - id: Brenner_Laufzeit_Minuten256
+    channelTypeUID: mqtt:number
+    label: Brenner_Laufzeit_Minuten256
+    description: "boiler: runtime (minutes * 256)"
+    configuration:
+      stateTopic: esp_heizung/status/Brenner_Laufzeit_Minuten256
+  - id: Brenner_Laufzeit_Minuten
+    channelTypeUID: mqtt:number
+    label: Brenner_Laufzeit_Minuten
+    description: "boiler: runtime (minutes)"
+    configuration:
+      stateTopic: esp_heizung/status/Brenner_Laufzeit_Minuten
+  - id: Brenner_Laufzeit_Summe
+    channelTypeUID: mqtt:number
+    label: Brenner_Laufzeit_Summe
+    description: "boiler: runtime (minutes + minutes*256 + minutes*65536)"
+    configuration:
+      stateTopic: esp_heizung/status/Brenner_Laufzeit_Summe
+  - id: Oelverbrauch_Gesamt_berechnet
+    channelTypeUID: mqtt:number
+    label: Oelverbrauch_Gesamt_berechnet
+    description: "boiler: calculated oil consumption based on runtime"
+    configuration:
+      stateTopic: esp_heizung/status/Oelverbrauch_Gesamt_berechnet
+  - id: Aussentemperatur
+    channelTypeUID: mqtt:number
+    label: Aussentemperatur
+    description: "outside temperature"
+    configuration:
+      stateTopic: esp_heizung/status/Aussentemperatur
+      unit: "�C"
+  - id: Aussentemperatur_gedaempft
+    channelTypeUID: mqtt:number
+    label: Aussentemperatur_gedaempft
+    description: "outside temperature (damped)"
+    configuration:
+      stateTopic: esp_heizung/status/Aussentemperatur_gedaempft
+      unit: "�C"
+  - id: Versionsnummer_VK
+    channelTypeUID: mqtt:number
+    label: Versionsnummer_VK
+    description: "logamatic version number (VK)"
+    configuration:
+      stateTopic: esp_heizung/status/Versionsnummer_VK
+  - id: Versionsnummer_NK
+    channelTypeUID: mqtt:number
+    label: Versionsnummer_NK
+    description: "logamatic version number (NK)"
+    configuration:
+      stateTopic: esp_heizung/status/Versionsnummer_NK
+  - id: Modulkennung
+    channelTypeUID: mqtt:number
+    label: Modulkennung
+    description: "logamatic mdule id"
+    configuration:
+      stateTopic: esp_heizung/status/Modulkennung
+  - id: ERR_Alarmstatus_Abgasfuehler
+    channelTypeUID: mqtt:number
+    label: ERR_Alarmstatus_Abgasfuehler
+    description: "error flag: exhaust alarm"
+    configuration:
+      stateTopic: esp_heizung/status/ERR_Alarmstatus_Abgasfuehler
+  - id: ERR_Alarmstatus_Kesselvorlauffuehler
+    channelTypeUID: mqtt:number
+    label: ERR_Alarmstatus_Kesselvorlauffuehler
+    description: "error flag: boiler flow sensor"
+    configuration:
+      stateTopic: esp_heizung/status/ERR_Alarmstatus_Kesselvorlauffuehler
+  - id: ERR_Alarmstatus_Brenner
+    channelTypeUID: mqtt:number
+    label: ERR_Alarmstatus_Brenner
+    description: "error flag: burner failure"
+    configuration:
+      stateTopic: esp_heizung/status/ERR_Alarmstatus_Brenner
+  - id: ERR_Alarmstatus_HK2-Vorlauffuehler
+    channelTypeUID: mqtt:number
+    label: ERR_Alarmstatus_HK2-Vorlauffuehler
+    description: "error flag: heating circuit 2 flow sensor"
+    configuration:
+      stateTopic: esp_heizung/status/ERR_Alarmstatus_HK2-Vorlauffuehler
+  - id: ERR_Alarmstatus_02
+    channelTypeUID: mqtt:number
+    label: ERR_Alarmstatus_02
+    description: "error flag: unknown 02"
+    configuration:
+      stateTopic: esp_heizung/status/ERR_Alarmstatus_02
+  - id: ERR_Alarmstatus_02
+    channelTypeUID: mqtt:number
+    label: ERR_Alarmstatus_02
+    description: "error flag: unknown 08"
+    configuration:
+      stateTopic: esp_heizung/status/ERR_Alarmstatus_02
+  - id: ERR_Alarmstatus_20
+    channelTypeUID: mqtt:number
+    label: ERR_Alarmstatus_20
+    description: "error flag: unknown 20"
+    configuration:
+      stateTopic: esp_heizung/status/ERR_Alarmstatus_20
+  - id: ERR_Alarmstatus_80
+    channelTypeUID: mqtt:number
+    label: ERR_Alarmstatus_80
+    description: "error flag: unknown 80"
+    configuration:
+      stateTopic: esp_heizung/status/ERR_Alarmstatus_80
