@@ -121,7 +121,7 @@ if __name__ == '__main__':
                                                   configuration=configuration_instance_hk2)
                     channel_list.append(config_instance_hk2)
         # 4. Create yaml file
-        yaml = Configs(channels=channel_list).yaml(exclude_none=True)
+        yaml = Configs(channels=channel_list).yaml(exclude_none=True, width=1024)
         # 5. Replace some error chars
         yaml = yaml.replace('\'', '')
         yaml = yaml.replace('\\xB0', '°')

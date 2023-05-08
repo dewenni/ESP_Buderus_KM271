@@ -20,7 +20,7 @@ channels:
     configuration:
       stateTopic: esp_heizung/info
       transformationPattern: JSONPATH:$.ww_temp
-      unit: "ï¿½C"
+      unit: °C
   - id: boiler_temp
     channelTypeUID: mqtt:number
     label: Kessel_Temperatur
@@ -28,13 +28,13 @@ channels:
     configuration:
       stateTopic: esp_heizung/info
       transformationPattern: JSONPATH:$.boiler_temp
-      unit: "ï¿½C"
-  - id: , cmd_restart
+      unit: °C
+  - id: cmd_restart
     channelTypeUID: mqtt:string
-    label: , cmd_restart
+    label: cmd_restart
     description: "restart ESP"
     configuration:
-      commandTopic: esp_heizung/, cmd/restart
+      commandTopic: esp_heizung/cmd/restart
   - id: setvalue_setdatetime
     channelTypeUID: mqtt:string
     label: setvalue_setdatetime
@@ -667,56 +667,56 @@ channels:
     description: "heating circuit 1: flow setpoint temperature"
     configuration:
       stateTopic: esp_heizung/status/HK1_Vorlaufsolltemperatur
-      unit: "ï¿½C"
+      unit: °C
   - id: HK2_Vorlaufsolltemperatur
     channelTypeUID: mqtt:number
     label: HK2_Vorlaufsolltemperatur
     description: "heating circuit 2: flow setpoint temperature"
     configuration:
       stateTopic: esp_heizung/status/HK2_Vorlaufsolltemperatur
-      unit: "ï¿½C"
+      unit: °C
   - id: HK1_Vorlaufisttemperatur
     channelTypeUID: mqtt:number
     label: HK1_Vorlaufisttemperatur
     description: "heating circuit 1: flow actual temperature"
     configuration:
       stateTopic: esp_heizung/status/HK1_Vorlaufisttemperatur
-      unit: "ï¿½C"
+      unit: °C
   - id: HK2_Vorlaufisttemperatur
     channelTypeUID: mqtt:number
     label: HK2_Vorlaufisttemperatur
     description: "heating circuit 2: flow actual temperature"
     configuration:
       stateTopic: esp_heizung/status/HK2_Vorlaufisttemperatur
-      unit: "ï¿½C"
+      unit: °C
   - id: HK1_Raumsolltemperatur
     channelTypeUID: mqtt:number
     label: HK1_Raumsolltemperatur
     description: "heating circuit 1: room setpoint temperature"
     configuration:
       stateTopic: esp_heizung/status/HK1_Raumsolltemperatur
-      unit: "ï¿½C"
+      unit: °C
   - id: HK2_Raumsolltemperatur
     channelTypeUID: mqtt:number
     label: HK2_Raumsolltemperatur
     description: "heating circuit 2: room setpoint temperature"
     configuration:
       stateTopic: esp_heizung/status/HK2_Raumsolltemperatur
-      unit: "ï¿½C"
+      unit: °C
   - id: HK1_Raumisttemperatur
     channelTypeUID: mqtt:number
     label: HK1_Raumisttemperatur
     description: "heating circuit 1: room actual temperature"
     configuration:
       stateTopic: esp_heizung/status/HK1_Raumisttemperatur
-      unit: "ï¿½C"
+      unit: °C
   - id: HK2_Raumisttemperatur
     channelTypeUID: mqtt:number
     label: HK2_Raumisttemperatur
     description: "heating circuit 2: room actual temperature"
     configuration:
       stateTopic: esp_heizung/status/HK2_Raumisttemperatur
-      unit: "ï¿½C"
+      unit: °C
   - id: HK1_Einschaltoptimierung
     channelTypeUID: mqtt:number
     label: HK1_Einschaltoptimierung
@@ -768,45 +768,45 @@ channels:
   - id: HK1_Heizkennlinie_10_Grad
     channelTypeUID: mqtt:number
     label: HK1_Heizkennlinie_10_Grad
-    description: "\"heating circuit 1: heating curve reference temp at +10\xC2ï¿½C\""
+    description: "heating circuit 1: heating curve reference temp at +10Â°C"
     configuration:
       stateTopic: esp_heizung/status/HK1_Heizkennlinie_10_Grad
-      unit: "ï¿½C"
+      unit: °C
   - id: HK2_Heizkennlinie_10_Grad
     channelTypeUID: mqtt:number
     label: HK2_Heizkennlinie_10_Grad
-    description: "\"heating circuit 2: heating curve reference temp at +20\xC2ï¿½C\""
+    description: "heating circuit 2: heating curve reference temp at +20Â°C"
     configuration:
       stateTopic: esp_heizung/status/HK2_Heizkennlinie_10_Grad
-      unit: "ï¿½C"
+      unit: °C
   - id: HK1_Heizkennlinie_0_Grad
     channelTypeUID: mqtt:number
     label: HK1_Heizkennlinie_0_Grad
-    description: "\"heating circuit 1: heating curve reference temp at 0\xC2ï¿½C\""
+    description: "heating circuit 1: heating curve reference temp at 0Â°C"
     configuration:
       stateTopic: esp_heizung/status/HK1_Heizkennlinie_0_Grad
-      unit: "ï¿½C"
+      unit: °C
   - id: HK2_Heizkennlinie_0_Grad
     channelTypeUID: mqtt:number
     label: HK2_Heizkennlinie_0_Grad
-    description: "\"heating circuit 2: heating curve reference temp at 0\xC2ï¿½C\""
+    description: "heating circuit 2: heating curve reference temp at 0Â°C"
     configuration:
       stateTopic: esp_heizung/status/HK2_Heizkennlinie_0_Grad
-      unit: "ï¿½C"
+      unit: °C
   - id: HK1_Heizkennlinie_-10_Grad
     channelTypeUID: mqtt:number
     label: HK1_Heizkennlinie_-10_Grad
-    description: "\"heating circuit 1: heating curve reference temp at -10\xC2ï¿½C\""
+    description: "heating circuit 1: heating curve reference temp at -10Â°C"
     configuration:
       stateTopic: esp_heizung/status/HK1_Heizkennlinie_-10_Grad
-      unit: "ï¿½C"
+      unit: °C
   - id: HK2_Heizkennlinie_-10_Grad
     channelTypeUID: mqtt:number
     label: HK2_Heizkennlinie_-10_Grad
-    description: "\"heating circuit 2: heating curve reference temp at -20\xC2ï¿½C\""
+    description: "heating circuit 2: heating curve reference temp at -20Â°C"
     configuration:
       stateTopic: esp_heizung/status/HK2_Heizkennlinie_-10_Grad
-      unit: "ï¿½C"
+      unit: °C
   - id: WW_BW1_Automatik
     channelTypeUID: mqtt:number
     label: WW_BW1_Automatik
@@ -909,14 +909,14 @@ channels:
     description: "warm water: setpoint temperature"
     configuration:
       stateTopic: esp_heizung/status/WW_Solltemperatur
-      unit: "ï¿½C"
+      unit: °C
   - id: WW_Isttemperatur
     channelTypeUID: mqtt:number
     label: WW_Isttemperatur
     description: "warm water: actual temperature"
     configuration:
       stateTopic: esp_heizung/status/WW_Isttemperatur
-      unit: "ï¿½C"
+      unit: °C
   - id: WW_Einschaltoptimierung
     channelTypeUID: mqtt:number
     label: WW_Einschaltoptimierung
@@ -926,19 +926,19 @@ channels:
   - id: WW_Pumpentyp_Ladepumpe
     channelTypeUID: mqtt:number
     label: WW_Pumpentyp_Ladepumpe
-    description: "warm water: pump type is charge"
+    description: "\"warm water: pump type is charge\""
     configuration:
       stateTopic: esp_heizung/status/WW_Pumpentyp_Ladepumpe
   - id: WW_Pumpentyp_Zirkulationspumpe
     channelTypeUID: mqtt:number
     label: WW_Pumpentyp_Zirkulationspumpe
-    description: "warm water: pump type is circulation"
+    description: "\"warm water: pump type is circulation\""
     configuration:
       stateTopic: esp_heizung/status/WW_Pumpentyp_Zirkulationspumpe
   - id: WW_Pumpentyp_Absenkung_Solar
     channelTypeUID: mqtt:number
     label: WW_Pumpentyp_Absenkung_Solar
-    description: "warm water: pump type is groundwater solar"
+    description: "\"warm water: pump type is groundwater solar\""
     configuration:
       stateTopic: esp_heizung/status/WW_Pumpentyp_Absenkung_Solar
   - id: Kessel_Vorlaufsolltemperatur
@@ -947,28 +947,28 @@ channels:
     description: "boiler: setpoint temperature"
     configuration:
       stateTopic: esp_heizung/status/Kessel_Vorlaufsolltemperatur
-      unit: "ï¿½C"
+      unit: °C
   - id: Kessel_Vorlaufisttemperatur
     channelTypeUID: mqtt:number
     label: Kessel_Vorlaufisttemperatur
     description: "boiler: actual temperature"
     configuration:
       stateTopic: esp_heizung/status/Kessel_Vorlaufisttemperatur
-      unit: "ï¿½C"
+      unit: °C
   - id: Brenner_Einschalttemperatur
     channelTypeUID: mqtt:number
     label: Brenner_Einschalttemperatur
     description: "boiler: switch on temperature"
     configuration:
       stateTopic: esp_heizung/status/Brenner_Einschalttemperatur
-      unit: "ï¿½C"
+      unit: °C
   - id: Brenner_Ausschalttemperatur
     channelTypeUID: mqtt:number
     label: Brenner_Ausschalttemperatur
     description: "boiler: switch off temperature"
     configuration:
       stateTopic: esp_heizung/status/Brenner_Ausschalttemperatur
-      unit: "ï¿½C"
+      unit: °C
   - id: Kessel_Fehler_Brennerstoerung
     channelTypeUID: mqtt:number
     label: Kessel_Fehler_Brennerstoerung
@@ -1071,7 +1071,7 @@ channels:
     description: "boiler: exhaust gas temperature"
     configuration:
       stateTopic: esp_heizung/status/Abgastemperatur
-      unit: "ï¿½C"
+      unit: °C
   - id: Brenner_Laufzeit_Minuten65536
     channelTypeUID: mqtt:number
     label: Brenner_Laufzeit_Minuten65536
@@ -1108,14 +1108,14 @@ channels:
     description: "outside temperature"
     configuration:
       stateTopic: esp_heizung/status/Aussentemperatur
-      unit: "ï¿½C"
+      unit: °C
   - id: Aussentemperatur_gedaempft
     channelTypeUID: mqtt:number
     label: Aussentemperatur_gedaempft
     description: "outside temperature (damped)"
     configuration:
       stateTopic: esp_heizung/status/Aussentemperatur_gedaempft
-      unit: "ï¿½C"
+      unit: °C
   - id: Versionsnummer_VK
     channelTypeUID: mqtt:number
     label: Versionsnummer_VK
@@ -1161,24 +1161,24 @@ channels:
   - id: ERR_Alarmstatus_02
     channelTypeUID: mqtt:number
     label: ERR_Alarmstatus_02
-    description: "error flag: unknown 02"
+    description: "\"error flag: unknown 02\""
     configuration:
       stateTopic: esp_heizung/status/ERR_Alarmstatus_02
   - id: ERR_Alarmstatus_02
     channelTypeUID: mqtt:number
     label: ERR_Alarmstatus_02
-    description: "error flag: unknown 08"
+    description: "\"error flag: unknown 08\""
     configuration:
       stateTopic: esp_heizung/status/ERR_Alarmstatus_02
   - id: ERR_Alarmstatus_20
     channelTypeUID: mqtt:number
     label: ERR_Alarmstatus_20
-    description: "error flag: unknown 20"
+    description: "\"error flag: unknown 20\""
     configuration:
       stateTopic: esp_heizung/status/ERR_Alarmstatus_20
   - id: ERR_Alarmstatus_80
     channelTypeUID: mqtt:number
     label: ERR_Alarmstatus_80
-    description: "error flag: unknown 80"
+    description: "\"error flag: unknown 80\""
     configuration:
       stateTopic: esp_heizung/status/ERR_Alarmstatus_80

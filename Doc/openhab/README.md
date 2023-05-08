@@ -16,5 +16,6 @@
 1. Optional: Change language by setting the LANGUAGE variable to 0 for German and 1 for English
 2. Run ```pip install -r requirements.txt```
 3. Run ```python parse_params.py```
-4. Reformat .yaml file. (Indent channels with one tab)
-5. Follow steps from above
+4. Open .yaml file with 'Windows 1252' encoding 
+5. Reformat .yaml file. (Indent channels with one tab)
+6. Follow steps from above
