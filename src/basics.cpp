@@ -9,6 +9,8 @@ void setup_wifi();
 /* D E C L A R A T I O N S ****************************************************/  
 s_wifi wifi;  // global WiFi Informations
 AsyncWebServer webOTAserver(8080);
+muTimer wifiReconnectTimer = muTimer();           // timer for reconnect delay
+int wifi_retry = 0;
 
 /**
  * *******************************************************************
@@ -86,7 +88,6 @@ const char * getTimeString() {
   return timeInfo;
 }
 
-
 /**
  * *******************************************************************
  * @brief   Setup for OTA Function
@@ -105,11 +106,66 @@ void setupOTA(){
 
 /**
  * *******************************************************************
+ * @brief   callback function if WiFi is connected to configured AP
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void onWiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info){
+  wifi_retry=0;
+  Serial.println("Connected to AP successfully!");
+}
+
+/**
+ * *******************************************************************
+ * @brief   callback function if WiFi is connected and client got IP
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void onWiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info){
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+/**
+ * *******************************************************************
+ * @brief   check WiFi connection and automatic reconnect
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void checkWiFi(){
+  if (wifiReconnectTimer.delayOnTrigger(!WiFi.isConnected(), WIFI_RECONNECT)) {
+    wifiReconnectTimer.delayReset();
+    if (wifi_retry < 5) {
+      wifi_retry++;
+      WiFi.mode(WIFI_STA);
+      WiFi.begin(config.wifi.ssid, config.wifi.password);
+      WiFi.hostname(config.wifi.hostname);
+      MDNS.begin(config.wifi.hostname);
+      Serial.print("WiFi Mode STA - Trying connect to: ");
+      Serial.print(config.wifi.ssid);
+      Serial.print(" - attempt: ");
+      Serial.print(wifi_retry);
+      Serial.print("/5");
+    }
+    else {
+      Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+      Serial.println("Wifi connection not possible, esp rebooting...");
+      Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+      storeData(); // store Data before reboot
+      delay(500);
+      ESP.restart();
+    }
+  }
+}
+
+/**
+ * *******************************************************************
  * @brief   Setup for general WiFi Function
  * @param   none
  * @return  none
  * *******************************************************************/
-void setup_wifi() {
+void setupWiFi() {
   
   if (setupMode) {
     // start Accesspoint for initial setup
@@ -118,13 +174,17 @@ void setup_wifi() {
     IPAddress subnet(255,255,255,0);
     WiFi.softAPConfig(ip, gateway, subnet);
     WiFi.softAP("ESP-Buderus-km271");
-    Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+    Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
     Serial.println("> WiFi Mode: AccessPoint <");
     Serial.println("1. connect your device to SSID: ESP-Buderus-km271");
     Serial.println("2. open Browser and go to Address: http://192.168.4.1");
-    Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+    Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
   }
   else {
+    // setup callback function
+    WiFi.onEvent(onWiFiStationConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_CONNECTED);
+    WiFi.onEvent(onWiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
+
     // connect to configured wifi AP
     WiFi.mode(WIFI_STA);
     WiFi.begin(config.wifi.ssid, config.wifi.password);
@@ -136,39 +196,6 @@ void setup_wifi() {
   
 }
 
-/**
- * *******************************************************************
- * @brief   Check WiFi status and automatic reconnect
- * @param   none
- * @return  none
- * *******************************************************************/
-void check_wifi(){
-
-    // Check WiFi connectivity
-   int wifi_retry = 0;
-   while(WiFi.status() != WL_CONNECTED && wifi_retry < 5 ) {
-     wifi_retry++;
-     Serial.print("WiFi not connected. Trying connect to: ");
-     Serial.println(config.wifi.ssid);
-     WiFi.disconnect();
-     WiFi.mode(WIFI_OFF);
-     delay(10);
-     WiFi.mode(WIFI_STA);
-     WiFi.begin(config.wifi.ssid, config.wifi.password);
-     delay(WIFI_RECONNECT);
-   }
-   if(wifi_retry >= 5) {
-     Serial.println("\nWifi connection not possible, rebooting...");
-     storeData(); // store Data before reboot
-     delay(500);
-     ESP.restart();
-   } else if (wifi_retry > 0){
-     Serial.println("WiFi reconnected");
-     Serial.println("IP address: ");
-     Serial.println(WiFi.localIP());
-   }
-}
-
 
 /**
  * *******************************************************************
@@ -176,9 +203,9 @@ void check_wifi(){
  * @param   none
  * @return  none
  * *******************************************************************/
-void basic_setup() {
+void basicSetup() {
     // WiFi
-    setup_wifi();
+    setupWiFi();
     
     //NTP
     ntpSetup();

@@ -332,3 +332,21 @@ see all details of the first V3 release here: [Release v3.0.0](https://github.co
 - mqtt option to set config messages as retain #28
 - change format specifier for printf #27
 - fix some typos in [param.txt](Doc/param.txt)
+
+---
+
+# v3.2.1
+
+## what's new
+
+Handling for WiFi and mqtt redesigned. Blocking while-loop with delay was removed. In the past this could lead to an unwanted activation of the setup mode.
+
+see all details of the first V3 release here: [Release v3.0.0](https://github.com/dewenni/ESP_Buderus_KM271/releases/tag/v3.0.0)
+
+## changelog
+
+- change blocking mqtt reconnect handling to non-blocking implementation #33
+- mqtt client Library changed to implementation based on AsyncTCP
+- change blocking WiFi reconnect handling to non-blocking implementation
+- Prevent division by ZERO if parameter Oil density is not set.
+- Prevent writing the time on the Logamatic, 1 hour after the boot-up

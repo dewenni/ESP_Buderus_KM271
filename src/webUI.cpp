@@ -673,6 +673,7 @@ void addSystemTab(){
 void addSettingsTab(){
   id.tab.settings = ESPUI.addControl(Tab, "", webText.SETTINGS[config.lang], ControlColor::None, 0, generalCallback);
 
+  // OTA Info
   auto setOTAGroup = addGroupHelper(webText.OTA_1[config.lang], Dark, id.tab.settings);
   id.settings.wifi_otaIP = ESPUI.addControl(Label, "", "for OTA update go to: <IP-Address>:8080/update", None, setOTAGroup);
   ESPUI.setElementStyle(id.settings.wifi_otaIP, LABLE_STYLE_DESCRIPTION);

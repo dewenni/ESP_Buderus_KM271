@@ -26,8 +26,8 @@ extern s_wifi wifi;
 
 
 /* P R O T O T Y P E S ********************************************************/ 
-void check_wifi();
-void basic_setup();
+void checkWiFi();
+void basicSetup();
 void sendWiFiInfo();
 void storeData();
 const char * getDateTimeString();

@@ -618,7 +618,7 @@ void parseInfo(uint8_t *data, int len) {
       mqttPublish(addStatTopic(statTopic.BOILER_LIFETIME_3[config.lang]), uint8ToString(kmStatus.BurnerOperatingDuration_2), false);
       mqttPublish(addStatTopic(statTopic.BOILER_LIFETIME_4[config.lang]), uint64ToString(kmStatus.BurnerOperatingDuration_Sum), false);
 
-      if (config.oilmeter.use_virtual_meter) {
+      if (config.oilmeter.use_virtual_meter && config.oilmeter.oil_density_kg_l != 0) {
         kmStatus.BurnerCalcOilConsumption = (double)kmStatus.BurnerOperatingDuration_Sum / 60 * config.oilmeter.consumption_kg_h / config.oilmeter.oil_density_kg_l;
         mqttPublish(addStatTopic(statTopic.BOILER_CONSUMPTION[config.lang]), doubleToString(kmStatus.BurnerCalcOilConsumption), false);
       }

@@ -37,6 +37,7 @@ But there is also a build in WebUI to view and control your Logamatic without an
   - [Platform-IO](#platform-io)
   - [ESP-Flash-Tool](#esp-flash-tool)
   - [OTA-Updates](#ota-updates)
+  - [Setup-Mode](#setup-mode)
   - [Configuration](#configuration)
 - [MQTT](#mqtt)
   - [Config and Status values](#config-and-status-values)
@@ -144,7 +145,7 @@ There are 3 predefined Options:
 - OPTION 2: standard wireless OTA Update ArduinoOTA (use this to update from 2.x to 3.x)
 - OPTION 3: wireless OTA Update AsyncElegantOTA (use this from 3.x)
 
-## ⚠️ Setup Mode ⚠️
+## Setup Mode
 
 There is a new "Setup Mode" available. The "Setup Mode" is activated, when you press the "reset-button" of the ESP. Press reset and after 5 seconds, press reset again.
 The "Setup Mode" will also activated if there is no wifi connection configured.

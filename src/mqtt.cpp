@@ -4,16 +4,12 @@
 #include <WiFi.h>
 #include <oilmeter.h>
 
-
-/* P R O T O T Y P E S ********************************************************/  
-void mqtt_callback(char* topic, byte* payload, unsigned int length);
-void mqtt_reconnect();
-
 /* D E C L A R A T I O N S ****************************************************/  
 WiFiClient espClient;
-PubSubClient mqtt_client(espClient);
+AsyncMqttClient mqtt_client;
 s_mqtt_cmds mqttCmd;  // exts that are used as topics for KM271 commands
-
+muTimer mqttReconnectTimer = muTimer();           // timer for reconnect delay
+int mqtt_retry = 0;
 
 /**
  * *******************************************************************
@@ -28,15 +24,40 @@ const char * addTopic(const char *suffix){
   return newTopic;
 }
 
-
 /**
  * *******************************************************************
- * @brief   MQTT callback function
+ * @brief   callback function if MQTT gets connected
  * @param   none
  * @return  none
  * *******************************************************************/
-void mqttCallback(char* topic, byte* payload, unsigned int length) {
-  payload[length] = '\0';
+void onMqttConnect(bool sessionPresent) {
+  mqtt_retry = 0;
+  Serial.println("MQTT connected");
+  // Once connected, publish an announcement...
+  sendWiFiInfo();
+  // ... and resubscribe
+  mqtt_client.subscribe(addTopic("/cmd/#"), 0);
+  mqtt_client.subscribe(addTopic("/setvalue/#"), 0);
+}
+
+/**
+ * *******************************************************************
+ * @brief   callback function if MQTT gets disconnected
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
+  Serial.println("MQTT disconnected");
+}
+
+/**
+ * *******************************************************************
+ * @brief   MQTT callback function for incoming message
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
+  payload[len] = '\0';
 
   long intVal = atoi((char*)payload);
   float floatVal = atoff((char*)payload);
@@ -46,7 +67,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 
   // ESP restarten auf Kommando
   if (strcmp (topic, addTopic(mqttCmd.RESTART[config.lang])) == 0){
-    mqtt_client.publish(addTopic("/message"), "restart requested!");
+    mqtt_client.publish(addTopic("/message"), 0, false, "restart requested!");
     delay(1000);
     ESP.restart();
   }
@@ -154,47 +175,21 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   } 
 }
 
-
 /**
  * *******************************************************************
- * @brief   Check MQTT connection and automatic reconnect
+ * @brief   Basic MQTT setup
  * @param   none
  * @return  none
  * *******************************************************************/
-void mqttCyclic(){
-    mqtt_client.loop();
-    
-    const char* willTopic = addTopic("/status");
-    const char* willMsg = "offline";
-    int mqtt_retry = 0;
-    bool res;
-    
-    if (!mqtt_client.connected() && (WiFi.status() == WL_CONNECTED)) {
-        while (!mqtt_client.connected() && mqtt_retry < 5 && WiFi.status() == WL_CONNECTED) {
-            mqtt_retry++;
-            Serial.println("MQTT not connected, reconnect...");
-            res = mqtt_client.connect(config.wifi.hostname, config.mqtt.user, config.mqtt.password, willTopic, 0, 1, willMsg);
-            if (!res) {
-                Serial.print("failed, rc=");
-                Serial.print(mqtt_client.state());
-                Serial.println(", retrying");
-                delay(MQTT_RECONNECT);
-            } else {
-                Serial.println("MQTT connected");
-                // Once connected, publish an announcement...
-                sendWiFiInfo();
-                // ... and resubscribe
-                mqtt_client.subscribe(addTopic("/cmd/#"));
-                mqtt_client.subscribe(addTopic("/setvalue/#"));
-            }          
-        }
-        if(mqtt_retry >= 5){
-          Serial.print("MQTT connection not possible, rebooting...");
-          storeData(); // store Data before reboot
-          delay(500);
-          ESP.restart();
-        }
-    } 
+void mqttSetup(){
+  mqtt_client.onConnect(onMqttConnect);
+  mqtt_client.onDisconnect(onMqttDisconnect);
+  mqtt_client.onMessage(onMqttMessage);
+  mqtt_client.setServer(config.mqtt.server, config.mqtt.port);
+  mqtt_client.setClientId(config.wifi.hostname);
+  mqtt_client.setCredentials(config.mqtt.user, config.mqtt.password);
+  mqtt_client.setWill(addTopic("/status"), 0, true, "offline");
+  mqtt_client.setKeepAlive(10);
 }
 
 /**
@@ -203,11 +198,35 @@ void mqttCyclic(){
  * @param   none
  * @return  none
  * *******************************************************************/
-void mqttSetup(){
-  mqtt_client.setServer(config.mqtt.server, config.mqtt.port);
-  mqtt_client.setCallback(mqttCallback);
+void checkMqtt(){
+  // automatic reconnect to mqtt broker if connection is lost - try 5 times, then reboot
+  if (!mqtt_client.connected() && WiFi.isConnected()) {
+    if (mqtt_retry==0){
+      mqtt_retry++;
+      mqtt_client.connect();
+      Serial.println("MQTT - connection attempt: 1/5");
+    }
+    else if (mqttReconnectTimer.delayOnTrigger(true , MQTT_RECONNECT)){
+      mqttReconnectTimer.delayReset();
+      if (mqtt_retry < 5)
+      {
+        mqtt_retry++;
+        mqtt_client.connect();
+        Serial.print("MQTT - connection attempt: ");
+        Serial.print(mqtt_retry);
+        Serial.println("/5");
+      }
+      else {
+        Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+        Serial.println("MQTT connection not possible, esp rebooting...");
+        Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+        storeData(); // store Data before reboot
+        delay(500);
+        ESP.restart();
+      }
+    }
+  }
 }
-
 
 /**
  * *******************************************************************
@@ -216,6 +235,7 @@ void mqttSetup(){
  * @return  none
  * *******************************************************************/
 void mqttPublish(const char* sendtopic, const char* payload, boolean retained){
-  mqtt_client.publish(sendtopic, payload, retained);
+  uint8_t qos = 0;
+  mqtt_client.publish(sendtopic, qos, retained, payload);
 }
 

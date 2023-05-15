@@ -7,9 +7,10 @@
 #include <oilmeter.h>
 
 // Double-Reset-Detector
-#define ESP_DRD_USE_LITTLEFS    true
+#define ESP_DRD_USE_LITTLEFS          true
+#define DOUBLERESETDETECTOR_DEBUG     true
 #define DRD_TIMEOUT 10
-#define DRD_ADDRESS 0
+#define DRD_ADDRESS 0  // not used > LittleFS
 #include <ESP_DoubleResetDetector.h>
 DoubleResetDetector* drd;
 
@@ -21,6 +22,7 @@ muTimer dstTimer = muTimer();         // timer to check daylight saving time cha
 
 bool main_reboot = true;        // reboot flag
 int dst_old;                    // reminder for change of daylight saving time
+bool dst_ref;                   // init flag fpr dst reference
 
 /**
  * *******************************************************************
@@ -57,7 +59,7 @@ void setup()
   configSetup();
 
   // basic setup function (WiFi, OTA)
-  basic_setup();
+  basicSetup();
 
   // MQTT
   if (config.mqtt.enable && !setupMode) {
@@ -98,17 +100,16 @@ void loop()
   // double reset detector
   drd->loop();
 
-  // chck WiFi
+  // check WiFi - automatic reconnect
   if (!setupMode) {
-    check_wifi();
+    checkWiFi();
   }
-
-  // chck MQTT
-  if (config.mqtt.enable && !setupMode) {
-    mqttCyclic();
-  }
-
   
+  // check MQTT - automatic reconnect
+  if (config.mqtt.enable && !setupMode) {
+    checkMqtt();
+  }
+
   if (setupMode){
     // LED to Signal Setup-Mode
     digitalWrite(LED_BUILTIN, setupModeTimer.cycleOnOff(100,500));
@@ -156,6 +157,12 @@ void loop()
       tm dti;                           
       time(&now);                                   // read the current time
       localtime_r(&now, &dti);                      // update the structure tm with the current time
+
+      if (!dst_ref){                                // save actual DST as reference after bootup
+        dst_ref = true;
+        dst_old = dti.tm_isdst;
+      }
+
       if (dst_old!=dti.tm_isdst && !main_reboot){   // check if DST has changed
         km271SetDateTimeNTP();                      // change date and time on buderus
       }

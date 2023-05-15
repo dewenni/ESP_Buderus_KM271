@@ -177,6 +177,10 @@ void configSaveToFile() {
     if (serializeJson(doc, file) == 0) {
       Serial.println(F("Failed to write to file"));
     }
+    else {
+      Serial.print("config successfully saved to file: ");
+      Serial.println(filename);
+    }
 
     // Close the file
     file.close();
