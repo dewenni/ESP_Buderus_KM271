@@ -10,6 +10,7 @@ AsyncMqttClient mqtt_client;
 s_mqtt_cmds mqttCmd;  // exts that are used as topics for KM271 commands
 muTimer mqttReconnectTimer = muTimer();           // timer for reconnect delay
 int mqtt_retry = 0;
+bool bootUpMsgDone = false;
 
 /**
  * *******************************************************************
@@ -225,6 +226,11 @@ void checkMqtt(){
         ESP.restart();
       }
     }
+  }
+  // send bootup message after restart and established mqtt connection
+  if (!bootUpMsgDone && mqtt_client.connected()){
+    bootUpMsgDone = true;
+    mqttPublish(addTopic("/message"), "restarted!", false);
   }
 }
 

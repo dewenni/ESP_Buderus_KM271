@@ -121,7 +121,7 @@ Then adapt the `upload_port` and corresponding settings in `platformio.ini` to y
 
 ## ESP-Flash-Tool
 
-In the releases, you can find also the binary of the Software. If you don´t want to use PlatformIO, you can also use the `firmware.bin` file and flash it directly on the ESP.
+In the releases, you can find also the binary of the Software. If you don´t want to use PlatformIO, you can also use the `esp_buderus_km271_xxx.bin` file and flash it directly on the ESP.
 There are several tools available to flash binaries to the ESP.  
 One of them is [ESPHome-Flasher](https://github.com/esphome/esphome-flasher/releases)
 
@@ -132,7 +132,7 @@ You can find the link to that separate webserver in the settings tab of the norm
 
 ![ota-ip](Doc/ota-ip.png)
 
-here you can choose "Firmware" and select the `firmware.bin` file from the release section
+here you can choose "Firmware" and select the `esp_buderus_km271_xxx.bin` file from the release section
 
 ![ota-1](Doc/ota_1.png)
 

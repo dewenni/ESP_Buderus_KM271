@@ -837,7 +837,7 @@ void parseInfo(uint8_t *data, int len) {
       snprintf(kmConfigStr.hc2_reduction_mode, sizeof(kmConfigStr.hc2_reduction_mode), "%s", cfgArray.REDUCT_MODE[config.lang][limit(0, kmConfigNum.hc2_reduction_mode, 3)]); 
       mqttPublish(addCfgTopic(cfgTopic.HC2_REDUCTION_MODE[config.lang]), kmConfigStr.hc2_reduction_mode, config.mqtt.config_retain);                          // "CFG_HK1_Absenkungsart"    => "0054:1,a"
       
-      kmConfigNum.hc2_heating_system = data[2+1];
+      kmConfigNum.hc2_heating_system = data[2+2];
       snprintf(kmConfigStr.hc2_heating_system, sizeof(kmConfigStr.hc2_heating_system), "%s", cfgArray.HEATING_SYSTEM[config.lang][limit(0, kmConfigNum.hc2_heating_system, 3)]);    
       mqttPublish(addCfgTopic(cfgTopic.HC2_HEATING_SYSTEM[config.lang]), kmConfigStr.hc2_heating_system, config.mqtt.config_retain);                       // "CFG_HK1_Heizsystem"       => "0054:2,a"
       }

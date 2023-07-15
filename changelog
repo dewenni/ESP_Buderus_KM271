@@ -339,14 +339,27 @@ see all details of the first V3 release here: [Release v3.0.0](https://github.co
 
 ## what's new
 
-Handling for WiFi and mqtt redesigned. Blocking while-loop with delay was removed. In the past this could lead to an unwanted activation of the setup mode.
+Handling for WiFi and mqtt redesigned. Blocking while-loop with delay was removed. In the past this could lead to an unwanted activation of the setup mode. Also the mqtt Library was changed from [pubsubclient](https://github.com/knolleary/pubsubclient) to [async-mqtt-client](https://github.com/marvinroger/async-mqtt-client)
 
 see all details of the first V3 release here: [Release v3.0.0](https://github.com/dewenni/ESP_Buderus_KM271/releases/tag/v3.0.0)
 
 ## changelog
 
 - change blocking mqtt reconnect handling to non-blocking implementation #33
-- mqtt client Library changed to implementation based on AsyncTCP
+- mqtt client Library changed to implementation based on AsyncTCP ([async-mqtt-client](https://github.com/marvinroger/async-mqtt-client))
 - change blocking WiFi reconnect handling to non-blocking implementation
 - Prevent division by ZERO if parameter Oil density is not set.
 - Prevent writing the time on the Logamatic, 1 hour after the boot-up
+
+---
+
+# v3.3.0
+
+## what's new
+
+New Logger function implemented.
+
+
+## changelog
+
+- bugfix in Heating Circuit 2 - #37
