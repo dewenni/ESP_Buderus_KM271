@@ -353,13 +353,17 @@ see all details of the first V3 release here: [Release v3.0.0](https://github.co
 
 ---
 
-# v3.3.0
+# v3.2.2
 
 ## what's new
 
-New Logger function implemented.
+New release assets:
+- ESP_Buderus_KM271_v3.2.2_install.bin (for initital installation)
+- ESP_Buderus_KM271_v3.2.2_OTA_update.bin (for OTA Update of the application)
 
+see detailed description in README.md in chapter **ESP-Flash-Tool**
 
 ## changelog
 
 - bugfix in Heating Circuit 2 - #37
+- mqtt bootup message (Topic: "../message" - Payload: "restarted!") - can be used to ignore alarms after reboot

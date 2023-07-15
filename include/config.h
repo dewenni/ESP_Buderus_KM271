@@ -4,8 +4,9 @@
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION             "v3.2.1"    // internal program version
-#define DEBUG_ON                        // enable debug messages
+#define PROJECT             "ESP_Buderus_KM271"     // project info
+#define VERSION             "v3.2.2"                // internal program version
+#define DEBUG_ON                                    // enable debug messages
 
 #define WIFI_RECONNECT      10000        // Delay between wifi reconnection tries
 #define MQTT_RECONNECT      10000        // Delay between mqtt reconnection tries
@@ -45,13 +46,11 @@ typedef struct {
     bool config_retain;             // retain config messages
 } s_cfg_mqtt;
 
-
 typedef struct {
     bool enable = true;
     char server[128] = {"de.pool.ntp.org"};                                                   
     char tz[128] = {"CET-1CEST,M3.5.0,M10.5.0/3"};                                                
 } s_cfg_ntp;
-
 
 typedef struct {
     int led_wifi;
