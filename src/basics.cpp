@@ -146,7 +146,7 @@ void checkWiFi(){
       Serial.print(config.wifi.ssid);
       Serial.print(" - attempt: ");
       Serial.print(wifi_retry);
-      Serial.print("/5");
+      Serial.println("/5");
     }
     else {
       Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
