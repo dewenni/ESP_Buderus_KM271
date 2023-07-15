@@ -10,7 +10,7 @@
 
 -----
 
-If you like this, please push the ```Star ⭐️``` and klick on ```watch 👁``` to stay tuned
+If you like this, please push the ```Star ⭐️``` and click on ```watch 👁``` to stay tuned
 
 -----
 
@@ -18,7 +18,7 @@ Control your Buderus Logamatic R2107 / HS 2105 with ESP and MQTT
 
 The information from the heater provides a better understanding of how the heater works and offers opportunities for optimization.
 
-In combination with influxDB and Grafana you can also create usefull and impressive Dashboard of your heating system.
+In combination with influxDB and Grafana you can also create useful and impressive Dashboard of your heating system.
 
 But there is also a build in WebUI to view and control your Logamatic without any other Software.
 
@@ -86,7 +86,7 @@ It includes the RS232/TTL Adapter and also an ESP32.
 The other option is, to use the original Buderus KM271 Module that has a serial interface (RS232).
 In combination with a RS232 TTL Adapter (MAX3232) it can be connected to the TX/RX Port of the ESP.
 
-Logamattic R2107 => KM271 => RS232/TTL Adapter => ESP
+Logamatic R2107 => KM271 => RS232/TTL Adapter => ESP
 
 Example configuration:
 
@@ -133,7 +133,7 @@ for Mac it is hard to find a tool with a graphical UI, but you can simple use th
 1. open Terminal
 2. install esptool: `pip install esptool`  
 3. optional get the install path: `which esptool.py`  
-4. set path: `export PATH="$PATH:/pfad/zu/esptool.py"`  
+4. set path: `export PATH="$PATH:/path/to/esptool.py"` (<- change path with result from 3.)
 5. goto path where the bin file is located
 6. upload: `esptool.py -p <UPLOAD-PORT> write_flash 0x00 ESP_Buderus_KM271_vx.x.x_install.bin`  
 
