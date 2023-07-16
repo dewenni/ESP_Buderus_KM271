@@ -367,3 +367,17 @@ see detailed description in README.md in chapter **ESP-Flash-Tool**
 
 - bugfix in Heating Circuit 2 - #37
 - mqtt bootup message (Topic: "../message" - Payload: "restarted!") - can be used to ignore alarms after reboot
+
+# v3.2.3
+
+## what's new
+
+update release assets:
+- buderus_km271_esp32_flash_v3.2.3.bin (for initital installation of esp32 boards like the78mole boards)
+- buderus_km271_ota_update_v3.2.3.bin (for OTA Update of the application)
+
+see detailed description in README.md in chapter **ESP-Flash-Tool**
+
+## changelog
+
+- changed bin-file creation in platformio_release.py

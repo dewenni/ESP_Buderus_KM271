@@ -121,7 +121,7 @@ Then adapt the `upload_port` and corresponding settings in `platformio.ini` to y
 
 ## ESP-Flash-Tool
 
-In the releases, you can find also the binary of the Software. If you don´t want to use PlatformIO, you can also use the `ESP_Buderus_KM271_vx.x.x_install.bin` file and flash it directly on the ESP. This bin-file is already a merge with bootloader.bin, partitions.bin and the application.bin. You can flash this image an the ESP at address 0x00.  
+In the releases, you can find also the binary of the Software. If you don´t want to use PlatformIO, you can also use the `buderus_km271_esp32_flash_vx.x.x.bin` file and flash it directly on the ESP. This bin-file is already a merge with bootloader.bin, partitions.bin and the application.bin. You can flash this image an the ESP at address 0x00.  
 
 **Windows**  
 There are several tools available to flash binaries to the ESP.  
@@ -135,7 +135,7 @@ for Mac it is hard to find a tool with a graphical UI, but you can simple use th
 3. optional get the install path: `which esptool.py`  
 4. set path: `export PATH="$PATH:/path/to/esptool.py"` (<- change path with result from 3.)
 5. goto path where the bin file is located
-6. upload: `esptool.py -p <UPLOAD-PORT> write_flash 0x00 ESP_Buderus_KM271_vx.x.x_install.bin`  
+6. upload: `esptool.py -p <UPLOAD-PORT> write_flash 0x00 buderus_km271_esp32_flash_vx.x.x.bin`  
 
 ## OTA-Updates
 
@@ -144,7 +144,7 @@ You can find the link to that separate webserver in the settings tab of the norm
 
 ![ota-ip](Doc/ota-ip.png)
 
-here you can choose "Firmware" and select the `ESP_Buderus_KM271_vx.x.x_OTA_update.bin` file from the release section
+here you can choose "Firmware" and select the `buderus_km271_ota_update_vx.x.x.bin` file from the release section
 
 ![ota-1](Doc/ota_1.png)
 

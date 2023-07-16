@@ -4,9 +4,8 @@
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define PROJECT             "ESP_Buderus_KM271"     // project info
-#define VERSION             "v3.2.2"                // internal program version
-#define DEBUG_ON                                    // enable debug messages
+#define VERSION             "v3.2.3"     // internal program version
+#define DEBUG_ON                         // enable debug messages
 
 #define WIFI_RECONNECT      10000        // Delay between wifi reconnection tries
 #define MQTT_RECONNECT      10000        // Delay between mqtt reconnection tries
