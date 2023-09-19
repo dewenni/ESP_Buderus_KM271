@@ -891,11 +891,15 @@ void updateStatusValues(){
     ESPUI.updateLabel(id.dash.hc1_opmode, tmpMessage);
 
     // Summer / Winter
-    if (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0))
-      snprintf(tmpMessage, sizeof(tmpMessage), "%s  🔆", webText.SUMMER[config.lang]);
-    else
-      snprintf(tmpMessage, sizeof(tmpMessage), "%s  ❄️", webText.WINTER[config.lang]);
-    
+    if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) {              // AUTOMATIC
+      if (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0))
+        snprintf(tmpMessage, sizeof(tmpMessage), "%s  🔆", webText.SUMMER[config.lang]);
+      else
+        snprintf(tmpMessage, sizeof(tmpMessage), "%s  ❄️", webText.WINTER[config.lang]);
+    }
+    else {
+      snprintf(tmpMessage, sizeof(tmpMessage), "---");
+    }
     ESPUI.updateLabel(id.dash.hc1summerWinter, tmpMessage);
 
     // Day / Night
@@ -974,11 +978,15 @@ void updateStatusValues(){
     ESPUI.updateLabel(id.dash.hc2_opmode, tmpMessage);
 
     // Summer / Winter
-    if (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0))
-      snprintf(tmpMessage, sizeof(tmpMessage), "%s  🔆", webText.SUMMER[config.lang]);
-    else
-      snprintf(tmpMessage, sizeof(tmpMessage), "%s  ❄️", webText.WINTER[config.lang]);
-    
+    if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) {              // AUTOMATIC
+      if (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0))
+        snprintf(tmpMessage, sizeof(tmpMessage), "%s  🔆", webText.SUMMER[config.lang]);
+      else
+        snprintf(tmpMessage, sizeof(tmpMessage), "%s  ❄️", webText.WINTER[config.lang]);
+    }
+    else {
+      snprintf(tmpMessage, sizeof(tmpMessage), "---");
+    }
     ESPUI.updateLabel(id.dash.hc2summerWinter, tmpMessage);
 
     // Day / Night

@@ -368,6 +368,9 @@ see detailed description in README.md in chapter **ESP-Flash-Tool**
 - bugfix in Heating Circuit 2 - #37
 - mqtt bootup message (Topic: "../message" - Payload: "restarted!") - can be used to ignore alarms after reboot
 
+
+---
+
 # v3.2.3
 
 ## what's new
@@ -381,3 +384,18 @@ see detailed description in README.md in chapter **ESP-Flash-Tool**
 ## changelog
 
 - changed bin-file creation in platformio_release.py
+
+
+---
+
+# v3.2.4
+
+## what's new
+
+
+
+## changelog
+
+- fix WebUI Dashboard Status of Summer/Winter #41
+- Memory optimization with new Version of ESPUI
+- modified platfrom.ini file - separate "extra_scripts" #43

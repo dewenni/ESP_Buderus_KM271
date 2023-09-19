@@ -133,9 +133,10 @@ for Mac it is hard to find a tool with a graphical UI, but you can simple use th
 1. open Terminal
 2. install esptool: `pip install esptool`  
 3. optional get the install path: `which esptool.py`  
-4. set path: `export PATH="$PATH:/path/to/esptool.py"` (<- change path with result from 3.)
+4. set path: `export PATH="$PATH:/<path>/esptool.py"` (<- change <path> with result from 3.)
 5. goto path where the bin file is located
-6. upload: `esptool.py -p <UPLOAD-PORT> write_flash 0x00 buderus_km271_esp32_flash_vx.x.x.bin`  
+6. get Device String: `ls /dev/tty* | grep usb` (use this in next Step for <UPLOAD-PORT>)
+7. upload: `esptool.py -p <UPLOAD-PORT> write_flash 0x00 buderus_km271_esp32_flash_vx.x.x.bin`  
 
 ## OTA-Updates
 
