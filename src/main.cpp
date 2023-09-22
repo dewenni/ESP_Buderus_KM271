@@ -5,6 +5,7 @@
 #include <km271.h>
 #include <webUI.h>
 #include <oilmeter.h>
+#include <webTools.h>
 
 // Double-Reset-Detector
 #define ESP_DRD_USE_LITTLEFS          true
@@ -86,6 +87,8 @@ void setup()
     webUISetup();
   }
 
+  // webTools
+  webToolsSetup();
 } 
 
 /**
@@ -96,7 +99,6 @@ void setup()
  * *******************************************************************/
 void loop()
 {
-
   // double reset detector
   drd->loop();
 
@@ -170,6 +172,8 @@ void loop()
     }
   }
 
+  // webToolsCyclic
+  webToolsCyclic();
 
   main_reboot = false; // reset reboot flag
 }

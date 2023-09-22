@@ -1,5 +1,5 @@
 #include <basics.h>
-#include <AsyncElegantOTA.h>
+#include <webTools.h>
 
 /* P R O T O T Y P E S ********************************************************/ 
 void ntpSetup();
@@ -8,7 +8,6 @@ void setup_wifi();
 
 /* D E C L A R A T I O N S ****************************************************/  
 s_wifi wifi;  // global WiFi Informations
-AsyncWebServer webOTAserver(8080);
 muTimer wifiReconnectTimer = muTimer();           // timer for reconnect delay
 int wifi_retry = 0;
 
@@ -88,21 +87,7 @@ const char * getTimeString() {
   return timeInfo;
 }
 
-/**
- * *******************************************************************
- * @brief   Setup for OTA Function
- * @param   none
- * @return  none
- * *******************************************************************/
-void setupOTA(){
 
-  webOTAserver.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(200, "text/plain", "OTA Firmware Update");
-  });
-
-  AsyncElegantOTA.begin(&webOTAserver);    // Start ElegantOTA
-  webOTAserver.begin();
-}
 
 /**
  * *******************************************************************
@@ -209,9 +194,6 @@ void basicSetup() {
     
     //NTP
     ntpSetup();
-
-    // OTA
-    setupOTA();
 }
 
 /**

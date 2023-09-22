@@ -675,7 +675,7 @@ void addSettingsTab(){
 
   // OTA Info
   auto setOTAGroup = addGroupHelper(webText.OTA_1[config.lang], Dark, id.tab.settings);
-  id.settings.wifi_otaIP = ESPUI.addControl(Label, "", "for OTA update go to: <IP-Address>:8080/update", None, setOTAGroup);
+  id.settings.wifi_otaIP = ESPUI.addControl(Label, "", "for OTA update go to: <IP-Address>:8080", None, setOTAGroup);
   ESPUI.setElementStyle(id.settings.wifi_otaIP, LABLE_STYLE_DESCRIPTION);
   ESPUI.setPanelWide(setOTAGroup, true);
 
@@ -854,12 +854,12 @@ void webUICylic(){
   // IP-Address for OTA Update Page
   if (setupMode && tmpIpAddress != WiFi.softAPIP()){
     tmpIpAddress = WiFi.softAPIP();
-    snprintf(tmpMessage, sizeof(tmpMessage), "🔄 %s<a href=\"http://%s:8080/update\">http://%s:8080/update</a>", webText.OTA_2[config.lang], WiFi.softAPIP().toString().c_str(), WiFi.softAPIP().toString().c_str());
+    snprintf(tmpMessage, sizeof(tmpMessage), "🔄 %s<a href=\"http://%s:8080/\">http://%s:8080/</a>", webText.OTA_2[config.lang], WiFi.softAPIP().toString().c_str(), WiFi.softAPIP().toString().c_str());
     ESPUI.updateLabel(id.settings.wifi_otaIP, tmpMessage);
   }
   else if (!setupMode && tmpIpAddress != WiFi.localIP()){
     tmpIpAddress = WiFi.localIP();
-    snprintf(tmpMessage, sizeof(tmpMessage), "🔄 %s<a href=\"http://%s:8080/update\">http://%s:8080/update</a>", webText.OTA_2[config.lang], WiFi.localIP().toString().c_str(), WiFi.localIP().toString().c_str());
+    snprintf(tmpMessage, sizeof(tmpMessage), "🔄 %s<a href=\"http://%s:8080/\">http://%s:8080/</a>", webText.OTA_2[config.lang], WiFi.localIP().toString().c_str(), WiFi.localIP().toString().c_str());
     ESPUI.updateLabel(id.settings.wifi_otaIP, tmpMessage);
   }
 
