@@ -39,6 +39,7 @@ But there is also a build in WebUI to view and control your Logamatic without an
   - [OTA-Updates](#ota-updates)
   - [Setup-Mode](#setup-mode)
   - [Configuration](#configuration)
+  - [Filemanager](#filemanager)
 - [MQTT](#mqtt)
   - [Config and Status values](#config-and-status-values)
   - [Commands](#commands)
@@ -141,13 +142,11 @@ for Mac it is hard to find a tool with a graphical UI, but you can simple use th
 ## OTA-Updates
 
 since software version 3.0, you can also update the software with the new Elegant OTA web upload.  
-You can find the link to that separate webserver in the settings tab of the normal webUI.
-
-![ota-ip](Doc/ota-ip.png)
+You can find the update function in the "Tools" Tab of the WebUI.
 
 here you can choose "Firmware" and select the `buderus_km271_ota_update_vx.x.x.bin` file from the release section
 
-![ota-1](Doc/ota_1.png)
+![ota-1](Doc/ota-update.gif)
 
 But it is also possible to download the software wireless with platformio. Therefore there is a new file `platformio_upload.py` that you dont have to change.  
 You only have to change the `upload_port` settings in `platformio.ini`
@@ -155,8 +154,8 @@ You only have to change the `upload_port` settings in `platformio.ini`
 There are 3 predefined Options:
 
 - OPTION 1: direct cable upload
-- OPTION 2: standard wireless OTA Update ArduinoOTA (use this to update from 2.x to 3.x)
-- OPTION 3: wireless OTA Update AsyncElegantOTA (use this from 3.x)
+- OPTION 2: wireless OTA Update AsyncElegantOTA (use this from 3.0 to 3.2.3)
+- OPTION 3: wireless OTA Update embedded (use this from 3.2.4)
 
 ## Setup Mode
 
@@ -202,6 +201,15 @@ The language take effect on the webUI and also on the mqtt messages!
 All settings are only applied after a restart
 
 ![weubui-settings](Doc/weubui_setting.png)
+
+## Filemanager
+
+there is also a buildin file manager to download (export), upload (imoort) and delete files.
+The configuration is stored in the ```config.json``` file. To backup and restore the configuration you can download and upload this file.
+
+The drd.dat is an internal file to store information for the "double-reset-detection". Do not delete this one.
+
+![filemanager](/Doc/filemgn.gif)
 
 -----
 

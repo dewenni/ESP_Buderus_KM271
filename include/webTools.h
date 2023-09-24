@@ -1,34 +1,26 @@
+/* P R O T O T Y P E S ********************************************************/ 
 void webToolsSetup();
 void webToolsCyclic();
 
-const char index_html[] PROGMEM = R"rawliteral(
+/* H T M L - S O U R C E C O D E **********************************************/  
+const char ota_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML><html class="HTML">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-input{background:#f1f1f1;border:0;padding:0 15px}
-body{background:#ffffff;font-family:sans-serif;font-size:14px;color:#777}
-#file-input,input{width: 100%;height:44px;border-radius:4px;margin:10px auto;font-size:15px}
+input{background:#f1f1f1;border:0;padding:0 5px}
+body{background:#444857;font-family:sans-serif;font-size:14px;color:#ffffff}
+#file-input,input{height:44px;border-radius:4px;margin:10px auto;font-size:15px}
 #file-input{padding:0 10px;box-sizing:border-box;border:1px solid #ddd;line-height:44px;text-align:left;display:block;cursor:pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 #bar,#prgbar,#ota-progress-bar,#ota-progress{background-color:#f1f1f1;border-radius:10px}#bar,#ota-progress{background-color:#ca7125;width:0%;height:10px;}
-form{background:#444857;max-width:350px;margin:75px auto;padding:35px; padding-bottom: 30px;border: 1px solid #444857;border-radius:5px;text-align:center}
-.btn {background-color: #ffffff;box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.08), 0 0 15px 0 rgba(0, 0, 0, 0.02), 0 0 20px 4px rgba(0, 0, 0, 0.06);color: rgb(0, 0, 0);border-radius: 4px;padding: 9px 16px;background-image: none;
-text-decoration: none;border: none;letter-spacing:1.25px;cursor: pointer;text-transform:uppercase;font-size:14px;line-height: 18px;display: inline-block;vertical-align: middle;}
-.btn:hover {background-color: #e29425;box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0,0,0,.12);}
-.btn:visited {color: white;}
-.btn:focus {outline: none;}
-.btn:active {color: white;background-color: #ca7125;}
-.btn2 {background-color: #e29425;box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.08), 0 0 15px 0 rgba(0, 0, 0, 0.02), 0 0 20px 4px rgba(0, 0, 0, 0.06);color: rgb(0, 0, 0);border-radius: 4px;padding: 9px 16px;background-image: none;
-text-decoration: none;border: none;letter-spacing:1.25px;cursor: pointer;text-transform:uppercase;font-size:14px;line-height: 18px;display: inline-block;vertical-align: middle;}
+form{background:#444857;max-width:350px;margin:5px auto;padding:5px; padding-bottom: 5px;border: 1px solid #444857;border-radius:5px;text-align:center; align-content: center;}
+.btn2 {background-color: #e29425;box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.08), 0 0 15px 0 rgba(0, 0, 0, 0.02), 0 0 20px 4px rgba(0, 0, 0, 0.06);color: white;border-radius: 4px;padding: 9px 16px;background-image: none;
+text-decoration: none;border: none;letter-spacing:1.25px;cursor: pointer;text-transform:uppercase;font-size:14px;line-height: 18px;display: inline-block;vertical-align: middle;transition-duration: 0.1s;}
 .btn2:hover:enabled {background-color: #e29425;box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0,0,0,.12);}
 .btn2:visited {color: white;}
 .btn2:focus {outline: none;}
 .btn2:active {color: white;background-color: #ca7125;}
-.btn2:disabled {
-  cursor: default;
-    background: #DDD;
-    display:none;
-}
+.btn2:disabled {cursor: default;background: #DDD;}
    html {
      font-family: Roboto, Arial, sans-serif;
      display: inline-block;
@@ -56,13 +48,9 @@ text-decoration: none;border: none;letter-spacing:1.25px;cursor: pointer;text-tr
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
 </head><body>
 <form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>
-<input type="button" class="btn" href="#" onclick="javascript:window.location.port=80" value="Web-UI">
-<input type="button" class="btn" onclick="location.href='/filesystem';" value="File manager"><br>
-<br><hr style="border-width: 100%;"><br>
-<br><div id='txtOTA'style=vertical-align:bottom;color:#ffffff>OTA-Update</div>
 <input type='file' name='update' id='file' onchange='sub(this)' style=display:none accept=".bin">
 <label id='file-input' for='file'>   Choose file...</label>
-<br><input type="submit" id="updateBtn" class="btn2" disabled = "disabled" value="Update">
+<input type="submit" id="updateBtn" class="btn2" disabled = "disabled" value="Update">
 <br><div id='txtUpload'style=display:none;text-align:left>Upload:</div>
 <br><div id='prgbar'style=display:none><div id='bar'></div></div>
 <br><div id='txtUpdate'style=display:none;text-align:left>Update:</div>
@@ -119,7 +107,7 @@ return xhr;
 success:function(d, s) {
 console.log('success!'); 
 alert("OTA-Update successful - ESP will restart!");
-setTimeout("location.href = '../';", 2000);
+setTimeout("location.href = '../ota';", 2000);
 },
 error: function (a, b, c) {
 }
@@ -133,28 +121,19 @@ const char FS_html[] PROGMEM = R"rawliteral(
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-input{background:#f1f1f1;border:0;padding:0 15px}
-body{background:#ffffff;font-family:sans-serif;font-size:14px;color:#ffffff}
+input{background:#f1f1f1;border:0;padding:0 5px}
+body{background:#444857;font-family:sans-serif;font-size:14px;color:#ffffff}
 #file-input,input{height:44px;border-radius:4px;margin:10px auto;font-size:15px}
 #file-input{padding:0 10px;box-sizing:border-box;border:1px solid #ddd;line-height:44px;text-align:left;display:block;cursor:pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 #bar,#prgbar{background-color:#f1f1f1;border-radius:10px}#bar{background-color:#e29425;width:0;height:10px;}
-form{background:#444857;max-width:350px;margin:75px auto;padding:35px; padding-bottom: 30px;border: 1px solid #444857;border-radius:5px;text-align:center; align-content: center;}
-.btn {background-color: #ffffff;box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.08), 0 0 15px 0 rgba(0, 0, 0, 0.02), 0 0 20px 4px rgba(0, 0, 0, 0.06);color: rgb(0, 0, 0);border-radius: 4px;padding: 9px 16px;background-image: none;
-text-decoration: none;border: none;letter-spacing:1.25px;cursor: pointer;text-transform:uppercase;font-size:14px;line-height: 18px;display: inline-block;vertical-align: middle;transition-duration: 0.1s;}
-.btn:hover {background-color: #e29425;box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0,0,0,.12);}
-.btn:visited {color: white;}
-.btn:focus {outline: none;}
-.btn:active {color: white;background-color: #ca7125;}
+form{background:#444857;max-width:350px;margin:5px auto;padding:5px; padding-bottom: 5px;border: 1px solid #444857;border-radius:5px;text-align:center; align-content: center;}
 .btn2 {background-color: #e29425;box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.08), 0 0 15px 0 rgba(0, 0, 0, 0.02), 0 0 20px 4px rgba(0, 0, 0, 0.06);color: white;border-radius: 4px;padding: 9px 16px;background-image: none;
 text-decoration: none;border: none;letter-spacing:1.25px;cursor: pointer;text-transform:uppercase;font-size:14px;line-height: 18px;display: inline-block;vertical-align: middle;transition-duration: 0.1s;}
 .btn2:hover:enabled {background-color: #e29425;box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0,0,0,.12);}
 .btn2:visited {color: white;}
 .btn2:focus {outline: none;}
 .btn2:active {color: white;background-color: #ca7125;}
-.btn2:disabled {
-    cursor: default;
-    background: #DDD;
-}
+.btn2:disabled {cursor: default;background: #DDD;}
 .btndel {
   border: none;
   color: white;
@@ -170,7 +149,7 @@ text-decoration: none;border: none;letter-spacing:1.25px;cursor: pointer;text-tr
    background-color: #e03423db;
    transition-duration: 0.1s;
   }
-.btndel:hover {background-color: #b02f19;box-shadow: 0px 1px 3px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0,0,0,.12);}
+.btndel:hover {background-color: #b02f19;}
 .btndel:visited {color: white;}
 .btndel:active {color: white;background-color: #db331d;}
 
@@ -211,7 +190,6 @@ td:nth-child(4) {column-width: 30px; text-align: center;}
 <input type="file" name="update" id="file" onchange="sub(this)" style="display:none">
 <label id="file-input" for="file">   Choose file...</label>
 <input type="submit" id="updateBtn" class="btn2" disabled="true" value="Upload file">
-<input type="button" class="btn" onclick="location.href='/';" value="Back">
 <br>
 <h4 style="text-align: center;">File system content:</h4>
 <span id="filelist">%list%</span>

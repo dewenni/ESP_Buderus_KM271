@@ -392,10 +392,19 @@ see detailed description in README.md in chapter **ESP-Flash-Tool**
 
 ## what's new
 
+New Tools Tab with embedded Update functionality and new Filemanager functionality.  
+With the new Filemanager functionality you can download and upload the config.json for backup and restore.
+The embedded Update functionality allows you to update the firmware as before by uploading the .bin file at the browser.
 
+![ota-1](Doc/ota-update.gif)
+
+**Attention:**  
+the new embedded OTA function runs now on Port 80 as the normal WebUI.
+Therefore the ```upload_port``` in ```platformio.ini``` has changed now (Port 8080 removed).
 
 ## changelog
 
+- new "Tools" Tab with embedd ota and filemanager
 - fix WebUI Dashboard Status of Summer/Winter #41
 - Memory optimization with new Version of ESPUI
 - modified platfrom.ini file - separate "extra_scripts" #43

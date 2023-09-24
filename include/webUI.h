@@ -18,7 +18,6 @@
 #define LABLE_STYLE_NUMER_LABEL         "background-color: unset; width: 74%; text-align: left;"
 #define LABLE_STYLE_SWITCH_LABEL        "background-color: unset; width: 83%; text-align: left;"
 
-
 #define CUSTOM_CSS "<style>\
   .d30 {\
     box-sizing: border-box;\

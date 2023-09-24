@@ -673,12 +673,6 @@ void addSystemTab(){
 void addSettingsTab(){
   id.tab.settings = ESPUI.addControl(Tab, "", webText.SETTINGS[config.lang], ControlColor::None, 0, generalCallback);
 
-  // OTA Info
-  auto setOTAGroup = addGroupHelper(webText.OTA_1[config.lang], Dark, id.tab.settings);
-  id.settings.wifi_otaIP = ESPUI.addControl(Label, "", "for OTA update go to: <IP-Address>:8080", None, setOTAGroup);
-  ESPUI.setElementStyle(id.settings.wifi_otaIP, LABLE_STYLE_DESCRIPTION);
-  ESPUI.setPanelWide(setOTAGroup, true);
-
   // WiFi-Settings
   auto setWiFiGroup = addGroupHelper(webText.WIFI[config.lang], Dark, id.tab.settings);
   id.settings.wifi_hostname = addTextInputHelper(webText.HOSTNAME[config.lang], setWiFiGroup);
@@ -698,7 +692,6 @@ void addSettingsTab(){
   id.settings.mqtt_user = addTextInputHelper(webText.USER[config.lang], setMqttGroup);
   id.settings.mqtt_passw = addTextInputHelper(webText.PASSWORD[config.lang], setMqttGroup);
   ESPUI.setInputType(id.settings.mqtt_passw, "password"); // input control type: password
-
 
   // NTP-Settings
   auto setNtpGroup = addGroupHelper(webText.NTP[config.lang], Dark, id.tab.settings);
@@ -749,7 +742,19 @@ void addSettingsTab(){
   // Buttons
   auto btnGroup = addGroupHelper(webText.SETTINGS[config.lang], Dark, id.tab.settings);
   id.settings.btnSave = ESPUI.addControl(Button, "", webText.SAVE_RESTART[config.lang], Dark, btnGroup, generalCallback);
- } 
+  } 
+ 
+ /**
+ * *******************************************************************
+ * @brief   Embedd webTools with OTA and Filemanager
+ * *******************************************************************/
+  void addToolsTab(){
+    auto webToolsTab = ESPUI.addControl(Tab, "", webText.TOOLS[config.lang], ControlColor::None, 0, generalCallback);
+    auto otaUpdate = ESPUI.addControl(Label, webText.OTA[config.lang], "<iframe src=\"/ota\" style=\"border:none;width:100\%;height:500px\">", None, webToolsTab);
+    auto fileMgn = ESPUI.addControl(Label, webText.FILEMGN[config.lang], "<iframe src=\"/filesystem\" style=\"border:none;width:100\%;height:500px\">", None, webToolsTab);
+    ESPUI.setElementStyle(otaUpdate, LABLE_STYLE_DESCRIPTION);
+    ESPUI.setElementStyle(fileMgn, LABLE_STYLE_DESCRIPTION);
+  }
 
 /**
  * *******************************************************************
@@ -758,7 +763,7 @@ void addSettingsTab(){
  * @return  none
  * *******************************************************************/
 void webUISetup(){
- 
+
   /*-------------------------------------------------------------------------
   // initialize structs
   -------------------------------------------------------------------------*/
@@ -798,6 +803,9 @@ void webUISetup(){
     ESPUI.begin("Buderus Logamatic");
   }
   
+  // OTA & Filemanager
+  addToolsTab();
+
   Serial.println("Webserver started");
 
   Serial.print("Widgets: ");
@@ -850,18 +858,6 @@ void webUICylic(){
     }
 
   } // end if valeCompareTimer.cycleTrigger(3000) &&!setupMode
-
-  // IP-Address for OTA Update Page
-  if (setupMode && tmpIpAddress != WiFi.softAPIP()){
-    tmpIpAddress = WiFi.softAPIP();
-    snprintf(tmpMessage, sizeof(tmpMessage), "🔄 %s<a href=\"http://%s:8080/\">http://%s:8080/</a>", webText.OTA_2[config.lang], WiFi.softAPIP().toString().c_str(), WiFi.softAPIP().toString().c_str());
-    ESPUI.updateLabel(id.settings.wifi_otaIP, tmpMessage);
-  }
-  else if (!setupMode && tmpIpAddress != WiFi.localIP()){
-    tmpIpAddress = WiFi.localIP();
-    snprintf(tmpMessage, sizeof(tmpMessage), "🔄 %s<a href=\"http://%s:8080/\">http://%s:8080/</a>", webText.OTA_2[config.lang], WiFi.localIP().toString().c_str(), WiFi.localIP().toString().c_str());
-    ESPUI.updateLabel(id.settings.wifi_otaIP, tmpMessage);
-  }
 
 }
 
@@ -934,7 +930,6 @@ void updateStatusValues(){
     addElementUnit(km271StatTopics.HC1_ROOM_SETPOINT[config.lang],   uint8ToString(kmStatusCpy.HC1_RoomTargetTemp), "°C"); 
     addElementUnit(km271StatTopics.HC1_ROOM_TEMP[config.lang],       uint8ToString(kmStatusCpy.HC1_RoomActualTemp), "°C"); 
     updateElements(id.tables.hc1_status);
-
 
     // table: hc1 ov1
     initElements();
@@ -1705,8 +1700,6 @@ void generalCallback(Control *sender, int type) {
     ESPUI.updateNumber(id.settings.gpio_led_wifi, config.gpio.led_wifi);
     ESPUI.updateNumber(id.settings.gpio_led_oilcounter, config.gpio.led_oilcounter);
     ESPUI.updateNumber(id.settings.gpio_trigger_oilcounter, config.gpio.trigger_oilcounter);
-
   }
-
 
 } // end generalCallback()

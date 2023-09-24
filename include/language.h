@@ -125,8 +125,9 @@ const char* WIFI_AP_INFO_2[MAX_LANG] =           {"Reset drücken und nach 5s er
 const char* LANGUAGE[MAX_LANG] =                 {"Sprache",                                                    "Language"};
 const char* PREDEFINE[MAX_LANG] =                {"Voreinstellung",                                             "Predefine"};
 const char* GPIO_UNUSED[MAX_LANG] =              {"⚠️ \"-1\" = unbenutzt ⚠️",                                     "⚠️ \"-1\" = unused ⚠️"};
-const char* OTA_1[MAX_LANG] =                    {"OTA Firmware Update",                                        "OTA Firmware Update"};
-const char* OTA_2[MAX_LANG] =                    {"Für OTA Update gehe zu: ",                                   "for OTA update go to: "};
+const char* OTA[MAX_LANG] =                      {"OTA Firmware Update",                                        "OTA Firmware Update"};
+const char* FILEMGN[MAX_LANG] =                  {"Dateimanager",                                               "Filemanager"};
+const char* TOOLS[MAX_LANG] =                    {"Tools",                                                      "Tools"};
 const char* TEMP_OUT[MAX_LANG] =                 {"Außentemperatur",                                            "Temperature outdoor"};
 const char* TEMP_OUT_ACT[MAX_LANG] =             {"aktuell °C",                                                 "actually °C"};
 const char* TEMP_OUT_DMP[MAX_LANG] =             {"gedämpft °C",                                                "damped °C"};

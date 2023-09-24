@@ -85,10 +85,13 @@ void setup()
   // webUI Setup
   if (config.webUI.enable) { 
     webUISetup();
+
+    // webTools
+    webToolsSetup();
+
   }
 
-  // webTools
-  webToolsSetup();
+
 } 
 
 /**
