@@ -104,7 +104,8 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String& filename, size
  * @return  none
  * *******************************************************************/
 void handleDoUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
-  if (!index) {
+  if (!index)
+  {
     content_len = request->contentLength();
     Serial.printf("UploadStart: %s\n", filename.c_str());
   }
@@ -112,7 +113,8 @@ void handleDoUpload(AsyncWebServerRequest *request, String filename, size_t inde
   if (opened == false) {
     opened = true;
     file = LittleFS.open(String("/") + filename, FILE_WRITE);
-    if (!file) {
+    if (!file)
+    {
       Serial.println("- failed to open file for writing");
       return;
     }
