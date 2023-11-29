@@ -1137,8 +1137,8 @@ void updateStatusValues(){
   updateElements(id.tables.general_temp);
 
   // Outdoor Temp
-  ESPUI.updateLabel(id.dash.tmp_out_act,  uint8ToString(kmStatusCpy.OutsideTemp));
-  ESPUI.updateLabel(id.dash.tmp_out_act_d,  uint8ToString(kmStatusCpy.OutsideDampedTemp));
+  ESPUI.updateLabel(id.dash.tmp_out_act,  int8ToString(kmStatusCpy.OutsideTemp));
+  ESPUI.updateLabel(id.dash.tmp_out_act_d,  int8ToString(kmStatusCpy.OutsideDampedTemp));
   
   // Boiler Temperatures
   ESPUI.updateLabel(id.dash.burnerSetTemp,  uint8ToString(kmStatusCpy.BoilerForwardTargetTemp));
