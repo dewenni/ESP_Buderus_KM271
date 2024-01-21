@@ -53,27 +53,27 @@ command:    heating circuit 2: switch off threshold for reduction mode
 topic:      {"setvalue/hk2_aussenhalt_ab", setvalue/hc2_switch_off_threshold"}
 payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
 
-command:    heating circuit 1: day temperature ww_setpoint
+command:    heating circuit 1: day temperature setpoint
 topic:      {"setvalue/hk1_tag_soll", setvalue/hc1_day_setpoint"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
-command:    heating circuit 2: day temperature ww_setpoint
+command:    heating circuit 2: day temperature setpoint
 topic:      {"setvalue/hk2_tag_soll", setvalue/hc2_day_setpoint"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
-command:    heating circuit 1: night temperature ww_setpoint
+command:    heating circuit 1: night temperature setpoint
 topic:      {"setvalue/hk1_nacht_soll", setvalue/hc1_night_setpoint"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
-command:    heating circuit 2: night temperature ww_setpoint
+command:    heating circuit 2: night temperature setpoint
 topic:      {"setvalue/hk2_nacht_soll", setvalue/hc2_night_setpoint"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
-command:    heating circuit 1: night temperature ww_setpoint
+command:    heating circuit 1: holiday temperature setpoint
 topic:      {"setvalue/hk1_ferien_soll", setvalue/hc1_holiday_setpoint"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
-command:    heating circuit 2: night temperature ww_setpoint
+command:    heating circuit 2: holiday temperature setpoint
 topic:      {"setvalue/hk2_ferien_soll", setvalue/hc2_holiday_setpoint"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
