@@ -740,7 +740,7 @@ void parseInfo(uint8_t *data, int len) {
     
     case 0x0015: 
       if (config.km271.use_hc1) {
-      kmConfigNum.hc1_switch_on_temperature = data[2+4];
+      kmConfigNum.hc1_switch_on_temperature = data[2+0];
       snprintf(kmConfigStr.hc1_switch_on_temperature, sizeof(kmConfigStr.hc1_switch_on_temperature), "%s", cfgArray.SWITCH_ON_TEMP[config.lang][limit(0, kmConfigNum.hc1_switch_on_temperature, 10)]);
       mqttPublish(addCfgTopic(cfgTopic.HC1_SWITCH_ON_TEMP[config.lang]), kmConfigStr.hc1_switch_on_temperature, config.mqtt.config_retain);              // "CFG_HK1_Aufschalttemperatur"  => "0015:0,a"
       
