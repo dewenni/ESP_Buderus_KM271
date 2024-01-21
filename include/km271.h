@@ -287,6 +287,8 @@ typedef enum {
   KM271_SENDCMD_HC1_HOLIDAYS,             // HC1 Holiday Days
   KM271_SENDCMD_HC2_HOLIDAYS,             // HC2 Holiday Days
   KM271_SENDCMD_WW_PUMP_CYCLES,           // WarmWater Pump cycles
+  KM271_SENDCMD_HC1_CTRL_INTERV,          // HC1 Controller intervention
+  KM271_SENDCMD_HC2_CTRL_INTERV,          // HC2 Controller intervention
 } e_km271_sendCmd;
 
 
@@ -308,6 +310,7 @@ void sendKM271Info();
 void sendKM271Debug();
 void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara);
 void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara);
+void km271sendServiceCmd(uint8_t cmdPara[8]);
 bool km271GetLogMode();
 void km271SetDateTimeNTP();
 void km271SetDateTimeDTI(tm dti);

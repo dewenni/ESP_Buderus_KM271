@@ -66,20 +66,53 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
   Serial.print("topic: ");
   Serial.println(topic);
 
-  // ESP restarten auf Kommando
+  // restart ESP command
   if (strcmp (topic, addTopic(mqttCmd.RESTART[config.lang])) == 0){
     mqtt_client.publish(addTopic("/message"), 0, false, "restart requested!");
     delay(1000);
     ESP.restart();
   }
+  // Service command
+  else if (strcmp (topic, addTopic(mqttCmd.SERVICE[config.lang])) == 0){
+    if (len == 23){  // 23 characters: 8 Hex-values + 7 separators "_"
+      uint8_t hexArray[8];
+      // Iteration thru payload
+      char *token = strtok(payload, "_");
+      size_t i = 0;
+      while (token != NULL && i < 8) {
+        // check, if the substring contains valid hex values
+        size_t tokenLen = strlen(token);
+        if (tokenLen != 2 || !isxdigit(token[0]) || !isxdigit(token[1])) {
+          // invalid hex values found
+          mqttPublish(addTopic("/message"), "invalid hex parameter", false);
+          return;
+        }
+        hexArray[i] = strtol(token, NULL, 16); // convert hex strings to uint8_t
+        token = strtok(NULL, "_");  // next substring
+        i++;
+      }
+      // check if all 8 hex values are found
+      if (i == 8) {
+        // everything seems to be valid - call service function
+        mqttPublish(addTopic("/message"), "service message accepted", false);
+        km271sendServiceCmd(hexArray);
+      }
+      else
+      {
+        // not enough hex values found
+        mqttPublish(addTopic("/message"), "not enough hex parameter", false);
+      }
+    } else {
+      // invalid parameter length
+      mqttPublish(addTopic("/message"), "invalid parameter size", false);
+    }
+  }
   // set date and time
   else if (strcmp (topic, addTopic(mqttCmd.DATETIME[config.lang])) == 0){
-    Serial.println("cmd set date time");
     km271SetDateTimeNTP();
   }
   // set oilmeter
   else if (strcmp (topic, addTopic(mqttCmd.OILCNT[config.lang])) == 0){
-    Serial.println("cmd setvalue oilcounter");
     cmdSetOilmeter(intVal);
   }
   // HK1 Betriebsart
@@ -173,6 +206,14 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
   // WW Pump Cycles
   else if (strcmp (topic, addTopic(mqttCmd.WW_PUMP_CYCLES[config.lang])) == 0){
     km271sendCmd(KM271_SENDCMD_WW_PUMP_CYCLES, intVal);
+  } 
+  // HK1 Reglereingriff
+  else if (strcmp (topic, addTopic(mqttCmd.HC1_CTRL_INTERVENTION[config.lang])) == 0){
+    km271sendCmd(KM271_SENDCMD_HC1_CTRL_INTERV, intVal);
+  }
+  // HK2 Reglereingriff
+  else if (strcmp (topic, addTopic(mqttCmd.HC2_CTRL_INTERVENTION[config.lang])) == 0){
+    km271sendCmd(KM271_SENDCMD_HC2_CTRL_INTERV, intVal);
   } 
 }
 

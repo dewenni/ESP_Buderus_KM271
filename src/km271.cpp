@@ -740,10 +740,10 @@ void parseInfo(uint8_t *data, int len) {
     
     case 0x0015: 
       if (config.km271.use_hc1) {
-      kmConfigNum.hc1_switch_on_temperature = data[2+0];
+      kmConfigNum.hc1_switch_on_temperature = data[2];
       snprintf(kmConfigStr.hc1_switch_on_temperature, sizeof(kmConfigStr.hc1_switch_on_temperature), "%s", cfgArray.SWITCH_ON_TEMP[config.lang][limit(0, kmConfigNum.hc1_switch_on_temperature, 10)]);
       mqttPublish(addCfgTopic(cfgTopic.HC1_SWITCH_ON_TEMP[config.lang]), kmConfigStr.hc1_switch_on_temperature, config.mqtt.config_retain);              // "CFG_HK1_Aufschalttemperatur"  => "0015:0,a"
-      
+
       kmConfigNum.hc1_switch_off_threshold = decodeNegValue(data[2+2]);
       snprintf(kmConfigStr.hc1_switch_off_threshold, sizeof(kmConfigStr.hc1_switch_off_threshold), "%i °C", kmConfigNum.hc1_switch_off_threshold);
       mqttPublish(addCfgTopic(cfgTopic.HC1_SWITCH_OFF_THRESHOLD[config.lang]), kmConfigStr.hc1_switch_off_threshold, config.mqtt.config_retain);        // CFG_HK1_Aussenhalt_ab"         => "0015:2,s"
@@ -1839,6 +1839,38 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
     }
     break;
 
+  case KM271_SENDCMD_HC1_CTRL_INTERV:
+    if (cmdPara>=0 && cmdPara<=10){    
+      send_buf[0]= 0x07;        // Data-Type für HK1 (0x07)
+      send_buf[1]= 0x15;        // Offset
+      send_buf[2]= cmdPara;     // Resolution: 1 °C - Range: 0 – 10 °C
+      send_buf[3]= 0x65;
+      send_buf[4]= 0x65;
+      send_buf[5]= 0x65;     
+      send_buf[6]= 0x65;     
+      send_buf[7]= 0x65;
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_CTRL_INTERVENTION_RECV[config.lang], false);
+    } else {
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_CTRL_INTERVENTION_INVALID[config.lang], false);
+    }
+    break;
+  
+  case KM271_SENDCMD_HC2_CTRL_INTERV:
+    if (cmdPara>=0 && cmdPara<=10){    
+      send_buf[0]= 0x08;        // Data-Type für HK2 (0x08)
+      send_buf[1]= 0x15;        // Offset
+      send_buf[2]= cmdPara;     // Resolution: 1 °C - Range: 0 – 10 °C
+      send_buf[3]= 0x65;
+      send_buf[4]= 0x65;
+      send_buf[5]= 0x65;     
+      send_buf[6]= 0x65;     
+      send_buf[7]= 0x65;
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_CTRL_INTERVENTION_RECV[config.lang], false);
+    } else {
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_CTRL_INTERVENTION_INVALID[config.lang], false);
+    }
+    break;
+
   default:
     break;
   }
@@ -1956,6 +1988,20 @@ void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara){
   }
 }
 
+/**
+ * *******************************************************************
+ * @brief   prepare and send setvalues to buderus controller
+ * @param   sendCmd: send command
+ * @param   cmdPara: array of 8 hex parameter (pre checked)
+ * @return  none
+ * *******************************************************************/
+void km271sendServiceCmd(uint8_t cmdPara[8]){
+  // service command with 8 pre checked hex parameters
+  for (uint8_t i = 0; i < 8; i++)
+  {
+    send_buf[i] = cmdPara[i];
+  }
+}
 
 /**
  * *******************************************************************

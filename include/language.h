@@ -141,6 +141,7 @@ const char* ACTIVATE[MAX_LANG] =                 {"Aktivieren",                 
 // ======================================================================================
 typedef struct {
 const char* RESTART[MAX_LANG] =                     {"/cmd/restart",                    "/cmd/restart"};
+const char* SERVICE[MAX_LANG] =                     {"/cmd/service",                    "/cmd/service"};
 const char* DATETIME[MAX_LANG] =                    {"/setvalue/setdatetime",           "/setvalue/setdatetime"};
 const char* OILCNT[MAX_LANG] =                      {"/setvalue/oilcounter",            "/setvalue/oilcounter"};
 const char* HC1_OPMODE[MAX_LANG] =                  {"/setvalue/hk1_betriebsart",       "/setvalue/hc1_opmode"};
@@ -166,6 +167,8 @@ const char* WW_SETPOINT[MAX_LANG] =                 {"/setvalue/ww_soll",       
 const char* HC1_HOLIDAYS[MAX_LANG] =                {"/setvalue/hk1_ferien_tage",       "/setvalue/hc1_holidays"};
 const char* HC2_HOLIDAYS[MAX_LANG] =                {"/setvalue/hk2_ferien_tage",       "/setvalue/hc2_holidays"};
 const char* WW_PUMP_CYCLES[MAX_LANG] =              {"/setvalue/ww_pumpen_zyklus",      "/setvalue/ww_pump_cycles"};
+const char* HC1_CTRL_INTERVENTION[MAX_LANG] =       {"/setvalue/hk1_reglereingriff",    "/setvalue/hc1_ctrl_intervention"};
+const char* HC2_CTRL_INTERVENTION[MAX_LANG] =       {"/setvalue/hk2_reglereingriff",    "/setvalue/hc2_ctrl_intervention"};
 } s_mqtt_cmds; 
 
 
@@ -230,8 +233,12 @@ const char* HC1_HOLIDAYS_RECV[MAX_LANG]                 =    {"setvalue: hk1_fer
 const char* HC1_HOLIDAYS_INVALID[MAX_LANG]              =    {"setvalue: hk1_ferien_tage - ungültig",        "setvalue: hc1_holidays - invalid"};
 const char* HC2_HOLIDAYS_RECV[MAX_LANG]                 =    {"setvalue: hk2_ferien_tage - empfangen",       "setvalue: hc2_holidays - received"};
 const char* HC2_HOLIDAYS_INVALID[MAX_LANG]              =    {"setvalue: hk2_ferien_tage - ungültig",        "setvalue: hc2_holidays - invalid"};
-const char* WW_PUMP_CYCLE_RECV[MAX_LANG]                 =   {"setvalue: ww_pumpen_zyklus - empfangen",      "setvalue: ww_pump_cycles - received"};
-const char* WW_PUMP_CYCLE_INVALID[MAX_LANG]              =   {"setvalue: ww_pumpen_zyklus - ungültig",       "setvalue: ww_pump_cycles - invalid"};
+const char* WW_PUMP_CYCLE_RECV[MAX_LANG]                =    {"setvalue: ww_pumpen_zyklus - empfangen",      "setvalue: ww_pump_cycles - received"};
+const char* WW_PUMP_CYCLE_INVALID[MAX_LANG]             =    {"setvalue: ww_pumpen_zyklus - ungültig",       "setvalue: ww_pump_cycles - invalid"};
+const char* HC1_CTRL_INTERVENTION_RECV[MAX_LANG]        =    {"setvalue: hk1_reglereingriff - empfangen",    "setvalue: hc1_ctrl_intervention - received"};
+const char* HC2_CTRL_INTERVENTION_RECV[MAX_LANG]        =    {"setvalue: hk2_reglereingriff - empfangen",    "setvalue: hc2_ctrl_intervention - received"};
+const char* HC1_CTRL_INTERVENTION_INVALID[MAX_LANG]     =    {"setvalue: hk1_reglereingriff - ungültig",     "setvalue: hc1_ctrl_intervention - invalid"};
+const char* HC2_CTRL_INTERVENTION_INVALID[MAX_LANG]     =    {"setvalue: hk2_reglereingriff - ungültig",     "setvalue: hc2_ctrl_intervention - invalid"};
 } s_mqtt_messags;   
 
 
@@ -488,8 +495,8 @@ typedef struct {
         {"summer","10 °C","11 °C","12 °C","13 °C","14 °C","15 °C","16 °C","17 °C","18 °C","19 °C","20 °C","21 °C","22 °C","23 °C","24 °C","25 °C","26 °C","27 °C","28 °C","29 °C","30 °C","winter"}
     };
     const char* SWITCH_ON_TEMP[MAX_LANG][11]={
-        {"Aus","1","2","3","4","5","6","7","8","9","10"},
-        {"off","1","2","3","4","5","6","7","8","9","10"}
+        {"Aus","1 °C","2 °C","3 °C","4 °C","5 °C","6 °C","7 °C","8 °C","9 °C","10 °C"},
+        {"off","1 °C","2 °C","3 °C","4 °C","5 °C","6 °C","7 °C","8 °C","9 °C","10 °C"},
     };
     const char* HEATING_SYSTEM[MAX_LANG][4]={
         {"Aus","Heizkoerper","-","Fussboden"},
