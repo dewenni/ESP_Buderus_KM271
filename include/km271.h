@@ -287,8 +287,8 @@ typedef enum {
   KM271_SENDCMD_HC1_HOLIDAYS,             // HC1 Holiday Days
   KM271_SENDCMD_HC2_HOLIDAYS,             // HC2 Holiday Days
   KM271_SENDCMD_WW_PUMP_CYCLES,           // WarmWater Pump cycles
-  KM271_SENDCMD_HC1_CTRL_INTERV,          // HC1 Controller intervention
-  KM271_SENDCMD_HC2_CTRL_INTERV,          // HC2 Controller intervention
+  KM271_SENDCMD_HC1_SWITCH_ON_TEMP,       // HC1 Switch On Temperature
+  KM271_SENDCMD_HC2_SWITCH_ON_TEMP,       // HC2 Switch On Temperature
 } e_km271_sendCmd;
 
 

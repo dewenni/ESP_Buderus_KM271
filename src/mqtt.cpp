@@ -208,12 +208,12 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
     km271sendCmd(KM271_SENDCMD_WW_PUMP_CYCLES, intVal);
   } 
   // HK1 Reglereingriff
-  else if (strcmp (topic, addTopic(mqttCmd.HC1_CTRL_INTERVENTION[config.lang])) == 0){
-    km271sendCmd(KM271_SENDCMD_HC1_CTRL_INTERV, intVal);
+  else if (strcmp (topic, addTopic(mqttCmd.HC1_SWITCH_ON_TEMP[config.lang])) == 0){
+    km271sendCmd(KM271_SENDCMD_HC1_SWITCH_ON_TEMP, intVal);
   }
   // HK2 Reglereingriff
-  else if (strcmp (topic, addTopic(mqttCmd.HC2_CTRL_INTERVENTION[config.lang])) == 0){
-    km271sendCmd(KM271_SENDCMD_HC2_CTRL_INTERV, intVal);
+  else if (strcmp (topic, addTopic(mqttCmd.HC2_SWITCH_ON_TEMP[config.lang])) == 0){
+    km271sendCmd(KM271_SENDCMD_HC2_SWITCH_ON_TEMP, intVal);
   } 
 }
 
