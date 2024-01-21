@@ -13,6 +13,10 @@ command:    restart ESP
 topic:      {cmd/restart", cmd/restart"}
 payload:    none
 
+command:    Service interface - only for Experts - use at your own risk!!!
+topic:      {cmd/service", cmd/service"}
+payload:    8 hex values separated with "_" (example: 08_15_04_65_65_65_65_65)
+
 command:    set date & time of Logamatic
 topic:      {"setvalue/setdatetime", setvalue/setdatetime"}
 payload:    none
@@ -112,6 +116,14 @@ payload:    count of days 0 .. 99
 command:    warm water pump cycles
 topic:      {"setvalue/ww_pumpen_zyklus", setvalue/ww_pump_cycles"}
 payload:    Resolution: 1 [cycles/hour] - Range: 0:OFF | 1..6 | 7:ON
+
+command:    heating circuit 1: controller intervention
+topic:      {"setvalue/hk1_reglereingriff", setvalue/hc1_ctrl_intervention"}
+payload:    Resolution: 1 [°C] - Range: 0 ... +10 [°C]
+
+command:    heating circuit 2: controller intervention
+topic:      {"setvalue/hk2_reglereingriff", setvalue/hc2_ctrl_intervention"}
+payload:    Resolution: 1 [°C] - Range: 0 ... +10 [°C]
 
 =================================================================================================
 
