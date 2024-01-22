@@ -1342,8 +1342,8 @@ void updateSystemInfo(){
 
   // ESP informations
   initElements();
-  addElementUnit(webText.ESP_HEAPSIZE[config.lang],floatToString((float)ESP.getHeapSize()/1000.0), "KB");
-  addElementUnit(webText.ESP_FREEHEAP[config.lang], floatToString((float)ESP.getFreeHeap()/1000.0), "KB");
+  addElementUnit(webText.ESP_FLASH_USAGE[config.lang], floatToString((float)ESP.getSketchSize()*100/ESP.getFreeSketchSpace()), "%");
+  addElementUnit(webText.ESP_HEAP_USAGE[config.lang], floatToString((float)ESP.getFreeHeap()*100/ESP.getHeapSize()), "%");
   addElementUnit(webText.ESP_MAXALLOCHEAP[config.lang], floatToString((float)ESP.getMaxAllocHeap()/1000.0), "KB");
   addElementUnit(webText.ESP_MINFREEHEAP[config.lang], floatToString((float)ESP.getMinFreeHeap()/1000.0), "KB");
   updateElements(id.tables.system_esp);
