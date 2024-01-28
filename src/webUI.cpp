@@ -769,7 +769,7 @@ void webUISetup(){
   -------------------------------------------------------------------------*/
   memset(&kmStatusCpy, 0, sizeof(s_km271_status));
   memset(&kmConfigNumCpy, 0, sizeof(s_km271_config_num));
-  memset(&kmConfigStrCpy, 0, sizeof(s_km271_config_num));
+  memset(&kmConfigStrCpy, 0, sizeof(s_km271_config_str));
 
   // add additional css styles to a hidden label
   ESPUI.setPanelStyle(ESPUI.label("Refresh your browser if you read this", ControlColor::None, CUSTOM_CSS), "display: none");
