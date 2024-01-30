@@ -289,6 +289,10 @@ command:    restart ESP
 topic:      {cmd/restart", cmd/restart"}
 payload:    none
 
+command:    Service interface - only for Experts - use at your own risk!!!
+topic:      {cmd/service", cmd/service"}
+payload:    8 hex values separated with "_" (example: 08_15_04_65_65_65_65_65)
+
 command:    set date & time of Logamatic
 topic:      {"setvalue/setdatetime", setvalue/setdatetime"}
 payload:    none

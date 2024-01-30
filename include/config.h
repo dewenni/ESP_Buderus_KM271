@@ -4,7 +4,7 @@
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION             "v3.2.4"     // internal program version
+#define VERSION             "v3.2.5"     // internal program version
 #define DEBUG_ON                         // enable debug messages
 
 #define WIFI_RECONNECT      10000        // Delay between wifi reconnection tries

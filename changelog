@@ -408,3 +408,27 @@ Therefore the ```upload_port``` in ```platformio.ini``` has changed now (Port 80
 - fix WebUI Dashboard Status of Summer/Winter #41
 - Memory optimization with new Version of ESPUI
 - modified platfrom.ini file - separate "extra_scripts" #43
+
+---
+
+# v3.2.5
+
+## what's new
+
+After some feedback that v3.2.4 is not stable for some users, I have downgraded espressif32 plattform from 6.4.0 (in v3.2.4) back to 5.4.0
+To be honest, I am not sure if this will fix the problem, but we give it a try.
+
+**>>Attention:<<**  
+I have also updated the partition schema from "default" to "min_spiffs" because we are on the limit of the free flash space.
+The new partition schema will only applied if you flash the new firmware by serial cable to your ESP. This is why there is no OTA file for this version!
+Be aware that this will delete your settings!
+But with v3.2.4 you are able to download the config.json in the Tool Section of the WebUI.
+
+## changelog
+
+- fix wrong temperature value in WebUI #51
+- Wrong position in the telegram used for hc1_switch_on_temperature #61
+- implement service interface via mqtt and additional setvalue for "switch on temperature / Aufschalttemperatur" #61
+- fix some typo in param.txt
+- add new system info in WebUI for flash size usage
+- bugfix #67
