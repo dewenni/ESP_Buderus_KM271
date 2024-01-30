@@ -17,6 +17,19 @@ void configInitValue();
 
 /**
  * *******************************************************************
+ * @brief   check before read from file
+ * @param   dest, size, src
+ * @return  none
+ * *******************************************************************/
+void readJSONstring(char* dest, size_t size, const char* src){
+  const char* check = src;
+  if (check != NULL) {
+    snprintf(dest, size, src);
+  }
+}
+
+/**
+ * *******************************************************************
  * @brief   Setup for intitial configuration
  * @param   none
  * @return  none
@@ -215,21 +228,21 @@ void configLoadFromFile() {
     
     config.lang = doc["lang"];
 
-    snprintf(config.wifi.ssid, sizeof(config.wifi.ssid), doc["wifi"]["ssid"]);
-    snprintf(config.wifi.password, sizeof(config.wifi.password), doc["wifi"]["password"]);
-    snprintf(config.wifi.hostname, sizeof(config.wifi.hostname), doc["wifi"]["hostname"]);
+    readJSONstring(config.wifi.ssid, sizeof(config.wifi.ssid), doc["wifi"]["ssid"]);
+    readJSONstring(config.wifi.password, sizeof(config.wifi.password), doc["wifi"]["password"]);
+    readJSONstring(config.wifi.hostname, sizeof(config.wifi.hostname), doc["wifi"]["hostname"]);
     
     config.mqtt.enable = doc["mqtt"]["enable"];
-    snprintf(config.mqtt.server, sizeof(config.mqtt.server), doc["mqtt"]["server"]);
-    snprintf(config.mqtt.user, sizeof(config.mqtt.user), doc["mqtt"]["user"]);
-    snprintf(config.mqtt.password, sizeof(config.mqtt.password), doc["mqtt"]["password"]);
-    snprintf(config.mqtt.topic, sizeof(config.mqtt.topic), doc["mqtt"]["topic"]);
+    readJSONstring(config.mqtt.server, sizeof(config.mqtt.server), doc["mqtt"]["server"]);
+    readJSONstring(config.mqtt.user, sizeof(config.mqtt.user), doc["mqtt"]["user"]);
+    readJSONstring(config.mqtt.password, sizeof(config.mqtt.password), doc["mqtt"]["password"]);
+    readJSONstring(config.mqtt.topic, sizeof(config.mqtt.topic), doc["mqtt"]["topic"]);
     config.mqtt.port = doc["mqtt"]["port"];
     config.mqtt.config_retain = doc["mqtt"]["config_retain"];
 
     config.ntp.enable = doc["ntp"]["enable"];
-    snprintf(config.ntp.server, sizeof(config.ntp.server), doc["ntp"]["server"]);
-    snprintf(config.ntp.tz, sizeof(config.ntp.tz), doc["ntp"]["tz"]);
+    readJSONstring(config.ntp.server, sizeof(config.ntp.server), doc["ntp"]["server"]);
+    readJSONstring(config.ntp.tz, sizeof(config.ntp.tz), doc["ntp"]["tz"]);
     
     config.gpio.led_wifi = doc["gpio"]["led_wifi"];
     config.gpio.led_heartbeat = doc["gpio"]["led_heartbeat"];
@@ -245,6 +258,7 @@ void configLoadFromFile() {
     config.km271.use_hc2 = doc["km271"]["use_hc2"];
     config.km271.use_ww = doc["km271"]["use_ww"];
     config.km271.use_alarmMsg = doc["km271"]["use_alarmMsg"];
+
   }
   // Close the file (Curiously, File's destructor doesn't close the file)
   file.close();
