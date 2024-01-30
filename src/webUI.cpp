@@ -682,6 +682,14 @@ void addSettingsTab(){
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.WIFI_AP_INFO_1[config.lang], None, setWiFiGroup), LABLE_STYLE_DESCRIPTION);
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.WIFI_AP_INFO_2[config.lang], None, setWiFiGroup), LABLE_STYLE_DESCRIPTION);
 
+  // IP-Settings
+  auto setIpGroup = addGroupHelper(webText.MAN_IP_SETTINGS[config.lang], Dark, id.tab.settings);
+  id.settings.ip_enable = addSwitcherInputHelper(webText.ACTIVATE[config.lang], setIpGroup);
+  id.settings.ip_ipaddress = addTextInputHelper(webText.IP_ADR[config.lang], setIpGroup);
+  id.settings.ip_subnet = addTextInputHelper(webText.IP_SUBNET[config.lang], setIpGroup);
+  id.settings.ip_gateway = addTextInputHelper(webText.IP_GATEWAY[config.lang], setIpGroup);
+  id.settings.ip_dns = addTextInputHelper(webText.IP_DNS[config.lang], setIpGroup);
+
   // MQTT-Settings
   auto setMqttGroup = addGroupHelper(webText.MQTT[config.lang], Dark, id.tab.settings);
   id.settings.mqtt_enable = addSwitcherInputHelper(webText.ACTIVATE[config.lang], setMqttGroup);
@@ -1410,6 +1418,12 @@ void updateSettingsValues(){
   ESPUI.updateText(id.settings.wifi_passw, config.wifi.password);
   ESPUI.updateText(id.settings.wifi_hostname, config.wifi.hostname);
 
+  ESPUI.updateSwitcher(id.settings.ip_enable, config.ip.enable);
+  ESPUI.updateText(id.settings.ip_ipaddress, config.ip.ipaddress);
+  ESPUI.updateText(id.settings.ip_subnet, config.ip.subnet);
+  ESPUI.updateText(id.settings.ip_gateway, config.ip.gateway);
+  ESPUI.updateText(id.settings.ip_dns, config.ip.dns);
+
   ESPUI.updateSwitcher(id.settings.mqtt_enable, config.mqtt.enable);
   ESPUI.updateText(id.settings.mqtt_server, config.mqtt.server);
   ESPUI.updateText(id.settings.mqtt_port, uint16ToString(config.mqtt.port));
@@ -1617,6 +1631,13 @@ void generalCallback(Control *sender, int type) {
     snprintf(config.wifi.hostname, sizeof(config.wifi.hostname), ESPUI.getControl(id.settings.wifi_hostname)->value.c_str());
     snprintf(config.wifi.ssid, sizeof(config.wifi.ssid), ESPUI.getControl(id.settings.wifi_ssid)->value.c_str());
     snprintf(config.wifi.password, sizeof(config.wifi.password), ESPUI.getControl(id.settings.wifi_passw)->value.c_str());
+
+    // Settings: WiFi
+    config.ip.enable = ESPUI.getControl(id.settings.ip_enable)->value.toInt();
+    snprintf(config.ip.ipaddress , sizeof(config.ip.ipaddress), ESPUI.getControl(id.settings.ip_ipaddress)->value.c_str());
+    snprintf(config.ip.subnet , sizeof(config.ip.subnet), ESPUI.getControl(id.settings.ip_subnet)->value.c_str());
+    snprintf(config.ip.gateway , sizeof(config.ip.gateway), ESPUI.getControl(id.settings.ip_gateway)->value.c_str());
+    snprintf(config.ip.dns , sizeof(config.ip.dns), ESPUI.getControl(id.settings.ip_dns)->value.c_str());
 
     // Settings: MQTT
     config.mqtt.enable = ESPUI.getControl(id.settings.mqtt_enable)->value.toInt();

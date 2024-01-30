@@ -176,6 +176,12 @@ void configSaveToFile() {
     doc["km271"]["use_ww"] = config.km271.use_ww;
     doc["km271"]["use_alarmMsg"] = config.km271.use_alarmMsg;
 
+    doc["ip"]["enable"] = config.ip.enable;
+    doc["ip"]["ipaddress"] = config.ip.ipaddress;
+    doc["ip"]["subnet"] = config.ip.subnet;
+    doc["ip"]["gateway"] = config.ip.gateway;
+    doc["ip"]["dns"] = config.ip.dns;
+
     // Delete existing file, otherwise the configuration is appended to the file
     LittleFS.remove(filename);
 
@@ -258,6 +264,12 @@ void configLoadFromFile() {
     config.km271.use_hc2 = doc["km271"]["use_hc2"];
     config.km271.use_ww = doc["km271"]["use_ww"];
     config.km271.use_alarmMsg = doc["km271"]["use_alarmMsg"];
+
+    config.ip.enable = doc["ip"]["enable"];
+    readJSONstring(config.ip.ipaddress, sizeof(config.ip.ipaddress), doc["ip"]["ipaddress"]);
+    readJSONstring(config.ip.subnet, sizeof(config.ip.subnet), doc["ip"]["subnet"]);
+    readJSONstring(config.ip.gateway, sizeof(config.ip.gateway), doc["ip"]["gateway"]);
+    readJSONstring(config.ip.dns, sizeof(config.ip.dns), doc["ip"]["dns"]);
 
   }
   // Close the file (Curiously, File's destructor doesn't close the file)

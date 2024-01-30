@@ -135,6 +135,11 @@ const char* TEMP_OUT_ACT[MAX_LANG] =             {"aktuell °C",                
 const char* TEMP_OUT_DMP[MAX_LANG] =             {"gedämpft °C",                                                "damped °C"};
 const char* MQTT_CFG_RET[MAX_LANG] =             {"Config Nachrichten als retain",                              "config mssages as retain"};
 const char* ACTIVATE[MAX_LANG] =                 {"Aktivieren",                                                 "activate"};
+const char* MAN_IP_SETTINGS[MAX_LANG] =          {"manuelle IP-Einstellungen",                                  "manual IP settings"};
+const char* IP_ADR[MAX_LANG] =                   {"IP-Adresse",                                                 "IP-Address"};
+const char* IP_SUBNET[MAX_LANG] =                {"Subnetz",                                                    "Subnet"};
+const char* IP_GATEWAY[MAX_LANG] =               {"Gateway",                                                    "Gateway"};
+const char* IP_DNS[MAX_LANG] =                   {"DNS-Server",                                                 "DNS-Server"};
 } s_webui_texts; 
 
 

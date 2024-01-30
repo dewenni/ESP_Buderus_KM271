@@ -1,6 +1,5 @@
 #pragma once
 #include <stdint.h>
-
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
@@ -62,6 +61,14 @@ typedef struct {
 } s_cfg_gpio;
 
 typedef struct {
+    bool enable = true;
+    char ipaddress[17];
+    char subnet[17];
+    char gateway[17];
+    char dns[17];
+} s_cfg_ip;
+
+typedef struct {
     int lang;
     s_cfg_oilmeter oilmeter;
     s_cfg_wifi wifi;
@@ -70,6 +77,7 @@ typedef struct {
     s_cfg_gpio gpio;
     s_cfg_webUI webUI;
     s_cfg_km271 km271;
+    s_cfg_ip ip;
 } s_config;
 
 extern s_config config;

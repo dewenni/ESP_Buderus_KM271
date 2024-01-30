@@ -274,6 +274,11 @@ uint16_t oil_useHardware;
 uint16_t oil_useVirtual;
 uint16_t oil_consumption_kg_h;
 uint16_t oil_oil_density_kg_l;
+uint16_t ip_enable;
+uint16_t ip_ipaddress;
+uint16_t ip_subnet;
+uint16_t ip_gateway;
+uint16_t ip_dns;
 uint16_t webUI_enable;
 } s_webui_id_settings;
 

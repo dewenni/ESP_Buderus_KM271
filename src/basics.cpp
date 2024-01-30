@@ -170,6 +170,19 @@ void setupWiFi() {
     WiFi.onEvent(onWiFiStationConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_CONNECTED);
     WiFi.onEvent(onWiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
 
+    if (config.ip.enable){
+      // manual IP-Settings
+      IPAddress manIp;
+      manIp.fromString(config.ip.ipaddress);
+      IPAddress manSubnet;
+      manSubnet.fromString(config.ip.subnet);
+      IPAddress manGateway;
+      manGateway.fromString(config.ip.gateway);
+      IPAddress manDns;
+      manDns.fromString(config.ip.dns);
+      WiFi.config(manIp, manGateway, manSubnet, manDns);
+    }
+
     // connect to configured wifi AP
     WiFi.mode(WIFI_STA);
     WiFi.begin(config.wifi.ssid, config.wifi.password);
