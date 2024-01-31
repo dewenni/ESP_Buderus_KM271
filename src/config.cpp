@@ -182,6 +182,10 @@ void configSaveToFile() {
     doc["ip"]["gateway"] = config.ip.gateway;
     doc["ip"]["dns"] = config.ip.dns;
 
+    doc["auth"]["enable"] = config.auth.enable;
+    doc["auth"]["user"] = config.auth.user;
+    doc["auth"]["password"] = config.auth.password;
+
     // Delete existing file, otherwise the configuration is appended to the file
     LittleFS.remove(filename);
 
@@ -270,6 +274,10 @@ void configLoadFromFile() {
     readJSONstring(config.ip.subnet, sizeof(config.ip.subnet), doc["ip"]["subnet"]);
     readJSONstring(config.ip.gateway, sizeof(config.ip.gateway), doc["ip"]["gateway"]);
     readJSONstring(config.ip.dns, sizeof(config.ip.dns), doc["ip"]["dns"]);
+
+    config.auth.enable = doc["auth"]["enable"];
+    readJSONstring(config.auth.user, sizeof(config.auth.user), doc["auth"]["user"]);
+    readJSONstring(config.auth.password, sizeof(config.auth.password), doc["auth"]["password"]);
 
   }
   // Close the file (Curiously, File's destructor doesn't close the file)

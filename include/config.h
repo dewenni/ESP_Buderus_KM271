@@ -69,6 +69,12 @@ typedef struct {
 } s_cfg_ip;
 
 typedef struct {
+    bool enable = true;
+    char user[64];
+    char password[64];
+} s_cfg_auth;
+
+typedef struct {
     int lang;
     s_cfg_oilmeter oilmeter;
     s_cfg_wifi wifi;
@@ -78,6 +84,7 @@ typedef struct {
     s_cfg_webUI webUI;
     s_cfg_km271 km271;
     s_cfg_ip ip;
+    s_cfg_auth auth;
 } s_config;
 
 extern s_config config;

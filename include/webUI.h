@@ -151,6 +151,7 @@
     background-color: unset;\
     text-align: left;\
   }\
+  a {color: #ffffff;}\
  </style>"
 
 
@@ -279,6 +280,9 @@ uint16_t ip_ipaddress;
 uint16_t ip_subnet;
 uint16_t ip_gateway;
 uint16_t ip_dns;
+uint16_t auth_enable;
+uint16_t auth_user;
+uint16_t auth_passw;
 uint16_t webUI_enable;
 } s_webui_id_settings;
 

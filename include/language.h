@@ -140,6 +140,7 @@ const char* IP_ADR[MAX_LANG] =                   {"IP-Adresse",                 
 const char* IP_SUBNET[MAX_LANG] =                {"Subnetz",                                                    "Subnet"};
 const char* IP_GATEWAY[MAX_LANG] =               {"Gateway",                                                    "Gateway"};
 const char* IP_DNS[MAX_LANG] =                   {"DNS-Server",                                                 "DNS-Server"};
+const char* ACCESSS[MAX_LANG] =                  {"Zugangskontrolle",                                           "Auhtentification"};
 } s_webui_texts; 
 
 

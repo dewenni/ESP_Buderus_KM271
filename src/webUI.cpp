@@ -690,6 +690,14 @@ void addSettingsTab(){
   id.settings.ip_gateway = addTextInputHelper(webText.IP_GATEWAY[config.lang], setIpGroup);
   id.settings.ip_dns = addTextInputHelper(webText.IP_DNS[config.lang], setIpGroup);
 
+  // Authentication-Settings
+  auto setAuthGroup = addGroupHelper(webText.ACCESSS[config.lang], Dark, id.tab.settings);
+  id.settings.auth_enable = addSwitcherInputHelper(webText.ACTIVATE[config.lang], setAuthGroup);
+  id.settings.auth_user = addTextInputHelper(webText.USER[config.lang], setAuthGroup);
+  id.settings.auth_passw = addTextInputHelper(webText.PASSWORD[config.lang], setAuthGroup);
+  ESPUI.setInputType(id.settings.auth_passw, "password"); // input control type: password
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "<a href=\"/logout\">Log out</a>", None, setAuthGroup), "width: 25%;");
+
   // MQTT-Settings
   auto setMqttGroup = addGroupHelper(webText.MQTT[config.lang], Dark, id.tab.settings);
   id.settings.mqtt_enable = addSwitcherInputHelper(webText.ACTIVATE[config.lang], setMqttGroup);
@@ -808,7 +816,14 @@ void webUISetup(){
     addSystemTab();
     addSettingsTab();
     
-    ESPUI.begin("Buderus Logamatic");
+    // start Webserver
+    if (config.auth.enable){
+      ESPUI.begin("Buderus Logamatic", config.auth.user, config.auth.password);
+    }
+    else {
+      ESPUI.begin("Buderus Logamatic");
+    }
+
   }
   
   // OTA & Filemanager
@@ -1424,6 +1439,10 @@ void updateSettingsValues(){
   ESPUI.updateText(id.settings.ip_gateway, config.ip.gateway);
   ESPUI.updateText(id.settings.ip_dns, config.ip.dns);
 
+  ESPUI.updateSwitcher(id.settings.auth_enable, config.auth.enable);
+  ESPUI.updateText(id.settings.auth_user, config.auth.user);
+  ESPUI.updateText(id.settings.auth_passw, config.auth.password);
+ 
   ESPUI.updateSwitcher(id.settings.mqtt_enable, config.mqtt.enable);
   ESPUI.updateText(id.settings.mqtt_server, config.mqtt.server);
   ESPUI.updateText(id.settings.mqtt_port, uint16ToString(config.mqtt.port));
@@ -1639,6 +1658,11 @@ void generalCallback(Control *sender, int type) {
     snprintf(config.ip.gateway , sizeof(config.ip.gateway), ESPUI.getControl(id.settings.ip_gateway)->value.c_str());
     snprintf(config.ip.dns , sizeof(config.ip.dns), ESPUI.getControl(id.settings.ip_dns)->value.c_str());
 
+    // Settings: Authentication
+    config.auth.enable = ESPUI.getControl(id.settings.auth_enable)->value.toInt();
+    snprintf(config.auth.user , sizeof(config.auth.user), ESPUI.getControl(id.settings.auth_user)->value.c_str());
+    snprintf(config.auth.password , sizeof(config.auth.password), ESPUI.getControl(id.settings.auth_passw)->value.c_str());
+  
     // Settings: MQTT
     config.mqtt.enable = ESPUI.getControl(id.settings.mqtt_enable)->value.toInt();
     snprintf(config.mqtt.server, sizeof(config.mqtt.server), ESPUI.getControl(id.settings.mqtt_server)->value.c_str());

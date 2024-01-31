@@ -227,6 +227,10 @@ void webToolsSetup() {
 
   server = ESPUI.server;  // get pointer from existing ESPUI server
   listDir(LittleFS, "/", 0);
+  
+  server->on("/logout", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(401, "text/html", "<script>window.location.href = '../';</script>");
+  });
 
   server->on("/ota", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send_P(200, "text/html", ota_html);
