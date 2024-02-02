@@ -150,6 +150,9 @@ const char* ACCESSS[MAX_LANG] =                  {"Zugangskontrolle",           
 typedef struct {
 const char* RESTART[MAX_LANG] =                     {"/cmd/restart",                        "/cmd/restart"};
 const char* SERVICE[MAX_LANG] =                     {"/cmd/service",                        "/cmd/service"};
+const char* DEBUG[MAX_LANG] =                       {"/cmd/debug",                          "/cmd/debug"};
+const char* SET_DEBUG_FLT[MAX_LANG] =               {"/cmd/setdebugflt",                    "/cmd/setdebugflt"};
+const char* GET_DEBUG_FLT[MAX_LANG] =               {"/cmd/getdebugflt",                    "/cmd/getdebugflt"};
 const char* DATETIME[MAX_LANG] =                    {"/setvalue/setdatetime",               "/setvalue/setdatetime"};
 const char* OILCNT[MAX_LANG] =                      {"/setvalue/oilcounter",                "/setvalue/oilcounter"};
 const char* HC1_OPMODE[MAX_LANG] =                  {"/setvalue/hk1_betriebsart",           "/setvalue/hc1_opmode"};

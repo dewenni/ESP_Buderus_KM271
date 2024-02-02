@@ -17,6 +17,18 @@ command:    Service interface - only for Experts - use at your own risk!!!
 topic:      {cmd/service", cmd/service"}
 payload:    8 hex values separated with "_" (example: 08_15_04_65_65_65_65_65)
 
+command:    debug function - on/off
+topic:      {cmd/debug", cmd/debug"}
+payload:    0/1
+
+command:    debug function - set Filter
+topic:      {cmd/setdebugflt", cmd/setdebugflt"}
+payload:    11 hex values separated with "_" (example: 08_15_XX_XX_XX_XX_XX_XX_XX_XX_XX)
+
+command:    debug function - get Filter
+topic:      {cmd/getdebugflt", cmd/getdebugflt"}
+payload:    none (return value at message topic)
+
 command:    set date & time of Logamatic
 topic:      {"setvalue/setdatetime", setvalue/setdatetime"}
 payload:    none

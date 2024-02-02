@@ -444,16 +444,20 @@ But with v3.2.4 you are able to download the config.json in the Tool Section of 
 
 This Versions brings some new features 🎉
 
-**Manual ip parameters**  
-There is now the possibility to set manual ip parameters instead of DHCP Mode.
-![IP-Settings](/Doc/ip-settings.png)
+### Manual ip parameters
+There is now the possibility to set manual ip parameters instead of DHCP Mode.  
 
-**Web-Authentication**  
+<img src="Doc/ip-settings.png" alt="IP-Settings" width="50%">
+
+
+### Web-Authentication
 There also the possibility to activate a new web-authentication. If the option is enabled, you have to enter username and password.
-To manually logout, you can click on the "Logout" button below the settings. This seems to work fine on Chrome Browsers, but unfortunately it seems not to work on Safari.
-![IP-Settings](/Doc/authentication.png)
+To manually logout, you can click on the "Logout" button below the settings. This seems to work fine on Chrome Browsers, but unfortunately it seems not to work on Safari.  
 
-**HC Reduction Mode**  
+<img src="Doc/authentication.png" alt="web-auth" width="50%">  
+
+
+### HC Reduction Mode
 Added the command for "reductin mode" of heating circuits as mqtt command and to the webUI
 ```
 command:    heating circuit 1: reduction mode
@@ -464,18 +468,47 @@ command:    heating circuit 2: reduction mode
 topic:      {"setvalue/hk2_absenkungsart", setvalue/hc2_reduction_mode"}
 payload:    Number 0..3 (Abschalt,Reduziert,Raumhalt,Aussenhalt) / {off,fixed,room,outdoors)
 ```
-![Reduction-Mode](/Doc/reductionmode.png)
+<img src="Doc/reductionmode.png" alt="Reduction-Mode" width="50%">
 
+### Debug Filter
+there is a new filter function for debug messages. Debug messages are send via mqtt with topic `debug_message`.
+With the filter function you can influence what messages are sent.
+The filter must consist of 11 hex values separated by a `_`. You can use `XX` as a wildcard instead of a hex value.
+Example: `08_15_XX_XX_XX_XX_XX_XX_XX_XX_XX` will send all messages that begins with 08_15_...
+You can also disable and enable debug mode with the mqtt command `cmd/debug` and payload 0 or 1.
 
-⚠️ **Attention:**  
-Please only use the OTA update if you have already flashed v3.2.5 to the Board via the serial cable to activate the larger partition scheme.
-If you want to update from a version <= 3.2.4 to this version, please flash now with cable.
-If you have already flashed the v.3.2.5 by calble, then you can also use the OTA update.
+```
+command:    debug function - on/off
+topic:      {cmd/debug", cmd/debug"}
+payload:    0/1
+
+command:    debug function - set Filter
+topic:      {cmd/setdebugflt", cmd/setdebugflt"}
+payload:    11 hex values separated with "_" (example: 08_15_XX_XX_XX_XX_XX_XX_XX_XX_XX)
+
+command:    debug function - get Filter
+topic:      {cmd/getdebugflt", cmd/getdebugflt"}
+payload:    none (return value at message topic)
+```
+
+> [!NOTE]
+> Remember that there is also a new service interface since v3.2.5 to send any command you like to the Logamatic.
+```
+command:    Service interface - only for Experts - use at your own risk!!!
+topic:      {cmd/service", cmd/service"}
+payload:    8 hex values separated with "_" (example: 08_15_04_65_65_65_65_65)
+```
 
 ## changelog
 
 - add manual IP-parameters instead of DHCP #56
 - add authentication in WebUI #49
 - add new command "reduction mode" for mqtt and webUI
+- add new debug filter function
 
 ## Assets
+
+> [!IMPORTANT]   
+> Please only use the OTA update if you have already flashed v3.2.5 to the Board via the serial cable to activate the larger partition scheme.
+> If you want to update from a version <= 3.2.4 to this version, please flash now with cable.
+> If you have already flashed the v.3.2.5 by calble, then you can also use the OTA update.

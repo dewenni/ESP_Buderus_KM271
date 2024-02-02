@@ -186,6 +186,9 @@ void configSaveToFile() {
     doc["auth"]["user"] = config.auth.user;
     doc["auth"]["password"] = config.auth.password;
 
+    doc["debug"]["enable"] = config.debug.enable;
+    doc["debug"]["filter"] = config.debug.filter;
+
     // Delete existing file, otherwise the configuration is appended to the file
     LittleFS.remove(filename);
 
@@ -279,6 +282,11 @@ void configLoadFromFile() {
     readJSONstring(config.auth.user, sizeof(config.auth.user), doc["auth"]["user"]);
     readJSONstring(config.auth.password, sizeof(config.auth.password), doc["auth"]["password"]);
 
+    config.debug.enable = doc["debug"]["enable"];
+    readJSONstring(config.debug.filter, sizeof(config.debug.filter), doc["debug"]["filter"]);
+    if (strlen(config.debug.filter) == 0){
+      strcpy(config.debug.filter, "XX_XX_XX_XX_XX_XX_XX_XX_XX_XX_XX");
+    }
   }
   // Close the file (Curiously, File's destructor doesn't close the file)
   file.close();

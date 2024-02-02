@@ -107,6 +107,61 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
       mqttPublish(addTopic("/message"), "invalid parameter size", false);
     }
   }
+  // enable / disable debug
+  else if (strcmp (topic, addTopic(mqttCmd.DEBUG[config.lang])) == 0){
+    if (intVal==1){
+      config.debug.enable = true;
+      configSaveToFile();
+      mqttPublish(addTopic("/message"), "debug enabled", false);
+    }
+    else if (intVal==0){
+      config.debug.enable = false;
+      configSaveToFile();
+      mqttPublish(addTopic("/message"), "debug disabled", false);
+    }
+  }
+  // set debug filter
+  else if (strcmp (topic, addTopic(mqttCmd.SET_DEBUG_FLT[config.lang])) == 0){
+    if (len == 32){  // 32 characters: 11 Hex-values + 10 separators "_"
+      // Iteration thru payload
+      char payloadCpy[33];
+      snprintf(payloadCpy, sizeof(payloadCpy), "%s", payload);
+      char *token = strtok(payload, "_");
+      size_t i = 0;
+      while (token != NULL && i < 11) {
+        // check, if the substring contains valid hex values
+        size_t tokenLen = strlen(token);
+        if (tokenLen != 2 ||
+        (!isxdigit(token[0]) && token[0] != 'X') ||
+        (!isxdigit(token[1]) && token[1] != 'X')) {
+          // invalid hex values found
+          mqttPublish(addTopic("/message"), "invalid hex parameter", false);
+          return;
+        }
+        token = strtok(NULL, "_");  // next substring
+        i++;
+      }
+      // check if all 11 hex values are found
+      if (i == 11) {
+        // everything seems to be valid - call service function
+        mqttPublish(addTopic("/message"), "filter accepted", false);
+        snprintf(config.debug.filter, sizeof(config.debug.filter), "%s", payloadCpy);
+        configSaveToFile();
+      }
+      else
+      {
+        // not enough hex values found
+        mqttPublish(addTopic("/message"), "not enough hex parameter", false);
+      }
+    } else {
+      // invalid parameter length
+      mqttPublish(addTopic("/message"), "invalid parameter size", false);
+    }
+  }
+  // get debug filter
+  else if (strcmp (topic, addTopic(mqttCmd.GET_DEBUG_FLT[config.lang])) == 0){
+    mqttPublish(addTopic("/message"), config.debug.filter, false);
+  }
   // set date and time
   else if (strcmp (topic, addTopic(mqttCmd.DATETIME[config.lang])) == 0){
     km271SetDateTimeNTP();

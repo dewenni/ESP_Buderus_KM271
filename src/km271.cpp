@@ -23,6 +23,7 @@ const char * addCfgTopic(const char *suffix);
 const char * addStatTopic(const char *suffix);
 const char * addAlarmTopic(const char *suffix);
 uint8_t limit(uint8_t lower, uint8_t value, uint8_t upper);
+int compareHexValues(const char *filter, uint8_t data[]);
 
 /* V A R I A B L E S ********************************************************/
 s_mqtt_messags       mqttMsg;                                      // texts for mqtt messages
@@ -264,8 +265,10 @@ void parseInfo(uint8_t *data, int len) {
   ********************************************************/
   #ifdef DEBUG_ON 
     if (kmregister != 0x0400 && kmregister != 0x882e && kmregister != 0x882f){
-      snprintf(tmpMessage, sizeof(tmpMessage), "%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], data[10]);
-      mqttPublish(addTopic("/debug_message"), tmpMessage, false); 
+      if ( config.debug.enable && compareHexValues(config.debug.filter, data) ){ 
+        snprintf(tmpMessage, sizeof(tmpMessage), "%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], data[10]);
+        mqttPublish(addTopic("/debug_message"), tmpMessage, false); 
+      }
     }
   #endif 
 
@@ -2192,4 +2195,54 @@ uint8_t limit(uint8_t lower, uint8_t value, uint8_t upper){
     return lower;
   else
     return value;
+}
+
+
+/**
+ * *******************************************************************
+ * @brief   convert hex string to integer
+ * @param   hex value as string
+ * @return  int value
+ * *******************************************************************/
+int hexToInt(char hex[]) {
+    return (int)strtol(hex, NULL, 16);
+}
+
+/**
+ * *******************************************************************
+ * @brief   compare data with filter function
+ * @param   filter string
+ * @param   data data to compare
+ * @param   dataSize size of data
+ * @return  comparison result true/false
+ * *******************************************************************/
+int compareHexValues(const char* filter, uint8_t data[]) {
+    // Kopie filter-Strings, um strtok zu verwenden
+    char filterCopy[strlen(filter) + 1];
+    strcpy(filterCopy, filter);
+
+    // Tokenize den filter-String
+    char *token = strtok(filterCopy, "_");
+
+    // Iteriere durch die Tokens und vergleiche mit data-Array
+    int i = 0; // Index für das data-Array
+    while (token != NULL) {
+        int hexValue;
+        if (strcmp(token, "XX") == 0) {
+            // Wildcard: Beliebiger Hexwert wird akzeptiert
+            hexValue = data[i];
+        } else {
+            // Konvertiere Hex-String in Integer
+            hexValue = hexToInt(token);
+        }
+        // Vergleiche mit dem aktuellen Wert im data-Array
+        if (hexValue != data[i]) {
+            return 0; // Hexwert stimmt nicht überein
+        }
+        // Nächstes Token und data-Array-Index
+        token = strtok(NULL, "_");
+        i++;
+    }
+    // Alle Hexwerte wurden gefunden
+    return 1;
 }
