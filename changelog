@@ -435,3 +435,47 @@ But with v3.2.4 you are able to download the config.json in the Tool Section of 
 - add new system info in WebUI for flash size usage
 - bugfix #67
 - add readJSONstring() to check if parameter is valid
+
+---
+
+# v3.3.0
+
+## what's new
+
+This Versions brings some new features 🎉
+
+**Manual ip parameters**  
+There is now the possibility to set manual ip parameters instead of DHCP Mode.
+![IP-Settings](/Doc/ip-settings.png)
+
+**Web-Authentication**  
+There also the possibility to activate a new web-authentication. If the option is enabled, you have to enter username and password.
+To manually logout, you can click on the "Logout" button below the settings. This seems to work fine on Chrome Browsers, but unfortunately it seems not to work on Safari.
+![IP-Settings](/Doc/authentication.png)
+
+**HC Reduction Mode**  
+Added the command for "reductin mode" of heating circuits as mqtt command and to the webUI
+```
+command:    heating circuit 1: reduction mode
+topic:      {"setvalue/hk1_absenkungsart", setvalue/hc1_reduction_mode"}
+payload:    Number 0..3 (Abschalt,Reduziert,Raumhalt,Aussenhalt) / {off,fixed,room,outdoors)
+
+command:    heating circuit 2: reduction mode
+topic:      {"setvalue/hk2_absenkungsart", setvalue/hc2_reduction_mode"}
+payload:    Number 0..3 (Abschalt,Reduziert,Raumhalt,Aussenhalt) / {off,fixed,room,outdoors)
+```
+![Reduction-Mode](/Doc/reductionmode.png)
+
+
+⚠️ **Attention:**  
+Please only use the OTA update if you have already flashed v3.2.5 to the Board via the serial cable to activate the larger partition scheme.
+If you want to update from a version <= 3.2.4 to this version, please flash now with cable.
+If you have already flashed the v.3.2.5 by calble, then you can also use the OTA update.
+
+## changelog
+
+- add manual IP-parameters instead of DHCP #56
+- add authentication in WebUI #49
+- add new command "reduction mode" for mqtt and webUI
+
+## Assets
