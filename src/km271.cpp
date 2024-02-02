@@ -1870,6 +1870,38 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara){
       mqttPublish(addTopic("/message"), mqttMsg.HC2_SWITCH_ON_TEMP_INVALID[config.lang], false);
     }
     break;
+  
+  case KM271_SENDCMD_HC1_REDUCTION_MODE:
+    if (cmdPara>=0 && cmdPara<=3){    
+      send_buf[0]= 0x07;        // Data-Type für HK1 (0x07)
+      send_buf[1]= 0x1c;        // Offset
+      send_buf[2]= 0x65;     
+      send_buf[3]= cmdPara;     // {"off", "fixed", "room", "outdoors"}
+      send_buf[4]= 0x65;
+      send_buf[5]= 0x65;     
+      send_buf[6]= 0x65;     
+      send_buf[7]= 0x65;
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_REDUCTION_MODE_RECV[config.lang], false);
+    } else {
+      mqttPublish(addTopic("/message"), mqttMsg.HC1_REDUCTION_MODE_INVALID[config.lang], false);
+    }
+    break;
+  
+  case KM271_SENDCMD_HC2_REDUCTION_MODE:
+    if (cmdPara>=0 && cmdPara<=3){    
+      send_buf[0]= 0x08;        // Data-Type für HK2 (0x08)
+      send_buf[1]= 0x1c;        // Offset
+      send_buf[2]= 0x65;     
+      send_buf[3]= cmdPara;     // {"off", "fixed", "room", "outdoors"}
+      send_buf[4]= 0x65;
+      send_buf[5]= 0x65;     
+      send_buf[6]= 0x65;     
+      send_buf[7]= 0x65;
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_REDUCTION_MODE_RECV[config.lang], false);
+    } else {
+      mqttPublish(addTopic("/message"), mqttMsg.HC2_REDUCTION_MODE_INVALID[config.lang], false);
+    }
+    break;
 
   default:
     break;

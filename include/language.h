@@ -177,6 +177,8 @@ const char* HC2_HOLIDAYS[MAX_LANG] =                {"/setvalue/hk2_ferien_tage"
 const char* WW_PUMP_CYCLES[MAX_LANG] =              {"/setvalue/ww_pumpen_zyklus",          "/setvalue/ww_pump_cycles"};
 const char* HC1_SWITCH_ON_TEMP[MAX_LANG] =          {"/setvalue/hk1_aufschalttemperatur",   "/setvalue/hc1_switch_on_temperature"};
 const char* HC2_SWITCH_ON_TEMP[MAX_LANG] =          {"/setvalue/hk2_aufschalttemperatur",   "/setvalue/hc2_switch_on_temperature"};
+const char* HC1_REDUCTION_MODE[MAX_LANG] =          {"/setvalue/hk1_absenkungsart",         "/setvalue/hc1_reduction_mode"};
+const char* HC2_REDUCTION_MODE[MAX_LANG] =          {"/setvalue/hk2_absenkungsart",         "/setvalue/hc2_reduction_mode"};
 } s_mqtt_cmds; 
 
 
@@ -247,6 +249,10 @@ const char* HC1_SWITCH_ON_TEMP_RECV[MAX_LANG]           =    {"setvalue: hk1_auf
 const char* HC2_SWITCH_ON_TEMP_RECV[MAX_LANG]           =    {"setvalue: hk2_aufschalttemperatur - empfangen",  "setvalue: hc2_switch_on_temperature - received"};
 const char* HC1_SWITCH_ON_TEMP_INVALID[MAX_LANG]        =    {"setvalue: hk1_aufschalttemperatur - ungültig",   "setvalue: hc1_switch_on_temperature - invalid"};
 const char* HC2_SWITCH_ON_TEMP_INVALID[MAX_LANG]        =    {"setvalue: hk2_aufschalttemperatur - ungültig",   "setvalue: hc2_switch_on_temperature - invalid"};
+const char* HC1_REDUCTION_MODE_RECV[MAX_LANG]           =    {"setvalue: hk1_absenkungsart - empfangen",        "setvalue: hc1_reduction-mode - empfangen"};
+const char* HC1_REDUCTION_MODE_INVALID[MAX_LANG]        =    {"setvalue: hk1_absenkungsart - ungültig",         "setvalue: hc1_reduction-mode - invalid"};
+const char* HC2_REDUCTION_MODE_RECV[MAX_LANG]           =    {"setvalue: hk2_absenkungsart - empfangen",        "setvalue: hc2_reduction-mode - empfangen"};
+const char* HC2_REDUCTION_MODE_INVALID[MAX_LANG]        =    {"setvalue: hk2_absenkungsart - ungültig",         "setvalue: hc2_reduction-mode - invalid"};
 } s_mqtt_messags;   
 
 

@@ -289,6 +289,8 @@ typedef enum {
   KM271_SENDCMD_WW_PUMP_CYCLES,           // WarmWater Pump cycles
   KM271_SENDCMD_HC1_SWITCH_ON_TEMP,       // HC1 Switch On Temperature
   KM271_SENDCMD_HC2_SWITCH_ON_TEMP,       // HC2 Switch On Temperature
+  KM271_SENDCMD_HC1_REDUCTION_MODE,       // HC1 Reduction Mode
+  KM271_SENDCMD_HC2_REDUCTION_MODE,       // HC1 Reduction Mode
 } e_km271_sendCmd;
 
 

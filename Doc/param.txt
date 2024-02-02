@@ -125,6 +125,14 @@ command:    heating circuit 2: controller intervention
 topic:      {"setvalue/hk2_reglereingriff", setvalue/hc2_ctrl_intervention"}
 payload:    Resolution: 1 [°C] - Range: 0 ... +10 [°C]
 
+command:    heating circuit 1: reduction mode
+topic:      {"setvalue/hk1_absenkungsart", setvalue/hc1_reduction_mode"}
+payload:    Number 0..3 (Abschalt,Reduziert,Raumhalt,Aussenhalt) / {off,fixed,room,outdoors)
+
+command:    heating circuit 2: reduction mode
+topic:      {"setvalue/hk2_absenkungsart", setvalue/hc2_reduction_mode"}
+payload:    Number 0..3 (Abschalt,Reduziert,Raumhalt,Aussenhalt) / {off,fixed,room,outdoors)
+
 =================================================================================================
 
 Logamatic CONFIG values (read)

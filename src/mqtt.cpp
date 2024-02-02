@@ -215,6 +215,14 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
   else if (strcmp (topic, addTopic(mqttCmd.HC2_SWITCH_ON_TEMP[config.lang])) == 0){
     km271sendCmd(KM271_SENDCMD_HC2_SWITCH_ON_TEMP, intVal);
   } 
+  // HK1 Absenkungsart
+  else if (strcmp (topic, addTopic(mqttCmd.HC1_REDUCTION_MODE[config.lang])) == 0){
+    km271sendCmd(KM271_SENDCMD_HC1_REDUCTION_MODE, intVal);
+  } 
+  // HK2 Absenkungsart
+  else if (strcmp (topic, addTopic(mqttCmd.HC2_REDUCTION_MODE[config.lang])) == 0){
+    km271sendCmd(KM271_SENDCMD_HC2_REDUCTION_MODE, intVal);
+  } 
 }
 
 /**

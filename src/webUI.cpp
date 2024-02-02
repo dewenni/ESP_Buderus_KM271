@@ -33,7 +33,6 @@ char tmpMessage[300]={'\0'};              // temp string
 long oilcounter, oilcounterOld;           // actual and old oilcounter value
 const char* LANGUAGES[MAX_LANG] = {"🇩🇪 Deutsch", "🇬🇧 English"};
 const char* BOARDS[4] = {"select Board...", "generic ESP32", "KM271-WiFi v0.0.5", "KM271-WiFi v0.0.6"};
-char hc_opmode_optval[3][100]={'\0'};
 char elementBuffer[5000]={'\0'};          // Buffer to create table content
 char elementString[500]={'\0'};           // temp string
 IPAddress tmpIpAddress;                   // temporary IP address
@@ -309,11 +308,6 @@ void addDashboardTab(){
  * @brief   Elements for Control Tab
  * *******************************************************************/
  void addControlTab(){
-    
-  // array of operating modes for select control
-  strcpy(hc_opmode_optval[0], webText.NIGHT[config.lang]);
-  strcpy(hc_opmode_optval[1], webText.DAY[config.lang]);
-  strcpy(hc_opmode_optval[2], webText.AUTOMATIC[config.lang]);
 
   id.tab.control = ESPUI.addControl(Tab, "", webText.CONTROL[config.lang], ControlColor::None, 0, generalCallback);
   ESPUI.addControl(ControlType::Separator, webText.OPMODES[config.lang], "", ControlColor::None, id.tab.control);
@@ -322,23 +316,23 @@ void addDashboardTab(){
   if (config.km271.use_hc1)
   {
     id.ctrl.hc1_opmode = ESPUI.addControl(Select, km271CfgTopics.HC1_OPMODE[config.lang], "", Dark, id.tab.control, generalCallback);
-    ESPUI.addControl(Option, hc_opmode_optval[0], "0", None, id.ctrl.hc1_opmode);
-    ESPUI.addControl(Option, hc_opmode_optval[1], "1", None, id.ctrl.hc1_opmode);
-    ESPUI.addControl(Option, hc_opmode_optval[2], "2", None, id.ctrl.hc1_opmode);
+    for (int i = 0; i <= 2; i++) {
+      ESPUI.addControl(Option, cfgArrayTexts.OPMODE[config.lang][i], int8ToString(i), None, id.ctrl.hc1_opmode);
+    }
   }
   if (config.km271.use_hc2) {
     id.ctrl.hc2_opmode = ESPUI.addControl(Select, km271CfgTopics.HC2_OPMODE[config.lang], "", Dark, id.tab.control, generalCallback);
-    ESPUI.addControl(Option, hc_opmode_optval[0], "0", None, id.ctrl.hc2_opmode);
-    ESPUI.addControl(Option, hc_opmode_optval[1], "1", None, id.ctrl.hc2_opmode);
-    ESPUI.addControl(Option, hc_opmode_optval[2], "2", None, id.ctrl.hc2_opmode);
+    for (int i = 0; i <= 2; i++) {
+      ESPUI.addControl(Option, cfgArrayTexts.OPMODE[config.lang][i], int8ToString(i), None, id.ctrl.hc2_opmode);
+    }
   }
     
   // WW-Operation Mode
   if (config.km271.use_ww) {
     id.ctrl.ww_opmode = ESPUI.addControl(Select, km271CfgTopics.WW_OPMODE[config.lang], "", Dark, id.tab.control, generalCallback);
-    ESPUI.addControl(Option, hc_opmode_optval[0], "0", None, id.ctrl.ww_opmode);
-    ESPUI.addControl(Option, hc_opmode_optval[1], "1", None, id.ctrl.ww_opmode);
-    ESPUI.addControl(Option, hc_opmode_optval[2], "2", None, id.ctrl.ww_opmode);   
+    for (int i = 0; i <= 2; i++) {
+      ESPUI.addControl(Option, cfgArrayTexts.OPMODE[config.lang][i], int8ToString(i), None, id.ctrl.ww_opmode);
+    }
   }
 
   ESPUI.addControl(ControlType::Separator, webText.PROGRAMS[config.lang], "", ControlColor::None, id.tab.control);
@@ -365,6 +359,21 @@ void addDashboardTab(){
     id.ctrl.hc2_holiday_days = ESPUI.addControl(Number, km271CfgTopics.HC2_HOLIDAY_DAYS[config.lang], "", Dark, id.tab.control, generalCallback);
   }
   
+  // Absenkungsart
+  if (config.km271.use_hc1)
+  {
+    id.ctrl.hc1_reduction_mode = ESPUI.addControl(Select, km271CfgTopics.HC1_REDUCTION_MODE[config.lang], "", Dark, id.tab.control, generalCallback);
+    for (int i = 0; i <= 3; i++) {
+      ESPUI.addControl(Option, cfgArrayTexts.REDUCT_MODE[config.lang][i], int8ToString(i), None, id.ctrl.hc1_reduction_mode);
+    }
+  }
+  if (config.km271.use_hc2) {
+    id.ctrl.hc2_reduction_mode = ESPUI.addControl(Select, km271CfgTopics.HC2_REDUCTION_MODE[config.lang], "", Dark, id.tab.control, generalCallback);
+    for (int i = 0; i <= 3; i++) {
+      ESPUI.addControl(Option, cfgArrayTexts.REDUCT_MODE[config.lang][i], int8ToString(i), None, id.ctrl.hc2_reduction_mode);
+    }
+  }
+
   ESPUI.addControl(ControlType::Separator, webText.TEMPERATURES[config.lang], "", ControlColor::None, id.tab.control);
 
   // Frost Threshold
@@ -1253,6 +1262,8 @@ void updateConfigValues(){
     ESPUI.updateNumber(id.ctrl.hc1_holiday_days, kmConfigNumCpy.hc1_holiday_days);
     ESPUI.updateSlider(id.ctrl.hc1_frost_mode_threshold, kmConfigNumCpy.hc1_frost_protection_threshold);
     ESPUI.updateSlider(id.ctrl.hc1_summer_mode_threshold, kmConfigNumCpy.hc1_summer_mode_threshold);
+    ESPUI.updateSelect(id.ctrl.hc1_reduction_mode, int8ToString(kmConfigNumCpy.hc1_reduction_mode));
+    ESPUI.updateSelect(id.ctrl.hc2_reduction_mode, int8ToString(kmConfigNumCpy.hc2_reduction_mode));
 
   }
 
@@ -1517,6 +1528,18 @@ void generalCallback(Control *sender, int type) {
     Serial.println(sender->value.toInt());
   }
   
+  // HC1-Reduction-Mode
+  if(sender->id == id.ctrl.hc1_reduction_mode) {
+    km271sendCmd(KM271_SENDCMD_HC1_REDUCTION_MODE, sender->value.toInt());
+    Serial.println(sender->value.toInt());
+  }
+
+  // HC2-Reduction-Mode
+  if(sender->id == id.ctrl.hc2_reduction_mode) {
+    km271sendCmd(KM271_SENDCMD_HC2_REDUCTION_MODE, sender->value.toInt());
+    Serial.println(sender->value.toInt());
+  }
+
   // HC1-Frost Threshold
   if(sender->id == id.ctrl.hc1_frost_mode_threshold) {
     km271sendCmd(KM271_SENDCMD_HC1_FROST, sender->value.toInt());
