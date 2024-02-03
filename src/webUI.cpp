@@ -926,7 +926,13 @@ void updateStatusValues(){
         snprintf(tmpMessage, sizeof(tmpMessage), "%s  ❄️", webText.WINTER[config.lang]);
     }
     else {
-      snprintf(tmpMessage, sizeof(tmpMessage), "---");
+      // generate status from actual temperature and summer threshold
+      if (kmStatusCpy.OutsideDampedTemp > kmConfigNumCpy.hc1_summer_mode_threshold){
+        snprintf(tmpMessage, sizeof(tmpMessage), "%s  🔆", webText.SUMMER[config.lang]);
+      }
+      else {
+        snprintf(tmpMessage, sizeof(tmpMessage), "%s  ❄️", webText.WINTER[config.lang]);
+      }
     }
     ESPUI.updateLabel(id.dash.hc1summerWinter, tmpMessage);
 
@@ -1012,7 +1018,13 @@ void updateStatusValues(){
         snprintf(tmpMessage, sizeof(tmpMessage), "%s  ❄️", webText.WINTER[config.lang]);
     }
     else {
-      snprintf(tmpMessage, sizeof(tmpMessage), "---");
+      // generate status from actual temperature and summer threshold
+      if (kmStatusCpy.OutsideDampedTemp > kmConfigNumCpy.hc2_summer_mode_threshold){
+        snprintf(tmpMessage, sizeof(tmpMessage), "%s  🔆", webText.SUMMER[config.lang]);
+      }
+      else {
+        snprintf(tmpMessage, sizeof(tmpMessage), "%s  ❄️", webText.WINTER[config.lang]);
+      }
     }
     ESPUI.updateLabel(id.dash.hc2summerWinter, tmpMessage);
 
