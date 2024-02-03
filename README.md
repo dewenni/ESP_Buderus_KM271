@@ -293,6 +293,18 @@ command:    Service interface - only for Experts - use at your own risk!!!
 topic:      {cmd/service", cmd/service"}
 payload:    8 hex values separated with "_" (example: 08_15_04_65_65_65_65_65)
 
+command:    debug function - on/off
+topic:      {cmd/debug", cmd/debug"}
+payload:    0/1
+
+command:    debug function - set Filter
+topic:      {cmd/setdebugflt", cmd/setdebugflt"}
+payload:    11 hex values separated with "_" (example: 08_15_XX_XX_XX_XX_XX_XX_XX_XX_XX)
+
+command:    debug function - get Filter
+topic:      {cmd/getdebugflt", cmd/getdebugflt"}
+payload:    none (return value at message topic)
+
 command:    set date & time of Logamatic
 topic:      {"setvalue/setdatetime", setvalue/setdatetime"}
 payload:    none
@@ -305,28 +317,56 @@ command:    heating circuit 1: operation mode
 topic:      {"setvalue/hk1_betriebsart", setvalue/hc1_opmode"}
 payload:    0=night / 1=day / 2=auto  
 
+command:    heating circuit 2: operation mode 
+topic:      {"setvalue/hk2_betriebsart", setvalue/hc2_opmode"}
+payload:    (0=night / 1=day / 2=auto)
+
 command:    heating circuit 1: program
 topic:      {"setvalue/hk1_programm", setvalue/hc1_program"}
+payload:    (0=custom / 1=family / 2=early / 3=late / 4=AM / 5=PM / 6=noon / 7=single / 8=senior)
+
+command:    heating circuit 2: program
+topic:      {"setvalue/hk2_programm", setvalue/hc2_program"}
 payload:    (0=custom / 1=family / 2=early / 3=late / 4=AM / 5=PM / 6=noon / 7=single / 8=senior)
 
 command:    heating circuit 1: design temperature for heating curves
 topic:      {"setvalue/hk1_auslegung", setvalue/hc1_interpretation"}
 payload:    Resolution: 1 [°C] - Range: 30 ... 90 [°C]
 
+command:    heating circuit 2: design temperature for heating curves
+topic:      {"setvalue/hk2_auslegung", setvalue/hc2_interpretation"}
+payload:    Resolution: 1 [°C] - Range: 30 ... 90 [°C]
+
 command:    heating circuit 1: switch off threshold for reduction mode
 topic:      {"setvalue/hk1_aussenhalt_ab", setvalue/hc1_switch_off_threshold"}
 payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
 
-command:    heating circuit 1: day temperature ww_setpoint
+command:    heating circuit 2: switch off threshold for reduction mode
+topic:      {"setvalue/hk2_aussenhalt_ab", setvalue/hc2_switch_off_threshold"}
+payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
+
+command:    heating circuit 1: day temperature setpoint
 topic:      {"setvalue/hk1_tag_soll", setvalue/hc1_day_setpoint"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
-command:    heating circuit 1: nigth temperature ww_setpoint
+command:    heating circuit 2: day temperature setpoint
+topic:      {"setvalue/hk2_tag_soll", setvalue/hc2_day_setpoint"}
+payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
+
+command:    heating circuit 1: night temperature setpoint
 topic:      {"setvalue/hk1_nacht_soll", setvalue/hc1_night_setpoint"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
-command:    heating circuit 1: nigth temperature ww_setpoint
+command:    heating circuit 2: night temperature setpoint
+topic:      {"setvalue/hk2_nacht_soll", setvalue/hc2_night_setpoint"}
+payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
+
+command:    heating circuit 1: holiday temperature setpoint
 topic:      {"setvalue/hk1_ferien_soll", setvalue/hc1_holiday_setpoint"}
+payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
+
+command:    heating circuit 2: holiday temperature setpoint
+topic:      {"setvalue/hk2_ferien_soll", setvalue/hc2_holiday_setpoint"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
 command:    warm water: operation mode
@@ -337,8 +377,16 @@ command:    heating circuit 1: summer mode threshold Temperature
 topic:      {"setvalue/hk1_sommer_ab", setvalue/hc1_summer_mode_threshold"}
 payload:    Resolution: 1 [°C] - Range: 9:Summer | 10°..30° | 31:Winter
 
+command:    heating circuit 2: summer mode threshold Temperature
+topic:      {"setvalue/hk2_sommer_ab", setvalue/hc2_summer_mode_threshold"}
+payload:    Resolution: 1 [°C] - Range: 9:Summer | 10°..30° | 31:Winter
+
 command:    heating circuit 1: frost mode threshold Temperature
 topic:      {"setvalue/hk1_frost_ab", setvalue/hc1_frost_mode_threshold"}
+payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
+
+command:    heating circuit 2: frost mode threshold Temperature
+topic:      {"setvalue/hk2_frost_ab", setvalue/hc2_frost_mode_threshold"}
 payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
 
 command:    warm water: setpoint temperature
@@ -349,9 +397,29 @@ command:    heating circuit 1: count of days for holiday mode (Logamatic will de
 topic:      {"setvalue/hk1_ferien_tage", setvalue/hc1_holidays"}
 payload:    count of days 0 .. 99
 
+command:    heating circuit 2: count of days for holiday mode (Logamatic will decrement every day by one)
+topic:      {"setvalue/hk1_ferien_tage", setvalue/hc1_holidays"}
+payload:    count of days 0 .. 99
+
 command:    warm water pump cycles
 topic:      {"setvalue/ww_pumpen_zyklus", setvalue/ww_pump_cycles"}
 payload:    Resolution: 1 [cycles/hour] - Range: 0:OFF | 1..6 | 7:ON
+
+command:    heating circuit 1: controller intervention
+topic:      {"setvalue/hk1_reglereingriff", setvalue/hc1_ctrl_intervention"}
+payload:    Resolution: 1 [°C] - Range: 0 ... +10 [°C]
+
+command:    heating circuit 2: controller intervention
+topic:      {"setvalue/hk2_reglereingriff", setvalue/hc2_ctrl_intervention"}
+payload:    Resolution: 1 [°C] - Range: 0 ... +10 [°C]
+
+command:    heating circuit 1: reduction mode
+topic:      {"setvalue/hk1_absenkungsart", setvalue/hc1_reduction_mode"}
+payload:    Number 0..3 (Abschalt,Reduziert,Raumhalt,Aussenhalt) / {off,fixed,room,outdoors)
+
+command:    heating circuit 2: reduction mode
+topic:      {"setvalue/hk2_absenkungsart", setvalue/hc2_reduction_mode"}
+payload:    Number 0..3 (Abschalt,Reduziert,Raumhalt,Aussenhalt) / {off,fixed,room,outdoors)
 
 ```
 

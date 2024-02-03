@@ -505,6 +505,7 @@ payload:    8 hex values separated with "_" (example: 08_15_04_65_65_65_65_65)
 - add authentication in WebUI #49
 - add new command "reduction mode" for mqtt and webUI
 - add new debug filter function
+- calculate summer/winter if Logamatic is in manual mode #47
 
 ## Assets
 
