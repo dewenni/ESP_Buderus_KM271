@@ -36,8 +36,12 @@ const char * addSensorTopic(const char *suffix){
  * @return  none
  * *******************************************************************/
 void setupSensor(void) {
-    oneWire1.begin(config.sensor.ch1_gpio);
-    oneWire2.begin(config.sensor.ch2_gpio);
+    if (config.sensor.ch1_enable){
+        oneWire1.begin(config.sensor.ch1_gpio);
+    }
+    if (config.sensor.ch2_enable){
+        oneWire2.begin(config.sensor.ch2_gpio);
+    }
 }
 
 /**
@@ -50,14 +54,17 @@ void cyclicSensor(void)
 {
     if (readTimer.cycleTrigger(REFRESH_TIME)){
         
-        sensor1.requestTemperatures();
-        sensor2.requestTemperatures();
-
-        sensor.ch1_temp = sensor1.getTempCByIndex(0);
-        sensor.ch2_temp = sensor2.getTempCByIndex(0);
-
-        mqttPublish(addSensorTopic(config.sensor.ch1_name), floatToString(sensor.ch1_temp), false);
-        mqttPublish(addSensorTopic(config.sensor.ch2_name), floatToString(sensor.ch2_temp), false);
+        if (config.sensor.ch1_enable){
+            sensor1.requestTemperatures();
+            sensor.ch1_temp = sensor1.getTempCByIndex(0);
+            mqttPublish(addSensorTopic(config.sensor.ch1_name), floatToString(sensor.ch1_temp), false);
+        }
+        
+        if (config.sensor.ch2_enable){
+            sensor2.requestTemperatures();
+            sensor.ch2_temp = sensor2.getTempCByIndex(0);
+            mqttPublish(addSensorTopic(config.sensor.ch2_name), floatToString(sensor.ch2_temp), false);
+        }
     }
 
 }
