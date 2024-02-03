@@ -525,10 +525,11 @@ payload:    8 hex values separated with "_" (example: 08_15_04_65_65_65_65_65)
 - add new command "reduction mode" for mqtt and webUI
 - add new debug filter function
 - calculate summer/winter if Logamatic is in manual mode #47
+- add OneWire support #2
 
 ## Assets
 
 > [!IMPORTANT]   
 > Please only use the OTA update if you have already flashed v3.2.5 to the Board via the serial cable to activate the larger partition scheme.
-> If you want to update from a version <= 3.2.4 to this version, please flash now with cable.
-> If you have already flashed the v.3.2.5 by calble, then you can also use the OTA update.
+> If you want to update from a version <= 3.2.4 to this version, please flash it by cable.
+> If you have already flashed the v3.2.5 by cable, then you can also use the OTA update.
