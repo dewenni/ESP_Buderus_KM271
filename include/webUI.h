@@ -178,8 +178,9 @@ uint16_t hc2flowSetTemp;
 uint16_t oilmeter;
 uint16_t tmp_out_act;
 uint16_t tmp_out_act_d;
+uint16_t sens1_temp;
+uint16_t sens2_temp;
 } s_webui_id_dash;
-
 
 typedef struct {
 uint16_t wifiIP;
@@ -286,6 +287,12 @@ uint16_t auth_enable;
 uint16_t auth_user;
 uint16_t auth_passw;
 uint16_t webUI_enable;
+uint16_t sens1_enable;
+uint16_t sens1_name;
+uint16_t sens1_gpio;
+uint16_t sens2_enable;
+uint16_t sens2_name;
+uint16_t sens2_gpio;
 } s_webui_id_settings;
 
 typedef struct {

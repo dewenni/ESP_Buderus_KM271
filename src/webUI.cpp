@@ -3,6 +3,7 @@
 #include <language.h>
 #include <basics.h>
 #include <oilmeter.h>
+#include <sensor.h>
 
 /* P R O T O T Y P E S ********************************************************/ 
 void updateDashboard();
@@ -13,8 +14,9 @@ void updateOilmeter();
 void updateAlarmTab();
 void generalCallback(Control *sender, int type);
 void updateSettingsValues();
+void updateSensorValues();
 
-/* D E C L A R A T I O N S ****************************************************/  
+/* D E C L A R A T I O N S ****************************************************/
 s_webui_id id;
 s_webui_texts webText;
 s_stat_topics km271StatTopics;
@@ -300,6 +302,33 @@ void addDashboardTab(){
     id.dash.oilmeter = ESPUI.addControl(Label, "", "--", None, oilmeter_Group);
     ESPUI.setElementStyle(id.dash.oilmeter, LABLE_STYLE_DASH);
   }
+
+  // optional sensors
+  if (config.sensor.ch1_enable && config.sensor.ch2_enable){
+    // group control if both sensors are enabled
+    auto sensor_Group = addGroupHelper(webText.SENSOR[config.lang], Dark, id.tab.dashboard);
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", config.sensor.ch1_name, None, sensor_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", config.sensor.ch2_name, None, sensor_Group), "background-color: unset; width: 50%; font-size: 15px; text-align: center");
+    id.dash.sens1_temp = ESPUI.addControl(Label, "", "--", None, sensor_Group);
+    ESPUI.setElementStyle(id.dash.sens1_temp, "width: 45%; font-size: 30px");
+    ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, sensor_Group), "background-color: unset; width: 10%;"); //spacer
+    id.dash.sens2_temp = ESPUI.addControl(Label, "", "--", None, sensor_Group);
+    ESPUI.setElementStyle(id.dash.sens2_temp, "width: 45%; font-size: 30px");
+  }
+  else {
+    // single control if only one sensor is enabled
+    if (config.sensor.ch1_enable){
+      auto sensor1_Group = addGroupHelper(config.sensor.ch1_name, Dark, id.tab.dashboard);
+      id.dash.sens1_temp = ESPUI.addControl(Label, "", "--", None, sensor1_Group);
+      ESPUI.setElementStyle(id.dash.sens1_temp, LABLE_STYLE_DASH);
+    }
+    if (config.sensor.ch2_enable){
+      auto sensor2_Group = addGroupHelper(config.sensor.ch2_name, Dark, id.tab.dashboard);
+      id.dash.sens2_temp = ESPUI.addControl(Label, "", "--", None, sensor2_Group);
+      ESPUI.setElementStyle(id.dash.sens2_temp, LABLE_STYLE_DASH);
+    }
+  }
+
 } // End addDashboardElements()
 
 
@@ -759,6 +788,15 @@ void addSettingsTab(){
 
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.GPIO_UNUSED[config.lang], None, setGpioGroup), LABLE_STYLE_DESCRIPTION);
 
+  // Sensor-Settings
+  auto setSensGroup = addGroupHelper(webText.SENSOR[config.lang], Dark, id.tab.settings);
+  id.settings.sens1_enable = addSwitcherInputHelper(webText.SENS1[config.lang], setSensGroup);
+  id.settings.sens1_name = addTextInputHelper(webText.NAME[config.lang], setSensGroup);
+  id.settings.sens1_gpio = addNumberInputHelper(webText.GPIO[config.lang], setSensGroup);
+  id.settings.sens2_enable = addSwitcherInputHelper(webText.SENS2[config.lang], setSensGroup);
+  id.settings.sens2_name = addTextInputHelper(webText.NAME[config.lang], setSensGroup);
+  id.settings.sens2_gpio = addNumberInputHelper(webText.GPIO[config.lang], setSensGroup);
+
   // Language-Settings
   id.settings.language = ESPUI.addControl(Select, km271CfgTopics.LANGUAGE[config.lang], "", Dark, id.tab.settings, generalCallback);
   ESPUI.addControl(Option, LANGUAGES[0], "0", None, id.settings.language);
@@ -880,6 +918,9 @@ void webUICylic(){
     // update System Informations
     updateSystemInfo();
 
+    // update sensor status
+    updateSensorValues();
+
     // check if oilcounter value changed
     if (config.oilmeter.use_hardware_meter) {
       oilcounter = getOilmeter();
@@ -893,6 +934,16 @@ void webUICylic(){
 
 }
 
+/**
+ * *******************************************************************
+ * @brief   update Sensor values
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void updateSensorValues(){
+  ESPUI.updateLabel(id.dash.sens1_temp, floatToString(sensor.ch1_temp));
+  ESPUI.updateLabel(id.dash.sens2_temp, floatToString(sensor.ch2_temp));
+}
 
 /**
  * *******************************************************************
@@ -1497,6 +1548,13 @@ void updateSettingsValues(){
   ESPUI.updateNumber(id.settings.gpio_led_oilcounter, config.gpio.led_oilcounter);
   ESPUI.updateNumber(id.settings.gpio_trigger_oilcounter, config.gpio.trigger_oilcounter);
 
+  ESPUI.updateSwitcher(id.settings.sens1_enable, config.sensor.ch1_enable);
+  ESPUI.updateText(id.settings.sens1_name, config.sensor.ch1_name);
+  ESPUI.updateNumber(id.settings.sens1_gpio, config.sensor.ch1_gpio);
+  ESPUI.updateSwitcher(id.settings.sens2_enable, config.sensor.ch2_enable);
+  ESPUI.updateText(id.settings.sens2_name, config.sensor.ch2_name);
+  ESPUI.updateNumber(id.settings.sens2_gpio, config.sensor.ch2_gpio);
+
   ESPUI.updateSelect(id.settings.language, uint64ToString(config.lang));
 
 }
@@ -1732,6 +1790,14 @@ void generalCallback(Control *sender, int type) {
     config.gpio.led_wifi = ESPUI.getControl(id.settings.gpio_led_wifi)->value.toInt();
     config.gpio.led_oilcounter = ESPUI.getControl(id.settings.gpio_led_oilcounter)->value.toInt();
     config.gpio.trigger_oilcounter = ESPUI.getControl(id.settings.gpio_trigger_oilcounter)->value.toInt();
+
+    // optional sensors
+    config.sensor.ch1_enable = ESPUI.getControl(id.settings.sens1_enable)->value.toInt();
+    snprintf(config.sensor.ch1_name, sizeof(config.sensor.ch1_name), ESPUI.getControl(id.settings.sens1_name)->value.c_str());
+    config.sensor.ch1_gpio = ESPUI.getControl(id.settings.sens1_gpio)->value.toInt();
+    config.sensor.ch2_enable = ESPUI.getControl(id.settings.sens2_enable)->value.toInt();
+    snprintf(config.sensor.ch2_name, sizeof(config.sensor.ch2_name), ESPUI.getControl(id.settings.sens2_name)->value.c_str());
+    config.sensor.ch2_gpio = ESPUI.getControl(id.settings.sens2_gpio)->value.toInt();
 
     configSaveToFile();
     storeData();

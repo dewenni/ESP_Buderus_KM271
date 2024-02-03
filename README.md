@@ -34,6 +34,7 @@ But there is also a build in WebUI to view and control your Logamatic without an
   - [Option 1 - Board from the78mole](#option-1---board-from-the78mole)
   - [Option 2 - ESP32 with original Buderus KM271](#option-2---esp32-with-original-buderus-km271)
   - [Optional: Hardware Oilmeter](#optional-hardware-oilmeter)
+  - [Optional: OneWire Sensor](#optional-onewire-sensor)
 - [Getting started](#getting-started)
   - [Platform-IO](#platform-io)
   - [ESP-Flash-Tool](#esp-flash-tool)
@@ -108,7 +109,31 @@ I have used one without potential-free contact and have subsequently attached a 
 
 ![braun_hz5](/Doc/oilmeter.jpeg)
 
-> ℹ️ **INFO:**  
+> [!NOTE] 
+> but this is only optional and can be used additionally to the Information´s that the software will read from the Logamatic.
+
+
+## Optional: OneWire Sensor
+
+You can also configure additional OneWire Sensors (e.g. DS18B20). In the configuration you can setup one or two sensors.
+The Sensor value will shown on the Dashboard and will also be send by mqtt with Topic `sensor` and the name that you can configure.
+If you only configure one sensor, it will be shown as a single control. If you enable both sensors, it will be shown in a combined control.
+Depending on the hardware used, an additional resistor may need to be installed. Classically, the OneWire sensors are connected with a resistor of 4.7kOhm between VCC and the sensor cable and operated with 3.3V - 5V.
+Only the GPIO to which the sensor cable is connected is specified in the configuration. The rest is hardware-dependent wiring.
+
+<img src="Doc/opt_sensor_dash2.png" alt="opt-sensor-dash2" width="40%">
+
+(single control)
+
+<img src="Doc/opt_sensor_dash1.png" alt="opt-sensor-dash1" width="40%">
+
+(combined control)
+
+<img src="Doc/opt_sensor_cfg.png" alt="opt-sensor-config" width="50%">
+
+(settings)
+
+> [!NOTE] 
 > but this is only optional and can be used additionally to the Information´s that the software will read from the Logamatic.
 
 -----
@@ -272,7 +297,7 @@ Topic: esp_heizung/info = {
 
 here you get the information about the last 4 Errors/Faults that are registered by the Logamatic. The payload of the values is a String.
 
->ℹ️ **Note:**  
+> [!NOTE]
 >A complete List of supported values can be found in the **[param.txt](Doc/param.txt)**
 
 you can also change the mqtt topics for your needs by editing: **[language.h](include/language.h)**

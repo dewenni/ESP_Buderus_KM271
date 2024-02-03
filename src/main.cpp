@@ -6,6 +6,7 @@
 #include <webUI.h>
 #include <oilmeter.h>
 #include <webTools.h>
+#include <sensor.h>
 
 // Double-Reset-Detector
 #define ESP_DRD_USE_LITTLEFS          true
@@ -91,7 +92,8 @@ void setup()
 
   }
 
-
+  // Sensor Setup
+  setupSensor();
 } 
 
 /**
@@ -177,6 +179,9 @@ void loop()
 
   // webToolsCyclic
   webToolsCyclic();
+
+  // Sensor Cyclic
+  cyclicSensor();
 
   main_reboot = false; // reset reboot flag
 }

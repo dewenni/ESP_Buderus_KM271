@@ -189,6 +189,13 @@ void configSaveToFile() {
     doc["debug"]["enable"] = config.debug.enable;
     doc["debug"]["filter"] = config.debug.filter;
 
+    doc["sensor"]["ch1_enable"] = config.sensor.ch1_enable;
+    doc["sensor"]["ch1_name"] = config.sensor.ch1_name;
+    doc["sensor"]["ch1_gpio"] = config.sensor.ch1_gpio;
+    doc["sensor"]["ch2_enable"] = config.sensor.ch2_enable;
+    doc["sensor"]["ch2_name"] = config.sensor.ch2_name;
+    doc["sensor"]["ch2_gpio"] = config.sensor.ch2_gpio;
+
     // Delete existing file, otherwise the configuration is appended to the file
     LittleFS.remove(filename);
 
@@ -287,6 +294,14 @@ void configLoadFromFile() {
     if (strlen(config.debug.filter) == 0){
       strcpy(config.debug.filter, "XX_XX_XX_XX_XX_XX_XX_XX_XX_XX_XX");
     }
+
+    config.sensor.ch1_enable = doc["sensor"]["ch1_enable"];
+    readJSONstring(config.sensor.ch1_name, sizeof(config.sensor.ch1_name), doc["sensor"]["ch1_name"]);
+    config.sensor.ch1_gpio = doc["sensor"]["ch1_gpio"];
+    config.sensor.ch2_enable = doc["sensor"]["ch2_enable"];
+    readJSONstring(config.sensor.ch2_name, sizeof(config.sensor.ch2_name), doc["sensor"]["ch2_name"]);
+    config.sensor.ch2_gpio = doc["sensor"]["ch2_gpio"];
+
   }
   // Close the file (Curiously, File's destructor doesn't close the file)
   file.close();

@@ -141,6 +141,10 @@ const char* IP_SUBNET[MAX_LANG] =                {"Subnetz",                    
 const char* IP_GATEWAY[MAX_LANG] =               {"Gateway",                                                    "Gateway"};
 const char* IP_DNS[MAX_LANG] =                   {"DNS-Server",                                                 "DNS-Server"};
 const char* ACCESSS[MAX_LANG] =                  {"Zugangskontrolle",                                           "Auhtentification"};
+const char* SENSOR[MAX_LANG] =                   {"optionale Sensoren",                                         "optional sensors"};
+const char* SENS1[MAX_LANG] =                    {"Sensor 1",                                                   "Sensor 1"};
+const char* SENS2[MAX_LANG] =                    {"Sensor 2",                                                   "Sensor 2"};
+const char* NAME[MAX_LANG] =                     {"Name",                                                       "Name"};
 } s_webui_texts; 
 
 

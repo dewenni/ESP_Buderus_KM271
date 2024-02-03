@@ -80,6 +80,15 @@ typedef struct {
 } s_cfg_debug;
 
 typedef struct {
+    bool ch1_enable = false;
+    char ch1_name[32] = {"sensor1"}; 
+    int ch1_gpio = 18;
+    bool ch2_enable = false;
+    char ch2_name[32] = {"sensor2"};
+    int ch2_gpio = 19;
+} s_cfg_sensor;
+
+typedef struct {
     int lang;
     s_cfg_oilmeter oilmeter;
     s_cfg_wifi wifi;
@@ -91,6 +100,7 @@ typedef struct {
     s_cfg_ip ip;
     s_cfg_auth auth;
     s_cfg_debug debug;
+    s_cfg_sensor sensor;
 } s_config;
 
 extern s_config config;

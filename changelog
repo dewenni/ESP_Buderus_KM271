@@ -470,6 +470,25 @@ payload:    Number 0..3 (Abschalt,Reduziert,Raumhalt,Aussenhalt) / {off,fixed,ro
 ```
 <img src="Doc/reductionmode.png" alt="Reduction-Mode" width="50%">
 
+(control to change the reduction mode)
+
+### optional oneWire Sensor
+You can now configure additional OneWire Sensors. In the configuration you can setup one ore two sensors.
+The Sensor value will shown on the Dashboard and will also be send by mqtt with Topic `sensor` and the name that you can configure.
+If you only configure one sensor, it will be shown as a single control. If you enable both sensors, it will be shown in a combined control.
+
+<img src="Doc/opt_sensor_dash2.png" alt="opt-sensor-dash2" width="40%">
+
+(single control)
+
+<img src="Doc/opt_sensor_dash1.png" alt="opt-sensor-dash1" width="40%">
+
+(combined control)
+
+<img src="Doc/opt_sensor_cfg.png" alt="opt-sensor-config" width="50%">
+
+(settings)
+
 ### Debug Filter
 there is a new filter function for debug messages. Debug messages are send via mqtt with topic `debug_message`.
 With the filter function you can influence what messages are sent.
