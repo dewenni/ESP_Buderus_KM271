@@ -706,7 +706,7 @@ void addSystemTab(){
 
 /**
  * *******************************************************************
- * @brief   Elements for Dashboard
+ * @brief   Elements for Settings
  * *******************************************************************/
 void addSettingsTab(){
   id.tab.settings = ESPUI.addControl(Tab, "", webText.SETTINGS[config.lang], ControlColor::None, 0, generalCallback);
@@ -728,6 +728,15 @@ void addSettingsTab(){
   id.settings.ip_gateway = addTextInputHelper(webText.IP_GATEWAY[config.lang], setIpGroup);
   id.settings.ip_dns = addTextInputHelper(webText.IP_DNS[config.lang], setIpGroup);
 
+  ESPUI.addControl(ControlType::Separator, "", "", ControlColor::None, id.tab.settings);
+
+  // NTP-Settings
+  auto setNtpGroup = addGroupHelper(webText.NTP[config.lang], Dark, id.tab.settings);
+  id.settings.ntp_enable = addSwitcherInputHelper(webText.NTP[config.lang], setNtpGroup);
+  id.settings.ntp_server = addTextInputHelper(webText.SERVER[config.lang], setNtpGroup);
+  id.settings.ntp_tz = addTextInputHelper(webText.NTP_TZ[config.lang], setNtpGroup);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, setNtpGroup), "background-color: unset; width: 100%"); // spacer
+  
   // Authentication-Settings
   auto setAuthGroup = addGroupHelper(webText.ACCESSS[config.lang], Dark, id.tab.settings);
   id.settings.auth_enable = addSwitcherInputHelper(webText.ACTIVATE[config.lang], setAuthGroup);
@@ -735,6 +744,8 @@ void addSettingsTab(){
   id.settings.auth_passw = addTextInputHelper(webText.PASSWORD[config.lang], setAuthGroup);
   ESPUI.setInputType(id.settings.auth_passw, "password"); // input control type: password
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", "<a href=\"/logout\">Log out</a>", None, setAuthGroup), "width: 25%;");
+
+  ESPUI.addControl(ControlType::Separator, "", "", ControlColor::None, id.tab.settings);
 
   // MQTT-Settings
   auto setMqttGroup = addGroupHelper(webText.MQTT[config.lang], Dark, id.tab.settings);
@@ -747,19 +758,14 @@ void addSettingsTab(){
   id.settings.mqtt_passw = addTextInputHelper(webText.PASSWORD[config.lang], setMqttGroup);
   ESPUI.setInputType(id.settings.mqtt_passw, "password"); // input control type: password
 
-  // NTP-Settings
-  auto setNtpGroup = addGroupHelper(webText.NTP[config.lang], Dark, id.tab.settings);
-  id.settings.ntp_enable = addSwitcherInputHelper(webText.NTP[config.lang], setNtpGroup);
-  id.settings.ntp_server = addTextInputHelper(webText.SERVER[config.lang], setNtpGroup);
-  id.settings.ntp_tz = addTextInputHelper(webText.NTP_TZ[config.lang], setNtpGroup);
-  ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, setNtpGroup), "background-color: unset; width: 100%"); // spacer
-
   // Logamatic-Settings
   auto setKM271Group = addGroupHelper(webText.LOGAMATIC[config.lang], Dark, id.tab.settings);
   id.settings.km271_useHc1 = addSwitcherInputHelper(webText.HC1[config.lang], setKM271Group);
   id.settings.km271_useHc2 = addSwitcherInputHelper(webText.HC2[config.lang], setKM271Group);
   id.settings.km271_useWW = addSwitcherInputHelper(webText.WW[config.lang], setKM271Group);
   id.settings.km271_useAlarm = addSwitcherInputHelper(webText.ALARM[config.lang], setKM271Group);
+
+  ESPUI.addControl(ControlType::Separator, "", "", ControlColor::None, id.tab.settings);
 
   // Oilcounter-Settings
   auto setOilGroup = addGroupHelper(webText.OILMETER[config.lang], Dark, id.tab.settings);
@@ -771,13 +777,11 @@ void addSettingsTab(){
 
   // GPIO-Settings
   auto setGpioGroup = addGroupHelper(webText.GPIO[config.lang], Dark, id.tab.settings);
-
   id.settings.gpio_board = ESPUI.addControl(Select, webText.PREDEFINE[config.lang], "", Dark, setGpioGroup, generalCallback);
   ESPUI.addControl(Option, BOARDS[0], "0", None, id.settings.gpio_board);
   ESPUI.addControl(Option, BOARDS[1], "1", None, id.settings.gpio_board);
   ESPUI.addControl(Option, BOARDS[2], "2", None, id.settings.gpio_board);
   ESPUI.addControl(Option, BOARDS[3], "3", None, id.settings.gpio_board);
-
   id.settings.gpio_km271_rx = addNumberInputHelper(webText.KM271_RX[config.lang], setGpioGroup);
   id.settings.gpio_km271_tx = addNumberInputHelper(webText.KM271_TX[config.lang], setGpioGroup);
   id.settings.gpio_led_heatbeat = addNumberInputHelper(webText.LED_HEARTBEAT[config.lang], setGpioGroup);
@@ -785,8 +789,9 @@ void addSettingsTab(){
   id.settings.gpio_led_wifi = addNumberInputHelper(webText.LED_WIFI[config.lang], setGpioGroup);
   id.settings.gpio_led_oilcounter= addNumberInputHelper(webText.LED_OILCOUNTER[config.lang], setGpioGroup);
   id.settings.gpio_trigger_oilcounter = addNumberInputHelper(webText.TRIG_OILCOUNTER[config.lang], setGpioGroup);
-
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.GPIO_UNUSED[config.lang], None, setGpioGroup), LABLE_STYLE_DESCRIPTION);
+
+  ESPUI.addControl(ControlType::Separator, "", "", ControlColor::None, id.tab.settings);
 
   // Sensor-Settings
   auto setSensGroup = addGroupHelper(webText.SENSOR[config.lang], Dark, id.tab.settings);
@@ -802,6 +807,8 @@ void addSettingsTab(){
   ESPUI.addControl(Option, LANGUAGES[0], "0", None, id.settings.language);
   ESPUI.addControl(Option, LANGUAGES[1], "1", None, id.settings.language);
   
+  ESPUI.addControl(ControlType::Separator, "", "", ControlColor::None, id.tab.settings);
+
   // Buttons
   auto btnGroup = addGroupHelper(webText.SETTINGS[config.lang], Dark, id.tab.settings);
   id.settings.btnSave = ESPUI.addControl(Button, "", webText.SAVE_RESTART[config.lang], Dark, btnGroup, generalCallback);
