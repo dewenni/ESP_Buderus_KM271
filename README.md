@@ -46,8 +46,6 @@ But there is also a build in WebUI to view and control your Logamatic without an
   - [Config and Status values](#config-and-status-values)
   - [Commands](#commands)
 - [Optional Notification](#optional-notification)
-  - [Email](#email)
-  - [Telegram](#telegram)
   - [Pushover](#pushover)
 - [Optional Components](#optional-components)
   - [node-red](#node-red)
@@ -455,23 +453,7 @@ payload:    Number 0..3 (Abschalt,Reduziert,Raumhalt,Aussenhalt) / {off,fixed,ro
 -----
 
 # Optional Notification
-in addition to mqtt there are some more options for notification.
-
-## Email
-You can add a custom notification as Email client to get notified if any alarm is triggered.
-**Up to now, only alarms will be send as Email**
-In the settings you can find the necessary parameters to setup the email client.
-
-<img src="./Doc/email.png" width="75%">
-
-## Telegram
-In addition there is also a custom notification as Telegram client.
-Depending on the parameter "Filter", you can define what kind of messages you want to receive.
-In the settings you can find all necessary parameters to setup the client.
-
-There are several guidelines for setup a new Telegram bot and how to get the Token and Chat-Id.
-
-<img src="./Doc/telegram.png" width="75%">
+in addition to mqtt there are more options for notification.
 
 ## Pushover
 In addition there is also a custom notification as Pushover client.

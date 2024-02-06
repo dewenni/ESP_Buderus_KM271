@@ -87,8 +87,6 @@ const char * getTimeString() {
   return timeInfo;
 }
 
-
-
 /**
  * *******************************************************************
  * @brief   callback function if WiFi is connected to configured AP

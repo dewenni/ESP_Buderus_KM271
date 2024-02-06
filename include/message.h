@@ -14,6 +14,7 @@ typedef enum {
 typedef enum {
   KM_TYP_STATUS,                                                           // Status value
   KM_TYP_CONFIG,                                                           // Config Value
+  KM_TYP_SENSOR,                                                           // Sensor Value
   KM_TYP_ALARM,                                                            // Alarm Message
   KM_TYP_ALARM_H,                                                          // Alarm History Message
   KM_TYP_DEBUG,                                                            // Debug Message
@@ -25,9 +26,8 @@ typedef enum {
 extern char emailStatus[128];
 
 void msgHandler(e_msgInfoType type, e_msgSrcType src, const char *message);
-void addTelegramMsg(const char *str);
-void addEmailMsg(const char *str);
 void addPushoverMsg(const char *str);
 void messageSetup();
 void messageCyclic();
 void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value);
+char* getLogBuffer();

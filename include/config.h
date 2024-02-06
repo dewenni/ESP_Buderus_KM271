@@ -3,7 +3,7 @@
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION             "v3.x.x"     // internal program version
+#define VERSION             "v3.4.0"     // internal program version
 #define DEBUG_ON                         // enable debug messages
 
 #define WIFI_RECONNECT      10000        // Delay between wifi reconnection tries
@@ -11,9 +11,16 @@ General Configuration
 
 typedef enum {
   MSG_FILTER_ALARM = 0,                 // only alarms
-  MSG_FILTER_INFO = 1,                  // send informations
-  MSG_FILTER_DEBUG = 2,                 // send all messages                  
+  MSG_FILTER_INFO = 1,                  // alarm + info messages      
 } e_MsgFltTyp;
+
+typedef enum {
+  LOG_FILTER_ALARM = 0,                 // only alarms
+  LOG_FILTER_INFO = 1,                  // alarm + info messages
+  LOG_FILTER_VALUES = 2,                // logamatic values
+  LOG_FILTER_UNKNOWN = 3,               // only unknown messages 
+  LOG_FILTER_DEBUG = 4,                 // filtered debug messages       
+} e_LogFltTyp;
 
 typedef struct {
     bool use_hardware_meter;
@@ -78,16 +85,16 @@ typedef struct {
     char user[64];
     char password[64];
 } s_cfg_auth;
-    bool enable;                    // Enable or disable the Telegram Service
-    char token[128];                // Telegram Bot-Token
-    char chat_id[32];               // Telegram Chat-ID
-    int filter;                     // Messaging filter
-} s_cfg_telegram;
 
 typedef struct {
     bool enable = true;
     char filter[33];
 } s_cfg_debug;
+
+typedef struct {
+    bool enable = true;
+    int filter;
+} s_cfg_log;
 
 typedef struct {
     bool ch1_enable = false;
@@ -118,9 +125,8 @@ typedef struct {
     s_cfg_auth auth;
     s_cfg_debug debug;
     s_cfg_sensor sensor;
-    s_cfg_email email;
-    s_cfg_telegram telegram;
     s_cfg_pushover pushover;
+    s_cfg_log log;
 } s_config;
 
 extern s_config config;

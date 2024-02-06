@@ -7,6 +7,7 @@
 #include <oilmeter.h>
 #include <webTools.h>
 #include <sensor.h>
+#include <message.h>
 
 // Double-Reset-Detector
 #define ESP_DRD_USE_LITTLEFS          true
@@ -94,6 +95,10 @@ void setup()
 
   // Sensor Setup
   setupSensor();
+
+  // Message Service Setup
+  messageSetup();
+
 } 
 
 /**
@@ -149,7 +154,6 @@ void loop()
   {
     sendWiFiInfo();
     sendKM271Info();
-    sendKM271Debug();
   }
 
   if (config.webUI.enable) {
@@ -182,6 +186,9 @@ void loop()
 
   // Sensor Cyclic
   cyclicSensor();
+
+  // Message Service
+  messageCyclic();
 
   main_reboot = false; // reset reboot flag
 }

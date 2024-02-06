@@ -10,6 +10,7 @@
 #include <Update.h>
 #include <LittleFS.h>
 #include <webTools.h>
+#include <message.h>
 
 /* D E C L A R A T I O N S ****************************************************/  
 muTimer webTimer = muTimer();
@@ -242,6 +243,11 @@ void webToolsSetup() {
 
   server->on("/filelist", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send_P(200, "text/plain", filelist.c_str());
+  });
+
+  server->on("/log", HTTP_GET, [](AsyncWebServerRequest * request) {
+    Serial.println(getLogBuffer());
+    request->send(200, "text/plain", getLogBuffer()); // lese den gesamten Inhalt des Buffers
   });
 
   server->on("/reboot", HTTP_GET, [](AsyncWebServerRequest * request) {

@@ -293,25 +293,13 @@ uint16_t sens1_gpio;
 uint16_t sens2_enable;
 uint16_t sens2_name;
 uint16_t sens2_gpio;
-uint16_t email_enable;
-uint16_t email_server;
-uint16_t email_login;
-uint16_t email_password;
-uint16_t email_port;
-uint16_t email_sender;
-uint16_t email_receiver;
-uint16_t email_btn_test;
-uint16_t email_status;
-uint16_t telegram_enable;
-uint16_t telegram_token;
-uint16_t telegram_chatid;
-uint16_t telegram_filter;
-uint16_t telegram_btn_test;
 uint16_t pushover_enable;
 uint16_t pushover_token;
 uint16_t pushover_user_key;
 uint16_t pushover_filter;
 uint16_t pushover_btn_test;
+uint16_t log_enable;
+uint16_t log_filter;
 } s_webui_id_settings;
 
 typedef struct {

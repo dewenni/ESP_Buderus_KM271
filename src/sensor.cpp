@@ -1,4 +1,5 @@
 #include <sensor.h>
+#include <message.h>
 
 /* D E C L A R A T I O N S ****************************************************/  
 s_sensor sensor;  // global Sensor Informations
@@ -57,13 +58,13 @@ void cyclicSensor(void)
         if (config.sensor.ch1_enable){
             sensor1.requestTemperatures();
             sensor.ch1_temp = sensor1.getTempCByIndex(0);
-            mqttPublish(addSensorTopic(config.sensor.ch1_name), floatToString(sensor.ch1_temp), false);
+            km271Msg(KM_TYP_SENSOR, config.sensor.ch1_name, floatToString(sensor.ch1_temp));
         }
         
         if (config.sensor.ch2_enable){
             sensor2.requestTemperatures();
             sensor.ch2_temp = sensor2.getTempCByIndex(0);
-            mqttPublish(addSensorTopic(config.sensor.ch2_name), floatToString(sensor.ch2_temp), false);
+            km271Msg(KM_TYP_SENSOR, config.sensor.ch2_name, floatToString(sensor.ch2_temp));
         }
     }
 

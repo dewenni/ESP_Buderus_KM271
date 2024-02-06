@@ -268,8 +268,8 @@ void parseInfo(uint8_t *data, int len) {
     if (kmregister != 0x0400 && kmregister != 0x882e && kmregister != 0x882f){
       if ( config.debug.enable && compareHexValues(config.debug.filter, data) ){ 
         snprintf(tmpMessage, sizeof(tmpMessage), "%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], data[10]);
+        km271Msg(KM_TYP_DEBUG, tmpMessage, "");
       }
-      km271Msg(KM_TYP_DEBUG, tmpMessage, "");
     }
   #endif 
 
@@ -1402,22 +1402,6 @@ e_ret km271ProtInit(int rxPin, int txPin) {
   return RET_OK;  
 }
 
-/**
- * *******************************************************************
- * @brief   build info structure ans send it via mqtt
- * @param   none
- * @return  none
- * *******************************************************************/
-void sendKM271Info(){
-  DynamicJsonDocument infoJSON(255);
-  infoJSON["burner"] = kmStatus.BurnerStates;
-  infoJSON["pump"] = kmStatus.HC1_PumpPower;
-  infoJSON["ww_temp"] = kmStatus.HotWaterActualTemp;
-  infoJSON["boiler_temp"] = kmStatus.BoilerForwardActualTemp;
-  char sendInfoJSON[255] = {'\0'};
-  serializeJson(infoJSON, sendInfoJSON);
-  km271Msg(KM_TYP_INFO, sendInfoJSON, "");
-}
 
 /**
  * *******************************************************************
@@ -1425,7 +1409,7 @@ void sendKM271Info(){
  * @param   none
  * @return  none
  * *******************************************************************/
-void sendKM271Debug(){
+void sendKM271Info(){
   DynamicJsonDocument infoJSON(255);
   infoJSON["logmode"] = km271LogModeActive;
   infoJSON["send_cmd_busy"] = (send_buf[0]!=0);
@@ -1433,7 +1417,7 @@ void sendKM271Debug(){
   infoJSON["date-time"] = getDateTimeString();
   char sendInfoJSON[255]={'\0'}; ;
   serializeJson(infoJSON, sendInfoJSON);
-  km271Msg(KM_TYP_DEBUG, sendInfoJSON, "");
+  km271Msg(KM_TYP_INFO, sendInfoJSON, "");
 }
 
 

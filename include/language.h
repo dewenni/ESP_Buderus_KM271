@@ -145,18 +145,12 @@ const char* SENSOR[MAX_LANG] =                   {"optionale Sensoren",         
 const char* SENS1[MAX_LANG] =                    {"Sensor 1",                                                   "Sensor 1"};
 const char* SENS2[MAX_LANG] =                    {"Sensor 2",                                                   "Sensor 2"};
 const char* NAME[MAX_LANG] =                     {"Name",                                                       "Name"};
-const char* EMAIL[MAX_LANG] =                    {"Email",                                                      "EMail"};
-const char* SENDER[MAX_LANG] =                   {"Absender-Email",                                             "sender-email"};
-const char* RECEIVER[MAX_LANG] =                 {"Empfänger-Email",                                            "receiver-email"};
-const char* LOGIN[MAX_LANG] =                    {"Login",                                                      "login"};
-const char* TELEGRAM[MAX_LANG] =                 {"Telegram",                                                   "Telegram"};
-const char* BOT_TOKEN[MAX_LANG] =                {"Bot-Token",                                                  "Bot-Token"};
-const char* CHAT_ID[MAX_LANG] =                  {"Chat-ID",                                                    "Chat-ID"};
 const char* TEST[MAX_LANG] =                     {"Test",                                                       "test"};
 const char* FILTER[MAX_LANG] =                   {"Filter",                                                     "Filter"};
 const char* PUSHOVER[MAX_LANG] =                 {"Pushover",                                                   "Pushover"};
 const char* API_TOKEN[MAX_LANG] =                {"API-Token",                                                  "API-Token"};
 const char* USER_KEY[MAX_LANG] =                 {"User-Key",                                                   "User-Key"};
+const char* LOGGER[MAX_LANG] =                   {"Logbuch",                                                    "Logger"};
 } s_webui_texts; 
 
 
@@ -565,6 +559,29 @@ typedef struct {
     };
 } s_cfg_arrays;
 
+// ======================================================================================
+// decription for dropdown selection
+// 1. GERMAN
+// 2. ENGLISH
+// ======================================================================================
+typedef struct {
+    const char* LANGUAGE[MAX_LANG][2]={
+        {"🇩🇪 Deutsch", "🇬🇧 Englisch"},
+        {"🇩🇪 German", "🇬🇧 English"}
+    };
+    const char* BOARDS[MAX_LANG][4]={
+        {"Board wählen...", "generic ESP32", "KM271-WiFi v0.0.5", "KM271-WiFi v0.0.6"},
+        {"select Board...", "generic ESP32", "KM271-WiFi v0.0.5", "KM271-WiFi v0.0.6"}
+    };
+    const char* MSG_FILTER[MAX_LANG][2]={
+        {"Alarm", "Alarm + Info"},
+        {"Alarm", "Alarm + Info"}
+    };
+    const char* LOG_FILTER[MAX_LANG][5]={
+        {"Alarm", "Alarm + Info", "Logamatic Werte", "unbekannte Telegramme", "debug Telegramme"},
+        {"Alarm", "Alarm + Info", "Logamatic values", "unknown telegrams", "debug telegrams"}
+    };
+} s_opt_arrays;
 
 // ======================================================================================
 // decription for encode error messages
