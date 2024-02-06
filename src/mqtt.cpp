@@ -3,6 +3,7 @@
 #include <km271.h>
 #include <WiFi.h>
 #include <oilmeter.h>
+#include <message.h>
 
 /* D E C L A R A T I O N S ****************************************************/  
 WiFiClient espClient;
@@ -334,7 +335,7 @@ void checkMqtt(){
   // send bootup message after restart and established mqtt connection
   if (!bootUpMsgDone && mqtt_client.connected()){
     bootUpMsgDone = true;
-    mqttPublish(addTopic("/message"), "restarted!", false);
+    km271Msg(KM_TYP_MESSAGE, "restarted!", "");
   }
 }
 

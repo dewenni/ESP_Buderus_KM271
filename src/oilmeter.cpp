@@ -9,6 +9,7 @@
 #include <mqtt.h>
 #include <basics.h>
 #include <EEPROM.h>
+#include <message.h>
 
 /* V A R I A B L E S ********************************************************/
 int addr = 0;                             // start address for EEPROM
@@ -56,7 +57,7 @@ void cmdSetOilmeter(long setvalue) {
   cmdStoreOilmeter();
   
   snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %i", data.oilcounter);
-  mqttPublish(addTopic("/message"), tmpMsg, false);
+  km271Msg(KM_TYP_MESSAGE, tmpMsg, "");
 
   sendOilmeter();
 }
@@ -70,7 +71,7 @@ void cmdSetOilmeter(long setvalue) {
 void cmdStoreOilmeter() {
   EEPROM.put(addr,data);
   EEPROM.commit();
-  mqttPublish(addTopic("/message"), "oilcounter stored!", false);
+  km271Msg(KM_TYP_MESSAGE, "oilcounter stored!", "");
 }
 
 /**
@@ -89,7 +90,7 @@ void setupOilmeter(){
   Serial.println(data.oilcounter);
 
   snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %i", data.oilcounter);
-  mqttPublish(addTopic("/message"), tmpMsg, false);
+  km271Msg(KM_TYP_MESSAGE, tmpMsg, "");
 
 }
 
@@ -102,7 +103,7 @@ void setupOilmeter(){
 void cyclicOilmeter()
 {
   if (config.gpio.led_oilcounter != -1) {
-    digitalWrite(config.gpio.led_oilcounter, digitalRead(config.gpio.trigger_oilcounter));    // signal for every incomming impulse with Onboard LED
+    digitalWrite(config.gpio.led_oilcounter, digitalRead(config.gpio.trigger_oilcounter));    // signal for every incoming impulse with Onboard LED
   }
 
   if (config.gpio.trigger_oilcounter != -1) {

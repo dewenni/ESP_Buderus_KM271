@@ -45,6 +45,10 @@ But there is also a build in WebUI to view and control your Logamatic without an
 - [MQTT](#mqtt)
   - [Config and Status values](#config-and-status-values)
   - [Commands](#commands)
+- [Optional Notification](#optional-notification)
+  - [Email](#email)
+  - [Telegram](#telegram)
+  - [Pushover](#pushover)
 - [Optional Components](#optional-components)
   - [node-red](#node-red)
   - [grafana](#grafana)
@@ -447,6 +451,37 @@ topic:      {"setvalue/hk2_absenkungsart", setvalue/hc2_reduction_mode"}
 payload:    Number 0..3 (Abschalt,Reduziert,Raumhalt,Aussenhalt) / {off,fixed,room,outdoors)
 
 ```
+
+-----
+
+# Optional Notification
+in addition to mqtt there are some more options for notification.
+
+## Email
+You can add a custom notification as Email client to get notified if any alarm is triggered.
+**Up to now, only alarms will be send as Email**
+In the settings you can find the necessary parameters to setup the email client.
+
+<img src="./Doc/email.png" width="75%">
+
+## Telegram
+In addition there is also a custom notification as Telegram client.
+Depending on the parameter "Filter", you can define what kind of messages you want to receive.
+In the settings you can find all necessary parameters to setup the client.
+
+There are several guidelines for setup a new Telegram bot and how to get the Token and Chat-Id.
+
+<img src="./Doc/telegram.png" width="75%">
+
+## Pushover
+In addition there is also a custom notification as Pushover client.
+Depending on the parameter "Filter", you can define what kind of messages you want to receive.
+In the settings you can find all necessary parameters to setup the client.
+
+Each application, service, or utility that sends notifications through Pushover's API needs to have its own API token which uniquely identifies all of the API requests that it makes.
+API tokens are free and can be registered through [Pushover website](https://pushover.net/apps/build).
+
+<img src="./Doc/pushover.png" width="75%">
 
 -----
 

@@ -35,6 +35,7 @@ char tmpMessage[300]={'\0'};              // temp string
 long oilcounter, oilcounterOld;           // actual and old oilcounter value
 const char* LANGUAGES[MAX_LANG] = {"🇩🇪 Deutsch", "🇬🇧 English"};
 const char* BOARDS[4] = {"select Board...", "generic ESP32", "KM271-WiFi v0.0.5", "KM271-WiFi v0.0.6"};
+const char* MSG_FILTER[3] = {"Alarm", "Info", "Debug"};
 char elementBuffer[5000]={'\0'};          // Buffer to create table content
 char elementString[500]={'\0'};           // temp string
 IPAddress tmpIpAddress;                   // temporary IP address
@@ -792,6 +793,19 @@ void addSettingsTab(){
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.GPIO_UNUSED[config.lang], None, setGpioGroup), LABLE_STYLE_DESCRIPTION);
 
   ESPUI.addControl(ControlType::Separator, "", "", ControlColor::None, id.tab.settings);
+  // Telegram-Settings
+  auto telegramGroup = addGroupHelper(webText.TELEGRAM[config.lang], Dark, id.tab.settings);
+  id.settings.telegram_enable = addSwitcherInputHelper(webText.ACTIVATE[config.lang], telegramGroup);
+  id.settings.telegram_token = addTextInputHelper(webText.BOT_TOKEN[config.lang], telegramGroup);
+  ESPUI.setInputType(id.settings.telegram_token, "password"); // input control type: password
+  id.settings.telegram_chatid = addTextInputHelper(webText.CHAT_ID[config.lang], telegramGroup);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.FILTER[config.lang], None, telegramGroup), LABLE_STYLE_INPUT_LABEL); 
+  id.settings.telegram_filter = ESPUI.addControl(Select, "", "", Dark, telegramGroup, generalCallback);
+  ESPUI.addControl(Option, MSG_FILTER[0], "0", None, id.settings.telegram_filter);
+  ESPUI.addControl(Option, MSG_FILTER[1], "1", None, id.settings.telegram_filter);
+  ESPUI.addControl(Option, MSG_FILTER[2], "2", None, id.settings.telegram_filter);
+  ESPUI.setElementStyle(id.settings.telegram_filter, "width: 65%");
+  id.settings.telegram_btn_test = ESPUI.addControl(Button, "", webText.TEST[config.lang], Dark, telegramGroup, generalCallback);
 
   // Sensor-Settings
   auto setSensGroup = addGroupHelper(webText.SENSOR[config.lang], Dark, id.tab.settings);
@@ -801,6 +815,21 @@ void addSettingsTab(){
   id.settings.sens2_enable = addSwitcherInputHelper(webText.SENS2[config.lang], setSensGroup);
   id.settings.sens2_name = addTextInputHelper(webText.NAME[config.lang], setSensGroup);
   id.settings.sens2_gpio = addNumberInputHelper(webText.GPIO[config.lang], setSensGroup);
+
+  // Pushover-Settings
+  auto pushoverGroup = addGroupHelper(webText.PUSHOVER[config.lang], Dark, id.tab.settings);
+  id.settings.pushover_enable = addSwitcherInputHelper(webText.ACTIVATE[config.lang], pushoverGroup);
+  id.settings.pushover_token = addTextInputHelper(webText.API_TOKEN[config.lang], pushoverGroup);
+  ESPUI.setInputType(id.settings.pushover_token, "password"); // input control type: password
+  id.settings.pushover_user_key = addTextInputHelper(webText.USER_KEY[config.lang], pushoverGroup);
+  ESPUI.setInputType(id.settings.pushover_user_key, "password"); // input control type: password
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.FILTER[config.lang], None, pushoverGroup), LABLE_STYLE_INPUT_LABEL); 
+  id.settings.pushover_filter = ESPUI.addControl(Select, "", "", Dark, pushoverGroup, generalCallback);
+  ESPUI.addControl(Option, MSG_FILTER[0], "0", None, id.settings.pushover_filter);
+  ESPUI.addControl(Option, MSG_FILTER[1], "1", None, id.settings.pushover_filter);
+  ESPUI.addControl(Option, MSG_FILTER[2], "2", None, id.settings.pushover_filter);
+  ESPUI.setElementStyle(id.settings.pushover_filter, "width: 65%");
+  id.settings.pushover_btn_test = ESPUI.addControl(Button, "", webText.TEST[config.lang], Dark, pushoverGroup, generalCallback);
 
   // Language-Settings
   id.settings.language = ESPUI.addControl(Select, km271CfgTopics.LANGUAGE[config.lang], "", Dark, id.tab.settings, generalCallback);
@@ -1564,6 +1593,25 @@ void updateSettingsValues(){
 
   ESPUI.updateSelect(id.settings.language, uint64ToString(config.lang));
 
+  ESPUI.updateSwitcher(id.settings.email_enable, config.email.enable);
+  ESPUI.updateText(id.settings.email_server, config.email.server);
+  ESPUI.updateText(id.settings.email_port, uint16ToString(config.email.port));
+  ESPUI.updateText(id.settings.email_login, config.email.user);
+  ESPUI.updateText(id.settings.email_password, config.email.password);
+  ESPUI.updateText(id.settings.email_sender, config.email.sender);
+  ESPUI.updateText(id.settings.email_receiver, config.email.receiver);
+  ESPUI.updateText(id.settings.email_status, emailStatus);
+
+  ESPUI.updateSwitcher(id.settings.telegram_enable, config.telegram.enable);
+  ESPUI.updateText(id.settings.telegram_token, config.telegram.token);
+  ESPUI.updateText(id.settings.telegram_chatid, config.telegram.chat_id);
+  ESPUI.updateSelect(id.settings.telegram_filter, uint64ToString(config.telegram.filter));
+
+  ESPUI.updateSwitcher(id.settings.pushover_enable, config.pushover.enable);
+  ESPUI.updateText(id.settings.pushover_token, config.pushover.token);
+  ESPUI.updateText(id.settings.pushover_user_key, config.pushover.user_key);
+  ESPUI.updateSelect(id.settings.pushover_filter, uint64ToString(config.pushover.filter));
+
 }
 
 /**
@@ -1806,6 +1854,27 @@ void generalCallback(Control *sender, int type) {
     snprintf(config.sensor.ch2_name, sizeof(config.sensor.ch2_name), ESPUI.getControl(id.settings.sens2_name)->value.c_str());
     config.sensor.ch2_gpio = ESPUI.getControl(id.settings.sens2_gpio)->value.toInt();
 
+    // Settings: Email
+    config.email.enable = ESPUI.getControl(id.settings.email_enable)->value.toInt();
+    snprintf(config.email.server, sizeof(config.email.server), ESPUI.getControl(id.settings.email_server)->value.c_str());
+    config.email.port = ESPUI.getControl(id.settings.email_port)->value.toInt();
+    snprintf(config.email.user, sizeof(config.email.user), ESPUI.getControl(id.settings.email_login)->value.c_str());
+    snprintf(config.email.password, sizeof(config.email.password), ESPUI.getControl(id.settings.email_password)->value.c_str());
+    snprintf(config.email.sender, sizeof(config.email.sender), ESPUI.getControl(id.settings.email_sender)->value.c_str());
+    snprintf(config.email.receiver, sizeof(config.email.receiver), ESPUI.getControl(id.settings.email_receiver)->value.c_str());
+
+    // Settings: Telegram
+    config.telegram.enable = ESPUI.getControl(id.settings.telegram_enable)->value.toInt();
+    snprintf(config.telegram.token, sizeof(config.telegram.token), ESPUI.getControl(id.settings.telegram_token)->value.c_str());
+    snprintf(config.telegram.chat_id, sizeof(config.telegram.chat_id), ESPUI.getControl(id.settings.telegram_chatid)->value.c_str());
+    config.telegram.filter = ESPUI.getControl(id.settings.telegram_filter)->value.toInt();
+
+    // Settings: Pushover
+    config.pushover.enable = ESPUI.getControl(id.settings.pushover_enable)->value.toInt();
+    snprintf(config.pushover.token, sizeof(config.pushover.token), ESPUI.getControl(id.settings.pushover_token)->value.c_str());
+    snprintf(config.pushover.user_key, sizeof(config.pushover.user_key), ESPUI.getControl(id.settings.pushover_user_key)->value.c_str());
+    config.pushover.filter = ESPUI.getControl(id.settings.pushover_filter)->value.toInt();
+
     configSaveToFile();
     storeData();
     ESP.restart();
@@ -1853,6 +1922,33 @@ void generalCallback(Control *sender, int type) {
     ESPUI.updateNumber(id.settings.gpio_led_wifi, config.gpio.led_wifi);
     ESPUI.updateNumber(id.settings.gpio_led_oilcounter, config.gpio.led_oilcounter);
     ESPUI.updateNumber(id.settings.gpio_trigger_oilcounter, config.gpio.trigger_oilcounter);
+  }
+
+  // send Test-Email notification
+  if(sender->id == id.settings.email_btn_test && type==B_UP) {
+    snprintf(config.email.server, sizeof(config.email.server), ESPUI.getControl(id.settings.email_server)->value.c_str());
+    config.email.port = ESPUI.getControl(id.settings.email_port)->value.toInt();
+    snprintf(config.email.user, sizeof(config.email.user), ESPUI.getControl(id.settings.email_login)->value.c_str());
+    snprintf(config.email.password, sizeof(config.email.password), ESPUI.getControl(id.settings.email_password)->value.c_str());
+    snprintf(config.email.sender, sizeof(config.email.sender), ESPUI.getControl(id.settings.email_sender)->value.c_str());
+    snprintf(config.email.receiver, sizeof(config.email.receiver), ESPUI.getControl(id.settings.email_receiver)->value.c_str());
+    addEmailMsg("ESP_Buderus_KM271 - TESTMAIL");
+  }
+
+  // send Test-Telegram notification
+  if(sender->id == id.settings.telegram_btn_test && type==B_UP) {
+    config.telegram.enable = ESPUI.getControl(id.settings.telegram_enable)->value.toInt();
+    snprintf(config.telegram.token, sizeof(config.telegram.token), ESPUI.getControl(id.settings.telegram_token)->value.c_str());
+    snprintf(config.telegram.chat_id, sizeof(config.telegram.chat_id), ESPUI.getControl(id.settings.telegram_chatid)->value.c_str());
+    addTelegramMsg("ESP_Buderus_KM271 - TEST Message");
+  }
+
+  // send Test-Pushover notification
+  if(sender->id == id.settings.pushover_btn_test && type==B_UP) {
+    config.pushover.enable = ESPUI.getControl(id.settings.pushover_enable)->value.toInt();
+    snprintf(config.pushover.token, sizeof(config.pushover.token), ESPUI.getControl(id.settings.pushover_token)->value.c_str());
+    snprintf(config.pushover.user_key, sizeof(config.pushover.user_key), ESPUI.getControl(id.settings.pushover_user_key)->value.c_str());
+    addPushoverMsg("TEST Message");
   }
 
 } // end generalCallback()

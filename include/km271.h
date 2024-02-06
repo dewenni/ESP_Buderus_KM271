@@ -11,7 +11,6 @@
 //
 //*****************************************************************************
 #pragma once
-
 #include <Arduino.h>
 
 /* D E F I N E S ****************************************************/  
@@ -48,6 +47,7 @@ typedef struct {                                                          // Rx 
   uint8_t                   len;                                          // Length of data in buffer
   uint8_t                   buf[KM_RX_BUF_LEN];                           // Received bytes without "10 03 bcc"
 } KmRx_s;
+
 
 
 // This struicure contains all values read from the heating controller.
@@ -316,5 +316,4 @@ void km271sendServiceCmd(uint8_t cmdPara[8]);
 bool km271GetLogMode();
 void km271SetDateTimeNTP();
 void km271SetDateTimeDTI(tm dti);
-
 

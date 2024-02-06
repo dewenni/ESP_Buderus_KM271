@@ -3,12 +3,17 @@
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION             "v3.3.1"     // internal program version
+#define VERSION             "v3.x.x"     // internal program version
 #define DEBUG_ON                         // enable debug messages
 
 #define WIFI_RECONNECT      10000        // Delay between wifi reconnection tries
 #define MQTT_RECONNECT      10000        // Delay between mqtt reconnection tries
 
+typedef enum {
+  MSG_FILTER_ALARM = 0,                 // only alarms
+  MSG_FILTER_INFO = 1,                  // send informations
+  MSG_FILTER_DEBUG = 2,                 // send all messages                  
+} e_MsgFltTyp;
 
 typedef struct {
     bool use_hardware_meter;
@@ -73,6 +78,11 @@ typedef struct {
     char user[64];
     char password[64];
 } s_cfg_auth;
+    bool enable;                    // Enable or disable the Telegram Service
+    char token[128];                // Telegram Bot-Token
+    char chat_id[32];               // Telegram Chat-ID
+    int filter;                     // Messaging filter
+} s_cfg_telegram;
 
 typedef struct {
     bool enable = true;
@@ -89,6 +99,13 @@ typedef struct {
 } s_cfg_sensor;
 
 typedef struct {
+    bool enable;                    // Enable or disable the Pushover Service
+    char token[64];                 // Pushover API-Token
+    char user_key[64];              // Pushover User-Key
+    int filter;                     // Messaging filter
+} s_cfg_pushover;
+
+typedef struct {
     int lang;
     s_cfg_oilmeter oilmeter;
     s_cfg_wifi wifi;
@@ -101,6 +118,9 @@ typedef struct {
     s_cfg_auth auth;
     s_cfg_debug debug;
     s_cfg_sensor sensor;
+    s_cfg_email email;
+    s_cfg_telegram telegram;
+    s_cfg_pushover pushover;
 } s_config;
 
 extern s_config config;

@@ -126,6 +126,22 @@ void configInitValue(){
     // gpio
     memset(&config.gpio, -1, sizeof(config.gpio));
 
+    // Email
+    config.email.port = 465;
+    snprintf(config.email.server, sizeof(config.email.server), "send.mail.com");
+    snprintf(config.email.user, sizeof(config.email.user), "username");
+    snprintf(config.email.password, sizeof(config.email.password), "password");
+    snprintf(config.email.sender, sizeof(config.email.sender), "sender@example.com");
+    snprintf(config.email.receiver, sizeof(config.email.receiver), "receiver@example.com");
+
+    // Telegram
+    snprintf(config.telegram.token, sizeof(config.telegram.token), "enter Bot-Token here");
+    snprintf(config.telegram.chat_id, sizeof(config.telegram.chat_id), "enter chat-id here");
+
+    // Pushover
+    snprintf(config.pushover.token, sizeof(config.pushover.token), "enter Api-Token here");
+    snprintf(config.pushover.user_key, sizeof(config.pushover.user_key), "enter User-Key here");
+
 }
 
 /**
@@ -185,6 +201,10 @@ void configSaveToFile() {
     doc["auth"]["enable"] = config.auth.enable;
     doc["auth"]["user"] = config.auth.user;
     doc["auth"]["password"] = config.auth.password;
+    doc["telegram"]["enable"] = config.telegram.enable;
+    doc["telegram"]["token"] = config.telegram.token;
+    doc["telegram"]["chat_id"] = config.telegram.chat_id;
+    doc["telegram"]["filter"] = config.telegram.filter;
 
     doc["debug"]["enable"] = config.debug.enable;
     doc["debug"]["filter"] = config.debug.filter;
@@ -195,6 +215,11 @@ void configSaveToFile() {
     doc["sensor"]["ch2_enable"] = config.sensor.ch2_enable;
     doc["sensor"]["ch2_name"] = config.sensor.ch2_name;
     doc["sensor"]["ch2_gpio"] = config.sensor.ch2_gpio;
+
+    doc["pushover"]["enable"] = config.pushover.enable;
+    doc["pushover"]["token"] = config.pushover.token;
+    doc["pushover"]["user_key"] = config.pushover.user_key;
+    doc["pushover"]["filter"] = config.pushover.filter;
 
     // Delete existing file, otherwise the configuration is appended to the file
     LittleFS.remove(filename);
@@ -288,6 +313,10 @@ void configLoadFromFile() {
     config.auth.enable = doc["auth"]["enable"];
     readJSONstring(config.auth.user, sizeof(config.auth.user), doc["auth"]["user"]);
     readJSONstring(config.auth.password, sizeof(config.auth.password), doc["auth"]["password"]);
+    config.telegram.enable = doc["telegram"]["enable"];
+    readJSONstring(config.telegram.token, sizeof(config.telegram.token), doc["telegram"]["token"]);     
+    readJSONstring(config.telegram.chat_id, sizeof(config.telegram.chat_id), doc["telegram"]["chat_id"]);
+    config.telegram.filter = doc["telegram"]["filter"];
 
     config.debug.enable = doc["debug"]["enable"];
     readJSONstring(config.debug.filter, sizeof(config.debug.filter), doc["debug"]["filter"]);
@@ -301,6 +330,11 @@ void configLoadFromFile() {
     config.sensor.ch2_enable = doc["sensor"]["ch2_enable"];
     readJSONstring(config.sensor.ch2_name, sizeof(config.sensor.ch2_name), doc["sensor"]["ch2_name"]);
     config.sensor.ch2_gpio = doc["sensor"]["ch2_gpio"];
+
+    config.pushover.enable = doc["pushover"]["enable"];
+    readJSONstring(config.pushover.token, sizeof(config.pushover.token), doc["pushover"]["token"]);     
+    readJSONstring(config.pushover.user_key, sizeof(config.pushover.user_key), doc["pushover"]["user_key"]);
+    config.pushover.filter = doc["pushover"]["filter"];
 
   }
   // Close the file (Curiously, File's destructor doesn't close the file)
