@@ -59,10 +59,23 @@ void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
  * @return  none
  * *******************************************************************/
 void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
-  payload[len] = '\0';
+  
+  // local copy of payload as string with NULL termination
+  #define PAYLOAD_LEN 128
+  char payloadCopy[PAYLOAD_LEN] = {'\0'};
+  if (len>0 && len<PAYLOAD_LEN){
+    memcpy(payloadCopy, payload, len);
+    payloadCopy[len] = '\0';
+  }
 
-  long intVal = atoi((char*)payload);
-  float floatVal = atoff((char*)payload);
+  // payload as number
+  long intVal=0;
+  float floatVal=0.0;
+  if (len > 0)
+  {
+    intVal = atoi(payloadCopy);
+    floatVal = atoff(payloadCopy);
+  }
 
   Serial.print("topic: ");
   Serial.println(topic);
