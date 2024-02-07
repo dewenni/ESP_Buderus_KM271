@@ -7,7 +7,7 @@
 #define MSG_BUF_SIZE 1024            // buffer size for messaging
 char pushoverBuffer[MSG_BUF_SIZE];   // Buffer for Pushover messages
 #define BUFFER_SIZE 10000            // buffer size for logging Buffer
-char messageBuffer[BUFFER_SIZE];     // logBuffer
+char logBuffer[BUFFER_SIZE];         // logBuffer
 
 muTimer pushoverSendTimer = muTimer();
 HTTPClient http;
@@ -19,20 +19,27 @@ HTTPClient http;
  * @return  none
  * *******************************************************************/
 void logMessage(const char* message) {
+  
+  // Check for NULL message
+  if (message == NULL) {
+    return;
+  }
+
   // Calculate length of message
   int messageLength = strlen(message);
   char dateTime[32];
   snprintf(dateTime, sizeof(dateTime), "%s > ", getDateTimeString());
   int dateTimeLength = strlen(dateTime);
+  
   // Check if message fits in buffer, if not, remove old messages
-  while (strlen(messageBuffer) + messageLength + dateTimeLength >= BUFFER_SIZE)
+  while (strlen(logBuffer) + messageLength + dateTimeLength >= BUFFER_SIZE)
   {
     // Find position of first newline character
-    char* newlinePos = strchr(messageBuffer, '\n');
+    char* newlinePos = strchr(logBuffer, '\n');
     
     // If newlinePos is NULL, there are no newlines in the buffer, so clear the buffer
     if (newlinePos == NULL) {
-      messageBuffer[0] = '\0';
+      logBuffer[0] = '\0';
       break;
     }
 
@@ -43,14 +50,23 @@ void logMessage(const char* message) {
     int remainingLength = strlen(newlinePos);
 
     // Shift remaining string to the beginning of the buffer
-    memmove(messageBuffer, newlinePos, remainingLength + 1);
+    memmove(logBuffer, newlinePos, remainingLength + 1);
   }
-  // Add "Msg : " prefix to message
-  strcat(messageBuffer, dateTime);
+  // Add "dateTime" prefix to message
+  if (strncat(logBuffer, dateTime, sizeof(dateTime) - 1) == NULL) {
+    return;
+  }
+  if (strncat(logBuffer, " > ", 3) == NULL) {
+    return;
+  }
   // Add message to buffer
-  strcat(messageBuffer, message);
+  if (strncat(logBuffer, message, messageLength) == NULL) {
+    return;
+  }
   // Add newline at the end of message
-  strcat(messageBuffer, "\n");
+  if (strncat(logBuffer, "\n", 1) == NULL) {
+    return;
+  }
 }
 
 /**
@@ -60,7 +76,7 @@ void logMessage(const char* message) {
  * @return  char* to logBuffer
  * *******************************************************************/
 char* getLogBuffer(){
-  return messageBuffer;
+  return logBuffer;
 }
 
 /**
@@ -71,7 +87,7 @@ char* getLogBuffer(){
  * *******************************************************************/
 void messageSetup() {
   memset(pushoverBuffer, 0, sizeof(pushoverBuffer));
-  memset(messageBuffer, 0, sizeof(messageBuffer));
+  memset(logBuffer, 0, sizeof(logBuffer));
 }
 
 /**

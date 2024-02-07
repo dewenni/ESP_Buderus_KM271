@@ -77,12 +77,9 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
     floatVal = atoff(payloadCopy);
   }
 
-  Serial.print("topic: ");
-  Serial.println(topic);
-
   // restart ESP command
   if (strcmp (topic, addTopic(mqttCmd.RESTART[config.lang])) == 0){
-    mqtt_client.publish(addTopic("/message"), 0, false, "restart requested!");
+    km271Msg(KM_TYP_MESSAGE, "restart requested!", "");
     delay(1000);
     ESP.restart();
   }
@@ -98,7 +95,7 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
         size_t tokenLen = strlen(token);
         if (tokenLen != 2 || !isxdigit(token[0]) || !isxdigit(token[1])) {
           // invalid hex values found
-          mqttPublish(addTopic("/message"), "invalid hex parameter", false);
+          km271Msg(KM_TYP_MESSAGE, "invalid hex parameter", "");
           return;
         }
         hexArray[i] = strtol(token, NULL, 16); // convert hex strings to uint8_t
@@ -108,17 +105,17 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
       // check if all 8 hex values are found
       if (i == 8) {
         // everything seems to be valid - call service function
-        mqttPublish(addTopic("/message"), "service message accepted", false);
+        km271Msg(KM_TYP_MESSAGE, "service message accepted", "");
         km271sendServiceCmd(hexArray);
       }
       else
       {
         // not enough hex values found
-        mqttPublish(addTopic("/message"), "not enough hex parameter", false);
+        km271Msg(KM_TYP_MESSAGE, "not enough hex parameter", "");
       }
     } else {
       // invalid parameter length
-      mqttPublish(addTopic("/message"), "invalid parameter size", false);
+      km271Msg(KM_TYP_MESSAGE, "invalid parameter size", "");
     }
   }
   // enable / disable debug
@@ -126,12 +123,12 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
     if (intVal==1){
       config.debug.enable = true;
       configSaveToFile();
-      mqttPublish(addTopic("/message"), "debug enabled", false);
+      km271Msg(KM_TYP_MESSAGE, "debug enabled", "");
     }
     else if (intVal==0){
       config.debug.enable = false;
       configSaveToFile();
-      mqttPublish(addTopic("/message"), "debug disabled", false);
+      km271Msg(KM_TYP_MESSAGE, "debug disabled", "");
     }
   }
   // set debug filter
@@ -149,7 +146,7 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
         (!isxdigit(token[0]) && token[0] != 'X') ||
         (!isxdigit(token[1]) && token[1] != 'X')) {
           // invalid hex values found
-          mqttPublish(addTopic("/message"), "invalid hex parameter", false);
+          km271Msg(KM_TYP_MESSAGE, "invalid hex parameter", "");
           return;
         }
         token = strtok(NULL, "_");  // next substring
@@ -158,23 +155,23 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
       // check if all 11 hex values are found
       if (i == 11) {
         // everything seems to be valid - call service function
-        mqttPublish(addTopic("/message"), "filter accepted", false);
+        km271Msg(KM_TYP_MESSAGE, "filter accepted", "");
         snprintf(config.debug.filter, sizeof(config.debug.filter), "%s", payloadCpy);
         configSaveToFile();
       }
       else
       {
         // not enough hex values found
-        mqttPublish(addTopic("/message"), "not enough hex parameter", false);
+        km271Msg(KM_TYP_MESSAGE, "not enough hex parameter", "");
       }
     } else {
       // invalid parameter length
-      mqttPublish(addTopic("/message"), "invalid parameter size", false);
+      km271Msg(KM_TYP_MESSAGE, "invalid parameter size", "");
     }
   }
   // get debug filter
   else if (strcmp (topic, addTopic(mqttCmd.GET_DEBUG_FLT[config.lang])) == 0){
-    mqttPublish(addTopic("/message"), config.debug.filter, false);
+    km271Msg(KM_TYP_MESSAGE, config.debug.filter, "");
   }
   // set date and time
   else if (strcmp (topic, addTopic(mqttCmd.DATETIME[config.lang])) == 0){

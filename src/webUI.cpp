@@ -831,6 +831,7 @@ void addSettingsTab(){
     ESPUI.addControl(Option, optsArrayTexts.LOG_FILTER[config.lang][i], int8ToString(i), None, id.settings.log_filter);
   }
   ESPUI.setElementStyle(id.settings.log_filter, "width: 65%");
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "<a href=\"/log\">Logger</a>", None, logGroup), "width: 25%;");
 
   ESPUI.addControl(ControlType::Separator, "", "", ControlColor::None, id.tab.settings);
 
