@@ -49,7 +49,7 @@ const char* addUnit(const char* input, const char* unit){
 }
 
 void initElements(){
-  snprintf(elementBuffer, sizeof(elementBuffer), "");
+  memset(&elementBuffer, 0, sizeof(elementBuffer));
 }
 void addElement(const char* label, const char* value){
   snprintf(elementString, sizeof(elementString), "<span class=\"d60\">%s</span><span class=\"v40\">%s</span>",  label, value);
@@ -870,9 +870,9 @@ void webUISetup(){
   /*-------------------------------------------------------------------------
   // initialize structs
   -------------------------------------------------------------------------*/
-  memset(&kmStatusCpy, 0, sizeof(s_km271_status));
-  memset(&kmConfigNumCpy, 0, sizeof(s_km271_config_num));
-  memset(&kmConfigStrCpy, 0, sizeof(s_km271_config_str));
+  memset((void *)&kmStatusCpy, 0, sizeof(s_km271_status));
+  memset((void *)&kmConfigNumCpy, 0, sizeof(s_km271_config_num));
+  memset((void *)&kmConfigStrCpy, 0, sizeof(s_km271_config_str));
 
   // add additional css styles to a hidden label
   ESPUI.setPanelStyle(ESPUI.label("Refresh your browser if you read this", ControlColor::None, CUSTOM_CSS), "display: none");

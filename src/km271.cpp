@@ -256,22 +256,18 @@ void parseInfo(uint8_t *data, int len) {
   char            t2[100]={'\0'};
   char            t3[100]={'\0'};
   char            tmpMessage[300]={'\0'};
-  char            errorMsg[300]={'\0'};
-  double          oil_consumption;
   
   uint kmregister = (data[0] * 256) + data[1];
 
   /********************************************************
   * publish all incomming messages for debug reasons
   ********************************************************/
-  #ifdef DEBUG_ON 
-    if (kmregister != 0x0400 && kmregister != 0x882e && kmregister != 0x882f){
-      if ( config.debug.enable && compareHexValues(config.debug.filter, data) ){ 
-        snprintf(tmpMessage, sizeof(tmpMessage), "%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], data[10]);
-        km271Msg(KM_TYP_DEBUG, tmpMessage, "");
-      }
+  if (kmregister != 0x0400 && kmregister != 0x882e && kmregister != 0x882f){
+    if ( config.debug.enable && compareHexValues(config.debug.filter, data) ){ 
+      snprintf(tmpMessage, sizeof(tmpMessage), "%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], data[10]);
+      km271Msg(KM_TYP_DEBUG, tmpMessage, "");
     }
-  #endif 
+  }
 
   switch(kmregister) {                                     // Check if we can find known stati
  
@@ -1396,9 +1392,9 @@ e_ret km271ProtInit(int rxPin, int txPin) {
   Serial2.begin(KM271_BAUDRATE, SERIAL_8N1, rxPin, txPin);                // Set serial port for communication with KM271/Ecomatic 2000
 
   // initialize structs
-  memset(&kmStatus, 0, sizeof(s_km271_status));
-  memset(&kmConfigStr, 0, sizeof(s_km271_config_str));
-  memset(&kmConfigNum, 0, sizeof(s_km271_config_num));
+  memset((void *)&kmStatus, 0, sizeof(s_km271_status));
+  memset((void *)&kmConfigStr, 0, sizeof(s_km271_config_str));
+  memset((void *)&kmConfigNum, 0, sizeof(s_km271_config_num));
   return RET_OK;  
 }
 
@@ -2070,7 +2066,7 @@ void decodeTimer(char * timerInfo, unsigned int size, uint8_t dateOnOff, uint8_t
   }
   else {
     // not used
-    strncpy(timerInfo, "--", sizeof(timerInfo));
+    strcpy(timerInfo, "--");
   }
 }
 

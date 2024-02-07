@@ -249,7 +249,7 @@ void sendWiFiInfo() {
  * @return  pointer to char array - pay attention, it is local static
  * *******************************************************************/
 const char* int8ToString(int8_t value){
-  static char ret_str[4];
+  static char ret_str[5];
   snprintf(ret_str, sizeof(ret_str), "%i", value);
   return ret_str;
 }
@@ -261,7 +261,7 @@ const char* int8ToString(int8_t value){
  * @return  pointer to char array - pay attention, it is local static
  * *******************************************************************/
 const char* uint8ToString(uint8_t value){
-  static char ret_str[4];
+  static char ret_str[5];
   snprintf(ret_str, sizeof(ret_str), "%u", value);
   return ret_str;
 }

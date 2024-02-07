@@ -56,7 +56,7 @@ void cmdSetOilmeter(long setvalue) {
   data.oilcounter = setvalue;
   cmdStoreOilmeter();
   
-  snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %i", data.oilcounter);
+  snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %ld", data.oilcounter);
   km271Msg(KM_TYP_MESSAGE, tmpMsg, "");
 
   sendOilmeter();
@@ -89,7 +89,7 @@ void setupOilmeter(){
   Serial.print("restored value from Flash: ");
   Serial.println(data.oilcounter);
 
-  snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %i", data.oilcounter);
+  snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %ld", data.oilcounter);
   km271Msg(KM_TYP_MESSAGE, tmpMsg, "");
 
 }

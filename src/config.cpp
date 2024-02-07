@@ -85,7 +85,7 @@ void configGPIO(){
  * *******************************************************************/
 void configInitValue(){
 
-    memset(&config, 0, sizeof(config));
+    memset((void *)&config, 0, sizeof(config));
 
     // WiFi
     snprintf(config.wifi.ssid, sizeof(config.wifi.ssid), "enter SSID...");

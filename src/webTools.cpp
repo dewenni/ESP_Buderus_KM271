@@ -196,7 +196,6 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
  * @return  none
  * *******************************************************************/
 void deleteFile(fs::FS &fs, const String& path) {
-  Serial.printf("Deleting file: %s\r\n", path);
   if (fs.remove(path)) {
     Serial.println("- file deleted");
   } else {

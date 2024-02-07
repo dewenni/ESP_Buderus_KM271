@@ -114,7 +114,7 @@ typedef struct {
 // This structure is kept up-to-date automatically by the km271.cpp.
 #define CFG_MAX_CHAR_VALUE 20
 #define CFG_MAX_CHAR_TEXT 64
-#define CFG_MAX_CHAR_TIMER 128
+#define CFG_MAX_CHAR_TIMER 322
 typedef struct {
   char hc1_frost_protection_threshold[CFG_MAX_CHAR_VALUE]={'\0'};
   char hc1_summer_mode_threshold[CFG_MAX_CHAR_VALUE]={'\0'};
