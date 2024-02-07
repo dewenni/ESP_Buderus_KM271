@@ -45,7 +45,7 @@ But there is also a build in WebUI to view and control your Logamatic without an
 - [MQTT](#mqtt)
   - [Config and Status values](#config-and-status-values)
   - [Commands](#commands)
-- [Optional Notification](#optional-notification)
+- [Optional Messaging](#optional-messaging)
   - [Pushover](#pushover)
 - [Optional Components](#optional-components)
   - [node-red](#node-red)
@@ -452,10 +452,12 @@ payload:    Number 0..3 (Abschalt,Reduziert,Raumhalt,Aussenhalt) / {off,fixed,ro
 
 -----
 
-# Optional Notification
+# Optional Messaging
+
 in addition to mqtt there are more options for notification.
 
 ## Pushover
+
 In addition there is also a custom notification as Pushover client.
 Depending on the parameter "Filter", you can define what kind of messages you want to receive.
 In the settings you can find all necessary parameters to setup the client.
@@ -464,6 +466,13 @@ Each application, service, or utility that sends notifications through Pushover'
 API tokens are free and can be registered through [Pushover website](https://pushover.net/apps/build).
 
 <img src="./Doc/pushover.png" width="75%">
+
+## WebUI-Logger
+
+There is also a log function with which you can record various messages depending on the filter and display them via the WebUI. This can be useful for your own debugging and also for the further development of the software.
+You can also configure the logging function and the associated filter in the settings.
+
+<img src="./Doc/logger.png" width="75%">
 
 -----
 

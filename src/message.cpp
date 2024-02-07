@@ -32,13 +32,14 @@ void logMessage(const char* message) {
   int dateTimeLength = strlen(dateTime);
   
   // Check if message fits in buffer, if not, remove old messages
-  while (strlen(logBuffer) + messageLength + dateTimeLength >= BUFFER_SIZE)
+  while (strlen(logBuffer) + messageLength + dateTimeLength + 1 >= BUFFER_SIZE)
   {
     // Find position of first newline character
     char* newlinePos = strchr(logBuffer, '\n');
     
     // If newlinePos is NULL, there are no newlines in the buffer, so clear the buffer
     if (newlinePos == NULL) {
+      memset(logBuffer, 0, sizeof(logBuffer));
       logBuffer[0] = '\0';
       break;
     }
@@ -53,20 +54,11 @@ void logMessage(const char* message) {
     memmove(logBuffer, newlinePos, remainingLength + 1);
   }
   // Add "dateTime" prefix to message
-  if (strncat(logBuffer, dateTime, sizeof(dateTime) - 1) == NULL) {
-    return;
-  }
-  if (strncat(logBuffer, " > ", 3) == NULL) {
-    return;
-  }
+  strcat(logBuffer, dateTime);
   // Add message to buffer
-  if (strncat(logBuffer, message, messageLength) == NULL) {
-    return;
-  }
+  strcat(logBuffer, message);
   // Add newline at the end of message
-  if (strncat(logBuffer, "\n", 1) == NULL) {
-    return;
-  }
+  strcat(logBuffer, "\n");
 }
 
 /**

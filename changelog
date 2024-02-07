@@ -540,9 +540,10 @@ payload:    8 hex values separated with "_" (example: 08_15_04_65_65_65_65_65)
 
 ## what's new
 
-This Versions brings some new features 🎉
+This Versions is all about messages and brings some great new features 🎉
 
 ### Messaging option - Pushover
+
 There is now the possibility to get messages via Pushover. 
 Depending on the parameter "Filter", you can define what kind of messages you want to receive.
 In the settings you can find all necessary parameters to setup the client.
@@ -552,14 +553,22 @@ API tokens are free and can be registered through [Pushover website](https://pus
 
 <img src="./Doc/pushover.png" width="75%">
 
+### WebUI-Logger
+
+There is also a new log function with which you can record various messages depending on the filter and display them via the WebUI. This can be useful for your own debugging and also for the further development of the software.
+You can also configure the logging function and the associated filter in the settings.
+
+<img src="./Doc/logger.png" width="75%">
+
 
 ## changelog
 
 - rework messaging function. mqtt publish function was replaced with a generic messaging function for further options.
-- add messaging option for "Pushover"
+- add messaging option for "Pushover" #31
+- add WebUI-Logger #70
 - bugfix for updating OneWire sensor values if not enabled
 - remove mqtt message "info = {"burner":0,"pump":100,"ww_temp":57,"boiler_temp":38}"
-- 
+- improve behavior for incoming mqtt messages without payload (this could lead to problems in the past)
 
 ## Assets
 
