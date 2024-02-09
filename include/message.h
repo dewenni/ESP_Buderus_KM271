@@ -31,3 +31,4 @@ void messageSetup();
 void messageCyclic();
 void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value);
 char* getLogBuffer();
+void clearLogBuffer();

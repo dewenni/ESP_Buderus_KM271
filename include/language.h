@@ -152,6 +152,8 @@ const char* API_TOKEN[MAX_LANG] =                {"API-Token",                  
 const char* USER_KEY[MAX_LANG] =                 {"User-Key",                                                   "User-Key"};
 const char* LOGGER[MAX_LANG] =                   {"Logbuch",                                                    "Logger"};
 const char* LANG_INFO[MAX_LANG] =                {"⚠️ Ein Wechsel der Sprache ändert auch die mqtt Topics ⚠️",    "⚠️ Changing the language also changes the mqtt topics ⚠️"};
+const char* SAVE[MAX_LANG] =                     {"Speichern",                                                  "save"};
+const char* RESTART[MAX_LANG] =                  {"Neustart",                                                   "restart"};
 } s_webui_texts; 
 
 

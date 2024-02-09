@@ -244,8 +244,9 @@ uint16_t alarm4;
 } s_webui_id_alarm;
 
 typedef struct {
-uint16_t btnLoad;
+uint16_t btnRestart;
 uint16_t btnSave;
+uint16_t btnSaveRestart;
 uint16_t btnPrint;
 uint16_t wifi_ssid;
 uint16_t wifi_passw;

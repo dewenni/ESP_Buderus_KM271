@@ -846,7 +846,10 @@ void addSettingsTab(){
 
   // Buttons
   auto btnGroup = addGroupHelper(webText.SETTINGS[config.lang], Dark, id.tab.settings);
-  id.settings.btnSave = ESPUI.addControl(Button, "", webText.SAVE_RESTART[config.lang], Dark, btnGroup, generalCallback);
+  id.settings.btnSave = ESPUI.addControl(Button, "", webText.SAVE[config.lang], Dark, btnGroup, generalCallback);
+  id.settings.btnRestart = ESPUI.addControl(Button, "", webText.RESTART[config.lang], Dark, btnGroup, generalCallback);
+  id.settings.btnSaveRestart = ESPUI.addControl(Button, "", webText.SAVE_RESTART[config.lang], Dark, btnGroup, generalCallback);
+  
   } 
  
  /**
@@ -1615,6 +1618,87 @@ void updateSettingsValues(){
 
 /**
  * *******************************************************************
+ * @brief   get values vom WebUI and save to config structure
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void saveSettings(){
+  // Settings: Language
+  config.lang = ESPUI.getControl(id.settings.language)->value.toInt();
+
+  // Settings: WiFi
+  snprintf(config.wifi.hostname, sizeof(config.wifi.hostname), ESPUI.getControl(id.settings.wifi_hostname)->value.c_str());
+  snprintf(config.wifi.ssid, sizeof(config.wifi.ssid), ESPUI.getControl(id.settings.wifi_ssid)->value.c_str());
+  snprintf(config.wifi.password, sizeof(config.wifi.password), ESPUI.getControl(id.settings.wifi_passw)->value.c_str());
+
+  // Settings: WiFi
+  config.ip.enable = ESPUI.getControl(id.settings.ip_enable)->value.toInt();
+  snprintf(config.ip.ipaddress, sizeof(config.ip.ipaddress), ESPUI.getControl(id.settings.ip_ipaddress)->value.c_str());
+  snprintf(config.ip.subnet, sizeof(config.ip.subnet), ESPUI.getControl(id.settings.ip_subnet)->value.c_str());
+  snprintf(config.ip.gateway, sizeof(config.ip.gateway), ESPUI.getControl(id.settings.ip_gateway)->value.c_str());
+  snprintf(config.ip.dns, sizeof(config.ip.dns), ESPUI.getControl(id.settings.ip_dns)->value.c_str());
+
+  // Settings: Authentication
+  config.auth.enable = ESPUI.getControl(id.settings.auth_enable)->value.toInt();
+  snprintf(config.auth.user, sizeof(config.auth.user), ESPUI.getControl(id.settings.auth_user)->value.c_str());
+  snprintf(config.auth.password, sizeof(config.auth.password), ESPUI.getControl(id.settings.auth_passw)->value.c_str());
+
+  // Settings: MQTT
+  config.mqtt.enable = ESPUI.getControl(id.settings.mqtt_enable)->value.toInt();
+  snprintf(config.mqtt.server, sizeof(config.mqtt.server), ESPUI.getControl(id.settings.mqtt_server)->value.c_str());
+  config.mqtt.port = ESPUI.getControl(id.settings.mqtt_port)->value.toInt();
+  snprintf(config.mqtt.topic, sizeof(config.mqtt.topic), ESPUI.getControl(id.settings.mqtt_topic)->value.c_str());
+  snprintf(config.mqtt.user, sizeof(config.mqtt.user), ESPUI.getControl(id.settings.mqtt_user)->value.c_str());
+  snprintf(config.mqtt.password, sizeof(config.mqtt.password), ESPUI.getControl(id.settings.mqtt_passw)->value.c_str());
+  config.mqtt.config_retain = ESPUI.getControl(id.settings.mqtt_config_retain)->value.toInt();
+
+  // Settings: NTP
+  config.ntp.enable = ESPUI.getControl(id.settings.ntp_enable)->value.toInt();
+  snprintf(config.ntp.server, sizeof(config.ntp.server), ESPUI.getControl(id.settings.ntp_server)->value.c_str());
+  snprintf(config.ntp.tz, sizeof(config.ntp.tz), ESPUI.getControl(id.settings.ntp_tz)->value.c_str());
+
+  // Settings: Oilcounter
+  config.oilmeter.use_hardware_meter = ESPUI.getControl(id.settings.oil_useHardware)->value.toInt();
+  config.oilmeter.use_virtual_meter = ESPUI.getControl(id.settings.oil_useVirtual)->value.toInt();
+  config.oilmeter.consumption_kg_h = ESPUI.getControl(id.settings.oil_consumption_kg_h)->value.toFloat();
+  config.oilmeter.oil_density_kg_l = ESPUI.getControl(id.settings.oil_oil_density_kg_l)->value.toFloat();
+
+  // Settings: Logamatic
+  config.km271.use_hc1 = ESPUI.getControl(id.settings.km271_useHc1)->value.toInt();
+  config.km271.use_hc2 = ESPUI.getControl(id.settings.km271_useHc2)->value.toInt();
+  config.km271.use_alarmMsg = ESPUI.getControl(id.settings.km271_useAlarm)->value.toInt();
+  config.km271.use_ww = ESPUI.getControl(id.settings.km271_useWW)->value.toInt();
+
+  // Settings: GPIO
+  config.gpio.km271_RX = ESPUI.getControl(id.settings.gpio_km271_rx)->value.toInt();
+  config.gpio.km271_TX = ESPUI.getControl(id.settings.gpio_km271_tx)->value.toInt();
+  config.gpio.led_heartbeat = ESPUI.getControl(id.settings.gpio_led_heatbeat)->value.toInt();
+  config.gpio.led_logmode = ESPUI.getControl(id.settings.gpio_led_logmode)->value.toInt();
+  config.gpio.led_wifi = ESPUI.getControl(id.settings.gpio_led_wifi)->value.toInt();
+  config.gpio.led_oilcounter = ESPUI.getControl(id.settings.gpio_led_oilcounter)->value.toInt();
+  config.gpio.trigger_oilcounter = ESPUI.getControl(id.settings.gpio_trigger_oilcounter)->value.toInt();
+
+  // optional sensors
+  config.sensor.ch1_enable = ESPUI.getControl(id.settings.sens1_enable)->value.toInt();
+  snprintf(config.sensor.ch1_name, sizeof(config.sensor.ch1_name), ESPUI.getControl(id.settings.sens1_name)->value.c_str());
+  config.sensor.ch1_gpio = ESPUI.getControl(id.settings.sens1_gpio)->value.toInt();
+  config.sensor.ch2_enable = ESPUI.getControl(id.settings.sens2_enable)->value.toInt();
+  snprintf(config.sensor.ch2_name, sizeof(config.sensor.ch2_name), ESPUI.getControl(id.settings.sens2_name)->value.c_str());
+  config.sensor.ch2_gpio = ESPUI.getControl(id.settings.sens2_gpio)->value.toInt();
+
+  // Settings: Pushover
+  config.pushover.enable = ESPUI.getControl(id.settings.pushover_enable)->value.toInt();
+  snprintf(config.pushover.token, sizeof(config.pushover.token), ESPUI.getControl(id.settings.pushover_token)->value.c_str());
+  snprintf(config.pushover.user_key, sizeof(config.pushover.user_key), ESPUI.getControl(id.settings.pushover_user_key)->value.c_str());
+  config.pushover.filter = ESPUI.getControl(id.settings.pushover_filter)->value.toInt();
+
+  // Settings: Logger
+  config.log.enable = ESPUI.getControl(id.settings.log_enable)->value.toInt();
+  config.log.filter = ESPUI.getControl(id.settings.log_filter)->value.toInt();
+}
+
+/**
+ * *******************************************************************
  * @brief   general Callback function
  * @param   sender id from sender
  * @param   type responce type 
@@ -1788,82 +1872,21 @@ void generalCallback(Control *sender, int type) {
   }
 
   // Settings Save & Restart
-  if(sender->id == id.settings.btnSave && type==B_UP) {
-    
-    // Settings: Language
-    config.lang = ESPUI.getControl(id.settings.language)->value.toInt();
-
-    // Settings: WiFi
-    snprintf(config.wifi.hostname, sizeof(config.wifi.hostname), ESPUI.getControl(id.settings.wifi_hostname)->value.c_str());
-    snprintf(config.wifi.ssid, sizeof(config.wifi.ssid), ESPUI.getControl(id.settings.wifi_ssid)->value.c_str());
-    snprintf(config.wifi.password, sizeof(config.wifi.password), ESPUI.getControl(id.settings.wifi_passw)->value.c_str());
-
-    // Settings: WiFi
-    config.ip.enable = ESPUI.getControl(id.settings.ip_enable)->value.toInt();
-    snprintf(config.ip.ipaddress , sizeof(config.ip.ipaddress), ESPUI.getControl(id.settings.ip_ipaddress)->value.c_str());
-    snprintf(config.ip.subnet , sizeof(config.ip.subnet), ESPUI.getControl(id.settings.ip_subnet)->value.c_str());
-    snprintf(config.ip.gateway , sizeof(config.ip.gateway), ESPUI.getControl(id.settings.ip_gateway)->value.c_str());
-    snprintf(config.ip.dns , sizeof(config.ip.dns), ESPUI.getControl(id.settings.ip_dns)->value.c_str());
-
-    // Settings: Authentication
-    config.auth.enable = ESPUI.getControl(id.settings.auth_enable)->value.toInt();
-    snprintf(config.auth.user , sizeof(config.auth.user), ESPUI.getControl(id.settings.auth_user)->value.c_str());
-    snprintf(config.auth.password , sizeof(config.auth.password), ESPUI.getControl(id.settings.auth_passw)->value.c_str());
-  
-    // Settings: MQTT
-    config.mqtt.enable = ESPUI.getControl(id.settings.mqtt_enable)->value.toInt();
-    snprintf(config.mqtt.server, sizeof(config.mqtt.server), ESPUI.getControl(id.settings.mqtt_server)->value.c_str());
-    config.mqtt.port = ESPUI.getControl(id.settings.mqtt_port)->value.toInt();
-    snprintf(config.mqtt.topic, sizeof(config.mqtt.topic), ESPUI.getControl(id.settings.mqtt_topic)->value.c_str());
-    snprintf(config.mqtt.user, sizeof(config.mqtt.user), ESPUI.getControl(id.settings.mqtt_user)->value.c_str());
-    snprintf(config.mqtt.password, sizeof(config.mqtt.password), ESPUI.getControl(id.settings.mqtt_passw)->value.c_str());
-    config.mqtt.config_retain = ESPUI.getControl(id.settings.mqtt_config_retain)->value.toInt();
-
-    // Settings: NTP
-    config.ntp.enable = ESPUI.getControl(id.settings.ntp_enable)->value.toInt();
-    snprintf(config.ntp.server, sizeof(config.ntp.server), ESPUI.getControl(id.settings.ntp_server)->value.c_str());
-    snprintf(config.ntp.tz, sizeof(config.ntp.tz), ESPUI.getControl(id.settings.ntp_tz)->value.c_str());
-
-    // Settings: Oilcounter
-    config.oilmeter.use_hardware_meter = ESPUI.getControl(id.settings.oil_useHardware)->value.toInt();
-    config.oilmeter.use_virtual_meter = ESPUI.getControl(id.settings.oil_useVirtual)->value.toInt();  
-    config.oilmeter.consumption_kg_h = ESPUI.getControl(id.settings.oil_consumption_kg_h)->value.toFloat();
-    config.oilmeter.oil_density_kg_l = ESPUI.getControl(id.settings.oil_oil_density_kg_l)->value.toFloat();
-
-    // Settings: Logamatic
-    config.km271.use_hc1 = ESPUI.getControl(id.settings.km271_useHc1)->value.toInt();
-    config.km271.use_hc2 = ESPUI.getControl(id.settings.km271_useHc2)->value.toInt();
-    config.km271.use_alarmMsg = ESPUI.getControl(id.settings.km271_useAlarm)->value.toInt();
-    config.km271.use_ww = ESPUI.getControl(id.settings.km271_useWW)->value.toInt();
-
-    // Settings: GPIO
-    config.gpio.km271_RX = ESPUI.getControl(id.settings.gpio_km271_rx)->value.toInt();
-    config.gpio.km271_TX = ESPUI.getControl(id.settings.gpio_km271_tx)->value.toInt();
-    config.gpio.led_heartbeat = ESPUI.getControl(id.settings.gpio_led_heatbeat)->value.toInt();
-    config.gpio.led_logmode = ESPUI.getControl(id.settings.gpio_led_logmode)->value.toInt();
-    config.gpio.led_wifi = ESPUI.getControl(id.settings.gpio_led_wifi)->value.toInt();
-    config.gpio.led_oilcounter = ESPUI.getControl(id.settings.gpio_led_oilcounter)->value.toInt();
-    config.gpio.trigger_oilcounter = ESPUI.getControl(id.settings.gpio_trigger_oilcounter)->value.toInt();
-
-    // optional sensors
-    config.sensor.ch1_enable = ESPUI.getControl(id.settings.sens1_enable)->value.toInt();
-    snprintf(config.sensor.ch1_name, sizeof(config.sensor.ch1_name), ESPUI.getControl(id.settings.sens1_name)->value.c_str());
-    config.sensor.ch1_gpio = ESPUI.getControl(id.settings.sens1_gpio)->value.toInt();
-    config.sensor.ch2_enable = ESPUI.getControl(id.settings.sens2_enable)->value.toInt();
-    snprintf(config.sensor.ch2_name, sizeof(config.sensor.ch2_name), ESPUI.getControl(id.settings.sens2_name)->value.c_str());
-    config.sensor.ch2_gpio = ESPUI.getControl(id.settings.sens2_gpio)->value.toInt();
-
-    // Settings: Pushover
-    config.pushover.enable = ESPUI.getControl(id.settings.pushover_enable)->value.toInt();
-    snprintf(config.pushover.token, sizeof(config.pushover.token), ESPUI.getControl(id.settings.pushover_token)->value.c_str());
-    snprintf(config.pushover.user_key, sizeof(config.pushover.user_key), ESPUI.getControl(id.settings.pushover_user_key)->value.c_str());
-    config.pushover.filter = ESPUI.getControl(id.settings.pushover_filter)->value.toInt();
-
-    // Settings: Logger
-    config.log.enable = ESPUI.getControl(id.settings.log_enable)->value.toInt();
-    config.log.filter = ESPUI.getControl(id.settings.log_filter)->value.toInt();
-
+  if(sender->id == id.settings.btnSaveRestart && type==B_UP) {
+    saveSettings();
     configSaveToFile();
+    storeData();
+    ESP.restart();
+  }
+
+  // Settings Save
+  if(sender->id == id.settings.btnSave && type==B_UP) {
+    saveSettings();
+    configSaveToFile();
+  }
+
+  // Settings Restart
+  if(sender->id == id.settings.btnRestart && type==B_UP) {
     storeData();
     ESP.restart();
   }
@@ -1923,10 +1946,12 @@ void generalCallback(Control *sender, int type) {
   // enable/disable log filter on the fly
   if(sender->id == id.settings.log_enable) {
     config.log.enable = ESPUI.getControl(id.settings.log_enable)->value.toInt();
+    clearLogBuffer();
   }
   // change log filter on the fly
   if(sender->id == id.settings.log_filter) {
     config.log.filter = ESPUI.getControl(id.settings.log_filter)->value.toInt();
+    clearLogBuffer();
   }
   // enable/disable log pushover on the fly
   if(sender->id == id.settings.pushover_enable) {

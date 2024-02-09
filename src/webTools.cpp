@@ -127,7 +127,7 @@ void handleDoUpload(AsyncWebServerRequest *request, String filename, size_t inde
   }
 
   if (final) {
-    AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Ok");
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Upload complete");
     response->addHeader("Refresh", "20");
     response->addHeader("Location", "/filesystem");
     request->send(response);

@@ -73,6 +73,17 @@ char* getLogBuffer(){
 
 /**
  * *******************************************************************
+ * @brief   clear logBuffer
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void clearLogBuffer(){
+  memset(logBuffer, 0, sizeof(logBuffer));
+}
+
+
+/**
+ * *******************************************************************
  * @brief   Setup for Telegram bot
  * @param   none
  * @return  none
