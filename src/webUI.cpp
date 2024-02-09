@@ -836,11 +836,13 @@ void addSettingsTab(){
   ESPUI.addControl(ControlType::Separator, "", "", ControlColor::None, id.tab.settings);
 
   // Language-Settings
-  id.settings.language = ESPUI.addControl(Select, km271CfgTopics.LANGUAGE[config.lang], "", Dark, id.tab.settings, generalCallback);
+  auto langGroup = addGroupHelper(webText.LANGUAGE[config.lang], Dark, id.tab.settings);
+  id.settings.language = ESPUI.addControl(Select, "", "", Dark, langGroup, generalCallback);
   for (int i = 0; i < sizeof(optsArrayTexts.LANGUAGE[config.lang])/sizeof(optsArrayTexts.LANGUAGE[config.lang][0]); i++)
   {
     ESPUI.addControl(Option, optsArrayTexts.LANGUAGE[config.lang][i], int8ToString(i), None, id.settings.language);
   }
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.LANG_INFO[config.lang], None, langGroup), LABLE_STYLE_DESCRIPTION);
 
   // Buttons
   auto btnGroup = addGroupHelper(webText.SETTINGS[config.lang], Dark, id.tab.settings);
