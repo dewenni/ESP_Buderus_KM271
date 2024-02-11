@@ -23,6 +23,7 @@ int otaProgress = 0;              // OTA-Fortschritt als Rückgabe an Webserver
 AsyncWebSocket ws("/ws");         // Websocket
 AsyncWebServer* server;           // Pointer to existing Webserver (ESPUI)
 
+int counter = 0;
 /**
  * *******************************************************************
  * @brief   helper function to provide filelist
@@ -244,11 +245,91 @@ void webToolsSetup() {
     request->send_P(200, "text/plain", filelist.c_str());
   });
 
-  server->on("/log", HTTP_GET, [](AsyncWebServerRequest * request) {
-    Serial.println(getLogBuffer());
-    request->send(200, "text/plain", getLogBuffer()); // lese den gesamten Inhalt des Buffers
-  });
+  server->on("/logger", HTTP_GET, [](AsyncWebServerRequest *request){
+    AsyncWebServerResponse *response = request->beginChunkedResponse("text/html", [](uint8_t *buffer, size_t maxLen, size_t index) {
+      static int line = 0;
+      // read data from buffer to Chunk
+      if (line < MAX_LOG_LINES) {
+          int lineIndex = (logData.lastLine - line - 1) % MAX_LOG_LINES;
+          int bytesToWrite = 0;
+          if (lineIndex < 0)
+          {
+            lineIndex += MAX_LOG_LINES;
+          }
+          if (line == 0){
+            bytesToWrite = sprintf((char*)buffer, "<!DOCTYPE html><html class=\"HTML\"><head><style>body{background:#444857;font-family: monospace, monospace;font-size:14px;color:#ffffff}</style></head><body><br>%s<br>", logData.buffer[lineIndex]);
+            line++;
+            return bytesToWrite;
+          }
+          else if (line == MAX_LOG_LINES-1){
+            bytesToWrite = sprintf((char*)buffer, "%s</body></html>", logData.buffer[lineIndex]);
+            line++;
+            return bytesToWrite;
+          }
+          else {
+            bytesToWrite = sprintf((char*)buffer, "%s<br>", logData.buffer[lineIndex]);
+            line++;
+            return bytesToWrite;
+          }
+          
+      }
+      line = 0;
+      return 0;
+		});
+   	request->send(response); });
 
+/*
+server->on("/logger", HTTP_GET, [](AsyncWebServerRequest * request) {
+    AsyncWebServerResponse *response = request->beginChunkedResponse("text/plain", [](uint8_t* buffer, size_t maxLen, size_t index) {
+            static int line = 0;
+            // read data from buffer to Chunk
+            if (line < MAX_LOG_LINES) {
+                int bytesToWrite = sprintf((char*)buffer, "%s\n", logData.buffer[line]);
+                return bytesToWrite;
+                line++;
+            }
+            line=0;
+            return 0;
+        });
+
+        // finish reading
+        request->send(response);
+    });
+
+/*
+  server->on("/logger", HTTP_GET, [](AsyncWebServerRequest * request) {
+    AsyncWebServerResponse *response = request->beginChunkedResponse("text/plain", [](uint8_t* buffer, size_t maxLen, size_t index) {
+
+            // read data from buffer to Chunk
+            if (counter < MAX_LOG_LINES) {
+                int lineIndex = (logData.lastLine - counter - 1) % MAX_LOG_LINES;
+                if (lineIndex < 0) {
+                    lineIndex += MAX_LOG_LINES;
+                }
+                int bytesToWrite = sprintf((char*)buffer, "%s\n", logData.buffer[lineIndex]);
+                return bytesToWrite;
+                counter++;
+            }
+            counter=0;
+            return 0;
+        });
+
+        // finish reading
+        request->send(response);
+    });
+
+
+  server->on("/logger", HTTP_GET, [](AsyncWebServerRequest *request){
+    AsyncWebServerResponse *response = request->beginChunkedResponse("text/plain", [](uint8_t *buffer, size_t maxLen, size_t index) {
+      if (counter < 50) {
+				int len = sprintf((char*)buffer, "Content Line %d\n", counter++);
+				return len;
+			}
+      counter = 0;
+      return 0;
+		});
+		request->send(response); });
+*/
   server->on("/reboot", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(200, "text/plain", "Device will reboot in 2 seconds");
     delay(2000);

@@ -16,6 +16,7 @@ void updateAlarmTab();
 void generalCallback(Control *sender, int type);
 void updateSettingsValues();
 void updateSensorValues();
+void webUILogRead();
 
 /* D E C L A R A T I O N S ****************************************************/
 s_webui_id id;
@@ -32,12 +33,14 @@ s_km271_alarm_str   kmAlarmMsgCpy;
 
 muTimer valeCompareTimer = muTimer();     // timer to refresh id.tab.config
 s_config configSave;
+s_logdata logData = {0, {'\0'}};
 
-char tmpMessage[300]={'\0'};              // temp string
-long oilcounter, oilcounterOld;           // actual and old oilcounter value
-char elementBuffer[5000]={'\0'};          // Buffer to create table content
-char elementString[500]={'\0'};           // temp string
-IPAddress tmpIpAddress;                   // temporary IP address
+char tmpMessage[300]={'\0'};                                  // temp string
+long oilcounter, oilcounterOld;                               // actual and old oilcounter value
+char elementBuffer[5000]={'\0'};   // Buffer to create table content
+char elementString[500]={'\0'};                               // temp string
+IPAddress tmpIpAddress;                                       // temporary IP address
+long testcnt;
 
 // ======================================================
 // Helper functions
@@ -53,15 +56,20 @@ void initElements(){
 }
 void addElement(const char* label, const char* value){
   snprintf(elementString, sizeof(elementString), "<span class=\"d60\">%s</span><span class=\"v40\">%s</span>",  label, value);
-  strcat(elementBuffer, elementString);
+  strcat_safe(elementBuffer, elementString, sizeof(elementBuffer));
+
 }
 void addElementUnit(const char* label, const char* value, const char* unit){
   snprintf(elementString, sizeof(elementString), "<span class=\"d60\">%s</span><span class=\"v30\">%s</span><span class=\"u10\">%s</span>",  label, value, unit);
-  strcat(elementBuffer, elementString);
+  strcat_safe(elementBuffer, elementString, sizeof(elementBuffer));
 }
 void addElementWide(const char* label, const char* value){
   snprintf(elementString, sizeof(elementString), "<span class=\"d30\">%s</span><span class=\"v70\">%s</span>",  label, value);
-  strcat(elementBuffer, elementString);
+  strcat_safe(elementBuffer, elementString, sizeof(elementBuffer));
+}
+void addLogElement(const char* value){
+  snprintf(elementString, sizeof(elementString), "%s\n", value);
+  strcat_safe(elementBuffer, elementString, sizeof(elementBuffer));
 }
 uint16_t addEmtyElement(uint16_t parent){
   uint16_t id = ESPUI.addControl(ControlType::Label, "", "--", ControlColor::None, parent);
@@ -821,20 +829,6 @@ void addSettingsTab(){
 
   ESPUI.addControl(ControlType::Separator, "", "", ControlColor::None, id.tab.settings);
 
-  // Logger-Settings
-  auto logGroup = addGroupHelper(webText.LOGGER[config.lang], Dark, id.tab.settings);
-  id.settings.log_enable = addSwitcherInputHelper(webText.ACTIVATE[config.lang], logGroup);
-  ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.FILTER[config.lang], None, logGroup), LABLE_STYLE_INPUT_LABEL);
-  id.settings.log_filter = ESPUI.addControl(Select, "", "", Dark, logGroup, generalCallback);
-  for (int i = 0; i < sizeof(optsArrayTexts.LOG_FILTER[config.lang])/sizeof(optsArrayTexts.LOG_FILTER[config.lang][0]); i++)
-  {
-    ESPUI.addControl(Option, optsArrayTexts.LOG_FILTER[config.lang][i], int8ToString(i), None, id.settings.log_filter);
-  }
-  ESPUI.setElementStyle(id.settings.log_filter, "width: 65%");
-  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "<a href=\"/log\">Logger</a>", None, logGroup), "width: 25%;");
-
-  ESPUI.addControl(ControlType::Separator, "", "", ControlColor::None, id.tab.settings);
-
   // Language-Settings
   auto langGroup = addGroupHelper(webText.LANGUAGE[config.lang], Dark, id.tab.settings);
   id.settings.language = ESPUI.addControl(Select, "", "", Dark, langGroup, generalCallback);
@@ -863,6 +857,40 @@ void addSettingsTab(){
     ESPUI.setElementStyle(otaUpdate, LABLE_STYLE_DESCRIPTION);
     ESPUI.setElementStyle(fileMgn, LABLE_STYLE_DESCRIPTION);
   }
+
+/**
+ * *******************************************************************
+ * @brief   Elements for Settings
+ * *******************************************************************/
+void addLoggerTab(){
+  id.tab.log= ESPUI.addControl(Tab, "", webText.LOGGER[config.lang], ControlColor::None, 0, generalCallback);
+  auto loggerGroup = addGroupHelper("Logamatic Logger", Dark, id.tab.log);
+  
+  // option filter
+  id.log.optFilter = ESPUI.addControl(Select, "", "", Dark, loggerGroup, generalCallback);
+  for (int i = 0; i < sizeof(optsArrayTexts.LOG_FILTER[config.lang])/sizeof(optsArrayTexts.LOG_FILTER[config.lang][0]); i++)
+  {
+    ESPUI.addControl(Option, optsArrayTexts.LOG_FILTER[config.lang][i], int8ToString(i), None, id.log.optFilter);
+  }
+  ESPUI.setElementStyle(id.log.optFilter, "width: 250px; color: black");
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, loggerGroup), "background-color: unset; width: 20px"); // spacer
+
+  // buttons
+  id.log.btnClear = ESPUI.addControl(Button, "", webText.CLEAR[config.lang], Dark, loggerGroup, generalCallback);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, loggerGroup), "background-color: unset; width: 20px"); // spacer
+  id.log.btnRefresh = ESPUI.addControl(Button, "", webText.REFRESH[config.lang], Dark, loggerGroup, generalCallback);
+  
+  // enable/disable logger
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, loggerGroup), "background-color: unset; width: 40px"); // spacer
+  id.log.enable = ESPUI.addControl(Switcher, "", "", Dark, loggerGroup, generalCallback);
+
+  // iframe for log output
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "<hr style=\"border-color: white;\">", None, loggerGroup), "background-color: unset; width: 100%;");
+  id.log.iframe = ESPUI.addControl(Label, "", "<iframe src=\"/logger\" style=\"border:none;width:100\%;height: 1000px\">", None, loggerGroup);
+  ESPUI.setElementStyle(id.log.iframe, "background-color: unset; width: 100%; height: 1100px;");
+  ESPUI.setPanelWide(loggerGroup, true);  
+
+}
 
 /**
  * *******************************************************************
@@ -905,9 +933,11 @@ void webUISetup(){
     if (config.km271.use_alarmMsg)
       addAlarmTab();
 
+    addLoggerTab();
     addSystemTab();
     addSettingsTab();
-    
+    addToolsTab();
+
     // start Webserver
     if (config.auth.enable){
       ESPUI.begin("Buderus Logamatic", config.auth.user, config.auth.password);
@@ -916,13 +946,10 @@ void webUISetup(){
       ESPUI.begin("Buderus Logamatic");
     }
 
+    webUILogRead(); // initial read log
   }
-  
-  // OTA & Filemanager
-  addToolsTab();
 
   Serial.println("Webserver started");
-
   Serial.print("Widgets: ");
   Serial.println(id.settings.btnSave);
 
@@ -1611,8 +1638,8 @@ void updateSettingsValues(){
   ESPUI.updateText(id.settings.pushover_user_key, config.pushover.user_key);
   ESPUI.updateSelect(id.settings.pushover_filter, uint64ToString(config.pushover.filter));
 
-  ESPUI.updateSwitcher(id.settings.log_enable, config.log.enable);
-  ESPUI.updateSelect(id.settings.log_filter, uint64ToString(config.log.filter));
+  ESPUI.updateSwitcher(id.log.enable, config.log.enable);
+  ESPUI.updateSelect(id.log.optFilter, uint64ToString(config.log.filter));
 
 }
 
@@ -1693,8 +1720,8 @@ void saveSettings(){
   config.pushover.filter = ESPUI.getControl(id.settings.pushover_filter)->value.toInt();
 
   // Settings: Logger
-  config.log.enable = ESPUI.getControl(id.settings.log_enable)->value.toInt();
-  config.log.filter = ESPUI.getControl(id.settings.log_filter)->value.toInt();
+  config.log.enable = ESPUI.getControl(id.log.enable)->value.toInt();
+  config.log.filter = ESPUI.getControl(id.log.optFilter)->value.toInt();
 }
 
 /**
@@ -1944,14 +1971,18 @@ void generalCallback(Control *sender, int type) {
   }
 
   // enable/disable log filter on the fly
-  if(sender->id == id.settings.log_enable) {
-    config.log.enable = ESPUI.getControl(id.settings.log_enable)->value.toInt();
+  if(sender->id == id.log.enable) {
+    config.log.enable = ESPUI.getControl(id.log.enable)->value.toInt();
     clearLogBuffer();
+    webUILogRead();
+    configSaveToFile();
   }
   // change log filter on the fly
-  if(sender->id == id.settings.log_filter) {
-    config.log.filter = ESPUI.getControl(id.settings.log_filter)->value.toInt();
+  if(sender->id == id.log.optFilter) {
+    config.log.filter = ESPUI.getControl(id.log.optFilter)->value.toInt();
     clearLogBuffer();
+    webUILogRead();
+    configSaveToFile();
   }
   // enable/disable log pushover on the fly
   if(sender->id == id.settings.pushover_enable) {
@@ -1961,5 +1992,27 @@ void generalCallback(Control *sender, int type) {
   if(sender->id == id.settings.pushover_filter) {
     config.pushover.filter = ESPUI.getControl(id.settings.pushover_filter)->value.toInt();
   }
+  // clear webUI Log
+  if(sender->id == id.log.btnClear && type==B_UP) {
+    clearLogBuffer();
+    webUILogRead();
+  }
+  // refresh webUI Log
+  if(sender->id == id.log.btnRefresh && type==B_UP) {
+    webUILogRead();
+  }
 
 } // end generalCallback()
+
+
+/**
+ * *******************************************************************
+ * @brief   read Logger and print to webUI
+ * @param   none 
+ * @return  none
+ * *******************************************************************/
+void webUILogRead(){
+  ESPUI.updateLabel(id.log.iframe, "<iframe src=\"/logger\" style=\"border:none;width:100\%;height:1000px\">");
+}
+
+

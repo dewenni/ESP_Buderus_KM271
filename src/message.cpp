@@ -6,81 +6,35 @@
 /* D E C L A R A T I O N S ****************************************************/  
 #define MSG_BUF_SIZE 1024            // buffer size for messaging
 char pushoverBuffer[MSG_BUF_SIZE];   // Buffer for Pushover messages
-#define BUFFER_SIZE 10000            // buffer size for logging Buffer
-char logBuffer[BUFFER_SIZE];         // logBuffer
 
 muTimer pushoverSendTimer = muTimer();
 HTTPClient http;
 
 /**
  * *******************************************************************
- * @brief   write message to logBuffer
- * @param   message
+ * @brief   clear Logbuffer
+ * @param   none 
  * @return  none
  * *******************************************************************/
-void logMessage(const char* message) {
-  
-  // Check for NULL message
-  if (message == NULL) {
-    return;
+void clearLogBuffer() {
+  logData.lastLine = 0;
+  for (int i = 0; i < MAX_LOG_LINES; i++){
+    memset(logData.buffer[i], 0, sizeof(logData.buffer[i]));
   }
-
-  // Calculate length of message
-  int messageLength = strlen(message);
-  char dateTime[32];
-  snprintf(dateTime, sizeof(dateTime), "%s > ", getDateTimeString());
-  int dateTimeLength = strlen(dateTime);
-  
-  // Check if message fits in buffer, if not, remove old messages
-  while (strlen(logBuffer) + messageLength + dateTimeLength + 1 >= BUFFER_SIZE)
-  {
-    // Find position of first newline character
-    char* newlinePos = strchr(logBuffer, '\n');
-    
-    // If newlinePos is NULL, there are no newlines in the buffer, so clear the buffer
-    if (newlinePos == NULL) {
-      memset(logBuffer, 0, sizeof(logBuffer));
-      logBuffer[0] = '\0';
-      break;
-    }
-
-    // Move pointer to character after newline
-    newlinePos++;
-
-    // Calculate length of string after newline
-    int remainingLength = strlen(newlinePos);
-
-    // Shift remaining string to the beginning of the buffer
-    memmove(logBuffer, newlinePos, remainingLength + 1);
-  }
-  // Add "dateTime" prefix to message
-  strcat(logBuffer, dateTime);
-  // Add message to buffer
-  strcat(logBuffer, message);
-  // Add newline at the end of message
-  strcat(logBuffer, "\n");
 }
 
 /**
  * *******************************************************************
- * @brief   get pointer to logBuffer
- * @param   none
- * @return  char* to logBuffer
- * *******************************************************************/
-char* getLogBuffer(){
-  return logBuffer;
-}
-
-/**
- * *******************************************************************
- * @brief   clear logBuffer
- * @param   none
+ * @brief   add new entry to LogBuffer
+ * @param   none 
  * @return  none
  * *******************************************************************/
-void clearLogBuffer(){
-  memset(logBuffer, 0, sizeof(logBuffer));
+void addLogBuffer(const char *message){  
+  if (strlen(message)!=0){
+    snprintf(logData.buffer[logData.lastLine], sizeof(logData.buffer[logData.lastLine]), "[%s]  %s", getDateTimeString(), message);
+    logData.lastLine = (logData.lastLine + 1) % MAX_LOG_LINES; // update the lastLine index in a circular manner
+  }
 }
-
 
 /**
  * *******************************************************************
@@ -90,7 +44,6 @@ void clearLogBuffer(){
  * *******************************************************************/
 void messageSetup() {
   memset(pushoverBuffer, 0, sizeof(pushoverBuffer));
-  memset(logBuffer, 0, sizeof(logBuffer));
 }
 
 /**
@@ -114,7 +67,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value){
       }
       if (config.log.enable && config.log.filter==LOG_FILTER_VALUES){
         snprintf(tmpMsg, sizeof(tmpMsg), "Config: %s = %s", desc, value);
-        logMessage(tmpMsg);
+        addLogBuffer(tmpMsg);
       }
       break;
     
@@ -127,7 +80,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value){
       }
       if (config.log.enable && config.log.filter==LOG_FILTER_VALUES){
         snprintf(tmpMsg, sizeof(tmpMsg), "Status: %s = %s", desc, value);
-        logMessage(tmpMsg);
+        addLogBuffer(tmpMsg);
       }
     break;
 
@@ -140,7 +93,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value){
       }
       if (config.log.enable && config.log.filter==LOG_FILTER_VALUES){
         snprintf(tmpMsg, sizeof(tmpMsg), "Sensor: %s = %s", desc, value);
-        logMessage(tmpMsg);
+        addLogBuffer(tmpMsg);
       }
 
     break;
@@ -158,7 +111,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value){
       }
       if (config.log.enable && config.log.filter==LOG_FILTER_ALARM){
         snprintf(tmpMsg, sizeof(tmpMsg), "%s = %s", desc, value);
-        logMessage(tmpMsg);
+        addLogBuffer(tmpMsg);
       }
     break;
 
@@ -180,7 +133,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value){
       }
       if (config.log.enable && config.log.filter==LOG_FILTER_DEBUG){
         snprintf(tmpMsg, sizeof(tmpMsg), "debug : %s", desc);
-        logMessage(tmpMsg);
+        addLogBuffer(tmpMsg);
       }
     break;
 
@@ -197,7 +150,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value){
       }
       if (config.log.enable && config.log.filter==LOG_FILTER_INFO){
         snprintf(tmpMsg, sizeof(tmpMsg), "Message : %s", desc);
-        logMessage(tmpMsg);
+        addLogBuffer(tmpMsg);
       }     
     break;
 
@@ -219,7 +172,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value){
       }
       if (config.log.enable && config.log.filter==LOG_FILTER_UNKNOWN){
         snprintf(tmpMsg, sizeof(tmpMsg), "undef msg : %s", desc);
-        logMessage(tmpMsg);
+        addLogBuffer(tmpMsg);
       }  
       break;
 

@@ -154,6 +154,8 @@ const char* LOGGER[MAX_LANG] =                   {"Logbuch",                    
 const char* LANG_INFO[MAX_LANG] =                {"⚠️ Ein Wechsel der Sprache ändert auch die mqtt Topics ⚠️",    "⚠️ Changing the language also changes the mqtt topics ⚠️"};
 const char* SAVE[MAX_LANG] =                     {"Speichern",                                                  "save"};
 const char* RESTART[MAX_LANG] =                  {"Neustart",                                                   "restart"};
+const char* CLEAR[MAX_LANG] =                    {"Löschen",                                                    "clear"};
+const char* REFRESH[MAX_LANG] =                  {"Aktualisieren",                                              "refresh"};
 } s_webui_texts; 
 
 

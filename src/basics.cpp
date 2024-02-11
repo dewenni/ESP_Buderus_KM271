@@ -340,3 +340,23 @@ const char* doubleToString(double value){
   snprintf(ret_str, sizeof(ret_str), "%.1lf", value);
   return ret_str;
 }
+
+/**
+ * *******************************************************************
+ * @brief   safe strcat function
+ * @param   dest string destination
+ * @param   src string source
+ * @param   dest_size destination size
+ * @return  none
+ * *******************************************************************/
+char *strcat_safe(char *dest, const char *src, size_t dest_size) {
+    size_t dest_len = strlen(dest);
+    size_t src_len = strlen(src);
+    
+    if (dest_len + src_len >= dest_size) {
+        // not enough space
+        return NULL;
+    }   
+    strcat(dest, src);
+    return dest;
+}

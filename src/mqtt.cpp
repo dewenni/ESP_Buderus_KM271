@@ -21,8 +21,7 @@ bool bootUpMsgDone = false;
  * *******************************************************************/
 const char * addTopic(const char *suffix){
   static char newTopic[256];
-  strcpy(newTopic, config.mqtt.topic);
-  strcat(newTopic, suffix);
+  snprintf(newTopic, sizeof(newTopic), "%s%s", config.mqtt.topic, suffix);
   return newTopic;
 }
 

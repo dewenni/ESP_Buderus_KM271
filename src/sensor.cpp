@@ -23,11 +23,9 @@ muTimer readTimer = muTimer();         // timer to refresh values
  * @return  pointer to result topic string
  * *******************************************************************/
 const char * addSensorTopic(const char *suffix){
-  static char newStatTopic[256];
-  strcpy(newStatTopic, config.mqtt.topic);
-  strcat(newStatTopic, "/sensor/");
-  strcat(newStatTopic, suffix);
-  return newStatTopic;
+  static char sensTopic[256];
+  snprintf(sensTopic, sizeof(sensTopic), "%s/sensor/%s", config.mqtt.topic, suffix);
+  return sensTopic;
 }
 
 /**

@@ -1,17 +1,6 @@
 #pragma once
 
 typedef enum {
-  MSG_TYP_INFO,                                                       
-  MSG_TYP_WARNING,                                                        
-  MSG_TYP_ERROR            
-} e_msgInfoType; 
-
-typedef enum {
-  MSG_SRC_SYSTEM,                                                       
-  MSG_SRC_KM271                                                                  
-} e_msgSrcType; 
-
-typedef enum {
   KM_TYP_STATUS,                                                           // Status value
   KM_TYP_CONFIG,                                                           // Config Value
   KM_TYP_SENSOR,                                                           // Sensor Value
@@ -23,12 +12,18 @@ typedef enum {
   KM_TYP_UNDEF_MSG,                                                        // undefined Message
 } e_kmMsgTyp;
 
-extern char emailStatus[128];
+#define MAX_LOG_LINES 50   // max log lines
+#define MAX_LOG_ENTRY 100  // max length of one entry
+typedef struct {
+    int lastLine;
+    char buffer[MAX_LOG_LINES][MAX_LOG_ENTRY];
+} s_logdata;
 
-void msgHandler(e_msgInfoType type, e_msgSrcType src, const char *message);
+extern s_logdata logData;
+
 void addPushoverMsg(const char *str);
 void messageSetup();
 void messageCyclic();
 void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value);
-char* getLogBuffer();
+void addLogBuffer();
 void clearLogBuffer();
