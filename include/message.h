@@ -12,7 +12,7 @@ typedef enum {
   KM_TYP_UNDEF_MSG,                                                        // undefined Message
 } e_kmMsgTyp;
 
-#define MAX_LOG_LINES 100   // max log lines
+#define MAX_LOG_LINES 50   // max log lines
 #define MAX_LOG_ENTRY 100  // max length of one entry
 typedef struct {
     int lastLine;
