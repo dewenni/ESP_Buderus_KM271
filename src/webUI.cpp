@@ -868,8 +868,10 @@ void addLoggerTab(){
   
   // buttons
   id.log.btnClear = ESPUI.addControl(Button, "", webText.CLEAR[config.lang], Dark, loggerGroup, generalCallback);
+  ESPUI.setElementStyle(id.log.btnClear, "padding:4px");
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, loggerGroup), "background-color: unset; width: 20px"); // spacer
   id.log.btnRefresh = ESPUI.addControl(Button, "", webText.REFRESH[config.lang], Dark, loggerGroup, generalCallback);
+  ESPUI.setElementStyle(id.log.btnRefresh, "padding:4px");
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, loggerGroup), "background-color: unset; width: 20px"); // spacer
 
   // option filter
@@ -883,7 +885,7 @@ void addLoggerTab(){
 
   // enable/disable logger
   id.log.enable = ESPUI.addControl(Switcher, "", "", Dark, loggerGroup, generalCallback);
-  ESPUI.setElementStyle(id.log.enable, "position: fixed;margin-top:6px");
+  ESPUI.setElementStyle(id.log.enable, "position:absolute");
 
   // iframe for log output
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", "<hr style=\"border-color: white;\">", None, loggerGroup), "background-color: unset; width: 100%;");
