@@ -866,6 +866,12 @@ void addLoggerTab(){
   id.tab.log= ESPUI.addControl(Tab, "", webText.LOGGER[config.lang], ControlColor::None, 0, generalCallback);
   auto loggerGroup = addGroupHelper("Logamatic Logger", Dark, id.tab.log);
   
+  // buttons
+  id.log.btnClear = ESPUI.addControl(Button, "", webText.CLEAR[config.lang], Dark, loggerGroup, generalCallback);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, loggerGroup), "background-color: unset; width: 20px"); // spacer
+  id.log.btnRefresh = ESPUI.addControl(Button, "", webText.REFRESH[config.lang], Dark, loggerGroup, generalCallback);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, loggerGroup), "background-color: unset; width: 20px"); // spacer
+
   // option filter
   id.log.optFilter = ESPUI.addControl(Select, "", "", Dark, loggerGroup, generalCallback);
   for (int i = 0; i < sizeof(optsArrayTexts.LOG_FILTER[config.lang])/sizeof(optsArrayTexts.LOG_FILTER[config.lang][0]); i++)
@@ -873,16 +879,11 @@ void addLoggerTab(){
     ESPUI.addControl(Option, optsArrayTexts.LOG_FILTER[config.lang][i], int8ToString(i), None, id.log.optFilter);
   }
   ESPUI.setElementStyle(id.log.optFilter, "width: 250px; color: black");
-  ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, loggerGroup), "background-color: unset; width: 20px"); // spacer
-
-  // buttons
-  id.log.btnClear = ESPUI.addControl(Button, "", webText.CLEAR[config.lang], Dark, loggerGroup, generalCallback);
-  ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, loggerGroup), "background-color: unset; width: 20px"); // spacer
-  id.log.btnRefresh = ESPUI.addControl(Button, "", webText.REFRESH[config.lang], Dark, loggerGroup, generalCallback);
-  
-  // enable/disable logger
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, loggerGroup), "background-color: unset; width: 40px"); // spacer
+
+  // enable/disable logger
   id.log.enable = ESPUI.addControl(Switcher, "", "", Dark, loggerGroup, generalCallback);
+  ESPUI.setElementStyle(id.log.enable, "position: fixed;margin-top:6px");
 
   // iframe for log output
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", "<hr style=\"border-color: white;\">", None, loggerGroup), "background-color: unset; width: 100%;");
