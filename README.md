@@ -47,6 +47,7 @@ But there is also a build in WebUI to view and control your Logamatic without an
   - [Commands](#commands)
 - [Optional Messaging](#optional-messaging)
   - [Pushover](#pushover)
+  - [WebUI-Logger](#webui-logger) 
 - [Optional Components](#optional-components)
   - [node-red](#node-red)
   - [grafana](#grafana)
@@ -470,7 +471,6 @@ API tokens are free and can be registered through [Pushover website](https://pus
 ## WebUI-Logger
 
 There is also a log function with which you can record various messages depending on the filter and display them via the WebUI. This can be useful for your own debugging and also for the further development of the software.
-You can also configure the logging function and the associated filter in the settings.
 
 <img src="./Doc/logger.png" width="75%">
 
