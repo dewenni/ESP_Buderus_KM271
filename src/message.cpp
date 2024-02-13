@@ -214,7 +214,7 @@ void sendPushoverMsg() {
 
   // Create a buffer to serialize the JSON object
   char jsonBuffer[256 + MSG_BUF_SIZE];
-  size_t jsonSize = serializeJson(notification, jsonBuffer, sizeof(jsonBuffer));
+  serializeJson(notification, jsonBuffer, sizeof(jsonBuffer));
 
   http.begin("http://api.pushover.net/1/messages.json");  // using http instead of https, because https needs >40kb of Heap memory!!!
   http.addHeader("Content-Type", "application/json");

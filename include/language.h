@@ -583,9 +583,13 @@ typedef struct {
         {"Alarm", "Alarm + Info"}
     };
     const char* LOG_FILTER[MAX_LANG][5]={
-        {"Alarm", "Alarm + Info", "Logamatic Werte", "unbekannte Telegramme", "debug Telegramme"},
-        {"Alarm", "Alarm + Info", "Logamatic values", "unknown telegrams", "debug telegrams"}
+        {"Filter: Alarm", "Filter: Alarm + Info", "Filter: Logamatic Werte", "Filter: unbekannte Telegramme", "Filter: debug Telegramme"},
+        {"Filter: Alarm", "Filter: Alarm + Info", "Filter: Logamatic values", "Filter: unknown telegrams", "Filter: debug telegrams"}
     };
+    const char* ORDER[MAX_LANG][2]={
+        {"Sortierung: ↓", "Sortierung: ↑"},
+        {"order: ↓", "order: ↑"}
+    };    
 } s_opt_arrays;
 
 // ======================================================================================

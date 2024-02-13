@@ -94,6 +94,7 @@ typedef struct {
 typedef struct {
     bool enable = true;
     int filter;
+    int order;
 } s_cfg_log;
 
 typedef struct {

@@ -340,6 +340,7 @@ typedef struct {
   uint16_t btnClear;
   uint16_t btnRefresh;
   uint16_t optFilter;
+  uint16_t optSorting;
   uint16_t enable;
   uint16_t iframe;
 } s_webui_id_log;

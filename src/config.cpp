@@ -207,6 +207,7 @@ void configSaveToFile() {
 
     doc["logger"]["enable"] = config.log.enable;
     doc["logger"]["filter"] = config.log.filter;
+    doc["logger"]["order"] = config.log.order;
 
     // Delete existing file, otherwise the configuration is appended to the file
     LittleFS.remove(filename);
@@ -321,7 +322,7 @@ void configLoadFromFile() {
 
     config.log.enable = doc["logger"]["enable"];
     config.log.filter = doc["logger"]["filter"];
-
+    config.log.order = doc["logger"]["order"];
   }
   // Close the file (Curiously, File's destructor doesn't close the file)
   file.close();

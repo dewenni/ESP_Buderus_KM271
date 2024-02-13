@@ -880,7 +880,16 @@ void addLoggerTab(){
   {
     ESPUI.addControl(Option, optsArrayTexts.LOG_FILTER[config.lang][i], int8ToString(i), None, id.log.optFilter);
   }
-  ESPUI.setElementStyle(id.log.optFilter, "width: 250px; color: black");
+  ESPUI.setElementStyle(id.log.optFilter, "width: 270px; color: black");
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, loggerGroup), "background-color: unset; width: 20px"); // spacer
+
+  // sorting order
+  id.log.optSorting = ESPUI.addControl(Select, "", "", Dark, loggerGroup, generalCallback);
+  for (int i = 0; i < sizeof(optsArrayTexts.ORDER[config.lang])/sizeof(optsArrayTexts.ORDER[config.lang][0]); i++)
+  {
+    ESPUI.addControl(Option, optsArrayTexts.ORDER[config.lang][i], int8ToString(i), None, id.log.optSorting);
+  }
+  ESPUI.setElementStyle(id.log.optSorting, "width: 120px; color: black");
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, loggerGroup), "background-color: unset; width: 40px"); // spacer
 
   // enable/disable logger
@@ -1643,7 +1652,7 @@ void updateSettingsValues(){
 
   ESPUI.updateSwitcher(id.log.enable, config.log.enable);
   ESPUI.updateSelect(id.log.optFilter, uint64ToString(config.log.filter));
-
+  ESPUI.updateSelect(id.log.optSorting, uint64ToString(config.log.order));
 }
 
 /**
@@ -1725,6 +1734,7 @@ void saveSettings(){
   // Settings: Logger
   config.log.enable = ESPUI.getControl(id.log.enable)->value.toInt();
   config.log.filter = ESPUI.getControl(id.log.optFilter)->value.toInt();
+  config.log.order = ESPUI.getControl(id.log.optSorting)->value.toInt();
 }
 
 /**
@@ -1973,28 +1983,6 @@ void generalCallback(Control *sender, int type) {
     addPushoverMsg("TEST Message");
   }
 
-  // enable/disable log filter on the fly
-  if(sender->id == id.log.enable) {
-    config.log.enable = ESPUI.getControl(id.log.enable)->value.toInt();
-    clearLogBuffer();
-    webUILogRead();
-    configSaveToFile();
-  }
-  // change log filter on the fly
-  if(sender->id == id.log.optFilter) {
-    config.log.filter = ESPUI.getControl(id.log.optFilter)->value.toInt();
-    clearLogBuffer();
-    webUILogRead();
-    configSaveToFile();
-  }
-  // enable/disable log pushover on the fly
-  if(sender->id == id.settings.pushover_enable) {
-    config.pushover.enable = ESPUI.getControl(id.settings.pushover_enable)->value.toInt();
-  }
-  // change pushover filter on the fly
-  if(sender->id == id.settings.pushover_filter) {
-    config.pushover.filter = ESPUI.getControl(id.settings.pushover_filter)->value.toInt();
-  }
   // clear webUI Log
   if(sender->id == id.log.btnClear && type==B_UP) {
     clearLogBuffer();
@@ -2004,6 +1992,37 @@ void generalCallback(Control *sender, int type) {
   if(sender->id == id.log.btnRefresh && type==B_UP) {
     webUILogRead();
   }
+  // change log filter on the fly
+  if(sender->id == id.log.optFilter) {
+    config.log.filter = ESPUI.getControl(id.log.optFilter)->value.toInt();
+    clearLogBuffer();
+    webUILogRead();
+    configSaveToFile();
+  }
+  // change log sorting order on the fly
+  if(sender->id == id.log.optSorting) {
+    config.log.order = ESPUI.getControl(id.log.optSorting)->value.toInt();
+    configSaveToFile();
+    webUILogRead();
+  }
+  // enable/disable log filter on the fly
+  if(sender->id == id.log.enable) {
+    config.log.enable = ESPUI.getControl(id.log.enable)->value.toInt();
+    clearLogBuffer();
+    webUILogRead();
+    configSaveToFile();
+  }
+
+
+  // enable/disable log pushover on the fly
+  if(sender->id == id.settings.pushover_enable) {
+    config.pushover.enable = ESPUI.getControl(id.settings.pushover_enable)->value.toInt();
+  }
+  // change pushover filter on the fly
+  if(sender->id == id.settings.pushover_filter) {
+    config.pushover.filter = ESPUI.getControl(id.settings.pushover_filter)->value.toInt();
+  }
+
 
 } // end generalCallback()
 

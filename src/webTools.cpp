@@ -250,26 +250,54 @@ void webToolsSetup() {
       static int line = 0;
       // read data from buffer to Chunk
       if (line < MAX_LOG_LINES) {
-          int lineIndex = (logData.lastLine - line - 1) % MAX_LOG_LINES;
           int bytesToWrite = 0;
+          int lineIndex;
+          // reverse reading
+          if (config.log.order==1){
+            lineIndex = (logData.lastLine - line - 1) % MAX_LOG_LINES;
+          }
+          else {
+            if (logData.buffer[logData.lastLine][0]=='\0'){
+              // buffer is not full - start reading at element index 0
+              lineIndex = line % MAX_LOG_LINES;
+            }
+            else {
+              // buffer is full - start reading at element index "logData.lastLine"
+              lineIndex = (logData.lastLine + line) % MAX_LOG_LINES;
+            }
+          }
+          // check buffer overflow
           if (lineIndex < 0)
           {
             lineIndex += MAX_LOG_LINES;
           }
+          if (lineIndex >= MAX_LOG_LINES)
+          {
+            lineIndex = 0;
+          }
+          // add header
           if (line == 0){
             bytesToWrite = sprintf((char *)buffer, "<!DOCTYPE html><html class=\"HTML\"><head><style>body{background:#444857;font-family:monospace,monospace;color:#ffffff;line-height:150%%;}</style></head><body>%s<br>", logData.buffer[lineIndex]);
             line++;
             return bytesToWrite;
           }
+          // add footer
           else if (line == MAX_LOG_LINES-1){
             bytesToWrite = sprintf((char*)buffer, "%s</body></html>", logData.buffer[lineIndex]);
             line++;
             return bytesToWrite;
           }
+          // add messages
           else {
-            bytesToWrite = sprintf((char*)buffer, "%s<br>", logData.buffer[lineIndex]);
-            line++;
-            return bytesToWrite;
+            if (logData.buffer[lineIndex][0]!='\0'){
+              bytesToWrite = sprintf((char*)buffer, "%s<br>", logData.buffer[lineIndex]);
+              line++;
+              return bytesToWrite;
+            }
+            else {
+              line = 0;
+              return 0;
+            }
           }       
       }
       line = 0;

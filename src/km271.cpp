@@ -20,9 +20,6 @@ float decodeNegValue(uint8_t data);
 void decodeTimer(char * timerInfo, unsigned int size, uint8_t dateOnOff, uint8_t time);
 bool decodeErrorMsg(char * errorMsg, unsigned int size, uint8_t *data);
 uint8_t getErrorTextIndex(uint8_t errorNr);
-const char * addCfgTopic(const char *suffix);
-const char * addStatTopic(const char *suffix);
-const char * addAlarmTopic(const char *suffix);
 uint8_t limit(uint8_t lower, uint8_t value, uint8_t upper);
 int compareHexValues(const char *filter, uint8_t data[]);
 
