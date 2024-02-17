@@ -11,42 +11,67 @@
  * @param   size_version  sizeof version string
  * @return  http status code
  * *******************************************************************/
-int checkGithubUpdates(const char* owner, const char* repo, char* version, size_t size_version) {
-  const int bufferSize = 128;  // max length for one line of stream
+int checkGithubUpdates(const char* owner, const char* repo, char* version, size_t size_version, char* url, size_t size_url) {
+  const int bufferSize = 256;  // max length for one line of stream
   char buffer[bufferSize];    // buffer for one line of stream
-  char url[256];
-  snprintf(url, sizeof(url), "https://api.github.com/repos/%s/%s/releases/latest", owner, repo);
+  char gitUrl[256];
+  snprintf(gitUrl, sizeof(gitUrl), "https://api.github.com/repos/%s/%s/releases/latest", owner, repo);
   
   HTTPClient http;
-  http.begin(url);
+  http.begin(gitUrl);
   int httpCode = http.GET();
-  
+  bool urlFound = false, nameFound = false;
+
   if (httpCode == HTTP_CODE_OK) {
     WiFiClient* stream = http.getStreamPtr();
     while (stream->available()) {
-      size_t bytesRead = stream->readBytesUntil(',', buffer, bufferSize); // read until first separator
-      // check if buffer is full = reading was limited to buffer size = line too long for buffer
-      if (bytesRead == bufferSize) {
-        while (stream->available() && stream->read() != ',') {} // ignore until next separator
-        continue;
-      }
-      buffer[bytesRead] = '\0'; // add null terminator
-      // check for: "name":"
-      if (strstr(buffer, "\"name\":\"") != nullptr) {
-        char* versionStart = strstr(buffer, "\"name\":\"") + 8;   // pointer to beginning of version
-        char* versionEnd = strchr(versionStart, '"');             // pointer to end of version
-        if (versionStart != nullptr && versionEnd != nullptr) {
-          size_t versionLength = versionEnd - versionStart;
-          if (versionLength < size_version){
-            strlcpy(version, versionStart, versionLength + 1); // Copy including null terminator
-          }
-          else {
-            // Handle buffer overflow error
-            version[0] = '\0'; // Null terminate the version string
-            http.end();
-            return -2; // Indicate buffer overflow error
+      size_t bytesRead = stream->readBytesUntil(',', buffer, bufferSize-1); // read until first separator or max buffer size
+      buffer[bytesRead] = '\0';
+
+      // check for: "html_url":"
+      if (!urlFound){
+        if (strstr(buffer, "\"html_url\":\"") != NULL) {
+          urlFound = true;
+          char *urlStart = strstr(buffer, "https://");
+          char* urlEnd = strchr(urlStart, '"');             // pointer to end of url
+          if (urlStart != NULL && urlEnd != NULL) {
+            size_t urlLength = urlEnd - urlStart;
+            if (urlLength < size_url){
+              memcpy(url, urlStart, urlLength);
+              url[urlLength] = '\0';
+            }
+            else {
+              // Handle buffer overflow error
+              url[0] = '\0'; // Null terminate the url string
+              http.end();
+              return -2; // Indicate buffer overflow error
+            }
           }
         }
+      }
+      // check for: "name":"
+      else if (!nameFound) {
+        if (strstr(buffer, "\"name\":\"") != NULL) {
+          nameFound = true;
+          char *versionStart = strstr(buffer, "\"name\":\"") + 8;   // pointer to beginning of version
+          char* versionEnd = strchr(versionStart, '"');             // pointer to end of version
+          if (versionStart != NULL && versionEnd != NULL) {
+            size_t versionLength = versionEnd - versionStart;
+            if (versionLength < size_version){
+              memcpy(version, versionStart, versionLength);
+              version[versionLength] = '\0';
+            }
+            else {
+              // Handle buffer overflow error
+              version[0] = '\0'; // Null terminate the version string
+              http.end();
+              return -2; // Indicate buffer overflow error
+            }
+          }
+        }
+      }
+      // we have found what we're looking for
+      if (nameFound && urlFound) {
         break;
       }
     } // end while
