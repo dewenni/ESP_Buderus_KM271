@@ -14,7 +14,8 @@ DallasTemperature sensor2(&oneWire2);
 
 #define REFRESH_TIME 10000 
 muTimer readTimer = muTimer();         // timer to refresh values
-
+float sens1_old = 0.0;
+float sens2_old = 0.0;
 
 /**
  * *******************************************************************
@@ -51,18 +52,25 @@ void setupSensor(void) {
  * *******************************************************************/
 void cyclicSensor(void)
 {
+    // check temperatures at intervals
     if (readTimer.cycleTrigger(REFRESH_TIME)){
         
         if (config.sensor.ch1_enable){
             sensor1.requestTemperatures();
             sensor.ch1_temp = sensor1.getTempCByIndex(0);
-            km271Msg(KM_TYP_SENSOR, config.sensor.ch1_name, floatToString(sensor.ch1_temp));
+            if (sensor.ch1_temp!=sens1_old){
+                sens1_old = sensor.ch1_temp;
+                km271Msg(KM_TYP_SENSOR, config.sensor.ch1_name, floatToString(sensor.ch1_temp));
+            }
         }
         
         if (config.sensor.ch2_enable){
             sensor2.requestTemperatures();
             sensor.ch2_temp = sensor2.getTempCByIndex(0);
-            km271Msg(KM_TYP_SENSOR, config.sensor.ch2_name, floatToString(sensor.ch2_temp));
+            if (sensor.ch2_temp!=sens2_old){
+                sens2_old = sensor.ch2_temp;
+                km271Msg(KM_TYP_SENSOR, config.sensor.ch2_name, floatToString(sensor.ch2_temp));
+            }
         }
     }
 
