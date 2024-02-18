@@ -165,6 +165,7 @@ const char* REFRESH[MAX_LANG] =                  {"Aktualisieren",              
 typedef struct {
 const char* RESTART[MAX_LANG] =                     {"/cmd/restart",                        "/cmd/restart"};
 const char* SERVICE[MAX_LANG] =                     {"/cmd/service",                        "/cmd/service"};
+const char* SIMDATA[MAX_LANG] =                     {"/cmd/simdata",                        "/cmd/simdata"};
 const char* DEBUG[MAX_LANG] =                       {"/cmd/debug",                          "/cmd/debug"};
 const char* SET_DEBUG_FLT[MAX_LANG] =               {"/cmd/setdebugflt",                    "/cmd/setdebugflt"};
 const char* GET_DEBUG_FLT[MAX_LANG] =               {"/cmd/getdebugflt",                    "/cmd/getdebugflt"};

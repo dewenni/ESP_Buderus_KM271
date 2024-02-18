@@ -8,6 +8,7 @@
 #include <webTools.h>
 #include <sensor.h>
 #include <message.h>
+#include <simulation.h>
 
 // Double-Reset-Detector
 #define ESP_DRD_USE_LITTLEFS          true
@@ -140,7 +141,7 @@ void loop()
   }
 
   // cyclic call for KM271
-  if (!setupMode) {
+  if (!setupMode && !SIM_MODE) {
     cyclicKM271();
   }
 
@@ -190,6 +191,9 @@ void loop()
   // Message Service
   messageCyclic();
 
+  // get simulation telegrams of KM271
+  simDataCyclic();
+  
   main_reboot = false; // reset reboot flag
 }
 

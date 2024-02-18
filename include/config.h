@@ -4,7 +4,7 @@
 General Configuration
 --------------------------------------------------------------------------------*/
 #define VERSION             "v3.4.0rc"   // internal program version
-#define DEBUG_ON                         // enable debug messages
+#define SIM_MODE true
 
 #define WIFI_RECONNECT      10000        // Delay between wifi reconnection tries
 #define MQTT_RECONNECT      10000        // Delay between mqtt reconnection tries

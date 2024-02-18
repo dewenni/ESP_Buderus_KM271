@@ -315,4 +315,4 @@ void km271sendServiceCmd(uint8_t cmdPara[8]);
 bool km271GetLogMode();
 void km271SetDateTimeNTP();
 void km271SetDateTimeDTI(tm dti);
-
+void parseInfo(uint8_t *data, int len);

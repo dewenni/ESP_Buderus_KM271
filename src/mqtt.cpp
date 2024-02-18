@@ -4,6 +4,7 @@
 #include <WiFi.h>
 #include <oilmeter.h>
 #include <message.h>
+#include <simulation.h>
 
 /* D E C L A R A T I O N S ****************************************************/  
 WiFiClient espClient;
@@ -81,6 +82,15 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
     km271Msg(KM_TYP_MESSAGE, "restart requested!", "");
     delay(1000);
     ESP.restart();
+  }
+  // send sim data
+  else if (strcmp (topic, addTopic(mqttCmd.SIMDATA[config.lang])) == 0){
+    #ifdef SIM_MODE
+      km271Msg(KM_TYP_MESSAGE, "start sending sim data", "");
+      startSimData();
+    #else
+      km271Msg(KM_TYP_MESSAGE, "SIM_MODE not active", "");
+    #endif
   }
   // Service command
   else if (strcmp (topic, addTopic(mqttCmd.SERVICE[config.lang])) == 0){

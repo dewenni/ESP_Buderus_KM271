@@ -952,10 +952,18 @@ void webUISetup(){
 
     // start Webserver
     if (config.auth.enable){
-      ESPUI.begin("Buderus Logamatic", config.auth.user, config.auth.password);
+      #ifdef SIM_MODE
+        ESPUI.begin("Buderus Logamatic - SIM_MODE", config.auth.user, config.auth.password);
+      #else
+        ESPUI.begin("Buderus Logamatic", config.auth.user, config.auth.password);
+      #endif
     }
     else {
-      ESPUI.begin("Buderus Logamatic");
+      #ifdef SIM_MODE
+        ESPUI.begin("Buderus Logamatic - SIM_MODE");
+      #else
+        ESPUI.begin("Buderus Logamatic");
+      #endif
     }
 
     webUILogRead(); // initial read log
