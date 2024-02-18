@@ -13,7 +13,7 @@ typedef enum {
 } e_kmMsgTyp;
 
 #define MAX_LOG_LINES 50   // max log lines
-#define MAX_LOG_ENTRY 100  // max length of one entry
+#define MAX_LOG_ENTRY 128  // max length of one entry
 typedef struct {
     int lastLine;
     char buffer[MAX_LOG_LINES][MAX_LOG_ENTRY];

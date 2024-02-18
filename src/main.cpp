@@ -9,6 +9,7 @@
 #include <sensor.h>
 #include <message.h>
 #include <simulation.h>
+#include <telnet.h>
 
 // Double-Reset-Detector
 #define ESP_DRD_USE_LITTLEFS          true
@@ -100,6 +101,8 @@ void setup()
   // Message Service Setup
   messageSetup();
 
+  // telnet Setup
+  setupTelnet();
 } 
 
 /**
@@ -194,6 +197,9 @@ void loop()
   // get simulation telegrams of KM271
   simDataCyclic();
   
+  // telnet communication
+  cyclicTelnet();
+
   main_reboot = false; // reset reboot flag
 }
 
