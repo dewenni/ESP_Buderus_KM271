@@ -5,6 +5,7 @@
 #include <oilmeter.h>
 #include <sensor.h>
 #include <message.h>
+#include <simulation.h>
 
 /* P R O T O T Y P E S ********************************************************/ 
 void updateDashboard();
@@ -867,6 +868,11 @@ void addLoggerTab(){
   auto loggerGroup = addGroupHelper("Logamatic Logger", Dark, id.tab.log);
   
   // buttons
+  #if SIM_MODE
+  id.log.btnSimdata = ESPUI.addControl(Button, "", "SIM-DATA", Dark, loggerGroup, generalCallback);
+  ESPUI.setElementStyle(id.log.btnSimdata, "padding:4px");
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, loggerGroup), "background-color: unset; width: 20px"); // spacer
+  #endif
   id.log.btnClear = ESPUI.addControl(Button, "", webText.CLEAR[config.lang], Dark, loggerGroup, generalCallback);
   ESPUI.setElementStyle(id.log.btnClear, "padding:4px");
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, loggerGroup), "background-color: unset; width: 20px"); // spacer
@@ -1740,9 +1746,13 @@ void saveSettings(){
   config.pushover.filter = ESPUI.getControl(id.settings.pushover_filter)->value.toInt();
 
   // Settings: Logger
-  config.log.enable = ESPUI.getControl(id.log.enable)->value.toInt();
-  config.log.filter = ESPUI.getControl(id.log.optFilter)->value.toInt();
-  config.log.order = ESPUI.getControl(id.log.optSorting)->value.toInt();
+  if (!setupMode){
+    // in SetupMode the logger tab is not active and therfore also the settings are not valid
+    config.log.enable = ESPUI.getControl(id.log.enable)->value.toInt();
+    config.log.filter = ESPUI.getControl(id.log.optFilter)->value.toInt();
+    config.log.order = ESPUI.getControl(id.log.optSorting)->value.toInt();
+  }
+
 }
 
 /**
@@ -1991,6 +2001,10 @@ void generalCallback(Control *sender, int type) {
     addPushoverMsg("TEST Message");
   }
 
+  // get SIM-DATA
+  if(sender->id == id.log.btnSimdata && type==B_UP) {
+    startSimData();
+  }
   // clear webUI Log
   if(sender->id == id.log.btnClear && type==B_UP) {
     clearLogBuffer();

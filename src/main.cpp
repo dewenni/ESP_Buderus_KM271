@@ -182,9 +182,6 @@ void loop()
     }
   }
 
-  // webToolsCyclic
-  webToolsCyclic();
-
   // Sensor Cyclic
   cyclicSensor();
 
@@ -193,7 +190,7 @@ void loop()
 
   // get simulation telegrams of KM271
   simDataCyclic();
-  
+
   main_reboot = false; // reset reboot flag
 }
 

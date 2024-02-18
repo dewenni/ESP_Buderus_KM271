@@ -2,7 +2,6 @@
 
 /* P R O T O T Y P E S ********************************************************/ 
 void webToolsSetup();
-void webToolsCyclic();
 
 /* H T M L - S O U R C E C O D E **********************************************/  
 const char ota_html[] PROGMEM = R"rawliteral(

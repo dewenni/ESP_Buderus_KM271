@@ -101,59 +101,6 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String& filename, size
 
 /**
  * *******************************************************************
- * @brief   function to upload files
- * @param   request, filename, index, data, len, final
- * @return  none
- * *******************************************************************/
-void handleDoUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
-  if (!index)
-  {
-    content_len = request->contentLength();
-    Serial.printf("UploadStart: %s\n", filename.c_str());
-  }
-
-  if (opened == false) {
-    opened = true;
-    file = LittleFS.open(String("/") + filename, FILE_WRITE);
-    if (!file)
-    {
-      Serial.println("- failed to open file for writing");
-      return;
-    }
-  }
-
-  if (file.write(data, len) != len) {
-    Serial.println("- failed to write");
-    return;
-  }
-
-  if (final) {
-    AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Upload complete");
-    response->addHeader("Refresh", "20");
-    response->addHeader("Location", "/filesystem");
-    request->send(response);
-    file.close();
-    opened = false;
-    Serial.println("---------------");
-    Serial.println("Upload complete");
-  }
-}
-
-/**
- * *******************************************************************
- * @brief   calculate the progress of OTA-Update
- * @param   prg, sz
- * @return  none
- * *******************************************************************/
-void printProgress(size_t prg, size_t sz) {
-  Serial.printf("Progress: %d%%\n", (prg * 100) / content_len);
-  otaProgress = (prg * 100) / content_len; // OTA-Fortschritt für Webserver
-  Serial.printf("Progress: %d%%\n", otaProgress);
-}
-
-
-/**
- * *******************************************************************
  * @brief   Generate List of files and expand Table on Webserver
  * @param   none
  * @return  none
@@ -192,6 +139,62 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
 
 /**
  * *******************************************************************
+ * @brief   function to upload files
+ * @param   request, filename, index, data, len, final
+ * @return  none
+ * *******************************************************************/
+void handleDoUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
+  if (!index)
+  {
+    content_len = request->contentLength();
+    Serial.printf("UploadStart: %s\n", filename.c_str());
+  }
+
+  if (opened == false) {
+    opened = true;
+    file = LittleFS.open(String("/") + filename, FILE_WRITE);
+    if (!file)
+    {
+      Serial.println("- failed to open file for writing");
+      return;
+    }
+  }
+
+  if (file.write(data, len) != len) {
+    Serial.println("- failed to write");
+    return;
+  }
+
+  if (final) {
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Upload complete");
+    response->addHeader("Refresh", "20");
+    response->addHeader("Location", "/filesystem");
+    request->send(response);
+    file.close();
+    opened = false;
+    Serial.println("---------------");
+    Serial.println("Upload complete");
+    listDir(LittleFS, "/", 0);
+  }
+}
+
+/**
+ * *******************************************************************
+ * @brief   calculate the progress of OTA-Update
+ * @param   prg, sz
+ * @return  none
+ * *******************************************************************/
+void printProgress(size_t prg, size_t sz) {
+  Serial.printf("Progress: %d%%\n", (prg * 100) / content_len);
+  otaProgress = (prg * 100) / content_len; // OTA-Fortschritt für Webserver
+  Serial.printf("Progress: %d%%\n", otaProgress);
+}
+
+
+
+
+/**
+ * *******************************************************************
  * @brief   delete file on filesystem
  * @param   none
  * @return  none
@@ -202,6 +205,7 @@ void deleteFile(fs::FS &fs, const String& path) {
   } else {
     Serial.println("- delete failed");
   }
+  listDir(LittleFS, "/", 0);
 }
 
 /**
@@ -295,8 +299,9 @@ void webToolsSetup() {
               return bytesToWrite;
             }
             else {
-              line = 0;
-              return 0;
+              bytesToWrite = sprintf((char*)buffer, "</body></html>");
+              line = MAX_LOG_LINES;
+              return bytesToWrite;
             }
           }       
       }
@@ -352,18 +357,4 @@ void webToolsSetup() {
   server->addHandler(&ws);
   server->onNotFound(notFound);
   Update.onProgress(printProgress);
-}
-
-/**
- * *******************************************************************
- * @brief   Cyclic operations for Webserver
- * @param   none
- * @return  none
- * *******************************************************************/
-void webToolsCyclic() {
-
-  if (webTimer.cycleTrigger(3000)){
-    listDir(LittleFS, "/", 0);
-  }
-
 }
