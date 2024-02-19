@@ -1,7 +1,5 @@
 #include <version.h>
 
-
-
 /**
  * *******************************************************************
  * @brief   function that checks for new releases on github

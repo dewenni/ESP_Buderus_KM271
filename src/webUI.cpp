@@ -5,6 +5,7 @@
 #include <oilmeter.h>
 #include <sensor.h>
 #include <message.h>
+#include <simulation.h>
 
 /* P R O T O T Y P E S ********************************************************/ 
 void updateDashboard();
@@ -31,7 +32,10 @@ s_km271_config_str  kmConfigStrCpy;
 s_km271_config_num  kmConfigNumCpy;
 s_km271_alarm_str   kmAlarmMsgCpy;
 
-muTimer valeCompareTimer = muTimer();     // timer to refresh id.tab.config
+muTimer checkStatusTimer = muTimer();     // timer to refresh status values
+muTimer checkConfigTimer = muTimer();     // timer to refresh config values
+muTimer refreshTimer = muTimer();         // timer to refresh other values
+
 s_config configSave;
 s_logdata logData = {0, {'\0'}};
 
@@ -867,6 +871,11 @@ void addLoggerTab(){
   auto loggerGroup = addGroupHelper("Logamatic Logger", Dark, id.tab.log);
   
   // buttons
+  #if SIM_MODE
+  id.log.btnSimdata = ESPUI.addControl(Button, "", "SIM-DATA", Dark, loggerGroup, generalCallback);
+  ESPUI.setElementStyle(id.log.btnSimdata, "padding:4px");
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, loggerGroup), "background-color: unset; width: 20px"); // spacer
+  #endif
   id.log.btnClear = ESPUI.addControl(Button, "", webText.CLEAR[config.lang], Dark, loggerGroup, generalCallback);
   ESPUI.setElementStyle(id.log.btnClear, "padding:4px");
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, loggerGroup), "background-color: unset; width: 20px"); // spacer
@@ -986,21 +995,24 @@ void webUISetup(){
  * *******************************************************************/
 void webUICylic(){
 
-  if (valeCompareTimer.cycleTrigger(3000) && !setupMode){
-
+  if (checkStatusTimer.cycleTrigger(2000) && !setupMode){
     // chek if config values changed
     if(memcmp(&kmStatusCpy, km271GetStatusValueAdr() ,sizeof(s_km271_status))) {
       km271GetStatusValueCopy(&kmStatusCpy);
       updateStatusValues();
     }
+  }
 
+  if (checkConfigTimer.cycleTrigger(3000) && !setupMode){
     // chek if config values changed
     if(memcmp(&kmConfigStrCpy, km271GetConfigStringsAdr(), sizeof(s_km271_config_str))) {
       km271GetConfigStringsCopy(&kmConfigStrCpy);
       km271GetConfigNumValueCopy(&kmConfigNumCpy);
       updateConfigValues();
     }
+  }
 
+  if (refreshTimer.cycleTrigger(3500) && !setupMode){
     // chek if alarm messages changed
     if(memcmp(&kmAlarmMsgCpy, km271GetAlarmMsgAdr(), sizeof(s_km271_alarm_str))) {
       km271GetAlarmMsgCopy(&kmAlarmMsgCpy);
@@ -1021,8 +1033,7 @@ void webUICylic(){
         updateOilmeter();
       } 
     }
-
-  } // end if valeCompareTimer.cycleTrigger(3000) &&!setupMode
+  }
 
 }
 
@@ -1740,9 +1751,13 @@ void saveSettings(){
   config.pushover.filter = ESPUI.getControl(id.settings.pushover_filter)->value.toInt();
 
   // Settings: Logger
-  config.log.enable = ESPUI.getControl(id.log.enable)->value.toInt();
-  config.log.filter = ESPUI.getControl(id.log.optFilter)->value.toInt();
-  config.log.order = ESPUI.getControl(id.log.optSorting)->value.toInt();
+  if (!setupMode){
+    // in SetupMode the logger tab is not active and therfore also the settings are not valid
+    config.log.enable = ESPUI.getControl(id.log.enable)->value.toInt();
+    config.log.filter = ESPUI.getControl(id.log.optFilter)->value.toInt();
+    config.log.order = ESPUI.getControl(id.log.optSorting)->value.toInt();
+  }
+
 }
 
 /**
@@ -1991,6 +2006,10 @@ void generalCallback(Control *sender, int type) {
     addPushoverMsg("TEST Message");
   }
 
+  // get SIM-DATA
+  if(sender->id == id.log.btnSimdata && type==B_UP) {
+    startSimData();
+  }
   // clear webUI Log
   if(sender->id == id.log.btnClear && type==B_UP) {
     clearLogBuffer();

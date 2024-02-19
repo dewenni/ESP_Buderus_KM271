@@ -2,7 +2,6 @@
 
 /* P R O T O T Y P E S ********************************************************/ 
 void webToolsSetup();
-void webToolsCyclic();
 
 /* H T M L - S O U R C E C O D E **********************************************/  
 const char ota_html[] PROGMEM = R"rawliteral(
@@ -42,18 +41,20 @@ const char ota_html[] PROGMEM = R"rawliteral(
     <br><div id='ota-progress-bar' style='display:none'><div id='ota-progress'></div></div>
 </form>
 <script>
+    var updateRunning = false;
     function updateOTABar() {
-        $.ajax({
-            url: '/getOTAProgress', // Endpoint zum Abrufen des OTA-Fortschritts vom ESP32
-            method: 'GET',
-            dataType: 'json',
-            success: function (data) {
-                const otaProgress = data.progress;
-                $('#ota-progress').css('width', otaProgress + '%');
-            }
-        });
+        if (updateRunning) {
+            $.ajax({
+                url: '/getOTAProgress',
+                method: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    const otaProgress = data.progress;
+                    $('#ota-progress').css('width', otaProgress + '%');
+                }
+            });
+        }
     }
-    setInterval(updateOTABar, 1000);
     function sub(obj) {
         var a = obj.value;
         console.log(a);
@@ -92,11 +93,14 @@ const char ota_html[] PROGMEM = R"rawliteral(
                 console.log('success!');
                 alert("OTA-Update successful - ESP will restart!");
                 setTimeout("location.href = '../ota';", 2000);
+                updateRunning = false;
             },
             error: function (a, b, c) {
             }
         });
+        updateRunning = true;
     });
+    setInterval(updateOTABar, 1000);
 </script></body></html>)rawliteral";
 
 const char FS_html[] PROGMEM = R"rawliteral(

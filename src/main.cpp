@@ -185,9 +185,6 @@ void loop()
     }
   }
 
-  // webToolsCyclic
-  webToolsCyclic();
-
   // Sensor Cyclic
   cyclicSensor();
 

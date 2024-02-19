@@ -337,6 +337,7 @@ typedef struct {
 } s_webui_id_tables;
 
 typedef struct {
+  uint16_t btnSimdata;
   uint16_t btnClear;
   uint16_t btnRefresh;
   uint16_t optFilter;

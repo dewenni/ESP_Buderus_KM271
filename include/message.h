@@ -1,5 +1,6 @@
 #pragma once
 
+/* D E C L A R A T I O N S ****************************************************/  
 typedef enum {
   KM_TYP_STATUS,                                                           // Status value
   KM_TYP_CONFIG,                                                           // Config Value
@@ -21,6 +22,7 @@ typedef struct {
 
 extern s_logdata logData;
 
+/* P R O T O T Y P E S ********************************************************/ 
 void addPushoverMsg(const char *str);
 void messageSetup();
 void messageCyclic();
