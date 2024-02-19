@@ -32,7 +32,10 @@ s_km271_config_str  kmConfigStrCpy;
 s_km271_config_num  kmConfigNumCpy;
 s_km271_alarm_str   kmAlarmMsgCpy;
 
-muTimer valeCompareTimer = muTimer();     // timer to refresh id.tab.config
+muTimer checkStatusTimer = muTimer();     // timer to refresh status values
+muTimer checkConfigTimer = muTimer();     // timer to refresh config values
+muTimer refreshTimer = muTimer();         // timer to refresh other values
+
 s_config configSave;
 s_logdata logData = {0, {'\0'}};
 
@@ -992,21 +995,24 @@ void webUISetup(){
  * *******************************************************************/
 void webUICylic(){
 
-  if (valeCompareTimer.cycleTrigger(3000) && !setupMode){
-
+  if (checkStatusTimer.cycleTrigger(2000) && !setupMode){
     // chek if config values changed
     if(memcmp(&kmStatusCpy, km271GetStatusValueAdr() ,sizeof(s_km271_status))) {
       km271GetStatusValueCopy(&kmStatusCpy);
       updateStatusValues();
     }
+  }
 
+  if (checkConfigTimer.cycleTrigger(3000) && !setupMode){
     // chek if config values changed
     if(memcmp(&kmConfigStrCpy, km271GetConfigStringsAdr(), sizeof(s_km271_config_str))) {
       km271GetConfigStringsCopy(&kmConfigStrCpy);
       km271GetConfigNumValueCopy(&kmConfigNumCpy);
       updateConfigValues();
     }
+  }
 
+  if (refreshTimer.cycleTrigger(3500) && !setupMode){
     // chek if alarm messages changed
     if(memcmp(&kmAlarmMsgCpy, km271GetAlarmMsgAdr(), sizeof(s_km271_alarm_str))) {
       km271GetAlarmMsgCopy(&kmAlarmMsgCpy);
@@ -1027,8 +1033,7 @@ void webUICylic(){
         updateOilmeter();
       } 
     }
-
-  } // end if valeCompareTimer.cycleTrigger(3000) &&!setupMode
+  }
 
 }
 
