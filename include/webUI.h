@@ -364,3 +364,4 @@ typedef struct {
 // ======================================================
 void webUISetup();
 void webUICylic();
+void updateSettingsValues();

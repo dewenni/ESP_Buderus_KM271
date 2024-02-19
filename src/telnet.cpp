@@ -2,6 +2,8 @@
 #include <message.h>
 #include <config.h>
 #include <simulation.h>
+#include <language.h>
+#include <webUI.h>
 
 ESPTelnet telnet;
 
@@ -14,15 +16,17 @@ disconnect     disconnect from telnet server
 simdata        generate simulation data 
 log read       read all entries of the log buffer
 log clear      clear the log buffer
+log mode       get actual log mode
+log mode 1..5  set log mode 1:Alarm, 2:Alarm+Info, 3:Logamatic values, 4:unknown telegrams, 5:debug telegrams
 )rawliteral";
 
 const char *shell = "$ >";
 void readLogger();
-
+s_opt_arrays webOptArrays;
 
 void onTelnetConnect(String ip)
 {
-  Serial.print("- Telnet: ");
+  Serial.print("Telnet: ");
   Serial.print(ip);
   Serial.println(" connected");
   
@@ -83,26 +87,108 @@ void onTelnetInput(String str) {
     }
 
   // check for valid commands
-  if (strcmp(param[0], "help")) {
+  
+  // help: a list of commands
+  if (!strcmp(param[0], "help") && strlen(param[1])==0) {
       telnet.println(HELP);
       telnet.print(shell);
-  } else if (strcmp(param[0], "restart")) {
+  // restart: restart the ESP
+  } else if (!strcmp(param[0], "restart") && strlen(param[1])==0) {
       telnet.println("ESP will restart - you have to reconnect");
       ESP.restart();
-  } else if (strcmp(param[0], "disconnect")){
+  // disconnect: disconnect from telnet server
+  } else if (!strcmp(param[0], "disconnect") && strlen(param[1])==0){
       telnet.println("disconnect");
       telnet.disconnectClient();
-  } else if (strcmp(param[0], "simdata")) {
-    startSimData();
+  // simdata: generate simulation data 
+  } else if (!strcmp(param[0], "simdata") && strlen(param[1])==0) {
+      startSimData();
+      telnet.println("simdata started");
+      telnet.print(shell);
+  // log: get enabled/disabled status
+  } else if (!strcmp(param[0], "log") && strlen(param[1])==0) {
+      if (config.log.enable)
+        telnet.println("enabled");
+      else
+        telnet.println("disabled");
+      telnet.print(shell);
+  // log: disable
+  } else if (!strcmp(param[0], "log") && !strcmp(param[1], "0") && strlen(param[2])==0) {
+      config.log.enable = false;
+      clearLogBuffer();
+      configSaveToFile();
+      updateSettingsValues();
+      telnet.println("disabled");
+      telnet.print(shell);
+  // log enable
+  } else if (!strcmp(param[0], "log") && !strcmp(param[1], "1") && strlen(param[2])==0) {
+      config.log.enable = true;
+      clearLogBuffer();
+      configSaveToFile();
+      updateSettingsValues();
+      telnet.println("enabled");
+      telnet.print(shell);
+  // log: read buffer
+  } else if (!strcmp(param[0], "log") && !strcmp(param[1], "read") && strlen(param[2])==0) {
+      readLogger();
+      telnet.print(shell);
+  // log clear buffer
+  } else if (!strcmp(param[0], "log") && !strcmp(param[1], "clear") && strlen(param[2])==0) {
+      clearLogBuffer();
+      telnet.print(shell);
+  // log mode read
+  } else if (!strcmp(param[0], "log") && !strcmp(param[1], "mode") && strlen(param[2])==0) {
+      telnet.println(webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
+      telnet.print(shell);
+  // log mode set
+  } else if (!strcmp(param[0], "log") && !strcmp(param[1], "mode") && strlen(param[2])>0) {
+    int mode = atoi(param[2]);
+    if (mode > 0 && mode < 6)
+    {
+      config.log.filter = mode - 1;
+      clearLogBuffer();
+      configSaveToFile();
+      updateSettingsValues();
+      telnet.println(webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
+    }
+    else {
+      telnet.println("invalid mode - mode must be between 1 and 5");
+    }
     telnet.print(shell);
-  } else if (strcmp(param[0], "log") && strcmp(param[1], "read")) {
-    readLogger();
-    telnet.print(shell);
-  } else if (strcmp(param[0], "log") && strcmp(param[1], "clear")) {
-    clearLogBuffer();
-    telnet.print(shell);
+  // debug: get enabled/disabled status
+  } else if (!strcmp(param[0], "debug") && strlen(param[1])==0 && strlen(param[2])==0) {
+      if (config.debug.enable)
+        telnet.println("enabled");
+      else
+        telnet.println("disabled");
+      telnet.print(shell);
+  // debug: disable
+  } else if (!strcmp(param[0], "debug") && !strcmp(param[1], "0") && strlen(param[2])==0) {
+        config.debug.enable = false;
+        clearLogBuffer();
+        configSaveToFile();
+        updateSettingsValues();
+        telnet.println("disabled");
+        telnet.print(shell);
+  // debug: enable
+  } else if (!strcmp(param[0], "debug") && !strcmp(param[1], "1") && strlen(param[2])==0) {
+        config.debug.enable = true;
+        clearLogBuffer();
+        configSaveToFile();
+        updateSettingsValues();
+        telnet.println("enabled");
+        telnet.print(shell);
+  // debug: get filter
+    } else if (!strcmp(param[0], "debug") && !strcmp(param[1], "filter") && strlen(param[2])==0) {
+      telnet.println(config.debug.filter);
+      telnet.print(shell);
+  // empty command
+  } else if (strlen(param[0])==0){
+      telnet.printf("\n%s", shell);
+  // unknown command
   } else {
-    telnet.print(shell);
+      telnet.println("unknown command");
+      telnet.print(shell);
   }
   
 }
@@ -134,23 +220,15 @@ void readLogger(){
   while (line < MAX_LOG_LINES)
   {
     int lineIndex;
-    // reverse reading
-    if (config.log.order == 1)
+    if (logData.buffer[logData.lastLine][0] == '\0')
     {
-      lineIndex = (logData.lastLine - line - 1) % MAX_LOG_LINES;
+      // buffer is not full - start reading at element index 0
+      lineIndex = line % MAX_LOG_LINES;
     }
     else
     {
-      if (logData.buffer[logData.lastLine][0] == '\0')
-      {
-        // buffer is not full - start reading at element index 0
-        lineIndex = line % MAX_LOG_LINES;
-      }
-      else
-      {
-        // buffer is full - start reading at element index "logData.lastLine"
-        lineIndex = (logData.lastLine + line) % MAX_LOG_LINES;
-      }
+      // buffer is full - start reading at element index "logData.lastLine"
+      lineIndex = (logData.lastLine + line) % MAX_LOG_LINES;
     }
     // check buffer overflow
     if (lineIndex < 0)
@@ -183,6 +261,7 @@ void readLogger(){
       }
       else
       {
+        telnet.printf("<LOG-END>\n");
         break;
       }
     }
