@@ -713,6 +713,21 @@ void addSystemTab(){
   ESPUI.setElementStyle(ESPUI.addControl(Label, "", " ", None, dateTimeGroup), "background-color: unset; width: 5%"); // spacer
   id.sys.dti_button = ESPUI.addControl(Button, "", webText.BUTTON_DTI[config.lang], Dark, dateTimeGroup, generalCallback); // control: button
   ESPUI.setElementStyle(id.sys.dti_button, "width: 30%");
+
+
+  ESPUI.addControl(ControlType::Separator, "", "", ControlColor::None, id.tab.system);
+
+  // System Info
+  auto sysGroup = addGroupHelper(webText.SYSTEM[config.lang], Dark, id.tab.system);
+
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.LIFETIME[config.lang], None, sysGroup), "background-color: unset; width: 35%; text-align: left;");
+	id.sys.uptime = ESPUI.addControl(Label, "", "", None, sysGroup);
+  ESPUI.setElementStyle(id.sys.uptime, "width: 65%; text-align: center;");
+
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", webText.RESTART_REASON[config.lang], None, sysGroup), "background-color: unset; width: 35%; text-align: left;");
+	id.sys.restartReason = ESPUI.addControl(Label, "", "", None, sysGroup);
+  ESPUI.setElementStyle(id.sys.restartReason, "width: 65%; text-align: center;");
+
 }
 
 
@@ -1557,6 +1572,15 @@ void updateSystemInfo(){
     ESPUI.updateLabel(id.sys.date, getDateString());
     ESPUI.updateLabel(id.sys.time, getTimeString());
   }
+
+  // Uptime and restart reason
+  char uptimeStr[64];
+  getUptime(uptimeStr, sizeof(uptimeStr));
+  ESPUI.updateLabel(id.sys.uptime, uptimeStr);
+  char restartReason[64];
+  getRestartReason(restartReason, sizeof(restartReason));
+  ESPUI.updateLabel(id.sys.restartReason, restartReason);
+
 }
 
 /**

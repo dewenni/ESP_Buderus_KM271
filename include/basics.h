@@ -14,7 +14,7 @@
 #include <ArduinoJson.h>
 #include <ESPmDNS.h>
 #include <muTimer.h>
-
+#include "esp_system.h"
 
 /* D E C L A R A T I O N S ****************************************************/  
 typedef struct {                                        
@@ -41,3 +41,5 @@ const char* floatToString(float value);
 const char* floatToString4(float value);
 const char* doubleToString(double value);
 char *strcat_safe(char *dest, const char *src, size_t dest_size);
+void getRestartReason(char *reason, size_t reason_size);
+void getUptime(char *buffer, size_t bufferSize);

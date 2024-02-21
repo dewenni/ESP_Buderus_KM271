@@ -156,6 +156,8 @@ const char* SAVE[MAX_LANG] =                     {"Speichern",                  
 const char* RESTART[MAX_LANG] =                  {"Neustart",                                                   "restart"};
 const char* CLEAR[MAX_LANG] =                    {"Löschen",                                                    "clear"};
 const char* REFRESH[MAX_LANG] =                  {"Aktualisieren",                                              "refresh"};
+const char* LIFETIME[MAX_LANG] =                 {"Laufzeit",                                                   "Runtime"};
+const char* RESTART_REASON[MAX_LANG] =           {"Neustart Grund",                                             "restart reason"};
 } s_webui_texts; 
 
 
