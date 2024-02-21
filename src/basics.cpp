@@ -10,6 +10,7 @@ void setup_wifi();
 s_wifi wifi;  // global WiFi Informations
 muTimer wifiReconnectTimer = muTimer();           // timer for reconnect delay
 int wifi_retry = 0;
+esp_reset_reason_t reset_reason;
 
 /**
  * *******************************************************************
@@ -205,6 +206,9 @@ void basicSetup() {
     
     //NTP
     ntpSetup();
+
+    // Bestimme den Grund für den letzten Neustart
+    reset_reason = esp_reset_reason();
 }
 
 /**
@@ -359,4 +363,64 @@ char *strcat_safe(char *dest, const char *src, size_t dest_size) {
     }   
     strcat(dest, src);
     return dest;
+}
+
+/**
+ * *******************************************************************
+ * @brief   generate uptime message
+ * @param   buffer
+ * @param   bufferSize 
+ * @return  none
+ * *******************************************************************/
+void getUptime(char* buffer, size_t bufferSize) {
+  static unsigned long previousMillis = 0;
+  static unsigned long overflowCounter = 0;
+  const unsigned long overflowThreshold = 4294967295; // Maximalwert von millis() bevor es zum Überlauf kommt
+  
+  unsigned long currentMillis = millis();
+  if(currentMillis < previousMillis) {
+    // Ein Überlauf wurde detektiert
+    overflowCounter++;
+  }
+  previousMillis = currentMillis;
+
+  // Berechne die gesamte Uptime in Sekunden unter Berücksichtigung des Überlaufs
+  unsigned long long totalSeconds = overflowCounter * (overflowThreshold / 1000ULL) + (currentMillis / 1000ULL);
+
+  unsigned long days = totalSeconds / 86400;
+  unsigned long hours = (totalSeconds % 86400) / 3600;
+  unsigned long minutes = (totalSeconds % 3600) / 60;
+  unsigned long seconds = totalSeconds % 60;
+
+  // Verwende snprintf zum Formatieren der Ausgabe
+  if(days > 0) {
+    snprintf(buffer, bufferSize, "%lud %02luh %02lum %02lus", days, hours, minutes, seconds);
+  } else if (hours > 0) {
+    snprintf(buffer, bufferSize, "%02luh %02lum %02lus", hours, minutes, seconds);
+  } else {
+    snprintf(buffer, bufferSize, "%lum %lus", minutes, seconds);
+  }
+}
+
+/**
+ * *******************************************************************
+ * @brief   get last restart reason as string
+ * @param   buffer
+ * @param   bufferSize 
+ * @return  none
+ * *******************************************************************/
+void getRestartReason(char *reason, size_t reason_size){
+  switch (reset_reason) {
+    case ESP_RST_POWERON:   strncpy(reason, "Power-on reset", reason_size); break;
+    case ESP_RST_EXT:       strncpy(reason, "External reset", reason_size); break;
+    case ESP_RST_SW:        strncpy(reason, "Software reset via esp_restart", reason_size); break;
+    case ESP_RST_PANIC:     strncpy(reason, "Software panic reset", reason_size); break;
+    case ESP_RST_INT_WDT:   strncpy(reason, "Interrupt watchdog reset", reason_size); break;
+    case ESP_RST_TASK_WDT:  strncpy(reason, "Task watchdog reset", reason_size); break;
+    case ESP_RST_WDT:       strncpy(reason, "Other watchdog reset", reason_size); break;
+    case ESP_RST_DEEPSLEEP: strncpy(reason, "Woke up from deep-sleep", reason_size); break;
+    case ESP_RST_BROWNOUT:  strncpy(reason, "Brownout reset (voltage dip)", reason_size); break;
+    case ESP_RST_SDIO:      strncpy(reason, "Reset over SDIO", reason_size); break;
+    default:                strncpy(reason, "unknown Reset", reason_size); break;
+  }
 }

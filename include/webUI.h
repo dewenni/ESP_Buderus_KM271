@@ -192,6 +192,8 @@ typedef struct {
   uint16_t time_input;
   uint16_t dti_button;
   uint16_t ntp_button;
+  uint16_t uptime;
+  uint16_t restartReason;
 } s_webui_id_system;
 
 typedef struct {

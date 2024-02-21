@@ -33,7 +33,7 @@ But there is also a build in WebUI to view and control your Logamatic without an
 - [Hardware](#hardware)
   - [Option 1 - Board from the78mole](#option-1---board-from-the78mole)
   - [Option 2 - ESP32 with original Buderus KM271](#option-2---esp32-with-original-buderus-km271)
-  - [Optional: Hardware Oilmeter](#optional-hardware-oilmeter)
+  - [Optional: Hardware Oil Meter](#optional-hardware-oilmeter)
   - [Optional: OneWire Sensor](#optional-onewire-sensor)
 - [Getting started](#getting-started)
   - [Platform-IO](#platform-io)
@@ -64,7 +64,7 @@ The software has multi language support and there is already german, and english
 
 Feel free to add more languages. The texts are located in: **[language.h](include/language.h)**
 
-## additional and optional Oilcounter / Oilmeter
+## additional and optional Oilcounter / Oil Meter
 
 The project includes also an additional and optional oilcounter implementation. I have installed a Braun HZ-5 Meter to measure the oil consumption.  
 There are different models with (HZ 5R, HZ 5DR) and without pulse output (HZ 5).  
@@ -104,7 +104,7 @@ Example configuration:
 
 ![km271_orig](/Doc/esp32_with_km271.jpeg)
 
-## Optional: Hardware Oilmeter
+## Optional: Hardware Oil Meter
 
 The software is also prepared to connect an Oil Meter. A well-known manufacturer of oil meters is Braun with the models HZ-5 or HZ6.
 These are already available with a potential-free contact.  
@@ -214,9 +214,9 @@ The default Time-Zone should fit if you are located in germany. Otherwise you ca
 - **Logamatic**  
 here you can select, which components of your Logamatic should be used.
 
-- **Oilmeter**  
-here you can enable the optional hardware or virtual oilmeter.
-If you use a hardware based oilmeter, you have to configure also to regarding gpio´s.
+- **Oil Meter**  
+here you can enable the optional hardware or virtual Oil Meter.
+If you use a hardware based Oil Meter, you have to configure also to regarding gpio´s.
 If you want to calculate the consumption based on the runtime, you have to configure the additional calculation parameters.
 
 - **GPIO**  
