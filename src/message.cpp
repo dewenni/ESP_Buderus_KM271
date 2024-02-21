@@ -239,3 +239,50 @@ void messageCyclic(){
     }
   }
 }
+
+/**
+ * *******************************************************************
+ * @brief   check Debug Filter format
+ * @param   input       given input string
+ * @param   input_len   input string length
+ * @param   msg         return string
+ * @param   msg_len     return string length
+ * @return  true: 
+ * *******************************************************************/
+bool setDebugFilter(char *input, size_t input_len, char *errMsg, size_t errMsg_len){
+  if (input_len == 32){  // 32 characters: 11 Hex-values + 10 separators "_"
+    // Iteration thru payload
+    char payloadCpy[33];
+    snprintf(payloadCpy, sizeof(payloadCpy), "%s", input);
+    char *token = strtok(input, "_");
+    size_t i = 0;
+    while (token != NULL && i < 11) {
+      // check, if the substring contains valid hex values
+      size_t tokenLen = strlen(token);
+      if (tokenLen != 2 ||
+      (!isxdigit(token[0]) && token[0] != 'X') ||
+      (!isxdigit(token[1]) && token[1] != 'X')) {
+        // invalid hex values found
+        strncpy(errMsg, "invalid hex parameter", errMsg_len);
+        return false;
+      }
+      token = strtok(NULL, "_");  // next substring
+      i++;
+    }
+    // check if all 11 hex values are found
+    if (i == 11) {
+      // everything seems to be valid - save 
+      snprintf(config.debug.filter, sizeof(config.debug.filter), "%s", payloadCpy);
+      configSaveToFile();
+      return true;
+    } else {
+      // not enough hex values found
+      strncpy(errMsg, "not enough hex parameter", errMsg_len);
+      return false;
+    }
+  } else {
+    // invalid parameter length
+    strncpy(errMsg, "invalid parameter size", errMsg_len);
+    return false;
+  }
+}

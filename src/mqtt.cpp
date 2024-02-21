@@ -142,40 +142,11 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
   }
   // set debug filter
   else if (strcmp (topic, addTopic(mqttCmd.SET_DEBUG_FLT[config.lang])) == 0){
-    if (len == 32){  // 32 characters: 11 Hex-values + 10 separators "_"
-      // Iteration thru payload
-      char payloadCpy[33];
-      snprintf(payloadCpy, sizeof(payloadCpy), "%s", payload);
-      char *token = strtok(payload, "_");
-      size_t i = 0;
-      while (token != NULL && i < 11) {
-        // check, if the substring contains valid hex values
-        size_t tokenLen = strlen(token);
-        if (tokenLen != 2 ||
-        (!isxdigit(token[0]) && token[0] != 'X') ||
-        (!isxdigit(token[1]) && token[1] != 'X')) {
-          // invalid hex values found
-          km271Msg(KM_TYP_MESSAGE, "invalid hex parameter", "");
-          return;
-        }
-        token = strtok(NULL, "_");  // next substring
-        i++;
-      }
-      // check if all 11 hex values are found
-      if (i == 11) {
-        // everything seems to be valid - call service function
-        km271Msg(KM_TYP_MESSAGE, "filter accepted", "");
-        snprintf(config.debug.filter, sizeof(config.debug.filter), "%s", payloadCpy);
-        configSaveToFile();
-      }
-      else
-      {
-        // not enough hex values found
-        km271Msg(KM_TYP_MESSAGE, "not enough hex parameter", "");
-      }
+    char errMsg[256];
+    if (setDebugFilter(payloadCopy, strlen(payloadCopy), errMsg, sizeof(errMsg))){
+      km271Msg(KM_TYP_MESSAGE, "filter accepted", "");
     } else {
-      // invalid parameter length
-      km271Msg(KM_TYP_MESSAGE, "invalid parameter size", "");
+      km271Msg(KM_TYP_MESSAGE, errMsg, "");
     }
   }
   // get debug filter

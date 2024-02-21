@@ -1,4 +1,5 @@
 #pragma once
+#include <Arduino.h>
 
 /* D E C L A R A T I O N S ****************************************************/  
 typedef enum {
@@ -29,3 +30,4 @@ void messageCyclic();
 void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value);
 void addLogBuffer();
 void clearLogBuffer();
+bool setDebugFilter(char *input, size_t input_len, char *errMsg, size_t errMsg_len);
