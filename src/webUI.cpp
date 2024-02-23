@@ -976,14 +976,14 @@ void webUISetup(){
 
     // start Webserver
     if (config.auth.enable){
-      #ifdef SIM_MODE
+      #if SIM_MODE
         ESPUI.begin("Buderus Logamatic - SIM_MODE", config.auth.user, config.auth.password);
       #else
         ESPUI.begin("Buderus Logamatic", config.auth.user, config.auth.password);
       #endif
     }
     else {
-      #ifdef SIM_MODE
+      #if SIM_MODE
         ESPUI.begin("Buderus Logamatic - SIM_MODE");
       #else
         ESPUI.begin("Buderus Logamatic");
