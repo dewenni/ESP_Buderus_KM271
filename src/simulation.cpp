@@ -161,7 +161,7 @@ bool simDataEnable = false;
 void startSimData(){
    simDataEnable = true;
     msgCnt=0;
-    Serial.println("start sim data === >>>");
+    msgLn("start sim data === >>>");
 }
 
 void simDataCyclic(){
@@ -169,14 +169,14 @@ void simDataCyclic(){
     if (simTimer.cycleTrigger(100) && simDataEnable){
         if (msgCnt < MAX_MSG_CNT){
             parseInfo(simData[msgCnt], sizeof(simData[0]));
-            Serial.print(msgCnt+1);
-            Serial.print("/");
-            Serial.println(MAX_MSG_CNT);
+            msg(uint8ToString(msgCnt+1));
+            msg("/");
+            msgLn(uint8ToString(MAX_MSG_CNT));
             msgCnt++;
         }
         else {
             simDataEnable = false;
-            Serial.println("=== >>> finished sim data");
+            msgLn("=== >>> finished sim data");
         }
     }
 #endif

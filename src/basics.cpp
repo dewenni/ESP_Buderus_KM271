@@ -96,7 +96,7 @@ const char * getTimeString() {
  * *******************************************************************/
 void onWiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info){
   wifi_retry=0;
-  Serial.println("Connected to AP successfully!");
+  msgLn("Connected to AP successfully!");
 }
 
 /**
@@ -106,9 +106,9 @@ void onWiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info){
  * @return  none
  * *******************************************************************/
 void onWiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info){
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
+  msgLn("WiFi connected");
+  msgLn("IP address: ");
+  msgLn(WiFi.localIP().toString().c_str());
 }
 
 /**
@@ -126,16 +126,16 @@ void checkWiFi(){
       WiFi.begin(config.wifi.ssid, config.wifi.password);
       WiFi.hostname(config.wifi.hostname);
       MDNS.begin(config.wifi.hostname);
-      Serial.print("WiFi Mode STA - Trying connect to: ");
-      Serial.print(config.wifi.ssid);
-      Serial.print(" - attempt: ");
-      Serial.print(wifi_retry);
-      Serial.println("/5");
+      msg("WiFi Mode STA - Trying connect to: ");
+      msg(config.wifi.ssid);
+      msg(" - attempt: ");
+      msg(int8ToString(wifi_retry));
+      msgLn("/5");
     }
     else {
-      Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
-      Serial.println("Wifi connection not possible, esp rebooting...");
-      Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+      msgLn("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+      msgLn("Wifi connection not possible, esp rebooting...");
+      msgLn("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
       storeData(); // store Data before reboot
       delay(500);
       ESP.restart();
@@ -158,11 +158,11 @@ void setupWiFi() {
     IPAddress subnet(255,255,255,0);
     WiFi.softAPConfig(ip, gateway, subnet);
     WiFi.softAP("ESP-Buderus-km271");
-    Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
-    Serial.println("> WiFi Mode: AccessPoint <");
-    Serial.println("1. connect your device to SSID: ESP-Buderus-km271");
-    Serial.println("2. open Browser and go to Address: http://192.168.4.1");
-    Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+    msgLn("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+    msgLn("> WiFi Mode: AccessPoint <");
+    msgLn("1. connect your device to SSID: ESP-Buderus-km271");
+    msgLn("2. open Browser and go to Address: http://192.168.4.1");
+    msgLn("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
   }
   else {
     // setup callback function
@@ -187,8 +187,8 @@ void setupWiFi() {
     WiFi.begin(config.wifi.ssid, config.wifi.password);
     WiFi.hostname(config.wifi.hostname);
     MDNS.begin(config.wifi.hostname);
-    Serial.print("WiFi Mode STA - Trying connect to: ");
-    Serial.println(config.wifi.ssid);
+    msg("WiFi Mode STA - Trying connect to: ");
+    msgLn(config.wifi.ssid);
   }
   
 }

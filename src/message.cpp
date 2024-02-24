@@ -2,6 +2,7 @@
 #include <basics.h>
 #include <km271.h>
 #include <HTTPClient.h>
+#include <telnet.h>
 
 /* D E C L A R A T I O N S ****************************************************/  
 #define MSG_BUF_SIZE 1024            // buffer size for messaging
@@ -38,6 +39,26 @@ void addLogBuffer(const char *message){
 
 /**
  * *******************************************************************
+ * @brief   add new entry to LogBuffer
+ * @param   none 
+ * @return  none
+ * *******************************************************************/
+void msg(const char *message){
+  Serial.print(message);
+  if (telnetIF.serialStream){                    // Provide to Telnet stream (if active)
+    telnet.print(message);
+  }
+}
+void msgLn(const char *message){
+  Serial.println(message);
+  if (telnetIF.serialStream){                    // Provide to Telnet stream (if active)
+    telnet.println(message);
+    telnetShell();
+  }
+}
+
+/**
+ * *******************************************************************
  * @brief   Setup for Telegram bot
  * @param   none
  * @return  none
@@ -69,6 +90,10 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value){
         snprintf(tmpMsg, sizeof(tmpMsg), "Config: %s = %s", desc, value);
         addLogBuffer(tmpMsg);
       }
+      if (telnetIF.km271Stream && config.log.filter==LOG_FILTER_VALUES){
+        snprintf(tmpMsg, sizeof(tmpMsg), "Config: %s = %s", desc, value);
+        telnet.println(tmpMsg);
+      }
       break;
     
     case KM_TYP_STATUS: // status values from Logamatic
@@ -81,6 +106,10 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value){
       if (config.log.enable && config.log.filter==LOG_FILTER_VALUES){
         snprintf(tmpMsg, sizeof(tmpMsg), "Status: %s = %s", desc, value);
         addLogBuffer(tmpMsg);
+      }
+      if (telnetIF.km271Stream && config.log.filter==LOG_FILTER_VALUES){
+        snprintf(tmpMsg, sizeof(tmpMsg), "Status: %s = %s", desc, value);
+        telnet.println(tmpMsg);
       }
     break;
 
@@ -95,7 +124,10 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value){
         snprintf(tmpMsg, sizeof(tmpMsg), "Sensor: %s = %s", desc, value);
         addLogBuffer(tmpMsg);
       }
-
+      if (telnetIF.km271Stream && config.log.filter==LOG_FILTER_VALUES){
+        snprintf(tmpMsg, sizeof(tmpMsg), "Sensor: %s = %s", desc, value);
+        telnet.println(tmpMsg);
+      }
     break;
 
     case KM_TYP_ALARM:  // unacknowledged alarm message from Logamatic
@@ -112,6 +144,10 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value){
       if (config.log.enable && config.log.filter==LOG_FILTER_ALARM){
         snprintf(tmpMsg, sizeof(tmpMsg), "%s = %s", desc, value);
         addLogBuffer(tmpMsg);
+      }
+      if (telnetIF.km271Stream&& config.log.filter==LOG_FILTER_ALARM){
+        snprintf(tmpMsg, sizeof(tmpMsg), "%s = %s", desc, value);
+        telnet.println(tmpMsg);
       }
     break;
 
@@ -135,6 +171,10 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value){
         snprintf(tmpMsg, sizeof(tmpMsg), "debug : %s", desc);
         addLogBuffer(tmpMsg);
       }
+      if (telnetIF.km271Stream && config.log.filter==LOG_FILTER_DEBUG){
+        snprintf(tmpMsg, sizeof(tmpMsg), "debug : %s", desc);
+        telnet.println(tmpMsg);
+      }
     break;
 
     case KM_TYP_MESSAGE:  // feedback messages from Logamatic
@@ -151,6 +191,10 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value){
       if (config.log.enable && config.log.filter==LOG_FILTER_INFO){
         snprintf(tmpMsg, sizeof(tmpMsg), "Message : %s", desc);
         addLogBuffer(tmpMsg);
+      }
+      if (telnetIF.km271Stream && config.log.filter==LOG_FILTER_INFO){
+        snprintf(tmpMsg, sizeof(tmpMsg), "Message : %s", desc);
+        telnet.println(tmpMsg);
       }     
     break;
 
@@ -173,7 +217,11 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value){
       if (config.log.enable && config.log.filter==LOG_FILTER_UNKNOWN){
         snprintf(tmpMsg, sizeof(tmpMsg), "undef msg : %s", desc);
         addLogBuffer(tmpMsg);
-      }  
+      }
+      if (telnetIF.km271Stream && config.log.filter==LOG_FILTER_UNKNOWN){
+        snprintf(tmpMsg, sizeof(tmpMsg), "undef msg : %s", desc);
+        telnet.println(tmpMsg);
+      }
       break;
 
     default:
@@ -195,7 +243,7 @@ void addPushoverMsg(const char* str) {
   } else if (remainingSpace >= (strlen(bufferFullMsg) + 1)) {
     snprintf(pushoverBuffer + strlen(pushoverBuffer), remainingSpace + 1, "%s\n", bufferFullMsg);
   } else {
-    Serial.println("send buffer full!");
+    msgLn("send buffer full!");
   }
 }
 
@@ -234,7 +282,7 @@ void messageCyclic(){
   // send Pushover message if something inside the buffer
   if (pushoverSendTimer.cycleTrigger(2000) && config.pushover.enable){
     if(strlen(pushoverBuffer)){
-      Serial.println("Pushover Message sent");
+      msgLn("Pushover Message sent");
       sendPushoverMsg();
     }
   }

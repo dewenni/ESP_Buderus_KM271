@@ -37,8 +37,11 @@ void readJSONstring(char* dest, size_t size, const char* src){
 void configSetup(){
   
   // start Filesystem 
-  Serial.print("LittleFS Status: ");
-  Serial.println(LittleFS.begin(true));
+  if (LittleFS.begin(true)) {
+    msgLn("LittleFS successfully started");
+  } else {
+    msgLn("LittleFS error");
+  }
 
   // load config from file
   configLoadFromFile();  
@@ -215,17 +218,17 @@ void configSaveToFile() {
     // Open file for writing
     File file = LittleFS.open(filename, FILE_WRITE);
     if (!file) {
-      Serial.println(F("Failed to create file"));
+      msgLn("Failed to create file");
       return;
     }
 
     // Serialize JSON to file
     if (serializeJson(doc, file) == 0) {
-      Serial.println(F("Failed to write to file"));
+      msgLn("Failed to write to file");
     }
     else {
-      Serial.print("config successfully saved to file: ");
-      Serial.println(filename);
+      msg("config successfully saved to file: ");
+      msgLn(filename);
     }
 
     // Close the file
@@ -248,7 +251,7 @@ void configLoadFromFile() {
   // Deserialize the JSON document
   DeserializationError error = deserializeJson(doc, file);
   if (error) {
-    Serial.println(F("Failed to read file, using default configuration and start wifi-AP"));
+    msgLn("Failed to read file, using default configuration and start wifi-AP");
     configInitValue();
     setupMode = true;
   }

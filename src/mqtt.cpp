@@ -34,7 +34,7 @@ const char * addTopic(const char *suffix){
  * *******************************************************************/
 void onMqttConnect(bool sessionPresent) {
   mqtt_retry = 0;
-  Serial.println("MQTT connected");
+  msgLn("MQTT connected");
   // Once connected, publish an announcement...
   sendWiFiInfo();
   // ... and resubscribe
@@ -49,7 +49,7 @@ void onMqttConnect(bool sessionPresent) {
  * @return  none
  * *******************************************************************/
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
-  Serial.println("MQTT disconnected");
+  msgLn("MQTT disconnected");
 }
 
 /**
@@ -300,7 +300,7 @@ void checkMqtt(){
     if (mqtt_retry==0){
       mqtt_retry++;
       mqtt_client.connect();
-      Serial.println("MQTT - connection attempt: 1/5");
+      msgLn("MQTT - connection attempt: 1/5");
     }
     else if (mqttReconnectTimer.delayOnTrigger(true , MQTT_RECONNECT)){
       mqttReconnectTimer.delayReset();
@@ -308,14 +308,14 @@ void checkMqtt(){
       {
         mqtt_retry++;
         mqtt_client.connect();
-        Serial.print("MQTT - connection attempt: ");
-        Serial.print(mqtt_retry);
-        Serial.println("/5");
+        msg("MQTT - connection attempt: ");
+        msg(int8ToString(mqtt_retry));
+        msgLn("/5");
       }
       else {
-        Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
-        Serial.println("MQTT connection not possible, esp rebooting...");
-        Serial.println("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+        msgLn("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+        msgLn("MQTT connection not possible, esp rebooting...");
+        msgLn("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
         storeData(); // store Data before reboot
         delay(500);
         ESP.restart();

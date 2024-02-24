@@ -993,9 +993,9 @@ void webUISetup(){
     webUILogRead(); // initial read log
   }
 
-  Serial.println("Webserver started");
-  Serial.print("Widgets: ");
-  Serial.println(id.settings.btnSave);
+  msgLn("Webserver started");
+  msg("Widgets: ");
+  msgLn(uint16ToString(id.settings.btnSaveRestart));
 
   // Update Settings
   updateSettingsValues();
@@ -1796,43 +1796,36 @@ void generalCallback(Control *sender, int type) {
   // HC1-OPMODE
   if(sender->id == id.ctrl.hc1_opmode) {
     km271sendCmd(KM271_SENDCMD_HC1_OPMODE, sender->value.toInt());
-    Serial.println(sender->value.toInt());
   }
 
   // HC2-OPMODE
   if(sender->id == id.ctrl.hc2_opmode) {
     km271sendCmd(KM271_SENDCMD_HC2_OPMODE, sender->value.toInt());
-    Serial.println(sender->value.toInt());
   }
 
   // WW-OPMODE
   if(sender->id == id.ctrl.ww_opmode) {
     km271sendCmd(KM271_SENDCMD_WW_OPMODE, sender->value.toInt());
-    Serial.println(sender->value.toInt());
   }
 
   // HC1-Program
   if(sender->id == id.ctrl.hc1_program) {
     km271sendCmd(KM271_SENDCMD_HC1_PROGRAMM, sender->value.toInt());
-    Serial.println(sender->value.toInt());
   }
 
   // HC2-Program
   if(sender->id == id.ctrl.hc2_program) {
     km271sendCmd(KM271_SENDCMD_HC2_PROGRAMM, sender->value.toInt());
-    Serial.println(sender->value.toInt());
   }
   
   // HC1-Reduction-Mode
   if(sender->id == id.ctrl.hc1_reduction_mode) {
     km271sendCmd(KM271_SENDCMD_HC1_REDUCTION_MODE, sender->value.toInt());
-    Serial.println(sender->value.toInt());
   }
 
   // HC2-Reduction-Mode
   if(sender->id == id.ctrl.hc2_reduction_mode) {
     km271sendCmd(KM271_SENDCMD_HC2_REDUCTION_MODE, sender->value.toInt());
-    Serial.println(sender->value.toInt());
   }
 
   // HC1-Frost Threshold

@@ -125,7 +125,6 @@ void cyclicKM271(){
         break;    
     } // end-case
   }  // end-if
-  
   // global status logmode active
   km271LogModeActive = (KmRxBlockState == KM_TSK_LOGGING);
 }
@@ -1385,6 +1384,8 @@ s_km271_alarm_str * km271GetAlarmMsgAdr() {
  * *******************************************************************/
 e_ret km271ProtInit(int rxPin, int txPin) {
   Serial2.begin(KM271_BAUDRATE, SERIAL_8N1, rxPin, txPin);                // Set serial port for communication with KM271/Ecomatic 2000
+
+  Serial2.setTimeout(200);  // set timeout for communication with KM271
 
   // initialize structs
   memset((void *)&kmStatus, 0, sizeof(s_km271_status));

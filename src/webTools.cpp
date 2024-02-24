@@ -31,7 +31,7 @@ int counter = 0;
  * @return  none
  * *******************************************************************/
 String processor_update(const String& var) {
-  Serial.println(var);
+  msgLn(var.c_str());
   if (var == "list") {
     return filelist;
   }
@@ -46,9 +46,9 @@ String processor_update(const String& var) {
  * *******************************************************************/
 void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
   if (type == WS_EVT_CONNECT) {
-    Serial.println("WebSocket client connected");
+    msgLn("WebSocket client connected");
   } else if (type == WS_EVT_DISCONNECT) {
-    Serial.println("WebSocket client disconnected");
+    msgLn("WebSocket client disconnected");
   }
 }
 
@@ -71,7 +71,7 @@ void onProgressRequest(AsyncWebServerRequest *request) {
  * *******************************************************************/
 void handleDoUpdate(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final) {
   if (!index) {
-    Serial.println("Update");
+    msgLn("Update");
     storeData(); // Store data before updating
     content_len = request->contentLength();
     if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) {
@@ -92,7 +92,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String& filename, size
     if (!Update.end(true)) {
       Update.printError(Serial);
     } else {
-      Serial.println("Update complete");
+      msgLn("Update complete");
       Serial.flush();
       ESP.restart();
     }
@@ -112,11 +112,11 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
   // Serial.printf("Listing directory: %s\r\n", dirname);
   File root = fs.open(dirname);
   if (!root) {
-    Serial.println("- failed to open directory");
+    msgLn("- failed to open directory");
     return;
   }
   if (!root.isDirectory()) {
-    Serial.println(" - not a directory");
+    msgLn(" - not a directory");
     return;
   }
 
@@ -155,13 +155,13 @@ void handleDoUpload(AsyncWebServerRequest *request, String filename, size_t inde
     file = LittleFS.open(String("/") + filename, FILE_WRITE);
     if (!file)
     {
-      Serial.println("- failed to open file for writing");
+      msgLn("- failed to open file for writing");
       return;
     }
   }
 
   if (file.write(data, len) != len) {
-    Serial.println("- failed to write");
+    msgLn("- failed to write");
     return;
   }
 
@@ -172,8 +172,8 @@ void handleDoUpload(AsyncWebServerRequest *request, String filename, size_t inde
     request->send(response);
     file.close();
     opened = false;
-    Serial.println("---------------");
-    Serial.println("Upload complete");
+    msgLn("---------------");
+    msgLn("Upload complete");
     listDir(LittleFS, "/", 0);
   }
 }
@@ -201,9 +201,9 @@ void printProgress(size_t prg, size_t sz) {
  * *******************************************************************/
 void deleteFile(fs::FS &fs, const String& path) {
   if (fs.remove(path)) {
-    Serial.println("- file deleted");
+    msgLn("- file deleted");
   } else {
-    Serial.println("- delete failed");
+    msgLn("- delete failed");
   }
   listDir(LittleFS, "/", 0);
 }
@@ -340,10 +340,10 @@ void webToolsSetup() {
 
       deleteFile(LittleFS, inputMessage);
       //LittleFS.remove(inputMessage);
-      Serial.println("-inputMessage-");
-      Serial.print("File=");
-      Serial.println(inputMessage);
-      Serial.println(" has been deleted");
+      msgLn("-inputMessage-");
+      msg("File=");
+      msgLn(inputMessage.c_str());
+      msgLn(" has been deleted");
     }
     else {
       inputMessage = "No message sent";

@@ -57,6 +57,7 @@ void cmdSetOilmeter(long setvalue) {
   cmdStoreOilmeter();
   
   snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %ld", data.oilcounter);
+  msgLn(tmpMsg);
   km271Msg(KM_TYP_MESSAGE, tmpMsg, "");
 
   sendOilmeter();
@@ -72,6 +73,7 @@ void cmdStoreOilmeter() {
   EEPROM.put(addr,data);
   EEPROM.commit();
   km271Msg(KM_TYP_MESSAGE, "oilcounter stored!", "");
+  msgLn("oilcounter stored!");
 }
 
 /**
@@ -86,8 +88,8 @@ void setupOilmeter(){
   EEPROM.begin(sizeof(data));
   EEPROM.get(addr,data);
   
-  Serial.print("restored value from Flash: ");
-  Serial.println(data.oilcounter);
+  msg("restored value from Flash: ");
+  msgLn(uint64ToString(data.oilcounter));
 
   snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %ld", data.oilcounter);
   km271Msg(KM_TYP_MESSAGE, tmpMsg, "");
@@ -112,7 +114,6 @@ void cyclicOilmeter()
     if (statusTrigger && !reboot) {
       data.oilcounter = data.oilcounter + 2;            // one impulse = 0,02 litre
       writeCounter++;                                   // increase counter for writing to EEPROM
-      Serial.println(data.oilcounter);
       sendOilmeter();                                   // send new Countervalue via MQTT
     }
   }

@@ -5,6 +5,7 @@
 // include intern
 #include <config.h>
 #include <mqtt.h>
+#include <message.h>
 
 // include extern
 #include <Arduino.h>

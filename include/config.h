@@ -1,9 +1,10 @@
 #pragma once
 #include <stdint.h>
+#include <message.h>
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION             "v3.4.0rc"   // internal program version
+#define VERSION             "v3.4.x"   // internal program version
 #define SIM_MODE true
 
 #define WIFI_RECONNECT      10000        // Delay between wifi reconnection tries
