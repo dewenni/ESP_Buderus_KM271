@@ -1254,10 +1254,8 @@ void parseInfo(uint8_t *data, int len) {
 
     // undefined
     default:   
-      #ifdef DEBUG_ON 
         snprintf(tmpMessage, sizeof(tmpMessage), "%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x_%02x", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], data[10]);
-        km271Msg(KM_TYP_UNDEF_MSG, tmpMessage, "");
-      #endif                                                  
+        km271Msg(KM_TYP_UNDEF_MSG, tmpMessage, "");                                                 
       break;
   }
  

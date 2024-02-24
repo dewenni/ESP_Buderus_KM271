@@ -2,7 +2,7 @@
 #include <basics.h>
 #include <km271.h>
 
-#ifdef SIM_MODE
+#if SIM_MODE
 /* D E C L A R A T I O N S ****************************************************/  
 uint8_t simData[144][11] = {
     {0x00, 0x00, 0x65, 0x0d, 0x22, 0x28, 0x02, 0x22, 0xff, 0x00, 0x00},
@@ -165,7 +165,7 @@ void startSimData(){
 }
 
 void simDataCyclic(){
-#ifdef SIM_MODE
+#if SIM_MODE
     if (simTimer.cycleTrigger(100) && simDataEnable){
         if (msgCnt < MAX_MSG_CNT){
             parseInfo(simData[msgCnt], sizeof(simData[0]));

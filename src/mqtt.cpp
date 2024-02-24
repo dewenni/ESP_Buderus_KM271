@@ -85,7 +85,7 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
   }
   // send sim data
   else if (strcmp (topic, addTopic(mqttCmd.SIMDATA[config.lang])) == 0){
-    #ifdef SIM_MODE
+    #if SIM_MODE
       km271Msg(KM_TYP_MESSAGE, "start sending sim data", "");
       startSimData();
     #else
