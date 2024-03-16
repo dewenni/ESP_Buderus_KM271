@@ -1,6 +1,7 @@
 #include <webUI.h>
 #include <webTools.h>
 #include <basics.h>
+#include <km271.h>
 #include <ESPAsyncWebServer.h>
 
 AsyncWebServer server(80);
@@ -9,6 +10,10 @@ AsyncEventSource events("/events");
 int counter = 0;
 bool state = false;
 int option = 0;
+
+s_km271_status kmStatusCpy;
+s_km271_config_num kmConfigCpy;
+s_km271_config_str kmConfigStrCpy;
 
 /* P R O T O T Y P E S ********************************************************/ 
 void webCallback(const char *elementId, const char *value);
@@ -128,6 +133,20 @@ void webUISetup(){
 
 } // END SETUP
 
+
+
+
+/**
+ * *******************************************************************
+ * @brief   cyclic call for webUI - refresh elements by change
+ * @param   none 
+ * @return  none
+ * *******************************************************************/
+void updateKm271Status(){
+
+  if (kmStatusCpy.BoilerErrorStates != kmStatus.)
+
+}
 
 
 

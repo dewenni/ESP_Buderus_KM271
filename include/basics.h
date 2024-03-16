@@ -16,6 +16,7 @@
 #include <ESPmDNS.h>
 #include <muTimer.h>
 #include "esp_system.h"
+#include <HTTPClient.h>
 
 /* D E C L A R A T I O N S ****************************************************/  
 typedef struct {                                        

@@ -1402,7 +1402,7 @@ e_ret km271ProtInit(int rxPin, int txPin) {
  * @return  none
  * *******************************************************************/
 void sendKM271Info(){
-  DynamicJsonDocument infoJSON(255);
+  JsonDocument infoJSON;
   infoJSON["logmode"] = km271LogModeActive;
   infoJSON["send_cmd_busy"] = (send_buf[0]!=0);
   infoJSON["sw_version"] = VERSION;

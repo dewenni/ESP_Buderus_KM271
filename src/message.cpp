@@ -8,6 +8,7 @@
 #define MSG_BUF_SIZE 1024            // buffer size for messaging
 char pushoverBuffer[MSG_BUF_SIZE];   // Buffer for Pushover messages
 
+s_logdata logData;
 muTimer pushoverSendTimer = muTimer();
 HTTPClient http;
 
@@ -254,7 +255,7 @@ void addPushoverMsg(const char* str) {
  * @return  none
  * *******************************************************************/
 void sendPushoverMsg() {
-  DynamicJsonDocument notification(256 + MSG_BUF_SIZE);
+  JsonDocument notification;
   notification["token"] = config.pushover.token;    //required
   notification["user"] = config.pushover.user_key;  //required
   notification["message"] = pushoverBuffer;         //required
@@ -263,13 +264,14 @@ void sendPushoverMsg() {
   // Create a buffer to serialize the JSON object
   char jsonBuffer[256 + MSG_BUF_SIZE];
   serializeJson(notification, jsonBuffer, sizeof(jsonBuffer));
-
+/*
   http.begin("http://api.pushover.net/1/messages.json");  // using http instead of https, because https needs >40kb of Heap memory!!!
   http.addHeader("Content-Type", "application/json");
   http.setReuse(false);
   http.POST(jsonBuffer);                                  // Send the POST request with the JSON data
   http.end();                                             // Close the connection
   memset(pushoverBuffer, 0, sizeof(pushoverBuffer));      // clean message buffer
+*/
 }
 
 /**

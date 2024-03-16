@@ -4,7 +4,6 @@
 #include <LittleFS.h>
 
 /* D E C L A R A T I O N S ****************************************************/  
-#define JSON_SIZE 2048
 char filename[24] = {"/config.json"};
 bool setupMode;
 s_config config;
@@ -143,7 +142,7 @@ void configInitValue(){
  * *******************************************************************/
 void configSaveToFile() {
 
-    DynamicJsonDocument doc(JSON_SIZE); // reserviert 2048 Bytes für das JSON-Objekt
+    JsonDocument doc; // reserviert 2048 Bytes für das JSON-Objekt
 
     doc["lang"] = (config.lang);
 
@@ -246,7 +245,7 @@ void configLoadFromFile() {
   File file = LittleFS.open(filename);
 
   // Allocate a temporary JsonDocument
-  StaticJsonDocument<JSON_SIZE> doc;
+  JsonDocument doc;
 
   // Deserialize the JSON document
   DeserializationError error = deserializeJson(doc, file);

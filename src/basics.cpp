@@ -231,7 +231,7 @@ void sendWiFiInfo() {
 
     IPAddress localIP = WiFi.localIP();
     snprintf(wifi.ipAddress, sizeof(wifi.ipAddress), "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);
-    DynamicJsonDocument wifiJSON(255);
+    JsonDocument wifiJSON;
     wifiJSON["status"] = "online";
     wifiJSON["rssi"] = wifi.rssi;
     wifiJSON["signal"] = wifi.signal;
