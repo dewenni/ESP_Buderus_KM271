@@ -1,0 +1,177 @@
+<!DOCTYPE HTML><html>
+<head>
+  <title>ESP Async Web Server</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="../css/pico.css">
+  <link rel="stylesheet" type="text/css" href="../css/custom.css">
+   <link rel="stylesheet" type="text/css" href="../css/icons.css"> 
+  <script src="../js/main.js" defer></script>
+  <script src="../js/lang.js" defer></script>
+<style></style>
+<script>
+function test() {    
+    document.getElementById("tab6").classList.add('active');
+}
+setInterval(test, 1000);
+</script>
+</head>
+<body>
+<!-- Layout -->    
+<header style="height: 100px; display: flex; align-items: center; justify-content: center;"></header>
+<!-- Tab-Content -->
+<main class="container">
+
+
+<!--SECTION-START-->
+<div id="tab6" class="tab-content">
+    <div class="grid"> <!-- Grid 1 -->
+    <article class="card">
+        <p class="table-header" data-i18n="status">--</p>
+        <table class="striped">
+          <tbody>
+            <tr>
+              <td data-i18n="burner_control"></td>
+              <td id="p06_burner_control" class="table-value">--</td>
+            </tr>
+            <tr>
+              <td data-i18n="boiler_temp"></td>
+              <td id="p06_boiler_temp" class="table-value">--</td>
+              <td>°C</td>
+            </tr>
+            <tr>
+              <td data-i18n="boiler_setpoint"></td>
+              <td id="p06_boiler_setpoint" class="table-value">--</td>
+              <td>°C</td>
+            </tr>
+            <tr>
+              <td data-i18n="boiler_switch_off_temp"></td>
+              <td id="p06_boiler_switch_off_temp" class="table-value">--</td>
+              <td>°C</td>
+            </tr>            
+            <tr>
+              <td data-i18n="boiler_switch_on_temp"></td>
+              <td id="p06_boiler_switch_on_temp" class="table-value">--</td>
+              <td>°C</td>
+            </tr>   
+            <tr>
+              <td data-i18n="max_boiler_temperature"></td>
+              <td id="p06_max_boiler_temperature" class="table-value">--</td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+
+      <article class="card">
+        <p class="table-header" data-i18n="operation">--</p>
+        <table class="striped">
+          <tbody>
+            <tr>
+              <td data-i18n="boiler_state_exhaust_gas_test"></td>
+              <td id="p06_boiler_state_exhaust_gas_test" class="table-value">--</td>
+            </tr>
+            <tr>
+              <td data-i18n="boiler_state_stage1"></td>
+              <td id="p06_boiler_state_stage1" class="table-value">--</td>
+            </tr>
+            <tr>
+              <td data-i18n="boiler_state_boiler_protection"></td>
+              <td id="p06_boiler_state_boiler_protection" class="table-value">--</td>
+            </tr>
+            <tr>
+              <td data-i18n="boiler_state_active"></td>
+              <td id="p06_boiler_state_active" class="table-value">--</td>
+            </tr>            
+            <tr>
+              <td data-i18n="boiler_state_performance_free"></td>
+              <td id="p06_boiler_state_performance_free" class="table-value">--</td>
+            </tr>   
+            <tr>
+              <td data-i18n="boiler_state_performance_high"></td>
+              <td id="p06_boiler_state_performance_high" class="table-value">--</td>
+            </tr>
+            <tr>
+              <td data-i18n="boiler_state_stage2"></td>
+              <td id="p06_boiler_state_stage2" class="table-value">--</td>
+            </tr>            
+          </tbody>
+        </table>
+      </article>
+    </div> <!--END GRID-->
+
+    <div class="grid"> <!-- Grid 2 -->
+    <article class="card">
+        <p class="table-header" data-i18n="error_flags">--</p>
+        <table class="striped">
+          <tbody>
+            <tr>
+              <td data-i18n="boiler_failure_burner"></td>
+              <td id="p06_boiler_failure_burner" class="table-value">--</td>
+            </tr>
+            <tr>
+              <td data-i18n="boiler_failure_boiler_sensor"></td>
+              <td id="p06_boiler_failure_boiler_sensor" class="table-value">--</td>
+            </tr>
+            <tr>
+              <td data-i18n="boiler_failure_aux_sensor"></td>
+              <td id="p06_boiler_failure_aux_sensor" class="table-value">--</td>
+            </tr>
+            <tr>
+              <td data-i18n="boiler_failure_boiler_stays_cold"></td>
+              <td id="p06_boiler_failure_boiler_stays_cold" class="table-value">--</td>
+            </tr>            
+            <tr>
+              <td data-i18n="boiler_failure_exhaust_gas_sensor"></td>
+              <td id="p06_boiler_failure_exhaust_gas_sensor" class="table-value">--</td>
+            </tr>            
+            <tr>
+              <td data-i18n="boiler_failure_exhaust_gas_over_limit"></td>
+              <td id="p06_boiler_failure_exhaust_gas_over_limit" class="table-value">--</td>
+            </tr>   
+            <tr>
+              <td data-i18n="boiler_failure_safety_chain"></td>
+              <td id="p06_boiler_failure_safety_chain" class="table-value">--</td>
+            </tr>
+            <tr>
+              <td data-i18n="boiler_failure_external"></td>
+              <td id="p06_boiler_failure_external" class="table-value">--</td>
+            </tr>           
+          </tbody>
+        </table>
+      </article>
+
+      <article class="card">
+        <p class="table-header" data-i18n="lifetimes">--</p>
+        <table class="striped">
+          <tbody>
+            <tr>
+              <td data-i18n="burner_runtime_minutes65536"></td>
+              <td id="p06_burner_runtime_minutes65536" class="table-value">--</td>
+            </tr>
+            <tr>
+              <td data-i18n="burner_runtime_minutes256"></td>
+              <td id="p06_burner_runtime_minutes256" class="table-value">--</td>
+            </tr>
+            <tr>
+              <td data-i18n="burner_runtime_minutes"></td>
+              <td id="p06_burner_runtime_minutes" class="table-value">--</td>
+            </tr>
+            <tr>
+              <td data-i18n="burner_runtime_overall"></td>
+              <td id="p06_burner_runtime_overall" class="table-value">--</td>
+            </tr>            
+          </tbody>
+        </table>
+      </article>
+    </div> <!--END GRID-->
+
+</div>
+<!--SECTION-END-->
+  
+
+</main>
+    <!-- Footer -->
+    <footer style="height: 100px; display: flex; align-items: center; justify-content: center;">
+      <div id="status">STATUS</div>
+    </footer>
+</body>
+</html>

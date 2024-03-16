@@ -1,0 +1,264 @@
+<!DOCTYPE HTML><html>
+<head>
+  <title>ESP Async Web Server</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="../css/pico.css">
+  <link rel="stylesheet" type="text/css" href="../css/custom.css">
+   <link rel="stylesheet" type="text/css" href="../css/icons.css"> 
+  <script src="../js/main.js" defer></script>
+  <script src="../js/lang.js" defer></script>
+<style></style>
+<script>
+function test() {    
+    document.getElementById("tab1").classList.add('active');
+}
+setInterval(test, 1000);
+</script>
+</head>
+<body>
+<!-- Layout -->    
+<header style="height: 100px; display: flex; align-items: center; justify-content: center;"></header>
+<!-- Tab-Content -->
+<main class="container">
+
+
+<!--SECTION-START-->
+<!-- Tab-1 -->
+  <div id="tab1" class="tab-content active">
+
+    <div class="grid">
+        
+      <article class="dash OPT_HC1">
+        <div class="dash-main">
+          <div class="dash-header" data-i18n="hc1$-$opmode">--</div>
+          <div class="dash-content">
+              <div class="value" id="p01_hc1_opmode">--</div>
+          </div>
+        </div>
+        <div class="dash-icon">
+          <div class="svg i_day-night"></div>
+        </div>
+      </article>
+
+      <article class="dash OPT_HC2">
+        <div class="dash-main">
+          <div class="dash-header" data-i18n="hc2$-$opmode">--</div>
+          <div class="dash-content">
+              <div class="value" id="p01_hc2_opmode">--</div>
+          </div>
+        </div>
+        <div class="dash-icon">
+          <div class="svg i_day-night"></div>
+        </div>
+      </article>
+
+      <article class="dash">
+        <div class="dash-main">
+          <div class="dash-header" data-i18n="hot_water$-$opmode">--</div>
+          <div class="dash-content">
+              <div class="value" id="p01_ww_opmode">--</div>
+          </div>
+        </div>
+        <div class="dash-icon">
+          <div class="svg i_day-night"></div>
+        </div>
+      </article>
+         
+      <article class="dash OPT_HC1">
+        <div class="dash-main">
+          <div class="dash-header" data-i18n="hc1$-$day_night">--</div>
+          <div class="dash-content">
+              <div class="value" id="p01_hc1_day_night">--</div>
+          </div>
+        </div>
+        <div class="dash-icon">
+          <div class="svg i_day-night"></div>
+        </div>
+      </article>
+
+        <article class="dash OPT_HC2">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc2$-$day_night">--</div>
+            <div class="dash-content">
+                <div class="value" id="p01_hc2_day_night">--</div>
+            </div>
+          </div>
+          <div class="dash-icon">
+            <div class="svg i_day-night"></div>
+          </div>
+        </article>
+
+      <article class="dash OPT_HC1">
+        <div class="dash-main">
+          <div class="dash-header" data-i18n="hc1$-$summer_winter">--</div>
+          <div class="dash-content">
+              <div class="value" id="p01_hc1_summer_winter">--</div>
+          </div>
+        </div>
+        <div class="dash-icon">
+          <div class="svg i_palm"></div>
+        </div>
+      </article>
+
+        <article class="dash OPT_HC2">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc2$-$summer_winter">--</div>
+            <div class="dash-content">
+                <div class="value" id="p01_hc2_summer_winter">--</div>
+            </div>
+          </div>
+          <div class="dash-icon">
+            <div class="svg i_palm"></div>
+          </div>
+        </article>
+
+        <article class="dash OPT_HC1">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc1$-$pump">--</div>
+            <div class="dash-content">
+                <div class="value" id="p01_hc1_pump">--</div>
+            </div>
+          </div>
+          <div class="dash-icon">
+            <div class="svg i_pump"></div>
+          </div>
+        </article>
+
+        <article class="dash OPT_HC2">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc2$-$pump">--</div>
+            <div class="dash-content">
+                <div class="value" id="p01_hc2_pump">--</div>
+            </div>
+          </div>
+          <div class="dash-icon">
+            <div class="svg i_pump"></div>
+          </div>
+        </article>
+
+        <article class="dash">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="burner">--</div>
+              <div class="dash-content">
+                  <div class="value" id="p01_burner">--</div>
+              </div>
+            </div>
+            <div class="dash-icon">
+              <div class="svg i_flame"></div>
+            </div>
+         </article>
+
+         <article class="dash">
+          <div class="dash-main">
+              <div class="dash-header" data-i18n="oilmeter">--</div>
+              <div class="dash-content">
+                  <div class="value" id="p01_oilmeter">--</div>
+              </div>
+          </div>
+          <div class="dash-icon">
+            <div class="svg i_oil"></div>
+          </div>
+        </article>  
+
+      </div> <!-- END Grid1 -->
+ 
+      <div class="grid"> <!-- START Grid2 --> 
+
+        <article class="dash">
+          <div class="dash-main">
+              <div class="dash-header" data-i18n="burner_temp">--</div>
+              <div class="dash-content">
+                  <div class="value" id="p01_burner_temp_set">--</div>
+                  <div class="value" id="p01_burner_temp_act">--</div>
+              </div>
+              <div class="dash-footer">
+                  <div data-i18n="set_temp_c">--</div>
+                  <div data-i18n="act_temp_c">--</div>
+              </div>
+          </div>
+          <div class="dash-icon">
+            <div class="svg i_temp"></div>
+          </div>
+        </article>         
+        
+        <article class="dash">
+          <div class="dash-main">
+              <div class="dash-header" data-i18n="hot_water">--</div>
+              <div class="dash-content">
+                  <div class="value" id="p01_ww_temp_set">--</div>
+                  <div class="value" id="p01_ww_temp_act">--</div>
+              </div>
+              <div class="dash-footer">
+                  <div data-i18n="set_temp_c">--</div>
+                  <div data-i18n="act_temp_c">--</div>
+              </div>
+          </div>
+          <div class="dash-icon">
+            <div class="svg i_temp"></div>
+          </div>
+        </article>       
+
+        <article class="dash OPT_HC1">
+          <div class="dash-main">
+              <div class="dash-header" data-i18n="hc1$-$flow">--</div>
+              <div class="dash-content">
+                  <div class="value" id="p01_hc1_flow_set">--</div>
+                  <div class="value" id="p01_hc1_flow_act">--</div>
+              </div>
+              <div class="dash-footer">
+                  <div data-i18n="set_temp_c">--</div>
+                  <div data-i18n="act_temp_c">--</div>
+              </div>
+          </div>
+          <div class="dash-icon">
+            <div class="svg i_temp"></div>
+          </div>
+        </article>    
+
+        <article class="dash OPT_HC2">
+          <div class="dash-main">
+              <div class="dash-header" data-i18n="hc2$-$flow">--</div>
+              <div class="dash-content">
+                  <div class="value" id="p01_hc2_flow_set">--</div>
+                  <div class="value" id="p01_hc2_flow_act">--</div>
+              </div>
+              <div class="dash-footer">
+                  <div data-i18n="set_temp_c">--</div>
+                  <div data-i18n="act_temp_c">--</div>
+              </div>
+          </div>
+          <div class="dash-icon">
+            <div class="svg i_temp"></div>
+          </div>
+        </article> 
+
+        <article class="dash">
+          <div class="dash-main">
+              <div class="dash-header" data-i18n="temp_out">--</div>
+              <div class="dash-content">
+                  <div class="value" id="p01_temp_out_act">--</div>
+                  <div class="value" id="p01_temp_out_dmp">--</div>
+              </div>
+              <div class="dash-footer">
+                  <div data-i18n="temp_out_act">--</div>
+                  <div data-i18n="temp_out_dmp">--</div>
+              </div>
+          </div>
+          <div class="dash-icon">
+            <div class="svg i_temp"></div>
+          </div>
+        </article> 
+
+      </div> <!-- END Grid2 -->
+ 
+  </div> <!-- END Tab-Content -->
+<!--SECTION-END-->
+  
+
+</main>
+    <!-- Footer -->
+    <footer style="height: 100px; display: flex; align-items: center; justify-content: center;">
+      <div id="status">STATUS</div>
+    </footer>
+</body>
+</html>

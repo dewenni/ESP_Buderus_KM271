@@ -1,0 +1,76 @@
+<!DOCTYPE HTML><html>
+<head>
+  <title>ESP Async Web Server</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="../css/pico.css">
+  <link rel="stylesheet" type="text/css" href="../css/custom.css">
+   <link rel="stylesheet" type="text/css" href="../css/icons.css"> 
+  <script src="../js/main.js" defer></script>
+  <script src="../js/lang.js" defer></script>
+  <script src="../js/tools.js" defer></script>
+<style></style>
+<script>
+function test() {    
+    document.getElementById("tab11").classList.add('active');
+    localizePage("de");
+}
+setInterval(test, 1000);
+</script>
+</head>
+<body>
+<!-- Layout -->    
+<header style="height: 100px; display: flex; align-items: center; justify-content: center;"></header>
+<!-- Tab-Content -->
+<main class="container">
+
+
+<!--SECTION-START-->
+<!-- OTA-Inhalt hier -->
+<div id="tab11" class="tab-content">
+<div class="grid">
+  
+    <article class="tools">
+        <div class="dash-main">
+        <div class="dash-header" data-i18n="ota">--</div>
+        <div class="dash-content">
+            <form method='POST' action='#' enctype='multipart/form-data' id='ota_upload_form'>    
+                <input type='file' name='ota_update' id='ota_file_input' onchange='ota_sub_fun(this)'  accept=".bin">
+                <input type="submit" id="ota_updateBtn" disabled="disabled" value="Update">
+                <br><div id="ota_txtUpload" style='display:none; text-align:left' data-i18n="upload">--</div>
+                <br><progress id='ota_upload_bar' style='display:none' max="100" value="1"></progress>
+                <br><div id="ota_txtUpdate" style='display:none; text-align:left' data-i18n="update">--</div>
+                <br><progress id='ota_progress_bar' style='display:none' max="100" value="1"></progress><div id='ota_progress'></div>
+            </form>    
+        </div>
+        </div>
+    </article>
+
+<article class="tools">
+    <div class="dash-main">
+    <div class="dash-header" data-i18n="filemgn">--</div>
+    <div class="dash-content"> 
+        <form method="POST" action="/doUpload" enctype="multipart/form-data" id="file_upload_form">
+            <input type="file" name="file_update" id="file_input" onchange="file_sub_fun(this)">
+            <input type="submit" id="file_updateBtn" disabled="true" value="Upload file">
+            <br><div id="txt_file_upload" style="display:none" data-i18n="upload_ready">--</div>
+            <br><progress id="file_upload_bar" style="display:none" max="100" value="1"></progress> <div id='file_progress'></div>
+            <br><h6 data-i18n="file_content">--</h6>
+            <span id="filelist">%list%</span>
+        </form>    
+    </div>
+    </div>
+</article>
+</div>
+<!--SECTION-END-->
+  
+
+</main>
+    <!-- Footer -->
+    <footer>
+        <div id="connectionLostBar" style="display: none;">
+        <div data-i18n="lost_connection"></div>
+        <button id="p99_reloadButton" class="svg i_reload" style="width: 100px;"></button>
+      </div>
+    </footer>
+</body>
+</html>

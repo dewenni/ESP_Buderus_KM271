@@ -1,0 +1,323 @@
+<!DOCTYPE HTML><html>
+<head>
+  <title>ESP Async Web Server</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="../css/pico.css">
+  <link rel="stylesheet" type="text/css" href="../css/custom.css">
+   <link rel="stylesheet" type="text/css" href="../css/icons.css"> 
+  <script src="../js/main.js" defer></script>
+  <script src="../js/lang.js" defer></script>
+<script>
+function test() {    
+    document.getElementById("tab2").classList.add('active');
+}
+setInterval(test, 1000);
+</script>
+</head>
+<body>
+<!-- Layout -->    
+<header style="height: 100px; display: flex; align-items: center; justify-content: center;"></header>
+<!-- Tab-Content -->
+<main class="container">
+
+
+<!--SECTION-START-->
+<!-- Tab-2 -->
+  <div id="tab2" class="tab-content">
+
+      <div class="grid"> <!-- Grid-1 -->
+        
+          <article class="dash OPT_HC1" style="min-width: 400px;">
+            <div class="dash-main">
+                <div class="dash-header" data-i18n="hc1$-$opmode">--</div>
+                <div class="dash-content">
+                  <fieldset class="radio-buttons">
+                    <input class="button-like" type="radio" id="p02_hc1_opmode_night" name="hc1_opmode" checked >
+                    <label class="button-like-label" for="p02_hc1_opmode_night" data-i18n="night">--</label>
+                    <input class="button-like" type="radio" id="p02_hc1_opmode_day" name="hc1_opmode" >
+                    <label class="button-like-label" for="p02_hc1_opmode_day" data-i18n="day">--</label>
+                    <input class="button-like" type="radio" id="p02_hc1_opmode_auto" name="hc1_opmode">
+                    <label class="button-like-label" for="p02_hc1_opmode_auto" data-i18n="auto">--</label>
+                  </fieldset>
+                </div>
+            </div>
+          </article>
+
+          <article class="dash OPT_HC2" style="min-width: 400px;">
+            <div class="dash-main">
+                <div class="dash-header" data-i18n="hc2$-$opmode">--</div>
+                <div class="dash-content">
+                  <fieldset class="radio-buttons">
+                    <input class="button-like" type="radio" id="p02_hc2_opmode_night" name="hc2_opmode" checked >
+                    <label class="button-like-label" for="p02_hc2_opmode_night" data-i18n="night">--</label>
+                    <input class="button-like" type="radio" id="p02_hc2_opmode_day" name="hc2_opmode" >
+                    <label class="button-like-label" for="p02_hc2_opmode_day" data-i18n="day">--</label>
+                    <input class="button-like" type="radio" id="p02_hc2_opmode_auto" name="hc2_opmode">
+                    <label class="button-like-label" for="p02_hc2_opmode_auto" data-i18n="auto">--</label>
+                  </fieldset>
+                </div>
+            </div>
+          </article>
+
+          <article class="dash" style="min-width: 400px;">
+            <div class="dash-main">
+                <div class="dash-header" data-i18n="ww$-$opmode">--</div>
+                <div class="dash-content">
+                  <fieldset class="radio-buttons">
+                    <input class="button-like" type="radio" id="p02_ww_opmode_night" name="ww_opmode" checked >
+                    <label class="button-like-label" for="p02_ww_opmode_night" data-i18n="night">--</label>
+                    <input class="button-like" type="radio" id="p02_ww_opmode_day" name="ww_opmode" >
+                    <label class="button-like-label" for="p02_ww_opmode_day" data-i18n="day">--</label>
+                    <input class="button-like" type="radio" id="p02_ww_opmode_auto" name="ww_opmode">
+                    <label class="button-like-label" for="p02_ww_opmode_auto" data-i18n="auto">--</label>
+                  </fieldset>
+                </div>
+            </div>
+          </article>
+
+      </div>  <!-- END Grid-1 -->
+      <div class="grid"> <!-- Start Grid-2 -->
+          
+        <article class="dash OPT_HC1">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc1$-$prg">--</div>
+            <div class="dash-content">
+              <select name="p02_hc1_prg" id="p02_hc1_prg">
+                <option data-i18n="hc_prg_custom">--</option>
+                <option data-i18n="hc_prg_family">--</option>
+                <option data-i18n="hc_prg_early">--</option>
+                <option data-i18n="hc_prg_late">--</option>
+                <option data-i18n="hc_prg_am">--</option>
+                <option data-i18n="hc_prg_pm">--</option>
+                <option data-i18n="hc_prg_noon">--</option>
+                <option data-i18n="hc_prg_single">--</option>
+                <option data-i18n="hc_prg_senior">--</option>
+              </select>
+            </div>
+          </div>
+        </article>            
+
+        <article class="dash OPT_HC2">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc2$-$prg" >--</div>
+            <div class="dash-content">
+              <select name="p02_hc2_prg" id="p02_hc2_prg">
+                <option data-i18n="hc_prg_custom">--</option>
+                <option data-i18n="hc_prg_family">--</option>
+                <option data-i18n="hc_prg_early">--</option>
+                <option data-i18n="hc_prg_late">--</option>
+                <option data-i18n="hc_prg_am">--</option>
+                <option data-i18n="hc_prg_pm">--</option>
+                <option data-i18n="hc_prg_noon">--</option>
+                <option data-i18n="hc_prg_single">--</option>
+                <option data-i18n="hc_prg_senior">--</option>
+              </select>
+            </div>
+          </div>
+        </article> 
+
+        <article class="dash OPT_HC1">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc1$-$reduction_mode">--</div>
+            <div class="dash-content">
+              <select name="p02_hc1_prg" id="p02_hc1_reduct_mode">
+                <option data-i18n="reduct_mode_off">--</option>
+                <option data-i18n="reduct_mode_fixed">--</option>
+                <option data-i18n="reduct_mode_room">--</option>
+                <option data-i18n="reduct_mode_outdoors">--</option>
+              </select>
+            </div>
+          </div>
+        </article> 
+
+        <article class="dash OPT_HC2">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc2$-$reduction_mode">--</div>
+            <div class="dash-content">
+              <select name="p02_hc1_prg" id="p02_hc2_reduct_mode">
+                <option data-i18n="reduct_mode_off">--</option>
+                <option data-i18n="reduct_mode_fixed">--</option>
+                <option data-i18n="reduct_mode_room">--</option>
+                <option data-i18n="reduct_mode_outdoors">--</option>
+              </select>
+            </div>
+          </div>
+        </article> 
+        
+        <article class="dash OPT_HC1">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc1$-$holiday_days">--</div>
+              <div class="dash-content">
+                <input type="number" id="p02_hc1_holiday_days">
+              </div>
+            </div>
+        </article>
+
+        <article class="dash OPT_HC2">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc2$-$holiday_days">--</div>
+              <div class="dash-content">
+                <input type="number" id="p02_hc2_holiday_days">
+              </div>
+            </div>
+        </article>
+
+      </div>  <!-- END Grid-1 -->
+
+      <div class="grid"> <!-- Start Grid-2 -->
+        <article class="dash">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="summer_mode_threshold">--</div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_summer_mode_threshold" min="9" max="31" value="15" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_summer_mode_threshold">--</span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_summer1">--</div>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_summer2">--</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dash">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="frost_protection_threshold">--</div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_frost_protection_threshold" min="-20" max="10" value="0" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_frost_protection_threshold">--</span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_frost">--</div>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_unit_c">--</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dash OPT_HC1">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc1$-$interpretation">--</div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_hc1_interpretation" min="30" max="90" value="60" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_interpretation">--</span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_designtemp">--</div>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_unit_c">--</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dash OPT_HC2">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc2$-$interpretation">--</div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_hc2_interpretation" min="30" max="90" value="60" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_interpretation">--</span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_designtemp">--</div>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_unit_c">--</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dash OPT_HC1">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc1$-$switch_off_threshold">--</div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_hc1_switch_off_threshold" min="-20" max="10" value="0" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_switch_off_threshold">--</span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_switchoff">--</div>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_unit_c">--</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dash OPT_HC2">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc2$-$switch_off_threshold">--</div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_hc2_switch_off_threshold"  min="-20" max="10" value="0" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_switch_off_threshold">--</span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_switchoff">--</div>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_unit_c">--</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dash">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="ww$-$temp">--</div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_ww_temp"  min="30" max="60" value="55" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_ww_temp">--</span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_wwtemp">--</div>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_unit_c">--</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dash">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="ww$-$circulation">--</div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_ww_circulation"  min="0" max="7" value="0" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_ww_circulation">--</span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_ww_pump_circ1">--</div>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_ww_pump_circ2">--</div>
+            </div>
+          </div>
+        </article>
+
+      </div>  <!-- END Grid-2 -->
+
+      <div class="grid"> <!-- Start Grid-3 -->
+         
+        <article class="dash">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="oilmeter">--</div>
+              <div class="dash-content">
+                <div role="group">
+                  <input type="number" id="p02_oilmeter_value">
+                  <button data-i18n="set" id="p02_oilmeter_btn">
+                </div>
+              </div>
+            </div>
+        </article>
+
+      </div> <!-- END Grid-3 -->
+  </div>
+<!--SECTION-END-->
+  
+
+</main>
+    <!-- Footer -->
+    <footer style="height: 100px; display: flex; align-items: center; justify-content: center;">
+      <div>STATUS</div>
+    </footer>
+</body>
+</html>

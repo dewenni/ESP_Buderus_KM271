@@ -96,7 +96,7 @@ void telCmdLog(char param[MAX_PAR][MAX_CHAR]){
       config.log.enable = false;
       clearLogBuffer();
       configSaveToFile();
-      updateSettingsValues();
+      //updateSettingsValues();
       telnet.println("disabled");
       telnetShell();
   // log enable
@@ -104,7 +104,7 @@ void telCmdLog(char param[MAX_PAR][MAX_CHAR]){
       config.log.enable = true;
       clearLogBuffer();
       configSaveToFile();
-      updateSettingsValues();
+      //updateSettingsValues();
       telnet.println("enabled");
       telnetShell();
   // log: read buffer
@@ -127,7 +127,7 @@ void telCmdLog(char param[MAX_PAR][MAX_CHAR]){
       config.log.filter = mode - 1;
       clearLogBuffer();
       configSaveToFile();
-      updateSettingsValues();
+      //updateSettingsValues();
       telnet.println(webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
     } else {
       telnet.println("invalid mode - mode must be between 1 and 5");
@@ -158,7 +158,7 @@ void telCmdDebug(char param[MAX_PAR][MAX_CHAR]){
       config.debug.enable = false;
       clearLogBuffer();
       configSaveToFile();
-      updateSettingsValues();
+      //updateSettingsValues();
       telnet.println("disabled");
       telnetShell();
   // debug: enable
@@ -166,7 +166,7 @@ void telCmdDebug(char param[MAX_PAR][MAX_CHAR]){
       config.debug.enable = true;
       clearLogBuffer();
       configSaveToFile();
-      updateSettingsValues();
+      //updateSettingsValues();
       telnet.println("enabled");
       telnetShell();
   // debug: get filter
