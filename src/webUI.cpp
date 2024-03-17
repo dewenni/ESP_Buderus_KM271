@@ -8,18 +8,13 @@
 AsyncWebServer server(80);
 AsyncEventSource events("/events");
 
-int counter = 0;
-bool state = false;
-int option = 0;
 bool clientConnected = false;
 bool bootInit = false;
 bool updateKmConfig = false;
 
 s_km271_status *pkmStatus;
 s_km271_status kmStatusCpy;
-
 s_km271_config_str *pkmConfigStr;
-s_km271_config_num kmConfigNumCpy;
 s_km271_config_num *pkmConfigNum;
 
 s_webui_texts webText;
@@ -185,7 +180,9 @@ void webUISetup(){
   server.addHandler(&events);
   server.begin();
 
-  
+  pkmConfigStr = km271GetConfigStringsAdr();
+  pkmConfigNum = km271GetConfigValueAdr();
+  pkmStatus = km271GetStatusValueAdr();
 
 } // END SETUP
 
@@ -199,10 +196,7 @@ void webUISetup(){
 void updateAll(){
 
   memset((void *)&kmStatusCpy, 111, sizeof(s_km271_status));
-  memset((void *)&kmConfigNumCpy, 111, sizeof(s_km271_config_num));
-  //memset((void *)&kmConfigStrCpy, 0, sizeof(s_km271_config_str));
-
-
+  
 }
 
 /**
@@ -212,9 +206,6 @@ void updateAll(){
  * @return  none
  * *******************************************************************/
 void updateKm271Config(){
-
-  pkmConfigStr = km271GetConfigStringsAdr();
-  pkmConfigNum = km271GetConfigValueAdr();
 
   updateWebValueInt("p02_hc1_frost_protection_threshold",pkmConfigNum->hc1_frost_protection_threshold);
   updateWebTextInt("p02_hc1_frost_protection_threshold_txt",pkmConfigNum->hc1_frost_protection_threshold, false);
@@ -362,8 +353,6 @@ void updateKm271Config(){
  * *******************************************************************/
 void updateKm271Status(){
 
-  pkmStatus = km271GetStatusValueAdr();
-
   if (kmStatusCpy.HC1_OperatingStates_1 != pkmStatus->HC1_OperatingStates_1) {
     kmStatusCpy.HC1_OperatingStates_1 = pkmStatus->HC1_OperatingStates_1;
     
@@ -386,7 +375,7 @@ void updateKm271Status(){
       updateWebText("p01_hc1_summer_winter", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]), false);  
     }
     else { // generate status from actual temperature and summer threshold
-      updateWebText("p01_hc1_summer_winter", (kmStatusCpy.OutsideDampedTemp > kmConfigNumCpy.hc1_summer_mode_threshold ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]), false);
+      updateWebText("p01_hc1_summer_winter", (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc1_summer_mode_threshold ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]), false);
     }
     updateWebText("p01_hc1_summer_winter", tmpMessage, false);
 
@@ -483,7 +472,7 @@ void updateKm271Status(){
       updateWebText("p01_hc2_summer_winter", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]), false);
     }
     else { // generate status from actual temperature and summer threshold
-      updateWebText("p01_hc2_summer_winter", (kmStatusCpy.OutsideDampedTemp > kmConfigNumCpy.hc2_summer_mode_threshold ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]), false);
+      updateWebText("p01_hc2_summer_winter", (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc2_summer_mode_threshold ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]), false);
     
     }
     updateWebText("p01_hc2_summer_winter", tmpMessage, false);
@@ -693,7 +682,7 @@ void updateKm271Status(){
   }
   else if (kmStatusCpy.BurnerCalcOilConsumption != pkmStatus->BurnerCalcOilConsumption) {
     kmStatusCpy.BurnerCalcOilConsumption = pkmStatus->BurnerCalcOilConsumption;
-    //ToDo
+    //TODO
   }
   else if (kmStatusCpy.OutsideTemp != pkmStatus->OutsideTemp) {
     kmStatusCpy.OutsideTemp = pkmStatus->OutsideTemp;
