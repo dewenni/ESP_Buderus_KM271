@@ -396,15 +396,15 @@
             <div class="dash-header" data-i18n="hc1$-$prg">--</div>
             <div class="dash-content">
               <select name="p02_hc1_prg" id="p02_hc1_prg">
-                <option data-i18n="hc_prg_custom">--</option>
-                <option data-i18n="hc_prg_family">--</option>
-                <option data-i18n="hc_prg_early">--</option>
-                <option data-i18n="hc_prg_late">--</option>
-                <option data-i18n="hc_prg_am">--</option>
-                <option data-i18n="hc_prg_pm">--</option>
-                <option data-i18n="hc_prg_noon">--</option>
-                <option data-i18n="hc_prg_single">--</option>
-                <option data-i18n="hc_prg_senior">--</option>
+                <option value="0" data-i18n="hc_prg_custom">--</option>
+                <option value="1" data-i18n="hc_prg_family">--</option>
+                <option value="2" data-i18n="hc_prg_early">--</option>
+                <option value="3" data-i18n="hc_prg_late">--</option>
+                <option value="4" data-i18n="hc_prg_am">--</option>
+                <option value="5" data-i18n="hc_prg_pm">--</option>
+                <option value="6" data-i18n="hc_prg_noon">--</option>
+                <option value="7" data-i18n="hc_prg_single">--</option>
+                <option value="8" data-i18n="hc_prg_senior">--</option>
               </select>
             </div>
           </div>
@@ -415,15 +415,15 @@
             <div class="dash-header" data-i18n="hc2$-$prg" >--</div>
             <div class="dash-content">
               <select name="p02_hc2_prg" id="p02_hc2_prg">
-                <option data-i18n="hc_prg_custom">--</option>
-                <option data-i18n="hc_prg_family">--</option>
-                <option data-i18n="hc_prg_early">--</option>
-                <option data-i18n="hc_prg_late">--</option>
-                <option data-i18n="hc_prg_am">--</option>
-                <option data-i18n="hc_prg_pm">--</option>
-                <option data-i18n="hc_prg_noon">--</option>
-                <option data-i18n="hc_prg_single">--</option>
-                <option data-i18n="hc_prg_senior">--</option>
+                <option value="0" data-i18n="hc_prg_custom">--</option>
+                <option value="1" data-i18n="hc_prg_family">--</option>
+                <option value="2" data-i18n="hc_prg_early">--</option>
+                <option value="3" data-i18n="hc_prg_late">--</option>
+                <option value="4" data-i18n="hc_prg_am">--</option>
+                <option value="5" data-i18n="hc_prg_pm">--</option>
+                <option value="6" data-i18n="hc_prg_noon">--</option>
+                <option value="7" data-i18n="hc_prg_single">--</option>
+                <option value="8" data-i18n="hc_prg_senior">--</option>
               </select>
             </div>
           </div>
@@ -434,10 +434,10 @@
             <div class="dash-header" data-i18n="hc1$-$reduction_mode">--</div>
             <div class="dash-content">
               <select name="p02_hc1_prg" id="p02_hc1_reduct_mode">
-                <option data-i18n="reduct_mode_off">--</option>
-                <option data-i18n="reduct_mode_fixed">--</option>
-                <option data-i18n="reduct_mode_room">--</option>
-                <option data-i18n="reduct_mode_outdoors">--</option>
+                <option value="0" data-i18n="reduct_mode_off">--</option>
+                <option value="1" data-i18n="reduct_mode_fixed">--</option>
+                <option value="2" data-i18n="reduct_mode_room">--</option>
+                <option value="3" data-i18n="reduct_mode_outdoors">--</option>
               </select>
             </div>
           </div>
@@ -448,10 +448,10 @@
             <div class="dash-header" data-i18n="hc2$-$reduction_mode">--</div>
             <div class="dash-content">
               <select name="p02_hc1_prg" id="p02_hc2_reduct_mode">
-                <option data-i18n="reduct_mode_off">--</option>
-                <option data-i18n="reduct_mode_fixed">--</option>
-                <option data-i18n="reduct_mode_room">--</option>
-                <option data-i18n="reduct_mode_outdoors">--</option>
+                <option value="0" data-i18n="reduct_mode_off">--</option>
+                <option value="1" data-i18n="reduct_mode_fixed">--</option>
+                <option value="2" data-i18n="reduct_mode_room">--</option>
+                <option value="3" data-i18n="reduct_mode_outdoors">--</option>
               </select>
             </div>
           </div>
@@ -478,12 +478,12 @@
       </div>  <!-- END Grid-1 -->
 
       <div class="grid"> <!-- Start Grid-2 -->
-        <article class="dash">
+        <article class="dash OPT_HC1">
           <div class="dash-main">
-            <div class="dash-header" data-i18n="summer_mode_threshold">--</div>
+            <div class="dash-header" data-i18n="hc1$-$summer_mode_threshold">--</div>
             <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_summer_mode_threshold" min="9" max="31" value="15" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_summer_mode_threshold">--</span>
+              <input type="range" class="rangeSlider" data-value-id="p02_hc1_summer_mode_threshold_txt" id="p02_hc1_summer_mode_threshold" min="9" max="31" value="9" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_summer_mode_threshold_txt">--</span>
             </div>
             <div class="dash-footer">
               <div data-i18n="info_summer1">--</div>
@@ -494,12 +494,44 @@
           </div>
         </article>
 
-        <article class="dash">
+        <article class="dash OPT_HC2">
           <div class="dash-main">
-            <div class="dash-header" data-i18n="frost_protection_threshold">--</div>
+            <div class="dash-header" data-i18n="hc2$-$summer_mode_threshold">--</div>
             <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_frost_protection_threshold" min="-20" max="10" value="0" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_frost_protection_threshold">--</span>
+              <input type="range" class="rangeSlider" data-value-id="p02_hc2_summer_mode_threshold_txt" id="p02_hc2_summer_mode_threshold" min="9" max="31" value="9" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_summer_mode_threshold_txt">--</span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_summer1">--</div>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_summer2">--</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dash OPT_HC1">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc1$-$frost_protection_threshold">--</div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_hc1_frost_protection_threshold_txt" id="p02_hc1_frost_protection_threshold" min="-20" max="10" value="-20" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_frost_protection_threshold_txt">--</span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_frost">--</div>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_unit_c">--</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dash OPT_HC2">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc2$-$frost_protection_threshold">--</div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_hc2_frost_protection_threshold_txt" id="p02_hc2_frost_protection_threshold" min="-20" max="10" value="-20" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_frost_protection_threshold_txt">--</span>
             </div>
             <div class="dash-footer">
               <div data-i18n="info_frost">--</div>
@@ -514,8 +546,8 @@
           <div class="dash-main">
             <div class="dash-header" data-i18n="hc1$-$interpretation">--</div>
             <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc1_interpretation" min="30" max="90" value="60" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_interpretation">--</span>
+              <input type="range" class="rangeSlider" data-value-id="p02_hc1_interpretation_txt" id="p02_hc1_interpretation" min="30" max="90" value="30" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_interpretation_txt">--</span>
             </div>
             <div class="dash-footer">
               <div data-i18n="info_designtemp">--</div>
@@ -530,8 +562,8 @@
           <div class="dash-main">
             <div class="dash-header" data-i18n="hc2$-$interpretation">--</div>
             <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc2_interpretation" min="30" max="90" value="60" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_interpretation">--</span>
+              <input type="range" class="rangeSlider" data-value-id="p02_hc2_interpretation_txt" id="p02_hc2_interpretation" min="30" max="90" value="30" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_interpretation_txt">--</span>
             </div>
             <div class="dash-footer">
               <div data-i18n="info_designtemp">--</div>
@@ -546,8 +578,8 @@
           <div class="dash-main">
             <div class="dash-header" data-i18n="hc1$-$switch_off_threshold">--</div>
             <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc1_switch_off_threshold" min="-20" max="10" value="0" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_switch_off_threshold">--</span>
+              <input type="range" class="rangeSlider" data-value-id="p02_hc1_switch_off_threshold_txt" id="p02_hc1_switch_off_threshold" min="-20" max="10" value="-20" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_switch_off_threshold_txt">--</span>
             </div>
             <div class="dash-footer">
               <div data-i18n="info_switchoff">--</div>
@@ -562,8 +594,8 @@
           <div class="dash-main">
             <div class="dash-header" data-i18n="hc2$-$switch_off_threshold">--</div>
             <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc2_switch_off_threshold"  min="-20" max="10" value="0" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_switch_off_threshold">--</span>
+              <input type="range" class="rangeSlider" data-value-id="p02_hc2_switch_off_threshold_txt" id="p02_hc2_switch_off_threshold" min="-20" max="10" value="-20" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_switch_off_threshold_txt">--</span>
             </div>
             <div class="dash-footer">
               <div data-i18n="info_switchoff">--</div>
@@ -578,8 +610,8 @@
           <div class="dash-main">
             <div class="dash-header" data-i18n="ww$-$temp">--</div>
             <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_ww_temp"  min="30" max="60" value="55" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_ww_temp">--</span>
+              <input type="range" class="rangeSlider" data-value-id="p02_ww_temp_txt" id="p02_ww_temp" min="30" max="60" value="30" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_ww_temp_txt">--</span>
             </div>
             <div class="dash-footer">
               <div data-i18n="info_wwtemp">--</div>
@@ -594,8 +626,8 @@
           <div class="dash-main">
             <div class="dash-header" data-i18n="ww$-$circulation">--</div>
             <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_ww_circulation"  min="0" max="7" value="0" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_ww_circulation">--</span>
+              <input type="range" class="rangeSlider" data-value-id="p02_ww_circulation_txt" id="p02_ww_circulation" min="0" max="7" value="0" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_ww_circulation_txt">--</span>
             </div>
             <div class="dash-footer">
               <div data-i18n="info_ww_pump_circ1">--</div>
@@ -625,704 +657,805 @@
       </div> <!-- END Grid-3 -->
   </div>
 <!-- HC1-Inhalt hier -->
-<div id="tab3" class="tab-content">
-    <div class="grid"> <!-- Grid 1 -->
-      <article class="card">
-        <p class="table-header" data-i18n="config">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="hc1$ $night_temp">--</td>
-              <td id="p03_hc1_night_temp" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $day_temp">--</td>
-              <td id="p03_hc1_day_temp" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $operation_mode">--</td>
-              <td id="p03_hc1_operation_mode" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $holiday_temp">--</td>
-              <td id="p03_hc1_holiday_temp" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $max_temp">--</td>
-              <td id="p03_hc1_max_temp" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $interpretation">--</td>
-              <td id="p03_hc1_interpretation" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $switch_on_temperature">--</td>
-              <td id="p03_hc1_switch_on_temperature" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $switch_off_threshold">--</td>
-              <td id="p03_hc1_switch_off_threshold" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $reduction_mode">--</td>
-              <td id="p03_hc1_reduction_mode" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $heating_system">--</td>
-              <td id="p03_hc1_heating_system" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $temp_offset">--</td>
-              <td id="p03_hc1_temp03_offset" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $remotecontrol">--</td>
-              <td id="p03_hc1_remotecontrol" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $summer_mode_threshold">--</td>
-              <td id="p03_hc1_summer_mode_threshold" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $frost_protection_threshold">--</td>
-              <td id="p03_hc1_frost_protection_threshold" class="table-value">--</td>
-            </tr>
-          </tbody>
-        </table>
-      </article>
-      
-      <article class="card">
-        <p class="table-header" data-i18n="status">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="hc1$ $flow_setpoint"></td>
-              <td id="p03_hc1_flow_setpoint" class="table-value">--</td>
-              <td>°C</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $flow_temp"></td>
-              <td id="p03_hc1_flow_temp" class="table-value">--</td>
-              <td>°C</td>
-            </tr>            
-            <tr>
-              <td data-i18n="hc1$ $heat_curve_10C"></td>
-              <td id="p03_hc1_heat_curve_10C" class="table-value">--</td>
-              <td>°C</td>
-            </tr>   
-            <tr>
-              <td data-i18n="hc1$ $heat_curve_0C"></td>
-              <td id="p03_hc1_heat_curve_0C" class="table-value">--</td>
-              <td>°C</td>
-            </tr>   
-            <tr>
-              <td data-i18n="hc1$ $heat_curve_-10C"></td>
-              <td id="p03_hc1_heat_curve_-10C" class="table-value">--</td>
-              <td>°C</td>
-            </tr>   
-            <tr>
-              <td data-i18n="hc1$ $mixer"></td>
-              <td id="p03_hc1_mixer" class="table-value">--</td>
-              <td>%</td>
-            </tr>   
-            <tr>
-              <td data-i18n="hc1$ $off_time_opt_duration"></td>
-              <td id="p03_hc1_off_time_opt_duration" class="table-value">--</td>
-              <td>min</td>
-            </tr>   
-            <tr>
-              <td data-i18n="hc1$ $on_time_opt_duration"></td>
-              <td id="p03_hc1_on_time_opt_duration" class="table-value">--</td>
-              <td>min</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hc1$ $pump"></td>
-              <td id="p03_hc1_pump" class="table-value">--</td>
-              <td>%</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hc1$ $room_setpoint"></td>
-              <td id="p03_hc1_room_setpoint" class="table-value">--</td>
-              <td>°C</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hc1$ $room_temp"></td>
-              <td id="p03_hc1_room_temp" class="table-value">--</td>
-              <td>°C</td>
-            </tr>  
-          </tbody>
-        </table>
-      </article>
-    
-    </div> <!-- END Grid 1 -->
-    <div class="grid"> <!-- Grid 2 -->
+      <div id="tab3" class="tab-content">
+        <div class="grid">
+          <!-- Grid 1 -->
+          <article class="card">
+            <p class="table-header" data-i18n="config">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hc1$ $night_temp">--</td>
+                  <td id="p03_hc1_night_temp" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $day_temp">--</td>
+                  <td id="p03_hc1_day_temp" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $operation_mode">--</td>
+                  <td id="p03_hc1_operation_mode" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $holiday_temp">--</td>
+                  <td id="p03_hc1_holiday_temp" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $max_temp">--</td>
+                  <td id="p03_hc1_max_temp" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $interpretation">--</td>
+                  <td id="p03_hc1_interpretation" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $switch_on_temperature">--</td>
+                  <td id="p03_hc1_switch_on_temperature" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $switch_off_threshold">--</td>
+                  <td id="p03_hc1_switch_off_threshold" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $reduction_mode">--</td>
+                  <td id="p03_hc1_reduction_mode" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $heating_system">--</td>
+                  <td id="p03_hc1_heating_system" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $temp_offset">--</td>
+                  <td id="p03_hc1_temp_offset" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $remotecontrol">--</td>
+                  <td id="p03_hc1_remotecontrol" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $summer_mode_threshold">--</td>
+                  <td id="p03_hc1_summer_mode_threshold" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $frost_protection_threshold">--</td>
+                  <td
+                    id="p03_hc1_frost_protection_threshold"
+                    class="table-value"
+                  >
+                    --
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
 
-      <article class="card">
-        <p class="table-header" data-i18n="op_values">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="hc1$ $ov1_off_time_optimization"></td>
-              <td id="p03_hc1_ov1_off_time_optimization" class="table-value">--</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hc1$ $ov1_on_time_optimization"></td>
-              <td id="p03_hc1_ov1_on_time_optimization" class="table-value">--</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hc1$ $ov1_automatic"></td>
-              <td id="p03_hc1_ov1_automatic" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hc1$ $ov1_ww_priority"></td>
-              <td id="p03_hc1_ov1_ww_priority" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hc1$ $ov1_screed_drying"></td>
-              <td id="p03_hc1_ov1_screed_drying" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hc1$ $ov1_holiday"></td>
-              <td id="p03_hc1_ov1_holiday" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hc1$ $ov1_frost_protection"></td>
-              <td id="p03_hc1_ov1_frost_protection" class="table-value">--</td>
-            </tr> 
-          </tbody>
-        </table>
-      </article>
+          <article class="card">
+            <p class="table-header" data-i18n="status">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hc1$ $flow_setpoint"></td>
+                  <td id="p03_hc1_flow_set" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $flow_temp"></td>
+                  <td id="p03_hc1_flow_act" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $heat_curve_10C"></td>
+                  <td id="p03_hc1_heat_curve_10C" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $heat_curve_0C"></td>
+                  <td id="p03_hc1_heat_curve_0C" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $heat_curve_-10C"></td>
+                  <td id="p03_hc1_heat_curve_-10C" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $mixer"></td>
+                  <td id="p03_hc1_mixer" class="table-value">--</td>
+                  <td>%</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $off_time_opt_duration"></td>
+                  <td id="p03_hc1_off_time_opt_duration" class="table-value">
+                    --
+                  </td>
+                  <td>min</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $on_time_opt_duration"></td>
+                  <td id="p03_hc1_on_time_opt_duration" class="table-value">
+                    --
+                  </td>
+                  <td>min</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $pump"></td>
+                  <td id="p03_hc1_pump" class="table-value">--</td>
+                  <td>%</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $room_setpoint"></td>
+                  <td id="p03_hc1_room_setpoint" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $room_temp"></td>
+                  <td id="p03_hc1_room_temp" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 1 -->
+        <div class="grid">
+          <!-- Grid 2 -->
 
-       <article class="card">
-        <p class="table-header" data-i18n="op_values">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="hc1$ $ov2_summer"></td>
-              <td id="p03_hc1_ov2_summer" class="table-value">--</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hc1$ $ov2_day"></td>
-              <td id="p03_hc1_ov2_day" class="table-value">--</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hc1$ $ov2_no_conn_to_remotectrl"></td>
-              <td id="p03_hc1_ov2_no_conn_to_remotectrl" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hc1$ $ov2_remotectrl_error"></td>
-              <td id="p03_hc1_ov2_remotectrl_error" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hc1$ $ov2_failure_flow_sensor"></td>
-              <td id="p03_hc1_ov2_failure_flow_sensor" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hc1$ $ov2_flow_at_maximum"></td>
-              <td id="p03_hc1_ov2_flow_at_maximum" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hc1$ $ov2_external_signal_input"></td>
-              <td id="p03_hc1_ov2_external_signal_input" class="table-value">--</td>
-            </tr> 
-          </tbody>
-        </table>
-      </article>
+          <article class="card">
+            <p class="table-header" data-i18n="op_values">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hc1$ $ov1_off_time_optimization"></td>
+                  <td
+                    id="p03_hc1_ov1_off_time_optimization"
+                    class="table-value"
+                  >
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $ov1_on_time_optimization"></td>
+                  <td id="p03_hc1_ov1_on_time_optimization" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $ov1_automatic"></td>
+                  <td id="p03_hc1_ov1_automatic" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $ov1_ww_priority"></td>
+                  <td id="p03_hc1_ov1_ww_priority" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $ov1_screed_drying"></td>
+                  <td id="p03_hc1_ov1_screed_drying" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $ov1_holiday"></td>
+                  <td id="p03_hc1_ov1_holiday" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $ov1_frost_protection"></td>
+                  <td id="p03_hc1_ov1_frost_protection" class="table-value">
+                    --
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
 
-    </div> <!-- END Grid 2 -->
-    
-    <!-- Grid 3 -->
-    <div class="grid">
-      
-      <article class="card" >
-        <p class="table-header" data-i18n="programs">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="hc1$ $timer++ 01">--</td>
-              <td id="p03_hc1_timer01" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $timer++ 02">--</td>
-              <td id="p03_hc1_timer02" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $timer++ 03">--</td>
-              <td id="p03_hc1_timer03" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $timer++ 04">--</td>
-              <td id="p03_hc1_timer04" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $timer++ 05">--</td>
-              <td id="p03_hc1_timer05" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $timer++ 06">--</td>
-              <td id="p03_hc1_timer06" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $timer++ 07">--</td>
-              <td id="p03_hc1_timer07" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $timer++ 08">--</td>
-              <td id="p03_hc1_timer08" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $timer++ 09">--</td>
-              <td id="p03_hc1_timer09" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $timer++ 10">--</td>
-              <td id="p03_hc1_timer10" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $timer++ 11">--</td>
-              <td id="p03_hc1_timer11" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $timer++ 12">--</td>
-              <td id="p03_hc1_timer12" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $timer++ 13">--</td>
-              <td id="p03_hc1_timer13" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc1$ $timer++ 14">--</td>
-              <td id="p03_hc1_timer14" class="table-value">--</td>
-            </tr>
-          </tbody>
-        </table>
-      </article>
-    </div> <!-- END Grid 3 -->
-</div>
+          <article class="card">
+            <p class="table-header" data-i18n="op_values">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hc1$ $ov2_summer"></td>
+                  <td id="p03_hc1_ov2_summer" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $ov2_day"></td>
+                  <td id="p03_hc1_ov2_day" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $ov2_no_conn_to_remotectrl"></td>
+                  <td
+                    id="p03_hc1_ov2_no_conn_to_remotectrl"
+                    class="table-value"
+                  >
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $ov2_remotectrl_error"></td>
+                  <td id="p03_hc1_ov2_remotectrl_error" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $ov2_failure_flow_sensor"></td>
+                  <td id="p03_hc1_ov2_failure_flow_sensor" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $ov2_flow_at_maximum"></td>
+                  <td id="p03_hc1_ov2_flow_at_maximum" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $ov2_external_signal_input"></td>
+                  <td
+                    id="p03_hc1_ov2_external_signal_input"
+                    class="table-value"
+                  >
+                    --
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 2 -->
+
+        <!-- Grid 3 -->
+        <div class="grid">
+          <article class="card">
+            <p class="table-header" data-i18n="programs">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hc1$ $timer++ 01">--</td>
+                  <td id="p03_hc1_timer01" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $timer++ 02">--</td>
+                  <td id="p03_hc1_timer02" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $timer++ 03">--</td>
+                  <td id="p03_hc1_timer03" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $timer++ 04">--</td>
+                  <td id="p03_hc1_timer04" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $timer++ 05">--</td>
+                  <td id="p03_hc1_timer05" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $timer++ 06">--</td>
+                  <td id="p03_hc1_timer06" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $timer++ 07">--</td>
+                  <td id="p03_hc1_timer07" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $timer++ 08">--</td>
+                  <td id="p03_hc1_timer08" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $timer++ 09">--</td>
+                  <td id="p03_hc1_timer09" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $timer++ 10">--</td>
+                  <td id="p03_hc1_timer10" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $timer++ 11">--</td>
+                  <td id="p03_hc1_timer11" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $timer++ 12">--</td>
+                  <td id="p03_hc1_timer12" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $timer++ 13">--</td>
+                  <td id="p03_hc1_timer13" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc1$ $timer++ 14">--</td>
+                  <td id="p03_hc1_timer14" class="table-value">--</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 3 -->
+      </div>
 <!-- HC2-Inhalt hier -->
-<div id="tab4" class="tab-content">
-    <div class="grid"> <!-- Grid 1 -->
-      <article class="card">
-        <p class="table-header" data-i18n="config">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="hc2$ $night_temp">--</td>
-              <td id="p04_hc2_night_temp" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $day_temp">--</td>
-              <td id="p04_hc2_day_temp" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $operation_mode">--</td>
-              <td id="p04_hc2_operation_mode" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $holiday_temp">--</td>
-              <td id="p04_hc2_holiday_temp" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $max_temp">--</td>
-              <td id="p04_hc2_max_temp" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $interpretation">--</td>
-              <td id="p04_hc2_interpretation" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $switch_on_temperature">--</td>
-              <td id="p04_hc2_switch_on_temperature" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $switch_off_threshold">--</td>
-              <td id="p04_hc2_switch_off_threshold" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $reduction_mode">--</td>
-              <td id="p04_hc2_reduction_mode" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $heating_system">--</td>
-              <td id="p04_hc2_heating_system" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $temp_offset">--</td>
-              <td id="p04_hc2_temp03_offset" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $remotecontrol">--</td>
-              <td id="p04_hc2_remotecontrol" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $summer_mode_threshold">--</td>
-              <td id="p04_hc2_summer_mode_threshold" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $frost_protection_threshold">--</td>
-              <td id="p04_hc2_frost_protection_threshold" class="table-value">--</td>
-            </tr>
-          </tbody>
-        </table>
-      </article>
-      
-      <article class="card">
-        <p class="table-header" data-i18n="status">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="hc2$ $flow_setpoint"></td>
-              <td id="p04_hc2_flow_setpoint" class="table-value">--</td>
-              <td>°C</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $flow_temp"></td>
-              <td id="p04_hc2_flow_temp" class="table-value">--</td>
-              <td>°C</td>
-            </tr>            
-            <tr>
-              <td data-i18n="hc2$ $heat_curve_10C"></td>
-              <td id="p04_hc2_heat_curve_10C" class="table-value">--</td>
-              <td>°C</td>
-            </tr>   
-            <tr>
-              <td data-i18n="hc2$ $heat_curve_0C"></td>
-              <td id="p04_hc2_heat_curve_0C" class="table-value">--</td>
-              <td>°C</td>
-            </tr>   
-            <tr>
-              <td data-i18n="hc2$ $heat_curve_-10C"></td>
-              <td id="p04_hc2_heat_curve_-10C" class="table-value">--</td>
-              <td>°C</td>
-            </tr>   
-            <tr>
-              <td data-i18n="hc2$ $mixer"></td>
-              <td id="p04_hc2_mixer" class="table-value">--</td>
-              <td>%</td>
-            </tr>   
-            <tr>
-              <td data-i18n="hc2$ $off_time_opt_duration"></td>
-              <td id="p04_hc2_off_time_opt_duration" class="table-value">--</td>
-              <td>min</td>
-            </tr>   
-            <tr>
-              <td data-i18n="hc2$ $on_time_opt_duration"></td>
-              <td id="p04_hc2_on_time_opt_duration" class="table-value">--</td>
-              <td>min</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hc2$ $pump"></td>
-              <td id="p04_hc2_pump" class="table-value">--</td>
-              <td>%</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hc2$ $room_setpoint"></td>
-              <td id="p04_hc2_room_setpoint" class="table-value">--</td>
-              <td>°C</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hc2$ $room_temp"></td>
-              <td id="p04_hc2_room_temp" class="table-value">--</td>
-              <td>°C</td>
-            </tr>  
-          </tbody>
-        </table>
-      </article>
-    
-    </div> <!-- END Grid 1 -->
-    <div class="grid"> <!-- Grid 2 -->
+      <div id="tab4" class="tab-content">
+        <div class="grid">
+          <!-- Grid 1 -->
+          <article class="card">
+            <p class="table-header" data-i18n="config">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hc2$ $night_temp">--</td>
+                  <td id="p04_hc2_night_temp" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $day_temp">--</td>
+                  <td id="p04_hc2_day_temp" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $operation_mode">--</td>
+                  <td id="p04_hc2_operation_mode" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $holiday_temp">--</td>
+                  <td id="p04_hc2_holiday_temp" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $max_temp">--</td>
+                  <td id="p04_hc2_max_temp" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $interpretation">--</td>
+                  <td id="p04_hc2_interpretation" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $switch_on_temperature">--</td>
+                  <td id="p04_hc2_switch_on_temperature" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $switch_off_threshold">--</td>
+                  <td id="p04_hc2_switch_off_threshold" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $reduction_mode">--</td>
+                  <td id="p04_hc2_reduction_mode" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $heating_system">--</td>
+                  <td id="p04_hc2_heating_system" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $temp_offset">--</td>
+                  <td id="p04_hc2_temp_offset" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $remotecontrol">--</td>
+                  <td id="p04_hc2_remotecontrol" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $summer_mode_threshold">--</td>
+                  <td id="p04_hc2_summer_mode_threshold" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $frost_protection_threshold">--</td>
+                  <td
+                    id="p04_hc2_frost_protection_threshold"
+                    class="table-value"
+                  >
+                    --
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
 
-      <article class="card">
-        <p class="table-header" data-i18n="op_values">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="hc2$ $ov1_off_time_optimization"></td>
-              <td id="p04_hc2_ov1_off_time_optimization" class="table-value">--</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hc2$ $ov1_on_time_optimization"></td>
-              <td id="p04_hc2_ov1_on_time_optimization" class="table-value">--</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hc2$ $ov1_automatic"></td>
-              <td id="p04_hc2_ov1_automatic" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hc2$ $ov1_ww_priority"></td>
-              <td id="p04_hc2_ov1_ww_priority" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hc2$ $ov1_screed_drying"></td>
-              <td id="p04_hc2_ov1_screed_drying" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hc2$ $ov1_holiday"></td>
-              <td id="p04_hc2_ov1_holiday" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hc2$ $ov1_frost_protection"></td>
-              <td id="p04_hc2_ov1_frost_protection" class="table-value">--</td>
-            </tr> 
-          </tbody>
-        </table>
-      </article>
+          <article class="card">
+            <p class="table-header" data-i18n="status">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hc2$ $flow_setpoint"></td>
+                  <td id="p04_hc2_flow_set" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $flow_temp"></td>
+                  <td id="p04_hc2_flow_act" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $heat_curve_10C"></td>
+                  <td id="p04_hc2_heat_curve_10C" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $heat_curve_0C"></td>
+                  <td id="p04_hc2_heat_curve_0C" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $heat_curve_-10C"></td>
+                  <td id="p04_hc2_heat_curve_-10C" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $mixer"></td>
+                  <td id="p04_hc2_mixer" class="table-value">--</td>
+                  <td>%</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $off_time_opt_duration"></td>
+                  <td id="p04_hc2_off_time_opt_duration" class="table-value">
+                    --
+                  </td>
+                  <td>min</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $on_time_opt_duration"></td>
+                  <td id="p04_hc2_on_time_opt_duration" class="table-value">
+                    --
+                  </td>
+                  <td>min</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $pump"></td>
+                  <td id="p04_hc2_pump" class="table-value">--</td>
+                  <td>%</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $room_setpoint"></td>
+                  <td id="p04_hc2_room_setpoint" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $room_temp"></td>
+                  <td id="p04_hc2_room_temp" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 1 -->
+        <div class="grid">
+          <!-- Grid 2 -->
 
-       <article class="card">
-        <p class="table-header" data-i18n="op_values">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="hc2$ $ov2_summer"></td>
-              <td id="p04_hc2_ov2_summer" class="table-value">--</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hc2$ $ov2_day"></td>
-              <td id="p04_hc2_ov2_day" class="table-value">--</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hc2$ $ov2_no_conn_to_remotectrl"></td>
-              <td id="p04_hc2_ov2_no_conn_to_remotectrl" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hc2$ $ov2_remotectrl_error"></td>
-              <td id="p04_hc2_ov2_remotectrl_error" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hc2$ $ov2_failure_flow_sensor"></td>
-              <td id="p04_hc2_ov2_failure_flow_sensor" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hc2$ $ov2_flow_at_maximum"></td>
-              <td id="p04_hc2_ov2_flow_at_maximum" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hc2$ $ov2_external_signal_input"></td>
-              <td id="p04_hc2_ov2_external_signal_input" class="table-value">--</td>
-            </tr> 
-          </tbody>
-        </table>
-      </article>
+          <article class="card">
+            <p class="table-header" data-i18n="op_values">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hc2$ $ov1_off_time_optimization"></td>
+                  <td
+                    id="p04_hc2_ov1_off_time_optimization"
+                    class="table-value"
+                  >
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $ov1_on_time_optimization"></td>
+                  <td id="p04_hc2_ov1_on_time_optimization" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $ov1_automatic"></td>
+                  <td id="p04_hc2_ov1_automatic" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $ov1_ww_priority"></td>
+                  <td id="p04_hc2_ov1_ww_priority" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $ov1_screed_drying"></td>
+                  <td id="p04_hc2_ov1_screed_drying" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $ov1_holiday"></td>
+                  <td id="p04_hc2_ov1_holiday" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $ov1_frost_protection"></td>
+                  <td id="p04_hc2_ov1_frost_protection" class="table-value">
+                    --
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
 
-    </div> <!-- END Grid 2 -->
-    
-    <!-- Grid 3 -->
-    <div class="grid">
-      
-      <article class="card" >
-        <p class="table-header" data-i18n="programs">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="hc2$ $timer++ 01">--</td>
-              <td id="p04_hc2_timer01" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $timer++ 02">--</td>
-              <td id="p04_hc2_timer02" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $timer++ 03">--</td>
-              <td id="p04_hc2_timer03" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $timer++ 04">--</td>
-              <td id="p04_hc2_timer04" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $timer++ 05">--</td>
-              <td id="p04_hc2_timer05" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $timer++ 06">--</td>
-              <td id="p04_hc2_timer06" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $timer++ 07">--</td>
-              <td id="p04_hc2_timer07" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $timer++ 08">--</td>
-              <td id="p04_hc2_timer08" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $timer++ 09">--</td>
-              <td id="p04_hc2_timer09" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $timer++ 10">--</td>
-              <td id="p04_hc2_timer10" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $timer++ 11">--</td>
-              <td id="p04_hc2_timer11" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $timer++ 12">--</td>
-              <td id="p04_hc2_timer12" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $timer++ 13">--</td>
-              <td id="p04_hc2_timer13" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hc2$ $timer++ 14">--</td>
-              <td id="p04_hc2_timer14" class="table-value">--</td>
-            </tr>
-          </tbody>
-        </table>
-      </article>
-    </div> <!-- END Grid 3 -->
-</div>
+          <article class="card">
+            <p class="table-header" data-i18n="op_values">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hc2$ $ov2_summer"></td>
+                  <td id="p04_hc2_ov2_summer" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $ov2_day"></td>
+                  <td id="p04_hc2_ov2_day" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $ov2_no_conn_to_remotectrl"></td>
+                  <td
+                    id="p04_hc2_ov2_no_conn_to_remotectrl"
+                    class="table-value"
+                  >
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $ov2_remotectrl_error"></td>
+                  <td id="p04_hc2_ov2_remotectrl_error" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $ov2_failure_flow_sensor"></td>
+                  <td id="p04_hc2_ov2_failure_flow_sensor" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $ov2_flow_at_maximum"></td>
+                  <td id="p04_hc2_ov2_flow_at_maximum" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $ov2_external_signal_input"></td>
+                  <td
+                    id="p04_hc2_ov2_external_signal_input"
+                    class="table-value"
+                  >
+                    --
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 2 -->
+
+        <!-- Grid 3 -->
+        <div class="grid">
+          <article class="card">
+            <p class="table-header" data-i18n="programs">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hc2$ $timer++ 01">--</td>
+                  <td id="p04_hc2_timer01" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $timer++ 02">--</td>
+                  <td id="p04_hc2_timer02" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $timer++ 03">--</td>
+                  <td id="p04_hc2_timer03" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $timer++ 04">--</td>
+                  <td id="p04_hc2_timer04" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $timer++ 05">--</td>
+                  <td id="p04_hc2_timer05" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $timer++ 06">--</td>
+                  <td id="p04_hc2_timer06" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $timer++ 07">--</td>
+                  <td id="p04_hc2_timer07" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $timer++ 08">--</td>
+                  <td id="p04_hc2_timer08" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $timer++ 09">--</td>
+                  <td id="p04_hc2_timer09" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $timer++ 10">--</td>
+                  <td id="p04_hc2_timer10" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $timer++ 11">--</td>
+                  <td id="p04_hc2_timer11" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $timer++ 12">--</td>
+                  <td id="p04_hc2_timer12" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $timer++ 13">--</td>
+                  <td id="p04_hc2_timer13" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hc2$ $timer++ 14">--</td>
+                  <td id="p04_hc2_timer14" class="table-value">--</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 3 -->
+      </div>
 <div id="tab5" class="tab-content">
-<div class="grid"> <!-- Grid 1 -->
-      <article class="card">
-        <p class="table-header" data-i18n="config">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="hw$ $priority">--</td>
-              <td id="p05_hw_priorityp" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hw$ $temp">--</td>
-              <td id="p05_hw_temp" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hw$ $operation_mode">--</td>
-              <td id="p05_hw_operation_mode" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hw$ $processing">--</td>
-              <td id="p05_hw_processing" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hw$ $circulation">--</td>
-              <td id="p05_hw_circulation" class="table-value">--</td>
-            </tr>
-          </tbody>
-        </table>
-      </article>
-      
-      <article class="card">
-        <p class="table-header" data-i18n="status">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="hw$ $act_temp"></td>
-              <td id="p05_hw_act_temp" class="table-value">--</td>
-              <td>°C</td>
-            </tr>
-            <tr>
-              <td data-i18n="hw$ $set_temp"></td>
-              <td id="p05_hw_set_temp" class="table-value">--</td>
-              <td>°C</td>
-            </tr>
-            <tr>
-              <td data-i18n="hw$ $on_time_opt_duration"></td>
-              <td id="p05_hw_on_time_opt_duration" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="hw$ $pump_type_charge"></td>
-              <td id="p05_hw_pump_type_charge" class="table-value">--</td>
-            </tr>            
-            <tr>
-              <td data-i18n="hw$ $pump_type_circulation"></td>
-              <td id="p05_hw_pump_type_circulation" class="table-value">--</td>
-            </tr>   
-            <tr>
-              <td data-i18n="hw$ $pump_type_groundwater_solar"></td>
-              <td id="p05_hw_pump_type_groundwater_solar" class="table-value">--</td>
-            </tr>
-          </tbody>
-        </table>
-      </article>
-    
-    </div> <!-- END Grid 1 -->
-    <div class="grid"> <!-- Grid 2 -->
+        <div class="grid">
+          <!-- Grid 1 -->
+          <article class="card">
+            <p class="table-header" data-i18n="config">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hw$ $priority">--</td>
+                  <td id="p05_hw_priority" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $temp">--</td>
+                  <td id="p05_hw_temp" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $operation_mode">--</td>
+                  <td id="p05_hw_operation_mode" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $processing">--</td>
+                  <td id="p05_hw_processing" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $circulation">--</td>
+                  <td id="p05_hw_circulation" class="table-value">--</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
 
-      <article class="card">
-        <p class="table-header" data-i18n="op_values">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="hw$ $ov1_auto"></td>
-              <td id="p05_hw_ov1_auto" class="table-value">--</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hw$ $ov1_disinfection"></td>
-              <td id="p05_hw_ov1_disinfection" class="table-value">--</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hw$ $ov1_reload"></td>
-              <td id="p05_hw_ov1_reload" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hw$ $ov1_holiday"></td>
-              <td id="p05_hw_ov1_holiday" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hw$ $ov1_err_disinfection"></td>
-              <td id="p05_hw_ov1_err_disinfection" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hw$ $ov1_err_sensor"></td>
-              <td id="p05_hw_ov1_err_sensor" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hw$ $ov1_stays_cold"></td>
-              <td id="p05_hw_ov1_stays_cold" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hw$ $ov1_err_anode"></td>
-              <td id="p05_hw_ov1_err_anode" class="table-value">--</td>
-            </tr> 
-          </tbody>
-        </table>
-      </article>
+          <article class="card">
+            <p class="table-header" data-i18n="status">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hw$ $act_temp"></td>
+                  <td id="p05_hw_act_temp" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $set_temp"></td>
+                  <td id="p05_hw_set_temp" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $on_time_opt_duration"></td>
+                  <td id="p05_hw_on_time_opt_duration" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $pump_type_charge"></td>
+                  <td id="p05_hw_pump_type_charge" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $pump_type_circulation"></td>
+                  <td id="p05_hw_pump_type_circulation" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $pump_type_groundwater_solar"></td>
+                  <td
+                    id="p05_hw_pump_type_groundwater_solar"
+                    class="table-value"
+                  >
+                    --
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 1 -->
+        <div class="grid">
+          <!-- Grid 2 -->
 
-       <article class="card">
-        <p class="table-header" data-i18n="op_values">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="hw$ $ov2_load"></td>
-              <td id="p05_hw_ov2_load" class="table-value">--</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hw$ $ov2_manual"></td>
-              <td id="p05_hw_ov2_manual" class="table-value">--</td>
-            </tr>  
-            <tr>
-              <td data-i18n="hw$ $ov2_reload"></td>
-              <td id="p05_hw_ov2_reload" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hw$ $ov2_off_time_opt_duration"></td>
-              <td id="p05_hw_ov2_off_time_opt_duration" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hw$ $ov2_on_time_opt_duration"></td>
-              <td id="p05_hw_ov2_on_time_opt_duration" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hw$ $ov2_day"></td>
-              <td id="p05_hw_ov2_day" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hw$ $ov2_hot"></td>
-              <td id="p05_hw_ov2_hot" class="table-value">--</td>
-            </tr> 
-            <tr>
-              <td data-i18n="hw$ $ov2_priority"></td>
-              <td id="p05_hw_ov2_priority" class="table-value">--</td>
-            </tr> 
-          </tbody>
-        </table>
-      </article>
+          <article class="card">
+            <p class="table-header" data-i18n="op_values">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hw$ $ov1_auto"></td>
+                  <td id="p05_hw_ov1_auto" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov1_disinfection"></td>
+                  <td id="p05_hw_ov1_disinfection" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov1_reload"></td>
+                  <td id="p05_hw_ov1_reload" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov1_holiday"></td>
+                  <td id="p05_hw_ov1_holiday" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov1_err_disinfection"></td>
+                  <td id="p05_hw_ov1_err_disinfection" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov1_err_sensor"></td>
+                  <td id="p05_hw_ov1_err_sensor" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov1_stays_cold"></td>
+                  <td id="p05_hw_ov1_stays_cold" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov1_err_anode"></td>
+                  <td id="p05_hw_ov1_err_anode" class="table-value">--</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
 
-    </div> <!-- END Grid 2 -->
-</div>
+          <article class="card">
+            <p class="table-header" data-i18n="op_values">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hw$ $ov2_load"></td>
+                  <td id="p05_hw_ov2_load" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov2_manual"></td>
+                  <td id="p05_hw_ov2_manual" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov2_reload"></td>
+                  <td id="p05_hw_ov2_reload" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov2_off_time_opt_duration"></td>
+                  <td id="p05_hw_ov2_off_time_opt_duration" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov2_on_time_opt_duration"></td>
+                  <td id="p05_hw_ov2_on_time_opt_duration" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov2_day"></td>
+                  <td id="p05_hw_ov2_day" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov2_hot"></td>
+                  <td id="p05_hw_ov2_hot" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov2_priority"></td>
+                  <td id="p05_hw_ov2_priority" class="table-value">--</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 2 -->
+      </div>
 <div id="tab6" class="tab-content">
     <div class="grid"> <!-- Grid 1 -->
     <article class="card">
@@ -1676,21 +1809,22 @@
         </div>
     </article>
 
-<article class="tools">
-    <div class="dash-main">
-    <div class="dash-header" data-i18n="filemgn">--</div>
-    <div class="dash-content"> 
-        <form method="POST" action="/doUpload" enctype="multipart/form-data" id="file_upload_form">
-            <input type="file" name="file_update" id="file_input" onchange="file_sub_fun(this)">
-            <input type="submit" id="file_updateBtn" disabled="true" value="Upload file">
-            <br><div id="txt_file_upload" style="display:none" data-i18n="upload_ready">--</div>
-            <br><progress id="file_upload_bar" style="display:none" max="100" value="1"></progress> <div id='file_progress'></div>
-            <br><h6 data-i18n="file_content">--</h6>
-            <span id="filelist">%list%</span>
-        </form>    
-    </div>
-    </div>
-</article>
+    <article class="tools">
+        <div class="dash-main">
+        <div class="dash-header" data-i18n="filemgn">--</div>
+        <div class="dash-content"> 
+            <form method="POST" action="/doUpload" enctype="multipart/form-data" id="file_upload_form">
+                <input type="file" name="file_update" id="file_input" onchange="file_sub_fun(this)">
+                <input type="submit" id="file_updateBtn" disabled="true" value="Upload file">
+                <br><div id="txt_file_upload" style="display:none" data-i18n="upload_ready">--</div>
+                <br><progress id="file_upload_bar" style="display:none" max="100" value="1"></progress> <div id='file_progress'></div>
+                <br><h6 data-i18n="file_content">--</h6>
+                <span id="filelist">%list%</span>
+            </form>    
+        </div>
+        </div>
+    </article>
+</div>  
 </div>
 <div id="tab12" class="tab-content">
   <div class="grid" style="max-width: 1024px;">

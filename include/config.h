@@ -4,7 +4,7 @@
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION             "v3.4.x"   // internal program version
+#define VERSION             "v4.0.0"   // internal program version
 #define SIM_MODE true
 
 #define WIFI_RECONNECT      10000        // Delay between wifi reconnection tries

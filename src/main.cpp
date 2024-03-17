@@ -51,7 +51,6 @@ void setup()
 {
   //Enable serial port
   Serial.begin(115200);
-  //while(!Serial) {} // Wait
 
   // check for double reset
   drd = new DoubleResetDetector(DRD_TIMEOUT, DRD_ADDRESS);
@@ -91,7 +90,7 @@ void setup()
     webUISetup();
 
     // webTools
-    webToolsSetup();
+  //  webToolsSetup();
 
   }
 

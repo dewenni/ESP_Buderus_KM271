@@ -45,21 +45,22 @@ setInterval(test, 1000);
         </div>
     </article>
 
-<article class="tools">
-    <div class="dash-main">
-    <div class="dash-header" data-i18n="filemgn">--</div>
-    <div class="dash-content"> 
-        <form method="POST" action="/doUpload" enctype="multipart/form-data" id="file_upload_form">
-            <input type="file" name="file_update" id="file_input" onchange="file_sub_fun(this)">
-            <input type="submit" id="file_updateBtn" disabled="true" value="Upload file">
-            <br><div id="txt_file_upload" style="display:none" data-i18n="upload_ready">--</div>
-            <br><progress id="file_upload_bar" style="display:none" max="100" value="1"></progress> <div id='file_progress'></div>
-            <br><h6 data-i18n="file_content">--</h6>
-            <span id="filelist">%list%</span>
-        </form>    
-    </div>
-    </div>
-</article>
+    <article class="tools">
+        <div class="dash-main">
+        <div class="dash-header" data-i18n="filemgn">--</div>
+        <div class="dash-content"> 
+            <form method="POST" action="/doUpload" enctype="multipart/form-data" id="file_upload_form">
+                <input type="file" name="file_update" id="file_input" onchange="file_sub_fun(this)">
+                <input type="submit" id="file_updateBtn" disabled="true" value="Upload file">
+                <br><div id="txt_file_upload" style="display:none" data-i18n="upload_ready">--</div>
+                <br><progress id="file_upload_bar" style="display:none" max="100" value="1"></progress> <div id='file_progress'></div>
+                <br><h6 data-i18n="file_content">--</h6>
+                <span id="filelist">%list%</span>
+            </form>    
+        </div>
+        </div>
+    </article>
+</div>  
 </div>
 <!--SECTION-END-->
   
