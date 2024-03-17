@@ -2,8 +2,9 @@
 #include <webTools.h>
 #include <basics.h>
 #include <km271.h>
-#include <ESPAsyncWebServer.h>
 #include <simulation.h>
+#include <oilmeter.h>
+#include <sensor.h>
 
 AsyncWebServer server(80);
 AsyncEventSource events("/events");
@@ -11,11 +12,14 @@ AsyncEventSource events("/events");
 bool clientConnected = false;
 bool bootInit = false;
 bool updateKmConfig = false;
+long oilcounter, oilcounterOld;
 
 s_km271_status *pkmStatus;
 s_km271_status kmStatusCpy;
 s_km271_config_str *pkmConfigStr;
 s_km271_config_num *pkmConfigNum;
+s_km271_alarm_str *pkmAlarmStr;
+s_km271_alarm_str kmAlarmStrCpy;
 
 s_webui_texts webText;
 s_cfg_arrays cfgArrayTexts;
@@ -27,7 +31,9 @@ void webCallback(const char *elementId, const char *value);
 void updateAll(); 
 
 /* D E C L A R A T I O N S ****************************************************/
-muTimer refreshTimer = muTimer();         // timer to refresh other values
+muTimer refreshTimer1 = muTimer();         // timer to refresh other values
+muTimer refreshTimer2 = muTimer();         // timer to refresh other values
+muTimer refreshTimer3 = muTimer();         // timer to refresh other values
 muTimer connectionTimer = muTimer();         // timer to refresh other values
 muTimer simulationTimer = muTimer();         // timer to refresh other values
 
@@ -183,6 +189,7 @@ void webUISetup(){
   pkmConfigStr = km271GetConfigStringsAdr();
   pkmConfigNum = km271GetConfigValueAdr();
   pkmStatus = km271GetStatusValueAdr();
+  pkmAlarmStr = km271GetAlarmMsgAdr();
 
 } // END SETUP
 
@@ -196,7 +203,88 @@ void webUISetup(){
 void updateAll(){
 
   memset((void *)&kmStatusCpy, 111, sizeof(s_km271_status));
-  
+
+}
+
+/**
+ * *******************************************************************
+ * @brief   update System informations
+ * @param   none 
+ * @return  none
+ * *******************************************************************/
+void updateOilmeter(){
+
+  // check if oilcounter value changed
+  if (config.oilmeter.use_hardware_meter) {
+    oilcounter = getOilmeter();
+    if (oilcounter!=oilcounterOld) {
+      oilcounterOld = oilcounter;
+
+      // Oilmeter value in controlTab
+      snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f", float(oilcounter)/100);
+      updateWebText("p02_oilmeter_value",tmpMessage, true);
+
+      // Oilmeter value in dashboardTab
+      snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f  L", float(oilcounter)/100);
+      updateWebText("p01_oilmeter",tmpMessage, false);
+    } 
+  }
+
+}
+
+
+/**
+ * *******************************************************************
+ * @brief   update System informations
+ * @param   none 
+ * @return  none
+ * *******************************************************************/
+void updateSystemInfo(){
+
+  // WiFi
+  updateWebText("p09_wifi_ip",wifi.ipAddress, false);
+  updateWebTextInt("p09_wifi_signal",wifi.signal, false);
+  updateWebTextInt("p09_wifi_rssi",wifi.rssi, false);
+
+  // Version informations
+  updateWebText("p00_version",VERSION, false);
+  updateWebText("p09_sw_version",VERSION, false);
+
+  // ESP informations
+  updateWebTextFloat("p09_esp_flash_usage",(float)ESP.getSketchSize()*100/ESP.getFreeSketchSpace(), false);
+  updateWebTextFloat("p09_esp_heap_usage",(float)(ESP.getHeapSize()-ESP.getFreeHeap())*100/ESP.getHeapSize(), false);
+  updateWebTextFloat("p09_esp_maxallocheap",(float)ESP.getMaxAllocHeap()/1000.0, false);
+  updateWebTextFloat("p09_esp_minfreeheap",(float)ESP.getMinFreeHeap()/1000.0, false);
+
+  // Uptime and restart reason
+  char uptimeStr[64];
+  getUptime(uptimeStr, sizeof(uptimeStr));
+  updateWebText("p09_uptime",uptimeStr, false);
+  char restartReason[64];
+  getRestartReason(restartReason, sizeof(restartReason));
+  updateWebText("p09_restart_reason",restartReason, false);
+
+}
+
+/**
+ * *******************************************************************
+ * @brief   update Alarm messages of KM271
+ * @param   none 
+ * @return  none
+ * *******************************************************************/
+void updateKm271Alarm(){
+
+  // chek if alarm messages changed
+  if(memcmp(&kmAlarmStrCpy, km271GetAlarmMsgAdr(), sizeof(s_km271_alarm_str))) {
+    km271GetAlarmMsgCopy(&kmAlarmStrCpy);
+
+    updateWebText("p08_err_msg1",kmAlarmStrCpy.alarm1, false);
+    updateWebText("p08_err_msg2",kmAlarmStrCpy.alarm2, false);
+    updateWebText("p08_err_msg3",kmAlarmStrCpy.alarm3, false);
+    updateWebText("p08_err_msg4",kmAlarmStrCpy.alarm4, false);
+
+  }
+
 }
 
 /**
@@ -512,11 +600,11 @@ void updateKm271Status(){
   }
   else if (kmStatusCpy.HC2_RoomTargetTemp != pkmStatus->HC2_RoomTargetTemp) {
     kmStatusCpy.HC2_RoomTargetTemp = pkmStatus->HC2_RoomTargetTemp;
-    updateWebTextInt("p03_hc2_room_setpoint", kmStatusCpy.HC2_RoomTargetTemp, false);
+    updateWebTextInt("p04_hc2_room_setpoint", kmStatusCpy.HC2_RoomTargetTemp, false);
   }
   else if (kmStatusCpy.HC2_RoomActualTemp != pkmStatus->HC2_RoomActualTemp) {
     kmStatusCpy.HC2_RoomActualTemp = pkmStatus->HC2_RoomActualTemp;
-    updateWebTextInt("p03_hc2_room_temp", kmStatusCpy.HC2_RoomActualTemp, false);
+    updateWebTextInt("p04_hc2_room_temp", kmStatusCpy.HC2_RoomActualTemp, false);
   }
   else if (kmStatusCpy.HC2_SwitchOnOptimizationTime != pkmStatus->HC2_SwitchOnOptimizationTime) {
     kmStatusCpy.HC2_SwitchOnOptimizationTime = pkmStatus->HC2_SwitchOnOptimizationTime;
@@ -728,7 +816,22 @@ void updateKm271Status(){
  * *******************************************************************/
 void webUICylic(){
 
-  updateKm271Status();
+// heartbeat timer for webclient  
+if (connectionTimer.cycleTrigger(2000))
+  {
+    events.send("ping", "ping", millis());
+  }
+
+  if (refreshTimer1.cycleTrigger(50))
+  {
+    updateKm271Alarm();
+    updateKm271Status();
+  }
+  if (refreshTimer2.cycleTrigger(3000))
+  {
+    updateSystemInfo();
+    updateOilmeter();
+  }
 
   if(updateKmConfig){
     updateKm271Config();
@@ -738,15 +841,9 @@ void webUICylic(){
   {
     bootInit = true;
     startSimData();
-    updateWebText("p00_version", "4.x.x", false);
-    updateKm271Config();
-  }
-
-  if (connectionTimer.cycleTrigger(2000))
-  {
-      events.send("ping", "ping", millis());
   }
 
   
+
 
 }

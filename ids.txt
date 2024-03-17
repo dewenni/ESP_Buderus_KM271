@@ -207,12 +207,12 @@ p05_hw_ov2_day
 p05_hw_ov2_hot
 p05_hw_ov2_priority
 tab6
+p06_max_boiler_temperature
 p06_burner_control
 p06_boiler_temp
 p06_boiler_setpoint
 p06_boiler_switch_off_temp
 p06_boiler_switch_on_temp
-p06_max_boiler_temperature
 p06_boiler_state_exhaust_gas_test
 p06_boiler_state_stage1
 p06_boiler_state_boiler_protection
@@ -261,6 +261,8 @@ p09_esp_flash_usage
 p09_esp_heap_usage
 p09_esp_maxallocheap
 p09_esp_minfreeheap
+p09_uptime
+p09_restart_reason
 tab10
 tab11
 ota_updateBtn

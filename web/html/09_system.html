@@ -1,111 +1,143 @@
-<!DOCTYPE HTML><html>
-<head>
-  <title>ESP Async Web Server</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" type="text/css" href="../css/pico.css">
-  <link rel="stylesheet" type="text/css" href="../css/custom.css">
-   <link rel="stylesheet" type="text/css" href="../css/icons.css"> 
-  <script src="../js/main.js" defer></script>
-  <script src="../js/lang.js" defer></script>
-<style></style>
-<script>
-function test() {    
-    document.getElementById("tab9").classList.add('active');
-}
-setInterval(test, 1000);
-</script>
-</head>
-<body>
-<!-- Layout -->    
-<header style="height: 100px; display: flex; align-items: center; justify-content: center;"></header>
-<!-- Tab-Content -->
-<main class="container">
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ESP Async Web Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../css/pico.css" />
+    <link rel="stylesheet" type="text/css" href="../css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../css/icons.css" />
+    <script src="../js/main.js" defer></script>
+    <script src="../js/lang.js" defer></script>
+    <style></style>
+    <script>
+      function test() {
+        document.getElementById("tab9").classList.add("active");
+        localizePage("de");
+      }
+      setInterval(test, 1000);
+    </script>
+  </head>
+  <body>
+    <!-- Layout -->
+    <header
+      style="
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "
+    ></header>
+    <!-- Tab-Content -->
+    <main class="container">
+      <!--SECTION-START-->
+      <!-- System-Inhalt hier -->
+      <div id="tab9" class="tab-content">
+        <div class="grid">
+          <!-- Grid 1 -->
+          <article class="card">
+            <p class="table-header" data-i18n="wifi_info">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="wifi_ip">--</td>
+                  <td id="p09_wifi_ip" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="wifi_signal">--</td>
+                  <td id="p09_wifi_signal" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="wifi_rssi">--</td>
+                  <td id="p09_wifi_rssi" class="table-value">--</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
 
+          <article class="card">
+            <p class="table-header" data-i18n="version_info">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="sw_version">--</td>
+                  <td id="p09_sw_version" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="logamatic_version">--</td>
+                  <td id="p09_logamatic_version" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="logamatic_modul">--</td>
+                  <td id="p09_logamatic_modul" class="table-value">--</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 1 -->
 
-<!--SECTION-START-->
-<!-- System-Inhalt hier -->
-<div id="tab9" class="tab-content">
-    <div class="grid"> <!-- Grid 1 -->
-      <article class="card">
-        <p class="table-header" data-i18n="wifi_info">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="wifi_ip">--</td>
-              <td id="p09_wifi_ip" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="wifi_signal">--</td>
-              <td id="p09_wifi_signal" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="wifi_rssi">--</td>
-              <td id="p09_wifi_rssi" class="table-value">--</td>
-            </tr>     
-          </tbody>
-        </table>
-      </article>
-      
-      <article class="card">
-        <p class="table-header" data-i18n="version_info">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="sw_version">--</td>
-              <td id="p09_sw_version" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="logamatic_version">--</td>
-              <td id="p09_logamatic_version" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="logamatic_modul">--</td>
-              <td id="p09_logamatic_modul" class="table-value">--</td>
-            </tr>     
-          </tbody>
-        </table>
-      </article>   
+        <div class="grid">
+          <!-- Grid 2 -->
+          <article class="card">
+            <p class="table-header" data-i18n="sysinfo">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="esp_flash_usage">--</td>
+                  <td id="p09_esp_flash_usage" class="table-value">--</td>
+                  <td>%</td>
+                </tr>
+                <tr>
+                  <td data-i18n="esp_heap_usage">--</td>
+                  <td id="p09_esp_heap_usage" class="table-value">--</td>
+                  <td>%</td>
+                </tr>
+                <tr>
+                  <td data-i18n="esp_maxallocheap">--</td>
+                  <td id="p09_esp_maxallocheap" class="table-value">--</td>
+                  <td>KB</td>
+                </tr>
+                <tr>
+                  <td data-i18n="esp_minfreeheap">--</td>
+                  <td id="p09_esp_minfreeheap" class="table-value">--</td>
+                  <td>KB</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
 
-    </div> <!-- END Grid 1 --> 
-
-    <div class="grid"> <!-- Grid 2 -->
-      <article class="card">
-        <p class="table-header" data-i18n="sysinfo">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="esp_flash_usage">--</td>
-              <td id="p09_esp_flash_usage" class="table-value">--</td>
-              <td>%</td>
-            </tr>
-            <tr>
-              <td data-i18n="esp_heap_usage">--</td>
-              <td id="p09_esp_heap_usage" class="table-value">--</td>
-              <td>%</td>
-            </tr>
-             <tr>
-              <td data-i18n="esp_maxallocheap">--</td>
-              <td id="p09_esp_maxallocheap" class="table-value">--</td>
-              <td>KB</td>
-            </tr>
-            <tr>
-              <td data-i18n="esp_minfreeheap">--</td>
-              <td id="p09_esp_minfreeheap" class="table-value">--</td>
-              <td>KB</td>
-            </tr> 
-          </tbody>
-        </table>
-      </article>  
-    </div> <!-- END Grid 1 -->
-
-</div>
-<!--SECTION-END-->
-  
-
-</main>
+          <article class="card">
+            <p class="table-header" data-i18n="sysinfo">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="lifetime">--</td>
+                  <td id="p09_uptime" class="table-value">--</td>
+                  <td>%</td>
+                </tr>
+                <tr>
+                  <td data-i18n="restart_reason">--</td>
+                  <td id="p09_restart_reason" class="table-value">--</td>
+                  <td>%</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 1 -->
+      </div>
+      <!--SECTION-END-->
+    </main>
     <!-- Footer -->
-    <footer style="height: 100px; display: flex; align-items: center; justify-content: center;">
+    <footer
+      style="
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "
+    >
       <div id="status">STATUS</div>
     </footer>
-</body>
+  </body>
 </html>
