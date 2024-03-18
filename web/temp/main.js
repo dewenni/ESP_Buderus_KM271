@@ -698,6 +698,22 @@ const translations = {
         "de": "Time-Zone",
         "en": "Time-Zone"
     },
+    "act_date": {
+        "de": "aktuelles Datum",
+        "en": "actual date"
+    },    
+    "act_time": {
+        "de": "aktuelle Uhrzeit",
+        "en": "actual time"
+    }, 
+    "set_date": {
+        "de": "Datum setzen",
+        "en": "set date"
+    },    
+    "set_time": {
+        "de": "Uhrzeit setzen",
+        "en": "set time"
+    }, 
     "sprache": {
         "de": "Sprache",
         "en": "Language"
@@ -814,9 +830,9 @@ const translations = {
         "de": "Aktivieren",
         "en": "activate"
     },
-    "man_ip_settings": {
-        "de": "manuelle IP-Einstellungen",
-        "en": "manual IP settings"
+    "ip_settings": {
+        "de": "IP-Einstellungen",
+        "en": "IP settings"
     },
     "ip_adr": {
         "de": "IP-Adresse",
@@ -834,7 +850,7 @@ const translations = {
         "de": "DNS-Server",
         "en": "DNS-Server"
     },
-    "accesss": {
+    "access": {
         "de": "Zugangskontrolle",
         "en": "Authentication"
     },
@@ -877,6 +893,10 @@ const translations = {
     "test_msg": {
         "de": "Testnachricht",
         "en": "test message"
+    },
+    "logout": {
+        "de": "ausloggen",
+        "en": "logout"
     },
     "logger": {
         "de": "Logbuch",

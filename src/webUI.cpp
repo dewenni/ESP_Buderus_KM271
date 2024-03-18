@@ -28,7 +28,8 @@ char tmpMessage[300]={'\0'};
 
 /* P R O T O T Y P E S ********************************************************/ 
 void webCallback(const char *elementId, const char *value);
-void updateAll(); 
+void updateAllElements();
+void updateSettingsElements();
 
 /* D E C L A R A T I O N S ****************************************************/
 muTimer refreshTimer1 = muTimer();         // timer to refresh other values
@@ -180,7 +181,7 @@ void webUISetup(){
     }
     // Send a message to newly connected client
     client->send("ping", NULL, millis(), 5000);
-    updateAll(); 
+    updateAllElements(); 
     clientConnected=true; });
 
   server.addHandler(&events);
@@ -200,10 +201,10 @@ void webUISetup(){
  * @param   none 
  * @return  none
  * *******************************************************************/
-void updateAll(){
+void updateAllElements(){
 
   memset((void *)&kmStatusCpy, 111, sizeof(s_km271_status));
-
+  updateSettingsElements();
 }
 
 /**
@@ -212,7 +213,7 @@ void updateAll(){
  * @param   none 
  * @return  none
  * *******************************************************************/
-void updateOilmeter(){
+void updateOilmeterElements(){
 
   // check if oilcounter value changed
   if (config.oilmeter.use_hardware_meter) {
@@ -239,7 +240,75 @@ void updateOilmeter(){
  * @param   none 
  * @return  none
  * *******************************************************************/
-void updateSystemInfo(){
+void updateSettingsElements(){
+
+    updateWebText("p12_wifi_ssid", config.wifi.ssid, true);
+    updateWebText("p12_wifi_password", config.wifi.password, true);
+
+    updateWebState("p12_ip_enable", config.ip.enable);
+    updateWebText("p12_ip_adr", config.ip.ipaddress, true);
+    updateWebText("p12_ip_subnet", config.ip.subnet, true);
+    updateWebText("p12_ip_gateway", config.ip.gateway, true);
+    updateWebText("p12_ip_dns", config.ip.dns, true);
+
+    updateWebState("p12_access_enable", config.auth.enable);
+    updateWebText("p12_access_user", config.auth.user, true);
+    updateWebText("p12_access_password", config.auth.password, true);
+
+//    p12_ntp_date
+//    p12_ntp_time
+
+//    p12_dti_date
+//    p12_dti_time
+
+    updateWebState("p12_mqtt_enable", config.mqtt.enable);
+    updateWebText("p12_mqtt_server", config.mqtt.server, true);
+    updateWebValueInt("p12_mqtt_port", config.mqtt.port);
+    updateWebText("p12_mqtt_user", config.mqtt.user, true);
+    updateWebText("p12_mqtt_password", config.mqtt.password, true);
+    updateWebText("p12_mqtt_topic", config.mqtt.user, true);
+    updateWebValueInt("p12_mqtt_language", config.mqtt.language);
+
+    updateWebState("p12_pushover_enable", config.pushover.enable);
+    updateWebText("p12_pushover_api_token", config.pushover.token, true);
+    updateWebText("p12_pushover_user_key", config.pushover.user_key, true);
+  
+    updateWebState("p12_hc1_enable", config.km271.use_hc1);
+    updateWebState("p12_hc2_enable", config.km271.use_hc2);
+    updateWebState("p12_hw_enable", config.km271.use_ww);
+    updateWebState("p12_alarm_enable", config.km271.use_alarmMsg);
+
+    updateWebValueInt("p12_gpio_km271_rx", config.gpio.km271_RX);
+    updateWebValueInt("p12_gpio_km271_tx", config.gpio.km271_TX);
+    updateWebValueInt("p12_gpio_led_heartbeat", config.gpio.led_heartbeat);
+    updateWebValueInt("p12_gpio_led_logmode", config.gpio.led_logmode);
+    updateWebValueInt("p12_gpio_led_wifi", config.gpio.led_wifi);
+    updateWebValueInt("p12_gpio_led_oilcounter", config.gpio.led_oilcounter);
+    updateWebValueInt("p12_gpio_trig_oilcounter", config.gpio.trigger_oilcounter);
+
+    updateWebState("p12_oil_hardware_enable", config.oilmeter.use_hardware_meter);
+    updateWebState("p12_oil_virtual_enable", config.oilmeter.use_virtual_meter);
+    updateWebValueFloat("p12_oil_par1_kg_h", config.oilmeter.consumption_kg_h);
+    updateWebValueFloat("p12_oil_par2_kg_l", config.oilmeter.oil_density_kg_l);
+
+    updateWebState("p12_sens1_enable", config.sensor.ch1_enable);
+    updateWebText("p12_sens1_name", config.sensor.ch1_name, true);
+    updateWebValueInt("p12_sens1_gpio", config.sensor.ch1_gpio);
+    updateWebState("p12_sens2_enable", config.sensor.ch1_enable);
+    updateWebText("p12_sens2_name", config.sensor.ch2_name, true);
+    updateWebValueInt("p12_sens2_gpio", config.sensor.ch2_gpio);
+
+    updateWebValueInt("p12_language", config.lang);
+
+}
+
+/**
+ * *******************************************************************
+ * @brief   update System informations
+ * @param   none 
+ * @return  none
+ * *******************************************************************/
+void updateSystemInfoElements(){
 
   // WiFi
   updateWebText("p09_wifi_ip",wifi.ipAddress, false);
@@ -272,7 +341,7 @@ void updateSystemInfo(){
  * @param   none 
  * @return  none
  * *******************************************************************/
-void updateKm271Alarm(){
+void updateKm271AlarmElements(){
 
   // chek if alarm messages changed
   if(memcmp(&kmAlarmStrCpy, km271GetAlarmMsgAdr(), sizeof(s_km271_alarm_str))) {
@@ -293,7 +362,7 @@ void updateKm271Alarm(){
  * @param   none 
  * @return  none
  * *******************************************************************/
-void updateKm271Config(){
+void updateKm271ConfigElements(){
 
   updateWebValueInt("p02_hc1_frost_protection_threshold",pkmConfigNum->hc1_frost_protection_threshold);
   updateWebTextInt("p02_hc1_frost_protection_threshold_txt",pkmConfigNum->hc1_frost_protection_threshold, false);
@@ -439,7 +508,7 @@ void updateKm271Config(){
  * @param   none 
  * @return  none
  * *******************************************************************/
-void updateKm271Status(){
+void updateKm271StatusElements(){
 
   if (kmStatusCpy.HC1_OperatingStates_1 != pkmStatus->HC1_OperatingStates_1) {
     kmStatusCpy.HC1_OperatingStates_1 = pkmStatus->HC1_OperatingStates_1;
@@ -824,17 +893,17 @@ if (connectionTimer.cycleTrigger(2000))
 
   if (refreshTimer1.cycleTrigger(50))
   {
-    updateKm271Alarm();
-    updateKm271Status();
+    updateKm271AlarmElements();
+    updateKm271StatusElements();
   }
   if (refreshTimer2.cycleTrigger(3000))
   {
-    updateSystemInfo();
-    updateOilmeter();
+    updateSystemInfoElements();
+    updateOilmeterElements();
   }
 
   if(updateKmConfig){
-    updateKm271Config();
+    updateKm271ConfigElements();
   }
 
   if (simulationTimer.delayOn(clientConnected && !bootInit, 2000))
