@@ -189,26 +189,30 @@ evtSource.addEventListener("setLanguage", function(e) {
 function localizePage(lang = "en") {
   document.querySelectorAll("[data-i18n]").forEach(elem => {
     const i18nValue = elem.getAttribute("data-i18n");
-    // Teile den Wert bei ++, um einen optionalen Anhang zu identifizieren
     const [translationPart, addon] = i18nValue.split('++', 2); 
     const matches = translationPart.split(/(\$.+?\$)/).filter(Boolean);
     let text = '';
+
     for (const match of matches) {
       if (match.startsWith('$') && match.endsWith('$')) {
-        // Entferne $ am Anfang und Ende und füge das Trennzeichen direkt hinzu
         text += match.slice(1, -1);
       } else {
-        // Übersetze den Schlüssel und füge das Ergebnis hinzu
-        text += translations[match][lang] || match;
+        // check if translation key is valid
+        if (translations.hasOwnProperty(match)) {
+          text += translations[match][lang] || match;
+        } else {
+          console.error(`translation key "${match}" not found`);
+          continue;
+        }
       }
     }
-    // Füge den Anhang hinzu, falls vorhanden
     if (addon) {
       text += addon;
     }
     elem.innerText = text;
   });    
 }
+
 document.addEventListener("DOMContentLoaded", function () {
   localizePage("de");
 }); 

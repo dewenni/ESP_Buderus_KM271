@@ -447,10 +447,6 @@ const translations = {
         "de": "Uhrzeit setzen",
         "en": "set time"
     }, 
-    "sprache": {
-        "de": "Sprache",
-        "en": "Language"
-    },
     "gpio": {
         "de": "GPIO-Zuweisung",
         "en": "GPIO-Settings"
@@ -522,10 +518,6 @@ const translations = {
     "wifi_ap_info_2": {
         "de": "Reset dr\u00fccken und nach 5s erneut Reset dr\u00fccken",
         "en": "press reset and after 5s press reset again"
-    },
-    "language": {
-        "de": "Sprache",
-        "en": "Language"
     },
     "predefine": {
         "de": "Voreinstellung",
@@ -634,10 +626,6 @@ const translations = {
     "logger": {
         "de": "Logbuch",
         "en": "Logger"
-    },
-    "lang_info": {
-        "de": "⚠️ Ein Wechsel der Sprache \u00e4ndert auch die mqtt Topics ⚠️",
-        "en": "\u26a0\ufe0f Changing the language also changes the mqtt topics \u26a0\ufe0f"
     },
     "save": {
         "de": "Speichern",

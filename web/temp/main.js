@@ -286,14 +286,6 @@ const translations = {
         "de": "Auto",
         "en": "Auto"
     },
-    "automatic": {
-        "de": "Automatik",
-        "en": "Automatic"
-    },
-    "opmodes": {
-        "de": "Betriebsarten",
-        "en": "Operation Modes"
-    },
     "programs": {
         "de": "Programme",
         "en": "Programs"
@@ -318,10 +310,6 @@ const translations = {
         "de": "Temperaturen",
         "en": "Temperatures"
     },
-    "manual": {
-        "de": "Handbetrieb",
-        "en": "Manual"
-    },
     "day": {
         "de": "Tag",
         "en": "Day"
@@ -329,22 +317,6 @@ const translations = {
     "night": {
         "de": "Nacht",
         "en": "Night"
-    },
-    "day_night": {
-        "de": "Tag/Nacht",
-        "en": "Day/Night"
-    },
-    "summer": {
-        "de": "Sommer",
-        "en": "Summer"
-    },
-    "winter": {
-        "de": "Winter",
-        "en": "Winter"
-    },
-    "summer_winter": {
-        "de": "Sommer/Winter",
-        "en": "Summer/Winter"
     },
     "hc1": {
         "de": "HK1",
@@ -357,14 +329,6 @@ const translations = {
     "ww": {
         "de": "WW",
         "en": "WW"
-    },
-    "setpoint": {
-        "de": "Sollwert",
-        "en": "Setpoint"
-    },
-    "act_value": {
-        "de": "Istwert",
-        "en": "Actual Value"
     },
     "set_temp": {
         "de": "Solltemperatur",
@@ -381,10 +345,6 @@ const translations = {
     "act_temp_c": {
         "de": "Isttemperatur \u00b0C",
         "en": "Actual Temperature \u00b0C"
-    },
-    "opmode": {
-        "de": "Betriebsart",
-        "en": "Operation Mode"
     },
     "on": {
         "de": "EIN",
@@ -518,53 +478,9 @@ const translations = {
         "de": "Senior",
         "en": "senior"
     },
-    "info_summer1": {
-        "de": "Umschalttemperatur zwischen Sommer / Winter",
-        "en": "Threshold to switch between Summer/Winter"
-    },
-    "info_summer2": {
-        "de": "9:Sommer | 10..30:Schwelle (\u00b0C) | 31:Winter",
-        "en": "9:Summer | 10..30:Threshold (\u00b0C) | 31:Winter"
-    },
-    "info_frost": {
-        "de": "Umschalttemperatur Frostschutz",
-        "en": "Threshold for Frostprotection"
-    },
-    "info_designtemp": {
-        "de": "Auslegungstemperatur Heizkennlinie",
-        "en": "Design Temperature for heating curve"
-    },
-    "info_switchoff": {
-        "de": "Umschaltschwelle f\u00fcr Absenkung Aussenhalt",
-        "en": "Threshold for reduction mode"
-    },
-    "info_wwtemp": {
-        "de": "Solltemperatur f\u00fcr Warmwasser",
-        "en": "Setpoint for Hot Water"
-    },
-    "info_unit_c": {
-        "de": "Einheit: \u00b0C",
-        "en": "Unit: \u00b0C"
-    },
-    "info_ww_pump_circ1": {
-        "de": "Anzahl der Zyklen pro Stunde",
-        "en": "count of operation cycles per hour"
-    },
-    "info_ww_pump_circ2": {
-        "de": "0:AUS | 1..6: Zyklen/Stunde | 7:EIN",
-        "en": "0:OFF | 1..6: cycles/hour | 7:ON"
-    },
     "oilmeter": {
         "de": "\u00d6lz\u00e4hler",
         "en": "Oil-Meter"
-    },
-    "info_unit_l": {
-        "de": "Einheit: Liter",
-        "en": "Unit: Litre"
-    },
-    "oilmeter_act": {
-        "de": "\u00d6lz\u00e4hlerstand",
-        "en": "Oil-Meter value"
     },
     "set": {
         "de": "setzen",
@@ -577,54 +493,6 @@ const translations = {
     "button_dti": {
         "de": "setzen manuell",
         "en": "set manually"
-    },
-    "voltage": {
-        "de": "Spannung",
-        "en": "Voltage"
-    },
-    "esp_heapsize": {
-        "de": "ESP HeapSize",
-        "en": "ESP HeapSize"
-    },
-    "esp_freeheap": {
-        "de": "ESP FreeHeap",
-        "en": "ESP FreeHeap"
-    },
-    "esp_maxallocheap": {
-        "de": "ESP MaxAllocHeap",
-        "en": "ESP MaxAllocHeap"
-    },
-    "esp_minfreeheap": {
-        "de": "ESP MinFreeHeap",
-        "en": "ESP MinFreeHeap"
-    },
-    "esp_flash_usage": {
-        "de": "ESP Flash usage",
-        "en": "ESP Flash usage"
-    },
-    "esp_heap_usage": {
-        "de": "ESP Heap usage",
-        "en": "ESP Heap usage"
-    },
-    "sysinfo": {
-        "de": "Systeminformationen",
-        "en": "System Informations"
-    },
-    "alarm": {
-        "de": "Alarme",
-        "en": "Alarms"
-    },
-    "alarminfo": {
-        "de": "letzte Alarm Meldungen",
-        "en": "latest Alarm Messages"
-    },
-    "message": {
-        "de": "Meldung",
-        "en": "Message"
-    },
-    "esp_info": {
-        "de": "ESP-Info",
-        "en": "ESP-Info"
     },
     "operation": {
         "de": "Betrieb",
@@ -670,10 +538,6 @@ const translations = {
         "de": "Benutzer",
         "en": "User"
     },
-    "hostname": {
-        "de": "Hostname",
-        "en": "Hostname"
-    },
     "server": {
         "de": "Server",
         "en": "Server"
@@ -714,10 +578,6 @@ const translations = {
         "de": "Uhrzeit setzen",
         "en": "set time"
     }, 
-    "sprache": {
-        "de": "Sprache",
-        "en": "Language"
-    },
     "gpio": {
         "de": "GPIO-Zuweisung",
         "en": "GPIO-Settings"
@@ -901,10 +761,6 @@ const translations = {
     "logger": {
         "de": "Logbuch",
         "en": "Logger"
-    },
-    "lang_info": {
-        "de": "⚠️ Ein Wechsel der Sprache \u00e4ndert auch die mqtt Topics ⚠️",
-        "en": "\u26a0\ufe0f Changing the language also changes the mqtt topics \u26a0\ufe0f"
     },
     "save": {
         "de": "Speichern",
