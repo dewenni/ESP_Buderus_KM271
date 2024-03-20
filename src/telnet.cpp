@@ -389,7 +389,13 @@ if (!extractMessage(str, param))
       telnetIF.km271Stream = false;
       telnet.println("km271 stream disabled");
       telnetShell(); 
-    // unknown command
+ 
+  // test
+  } else if (!strcmp(param[0], "test") && !strcmp(param[1], "1") && strlen(param[2])==0){
+    webReadLogBuffer();
+
+
+  // unknown command
   } else {
       telnet.println("unknown command");
       telnetShell();

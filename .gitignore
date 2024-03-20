@@ -8,4 +8,5 @@
 .vscode/c_cpp_properties.json
 .travis.yml
 release/
+web/temp/
 Todo.txt

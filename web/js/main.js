@@ -71,6 +71,8 @@ document.addEventListener("DOMContentLoaded", function() {
     // Initialwert setzen
     valueDisplay.textContent = slider.value;
   });
+
+  
 }); 
 
 // <<<< Server-Side-Events (Client <- ESP) >>>>>> 
@@ -216,3 +218,14 @@ function localizePage(lang = "en") {
 document.addEventListener("DOMContentLoaded", function () {
   localizePage("de");
 }); 
+
+evtSource.addEventListener('add_log', function(event) {
+  var logOutput = document.getElementById("p10_log_output");
+  logOutput.innerHTML += event.data + "<br>";
+}, false);
+        
+evtSource.addEventListener('clr_log', function(event) {
+  var logOutput = document.getElementById("p10_log_output");
+  logOutput.innerHTML = '';
+}, false);
+

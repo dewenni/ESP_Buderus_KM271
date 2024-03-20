@@ -3,11 +3,9 @@
   <head>
     <meta charset="UTF-8">
     <title> ESP-Buderus-KM271</title>
-  <link rel="stylesheet" type="text/css" href="../css/pico.css">
-  <link rel="stylesheet" type="text/css" href="../css/custom.css">
-  <link rel="stylesheet" type="text/css" href="../css/icons.css"> 
-  <script src="../js/main.js" defer></script>
-  <script src="../js/lang.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="gzip_m.css">
+    <link rel="stylesheet" type="text/css" href="gzip_c.css">
+    <script defer src="gzip.js" defer></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
    </head>
 <body>
@@ -1796,12 +1794,10 @@
                 <tr>
                   <td data-i18n="lifetime">--</td>
                   <td id="p09_uptime" class="table-value">--</td>
-                  <td>%</td>
                 </tr>
                 <tr>
                   <td data-i18n="restart_reason">--</td>
                   <td id="p09_restart_reason" class="table-value">--</td>
-                  <td>%</td>
                 </tr>
               </tbody>
             </table>
@@ -1812,9 +1808,8 @@
 <!-- Logger-Inhalt hier -->
 <div id="tab10" class="tab-content">
     <div class="grid"> <!-- Grid 1 -->
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et e
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et e
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et e
+      <button id="p10_clr_log_btn">Log löschen</button>
+      <div id="p10_log_output"></div>
     </div>
 </div>
 <!-- OTA-Inhalt hier -->

@@ -82,7 +82,7 @@ void handleData(AsyncWebServerRequest *request) {
 
 void sendWebUpdate(const char *message, const char * event) {
   events.send(message, event, millis());
-  delay(10);
+  //delay(20);
 }
 
 void hideElementClass(const String& className, bool hide) {
@@ -159,8 +159,14 @@ void webUISetup(){
     request->send(response);
   });
 
-  server.on("/gzip.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/css", gzip_css, gzip_css_size);
+  server.on("/c_gzip.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/css", c_gzip_css, c_gzip_css_size);
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
+  });
+
+  server.on("/m_gzip.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/css", m_gzip_css, m_gzip_css_size);
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   });
@@ -194,7 +200,6 @@ void webUISetup(){
 
 } // END SETUP
 
-
 /**
  * *******************************************************************
  * @brief   update all values (only call once)
@@ -202,9 +207,23 @@ void webUISetup(){
  * @return  none
  * *******************************************************************/
 void updateAllElements(){
-
   memset((void *)&kmStatusCpy, 111, sizeof(s_km271_status));
   updateSettingsElements();
+}
+
+/**
+ * *******************************************************************
+ * @brief   update Logger output
+ * @param   none 
+ * @return  none
+ * *******************************************************************/
+void webReadLogBuffer() {
+  sendWebUpdate("", "clr_log");
+  for (int i = 0; i < MAX_LOG_LINES; i++) {
+    if (logData.buffer[i][0] != '\0') {
+      sendWebUpdate(logData.buffer[i], "add_log");
+    }
+  }
 }
 
 /**
@@ -232,7 +251,6 @@ void updateOilmeterElements(){
   }
 
 }
-
 
 /**
  * *******************************************************************
@@ -885,8 +903,8 @@ void updateKm271StatusElements(){
  * *******************************************************************/
 void webUICylic(){
 
-// heartbeat timer for webclient  
-if (connectionTimer.cycleTrigger(2000))
+  // heartbeat timer for webclient  
+  if (connectionTimer.cycleTrigger(2000))
   {
     events.send("ping", "ping", millis());
   }
