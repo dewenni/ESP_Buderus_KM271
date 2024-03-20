@@ -71,6 +71,22 @@ const char * getDateString() {
   snprintf(dateInfo, sizeof(dateInfo), "%02d.%02d.%02d", dti.tm_mday, (dti.tm_mon + 1), (dti.tm_year + 1900));
   return dateInfo;
 }
+/**
+ * *******************************************************************
+ * @brief   create date  String
+ * @param   none
+ * @return  pointer to date String (local static memory)
+ * *******************************************************************/
+const char * getDateStringWeb() {
+  static char dateInfo[74]={'\0'};          // Date String
+  time_t now;                               // this is the epoch
+  tm dti;                                   // the structure tm holds time information in a more convient way
+  time(&now);                               // read the current time
+  localtime_r(&now, &dti);                  // update the structure tm with the current time
+  snprintf(dateInfo, sizeof(dateInfo), "%02d-%02d-%02d", (dti.tm_year + 1900), (dti.tm_mon + 1), dti.tm_mday);
+  return dateInfo;
+}
+
 
 /**
  * *******************************************************************
@@ -363,6 +379,19 @@ char *strcat_safe(char *dest, const char *src, size_t dest_size) {
     }   
     strcat(dest, src);
     return dest;
+}
+
+/**
+ * *******************************************************************
+ * @brief   convert String to BOOL if String contains true/false
+ * @param   str e
+ * @return  true/false
+ * *******************************************************************/
+bool stringToBool(const char* str) {
+    if (strcmp(str, "true") == 0) {
+        return true;
+    }
+    return false;
 }
 
 /**

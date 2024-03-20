@@ -28,6 +28,8 @@ setInterval(test, 1000);
         <div style="width: 100%;">
             <!-- WLAN -->
             <h4 data-i18n="wifi">--</h4>
+            <label for="wifi_hostname" data-i18n="hostname">--</label>
+            <input type="text" id="p12_wifi_hostname" name="wifi_hostname">
             <label for="wifi_ssid" data-i18n="ssid">--</label>
             <input type="text" id="p12_wifi_ssid" name="wifi_ssid">
             <label for="wifi_password">Passwort</label>
@@ -82,15 +84,15 @@ setInterval(test, 1000);
               <h4 data-i18n="datetime">--</h4>   
             </div>
             <label data-i18n="act_date">--</label>
-            <input id="p12_ntp_date" style="margin-right: 2%;" type="text" value="--" aria-label="Read-only input" readonly/>
+            <input id="p12_ntp_date" style="margin-right: 2%;" type="date" value="--" aria-label="Read-only input" readonly/>
             <label data-i18n="act_time">--</label>
-            <input id="p12_ntp_time" style="margin-right: 2%;" type="text" value="--" aria-label="Read-only input" readonly/>   
+            <input id="p12_ntp_time" style="margin-right: 2%;" type="time" value="--" aria-label="Read-only input" readonly/>   
             <button id="p12_ntp_btn" data-i18n="button_ntp" style="white-space: nowrap; width: 100%;">--</button>
             <br><br>
             <label data-i18n="set_date">--</label>
-            <input id="p12_dti_date" style="margin-right: 2%;" type="text" aria-label="Date" /> 
+            <input id="p12_dti_date" style="margin-right: 2%;" type="date" aria-label="Date" aria-invalid="true"/> 
             <label data-i18n="set_time">--</label>
-            <input id="p12_dti_time" style="margin-right: 2%;" type="text" aria-label="Time" />        
+            <input id="p12_dti_time" style="margin-right: 2%;" type="time" aria-label="Time" aria-invalid="true"/>        
             <button id="p12_dti_btn" data-i18n="button_dti" style="white-space: nowrap; width: 100%;">--</button>
       
             <hr><!-- MQTT -->

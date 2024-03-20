@@ -11,7 +11,7 @@ function sendData(elementId, value) {
 document.addEventListener("DOMContentLoaded", function() {
   // Event-Listener für alle Eingabefelder, die bei "blur" sendData aufrufen
   document
-    .querySelectorAll('input[type="text"], input[type="password"]')
+    .querySelectorAll('input[type="text"], input[type="password"], input[type="date"], input[type="time"]')
     .forEach(function (input) {
       input.addEventListener("blur", function () {
         sendData(input.id, input.value);
@@ -229,7 +229,19 @@ evtSource.addEventListener('clr_log', function(event) {
   logOutput.innerHTML = '';
 }, false);
 
-
+// validation for date and time inputs
+const dateInput = document.getElementById('p12_dti_date');
+const timeInput = document.getElementById('p12_dti_time');
+const submitButton = document.getElementById('p12_dti_btn');
+function validateInputs() {
+    const isDateValid = dateInput.value !== '';
+    const isTimeValid = timeInput.value !== '';
+    dateInput.setAttribute('aria-invalid', !isDateValid);
+    timeInput.setAttribute('aria-invalid', !isTimeValid);
+    submitButton.disabled = !(isDateValid && isTimeValid);
+}
+dateInput.addEventListener('input', validateInputs);
+timeInput.addEventListener('input', validateInputs);
 // <<< START Sidebar Script >>>
 let sidebar = document.querySelector(".sidebar");
 let closeBtn = document.querySelector("#btn");
@@ -589,12 +601,12 @@ const translations = {
         "en": "set"
     },
     "button_ntp": {
-        "de": "setzen NTP",
-        "en": "set NTP"
+        "de": "schreibe NTP-Datum/Zeit auf Logamatic",
+        "en": "write NTP-date/time to Logamatic"
     },
     "button_dti": {
-        "de": "setzen manuell",
-        "en": "set manually"
+        "de": "schreibe Datum/Zeit auf Logamatic",
+        "en": "write date/time to Logamatic"
     },
     "voltage": {
         "de": "Spannung",

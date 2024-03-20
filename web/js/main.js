@@ -11,7 +11,7 @@ function sendData(elementId, value) {
 document.addEventListener("DOMContentLoaded", function() {
   // Event-Listener für alle Eingabefelder, die bei "blur" sendData aufrufen
   document
-    .querySelectorAll('input[type="text"], input[type="password"]')
+    .querySelectorAll('input[type="text"], input[type="password"], input[type="date"], input[type="time"]')
     .forEach(function (input) {
       input.addEventListener("blur", function () {
         sendData(input.id, input.value);
@@ -229,3 +229,16 @@ evtSource.addEventListener('clr_log', function(event) {
   logOutput.innerHTML = '';
 }, false);
 
+// validation for date and time inputs
+const dateInput = document.getElementById('p12_dti_date');
+const timeInput = document.getElementById('p12_dti_time');
+const submitButton = document.getElementById('p12_dti_btn');
+function validateInputs() {
+    const isDateValid = dateInput.value !== '';
+    const isTimeValid = timeInput.value !== '';
+    dateInput.setAttribute('aria-invalid', !isDateValid);
+    timeInput.setAttribute('aria-invalid', !isTimeValid);
+    submitButton.disabled = !(isDateValid && isTimeValid);
+}
+dateInput.addEventListener('input', validateInputs);
+timeInput.addEventListener('input', validateInputs);

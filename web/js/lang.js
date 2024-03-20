@@ -304,12 +304,12 @@ const translations = {
         "en": "set"
     },
     "button_ntp": {
-        "de": "setzen NTP",
-        "en": "set NTP"
+        "de": "schreibe NTP-Datum/Zeit auf Logamatic",
+        "en": "write NTP-date/time to Logamatic"
     },
     "button_dti": {
-        "de": "setzen manuell",
-        "en": "set manually"
+        "de": "schreibe Datum/Zeit auf Logamatic",
+        "en": "write date/time to Logamatic"
     },
     "voltage": {
         "de": "Spannung",
