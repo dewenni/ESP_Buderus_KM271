@@ -253,6 +253,8 @@ typedef struct {
   float   time_offset;
   uint8_t hc1_holiday_days;
   uint8_t hc2_holiday_days;
+  uint8_t hc1_timer[14];
+  uint8_t hc2_timer[14]; 
 } s_km271_config_num;
 
 

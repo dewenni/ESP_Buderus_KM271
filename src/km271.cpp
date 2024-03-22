@@ -961,281 +961,309 @@ void parseInfo(uint8_t *data, int len) {
 
     case 0x0107: // HK1_Timer01  
       if (config.km271.use_hc1) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer01, sizeof(kmConfigStr.hc1_timer01), "SP01: %s | SP02: %s | SP03: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER01[config.lang], kmConfigStr.hc1_timer01);
+        kmConfigNum.hc1_timer[0]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc1_timer01, sizeof(kmConfigStr.hc1_timer01), "SP01: %s | SP02: %s | SP03: %s", t1, t2, t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER01[config.lang], kmConfigStr.hc1_timer01);
       }
       break;
 
     case 0x010e: // HK1_Timer02
       if (config.km271.use_hc1) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer02, sizeof(kmConfigStr.hc1_timer02), "SP04: %s | SP05: %s | SP05: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER02[config.lang], kmConfigStr.hc1_timer02);
+        kmConfigNum.hc1_timer[1]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc1_timer02, sizeof(kmConfigStr.hc1_timer02), "SP04: %s | SP05: %s | SP05: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER02[config.lang], kmConfigStr.hc1_timer02);
       }
       break;
 
     case 0x0115: // HK1_Timer03
       if (config.km271.use_hc1) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer03, sizeof(kmConfigStr.hc1_timer03), "SP07: %s | SP08: %s | SP09: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER03[config.lang], kmConfigStr.hc1_timer03);
+        kmConfigNum.hc1_timer[2]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc1_timer03, sizeof(kmConfigStr.hc1_timer03), "SP07: %s | SP08: %s | SP09: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER03[config.lang], kmConfigStr.hc1_timer03);
       }
       break;
 
     case 0x011c: // HK1_Timer04
       if (config.km271.use_hc1) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer04, sizeof(kmConfigStr.hc1_timer04), "SP10: %s | SP11: %s | SP12: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER04[config.lang], kmConfigStr.hc1_timer04);
+        kmConfigNum.hc1_timer[3]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc1_timer04, sizeof(kmConfigStr.hc1_timer04), "SP10: %s | SP11: %s | SP12: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER04[config.lang], kmConfigStr.hc1_timer04);
       }
       break;
 
     case 0x0123: // HK1_Timer05
       if (config.km271.use_hc1) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer05, sizeof(kmConfigStr.hc1_timer05), "SP13: %s | SP14: %s | SP15: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER05[config.lang], kmConfigStr.hc1_timer05);
+        kmConfigNum.hc1_timer[4]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc1_timer05, sizeof(kmConfigStr.hc1_timer05), "SP13: %s | SP14: %s | SP15: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER05[config.lang], kmConfigStr.hc1_timer05);
       }
       break;
 
     case 0x012a: // HK1_Timer06
       if (config.km271.use_hc1) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer06, sizeof(kmConfigStr.hc1_timer06), "SP16: %s | SP17: %s | SP18: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER06[config.lang], kmConfigStr.hc1_timer06);
+        kmConfigNum.hc1_timer[5]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc1_timer06, sizeof(kmConfigStr.hc1_timer06), "SP16: %s | SP17: %s | SP18: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER06[config.lang], kmConfigStr.hc1_timer06);
       }
       break;
 
     case 0x0131: // HK1_Timer07
       if (config.km271.use_hc1) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer07, sizeof(kmConfigStr.hc1_timer07), "SP19: %s | SP20: %s | SP21: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER07[config.lang], kmConfigStr.hc1_timer07);
+        kmConfigNum.hc1_timer[6]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc1_timer07, sizeof(kmConfigStr.hc1_timer07), "SP19: %s | SP20: %s | SP21: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER07[config.lang], kmConfigStr.hc1_timer07);
       }
       break;
 
     case 0x0138: // HK1_Timer08
       if (config.km271.use_hc1) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer08, sizeof(kmConfigStr.hc1_timer08), "SP22: %s | SP23: %s | SP24: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER08[config.lang], kmConfigStr.hc1_timer08);
+        kmConfigNum.hc1_timer[7]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc1_timer08, sizeof(kmConfigStr.hc1_timer08), "SP22: %s | SP23: %s | SP24: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER08[config.lang], kmConfigStr.hc1_timer08);
       }
       break;
 
     case 0x013f: // HK1_Timer09
       if (config.km271.use_hc1) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer09, sizeof(kmConfigStr.hc1_timer09), "SP25: %s | SP26: %s | SP27: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER09[config.lang], kmConfigStr.hc1_timer09);
+        kmConfigNum.hc1_timer[8]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc1_timer09, sizeof(kmConfigStr.hc1_timer09), "SP25: %s | SP26: %s | SP27: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER09[config.lang], kmConfigStr.hc1_timer09);
       }
       break;
 
     case 0x0146: // HK1_Timer10
       if (config.km271.use_hc1) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer10, sizeof(kmConfigStr.hc1_timer10), "SP28: %s | SP29: %s | SP30: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER10[config.lang], kmConfigStr.hc1_timer10);
+        kmConfigNum.hc1_timer[9]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc1_timer10, sizeof(kmConfigStr.hc1_timer10), "SP28: %s | SP29: %s | SP30: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER10[config.lang], kmConfigStr.hc1_timer10);
       }
       break;
 
     case 0x014d: // HK1_Timer11
       if (config.km271.use_hc1) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer11, sizeof(kmConfigStr.hc1_timer11), "SP31: %s | SP32: %s | SP33: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER11[config.lang], kmConfigStr.hc1_timer11);
+        kmConfigNum.hc1_timer[10]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc1_timer11, sizeof(kmConfigStr.hc1_timer11), "SP31: %s | SP32: %s | SP33: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER11[config.lang], kmConfigStr.hc1_timer11);
       }
       break;
 
     case 0x0154: // HK1_Timer12
       if (config.km271.use_hc1) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer12, sizeof(kmConfigStr.hc1_timer12), "SP34: %s | SP35: %s | SP36: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER12[config.lang], kmConfigStr.hc1_timer12);
+        kmConfigNum.hc1_timer[11]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc1_timer12, sizeof(kmConfigStr.hc1_timer12), "SP34: %s | SP35: %s | SP36: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER12[config.lang], kmConfigStr.hc1_timer12);
       }
       break;
  
     case 0x015b: // HK1_Timer13
       if (config.km271.use_hc1) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer13, sizeof(kmConfigStr.hc1_timer13), "SP37: %s | SP38: %s | SP39: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER13[config.lang], kmConfigStr.hc1_timer13);
+        kmConfigNum.hc1_timer[12]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc1_timer13, sizeof(kmConfigStr.hc1_timer13), "SP37: %s | SP38: %s | SP39: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER13[config.lang], kmConfigStr.hc1_timer13);
       }
       break;
 
     case 0x0162: // HK1_Timer14
       if (config.km271.use_hc1) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer14, sizeof(kmConfigStr.hc1_timer14), "SP40: %s | SP41: %s | SP42: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER14[config.lang], kmConfigStr.hc1_timer14);
+        kmConfigNum.hc1_timer[13]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc1_timer14, sizeof(kmConfigStr.hc1_timer14), "SP40: %s | SP41: %s | SP42: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER14[config.lang], kmConfigStr.hc1_timer14);
       }
       break;
 
     case 0x0170: // HK2_Timer01  
       if (config.km271.use_hc2) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer01, sizeof(kmConfigStr.hc2_timer01), "SP01: %s | SP02: %s | SP03: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER01[config.lang], kmConfigStr.hc2_timer01);
+        kmConfigNum.hc2_timer[0]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc2_timer01, sizeof(kmConfigStr.hc2_timer01), "SP01: %s | SP02: %s | SP03: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER01[config.lang], kmConfigStr.hc2_timer01);
       }
       break;
 
     case 0x0177: // HK2_Timer02
       if (config.km271.use_hc2) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer02, sizeof(kmConfigStr.hc2_timer02), "SP04: %s | SP05: %s | SP05: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER02[config.lang], kmConfigStr.hc2_timer02);
+        kmConfigNum.hc2_timer[1]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc2_timer02, sizeof(kmConfigStr.hc2_timer02), "SP04: %s | SP05: %s | SP05: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER02[config.lang], kmConfigStr.hc2_timer02);
       }
       break;
 
     case 0x017e: // HK2_Timer03
       if (config.km271.use_hc2) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer03, sizeof(kmConfigStr.hc2_timer03), "SP07: %s | SP08: %s | SP09: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER03[config.lang], kmConfigStr.hc2_timer03);
+        kmConfigNum.hc2_timer[2]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc2_timer03, sizeof(kmConfigStr.hc2_timer03), "SP07: %s | SP08: %s | SP09: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER03[config.lang], kmConfigStr.hc2_timer03);
       }
       break;
 
     case 0x0185: // HK2_Timer04
       if (config.km271.use_hc2) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer04, sizeof(kmConfigStr.hc2_timer04), "SP10: %s | SP11: %s | SP12: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER04[config.lang], kmConfigStr.hc2_timer04);
+        kmConfigNum.hc2_timer[3]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc2_timer04, sizeof(kmConfigStr.hc2_timer04), "SP10: %s | SP11: %s | SP12: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER04[config.lang], kmConfigStr.hc2_timer04);
       }
       break;
 
     case 0x018c: // HK2_Timer05
       if (config.km271.use_hc2) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer05, sizeof(kmConfigStr.hc2_timer05), "SP13: %s | SP14: %s | SP15: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER05[config.lang], kmConfigStr.hc2_timer05);
+        kmConfigNum.hc2_timer[4]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc2_timer05, sizeof(kmConfigStr.hc2_timer05), "SP13: %s | SP14: %s | SP15: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER05[config.lang], kmConfigStr.hc2_timer05);
       }
       break;
 
     case 0x0193: // HK2_Timer06
       if (config.km271.use_hc2) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer06, sizeof(kmConfigStr.hc2_timer06), "SP16: %s | SP17: %s | SP18: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER06[config.lang], kmConfigStr.hc2_timer06);
+        kmConfigNum.hc2_timer[5]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc2_timer06, sizeof(kmConfigStr.hc2_timer06), "SP16: %s | SP17: %s | SP18: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER06[config.lang], kmConfigStr.hc2_timer06);
       }
       break;
 
     case 0x019a: // HK2_Timer07
       if (config.km271.use_hc2) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer07, sizeof(kmConfigStr.hc2_timer07), "SP19: %s | SP20: %s | SP21: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER07[config.lang], kmConfigStr.hc2_timer07);
+        kmConfigNum.hc2_timer[6]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc2_timer07, sizeof(kmConfigStr.hc2_timer07), "SP19: %s | SP20: %s | SP21: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER07[config.lang], kmConfigStr.hc2_timer07);
       }
       break;
 
     case 0x01a1: // HK2_Timer08
       if (config.km271.use_hc2) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer08, sizeof(kmConfigStr.hc2_timer08), "SP22: %s | SP23: %s | SP24: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER08[config.lang], kmConfigStr.hc2_timer08);
+        kmConfigNum.hc2_timer[7]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc2_timer08, sizeof(kmConfigStr.hc2_timer08), "SP22: %s | SP23: %s | SP24: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER08[config.lang], kmConfigStr.hc2_timer08);
       }
       break;
 
     case 0x01a8: // HK2_Timer09
       if (config.km271.use_hc2) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer09, sizeof(kmConfigStr.hc2_timer09), "SP25: %s | SP26: %s | SP27: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER09[config.lang], kmConfigStr.hc2_timer09);
+        kmConfigNum.hc2_timer[8]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc2_timer09, sizeof(kmConfigStr.hc2_timer09), "SP25: %s | SP26: %s | SP27: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER09[config.lang], kmConfigStr.hc2_timer09);
       }
       break;
 
     case 0x01af: // HK2_Timer10
       if (config.km271.use_hc2) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer10, sizeof(kmConfigStr.hc2_timer10), "SP28: %s | SP29: %s | SP30: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER10[config.lang], kmConfigStr.hc2_timer10);
+        kmConfigNum.hc2_timer[9]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc2_timer10, sizeof(kmConfigStr.hc2_timer10), "SP28: %s | SP29: %s | SP30: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER10[config.lang], kmConfigStr.hc2_timer10);
       }
       break;
 
     case 0x01b6: // HK2_Timer11
       if (config.km271.use_hc2) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer11, sizeof(kmConfigStr.hc2_timer11), "SP31: %s | SP32: %s | SP33: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER11[config.lang], kmConfigStr.hc2_timer11);
+        kmConfigNum.hc2_timer[10]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc2_timer11, sizeof(kmConfigStr.hc2_timer11), "SP31: %s | SP32: %s | SP33: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER11[config.lang], kmConfigStr.hc2_timer11);
       }
       break;
 
     case 0x01bd: // HK2_Timer12
       if (config.km271.use_hc2) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer12, sizeof(kmConfigStr.hc2_timer12), "SP34: %s | SP35: %s | SP36: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER12[config.lang], kmConfigStr.hc2_timer12);
+        kmConfigNum.hc2_timer[11]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc2_timer12, sizeof(kmConfigStr.hc2_timer12), "SP34: %s | SP35: %s | SP36: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER12[config.lang], kmConfigStr.hc2_timer12);
       }
       break;
  
     case 0x01c4: // HK2_Timer13
       if (config.km271.use_hc2) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer13, sizeof(kmConfigStr.hc2_timer13), "SP37: %s | SP38: %s | SP39: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER13[config.lang], kmConfigStr.hc2_timer13);
+        kmConfigNum.hc2_timer[12]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc2_timer13, sizeof(kmConfigStr.hc2_timer13), "SP37: %s | SP38: %s | SP39: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER13[config.lang], kmConfigStr.hc2_timer13);
       }
       break;
 
     case 0x01cb: // HK2_Timer14
       if (config.km271.use_hc2) {
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer14, sizeof(kmConfigStr.hc2_timer14), "SP40: %s | SP41: %s | SP42: %s",t1,t2,t3);
-      km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER14[config.lang], kmConfigStr.hc2_timer14);
+        kmConfigNum.hc2_timer[13]++;
+        decodeTimer(t1, sizeof(t1), data[2], data[3]);
+        decodeTimer(t2, sizeof(t2), data[4], data[5]);
+        decodeTimer(t3, sizeof(t3), data[6], data[7]);
+        snprintf(kmConfigStr.hc2_timer14, sizeof(kmConfigStr.hc2_timer14), "SP40: %s | SP41: %s | SP42: %s",t1,t2,t3);
+        km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER14[config.lang], kmConfigStr.hc2_timer14);
       }
       break;
 

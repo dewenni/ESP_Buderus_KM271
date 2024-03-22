@@ -11,12 +11,15 @@ AsyncEventSource events("/events");
 
 bool clientConnected = false;
 bool bootInit = false;
-bool updateKmConfig = false;
+bool updateSettingsElementsDone = false;
 long oilcounter, oilcounterOld;
+
 
 s_km271_status *pkmStatus;
 s_km271_status kmStatusCpy;
 s_km271_config_str *pkmConfigStr;
+s_km271_config_num kmConfigCpy;
+s_km271_config_num kmConfigCmp;
 s_km271_config_num *pkmConfigNum;
 s_km271_alarm_str *pkmAlarmStr;
 s_km271_alarm_str kmAlarmStrCpy;
@@ -25,8 +28,11 @@ s_webui_texts webText;
 s_cfg_arrays cfgArrayTexts;
 
 char tmpMessage[300]={'\0'};
+char pushoverMessage[300]={'\0'};
 long oilmeterSetValue;
 tm dti;
+uint8_t webElementUpdateCnt = 0;
+unsigned int KmCfgHash[100] = {0};
 
 /* P R O T O T Y P E S ********************************************************/ 
 void webCallback(const char *elementId, const char *value);
@@ -39,6 +45,38 @@ muTimer refreshTimer2 = muTimer();         // timer to refresh other values
 muTimer refreshTimer3 = muTimer();         // timer to refresh other values
 muTimer connectionTimer = muTimer();         // timer to refresh other values
 muTimer simulationTimer = muTimer();         // timer to refresh other values
+
+
+/**
+ * *******************************************************************
+ * @brief   simple hash function
+ * @param   str input string
+ * @return  hash value
+ * *******************************************************************/
+unsigned int simpleHash(const char *str) {
+    unsigned int hash = 0;
+    while (*str) {
+        hash = 31 * hash + (*str++);
+    }
+    return hash;
+}
+
+/**
+ * *******************************************************************
+ * @brief   helper function to check if a string has changed
+ * @param   lastHash 
+ * @param   currentValue
+ * @return  compare result - true if different
+ * *******************************************************************/
+bool checkDiff(unsigned int *lastHash, const char *currentValue) {
+    unsigned int currentHash = simpleHash(currentValue);
+    if (*lastHash != currentHash) {
+        *lastHash = currentHash;
+        return true;
+    }
+    return false;
+}
+
 
 /**
  * *******************************************************************
@@ -432,9 +470,133 @@ void webCallback(const char *elementId, const char *value){
   // set date and time on Logamatic
   if(strcmp(elementId,"p12_dti_btn")==0) {
     km271SetDateTimeDTI(dti);
-    // ToDo: check
+    // TODO: check
   }
 
+  // MQTT
+  if(strcmp(elementId,"p12_mqtt_enable")==0) {
+    config.mqtt.enable = stringToBool(value);
+  }
+  if(strcmp(elementId,"p12_mqtt_cfg_ret")==0) {
+    config.mqtt.config_retain = stringToBool(value);
+  }
+  if(strcmp(elementId,"p12_mqtt_server")==0) {
+    snprintf(config.mqtt.server, sizeof(config.mqtt.server), value);
+  }
+  if(strcmp(elementId,"p12_mqtt_port")==0) {
+    config.mqtt.port = strtoul(value, NULL, 10);
+  }
+  if(strcmp(elementId,"p12_mqtt_topic")==0) {
+    snprintf(config.mqtt.topic, sizeof(config.mqtt.topic), value);
+  }
+  if(strcmp(elementId,"p12_mqtt_user")==0) {
+    snprintf(config.mqtt.user, sizeof(config.mqtt.user), value);
+  }
+  if(strcmp(elementId,"p12_mqtt_password")==0) {
+    snprintf(config.mqtt.password, sizeof(config.mqtt.password), value);
+  }
+  if(strcmp(elementId,"p12_mqtt_language")==0) {
+    config.mqtt.language = strtoul(value, NULL, 10);
+  }
+
+  // Pushover
+  if(strcmp(elementId,"p12_pushover_enable")==0) {
+    config.pushover.enable = stringToBool(value);
+  }
+  if(strcmp(elementId,"p12_pushover_api_token")==0) {
+    snprintf(config.pushover.token, sizeof(config.pushover.token), value);
+  }
+  if(strcmp(elementId,"p12_pushover_user_key")==0) {
+    snprintf(config.pushover.user_key, sizeof(config.pushover.user_key), value);
+  }
+  if(strcmp(elementId,"p12_pushover_filter")==0) {
+    config.pushover.filter = strtoul(value, NULL, 10);
+  }
+  if(strcmp(elementId,"p12_pushover_test_msg")==0) {
+    snprintf(pushoverMessage, sizeof(pushoverMessage), value);
+  } 
+  if(strcmp(elementId,"p12_pushover_test_btn")==0) {
+    addPushoverMsg(pushoverMessage);
+  }
+
+  // Logamatic
+  if(strcmp(elementId,"p12_hc1_enable")==0) {
+    config.km271.use_hc1 = stringToBool(value);
+  }
+  if(strcmp(elementId,"p12_hc2_enable")==0) {
+    config.km271.use_hc2 = stringToBool(value);
+  }
+  if(strcmp(elementId,"p12_hw_enable")==0) {
+    config.km271.use_ww = stringToBool(value);
+  }
+  if(strcmp(elementId,"p12_alarm_enable")==0) {
+    config.km271.use_alarmMsg = stringToBool(value);
+  }
+
+  // Hardware
+  if(strcmp(elementId,"p12_gpio_km271_rx")==0) {
+    config.gpio.km271_RX = strtoul(value, NULL, 10);
+  }
+  if(strcmp(elementId,"p12_gpio_km271_tx")==0) {
+    config.gpio.km271_TX = strtoul(value, NULL, 10);
+  }
+  if(strcmp(elementId,"p12_gpio_led_heartbeat")==0) {
+    config.gpio.led_heartbeat = strtoul(value, NULL, 10);
+  }
+  if(strcmp(elementId,"p12_gpio_led_logmode")==0) {
+    config.gpio.led_logmode = strtoul(value, NULL, 10);
+  }
+  if(strcmp(elementId,"p12_gpio_led_wifi")==0) {
+    config.gpio.led_oilcounter = strtoul(value, NULL, 10);
+  }
+  if(strcmp(elementId,"p12_gpio_trig_oilcounter")==0) {
+    config.gpio.trigger_oilcounter = strtoul(value, NULL, 10);
+  }
+
+  // Oil-Meter
+  if(strcmp(elementId,"p12_oil_hardware_enable")==0) {
+    config.oilmeter.use_hardware_meter = stringToBool(value);
+  }
+  if(strcmp(elementId,"p12_oil_virtual_enable")==0) {
+    config.oilmeter.use_virtual_meter = stringToBool(value);
+  }
+  if(strcmp(elementId,"oil_par1_kg_h")==0) {
+    config.oilmeter.consumption_kg_h = strtof(value, NULL);
+  }
+  if(strcmp(elementId,"oil_par2_kg_l")==0) {
+    config.oilmeter.oil_density_kg_l = strtof(value, NULL);
+  }
+
+  // Optional Sensor
+  if(strcmp(elementId,"p12_sens1_enable")==0) {
+    config.sensor.ch1_enable = stringToBool(value);
+  }
+  if(strcmp(elementId,"p12_sens1_name")==0) {
+    snprintf(config.sensor.ch1_name, sizeof(config.sensor.ch1_name), value);
+  } 
+  if(strcmp(elementId,"p12_sens1_gpio")==0) {
+    config.sensor.ch1_gpio = strtoul(value, NULL, 10);
+  }
+  if(strcmp(elementId,"p12_sens2_enable")==0) {
+    config.sensor.ch2_enable = stringToBool(value);
+  }
+  if(strcmp(elementId,"p12_sens2_name")==0) {
+    snprintf(config.sensor.ch2_name, sizeof(config.sensor.ch2_name), value);
+  } 
+  if(strcmp(elementId,"p12_sens2_gpio")==0) {
+    config.sensor.ch2_gpio = strtoul(value, NULL, 10);
+  }
+
+  // Language
+  if(strcmp(elementId,"p12_language")==0) {
+    config.lang = strtoul(value, NULL, 10);
+  }
+
+  // Buttons
+  if(strcmp(elementId,"p12_btn_restart")==0) {
+    storeData();
+    ESP.restart();
+  }
 }
 
 
@@ -446,7 +608,8 @@ void webCallback(const char *elementId, const char *value){
  * *******************************************************************/
 void updateAllElements(){
   memset((void *)&kmStatusCpy, 111, sizeof(s_km271_status));
-  updateSettingsElements();
+  memset((void *)&kmConfigCpy, 111, sizeof(s_km271_config_num));
+  updateSettingsElementsDone = false;
 }
 
 /**
@@ -498,59 +661,58 @@ void updateOilmeterElements(){
  * *******************************************************************/
 void updateSettingsElements(){
 
-    updateWebText("p12_wifi_hostname", config.wifi.hostname, true);
-    updateWebText("p12_wifi_ssid", config.wifi.ssid, true);
-    updateWebText("p12_wifi_password", config.wifi.password, true);
-
-    updateWebState("p12_ip_enable", config.ip.enable);
-    updateWebText("p12_ip_adr", config.ip.ipaddress, true);
-    updateWebText("p12_ip_subnet", config.ip.subnet, true);
-    updateWebText("p12_ip_gateway", config.ip.gateway, true);
-    updateWebText("p12_ip_dns", config.ip.dns, true);
-
-    updateWebState("p12_access_enable", config.auth.enable);
-    updateWebText("p12_access_user", config.auth.user, true);
-    updateWebText("p12_access_password", config.auth.password, true);
-
-    updateWebState("p12_mqtt_enable", config.mqtt.enable);
-    updateWebText("p12_mqtt_server", config.mqtt.server, true);
-    updateWebValueInt("p12_mqtt_port", config.mqtt.port);
-    updateWebText("p12_mqtt_user", config.mqtt.user, true);
-    updateWebText("p12_mqtt_password", config.mqtt.password, true);
-    updateWebText("p12_mqtt_topic", config.mqtt.user, true);
-    updateWebValueInt("p12_mqtt_language", config.mqtt.language);
-
-    updateWebState("p12_pushover_enable", config.pushover.enable);
-    updateWebText("p12_pushover_api_token", config.pushover.token, true);
-    updateWebText("p12_pushover_user_key", config.pushover.user_key, true);
-  
-    updateWebState("p12_hc1_enable", config.km271.use_hc1);
-    updateWebState("p12_hc2_enable", config.km271.use_hc2);
-    updateWebState("p12_hw_enable", config.km271.use_ww);
-    updateWebState("p12_alarm_enable", config.km271.use_alarmMsg);
-
-    updateWebValueInt("p12_gpio_km271_rx", config.gpio.km271_RX);
-    updateWebValueInt("p12_gpio_km271_tx", config.gpio.km271_TX);
-    updateWebValueInt("p12_gpio_led_heartbeat", config.gpio.led_heartbeat);
-    updateWebValueInt("p12_gpio_led_logmode", config.gpio.led_logmode);
-    updateWebValueInt("p12_gpio_led_wifi", config.gpio.led_wifi);
-    updateWebValueInt("p12_gpio_led_oilcounter", config.gpio.led_oilcounter);
-    updateWebValueInt("p12_gpio_trig_oilcounter", config.gpio.trigger_oilcounter);
-
-    updateWebState("p12_oil_hardware_enable", config.oilmeter.use_hardware_meter);
-    updateWebState("p12_oil_virtual_enable", config.oilmeter.use_virtual_meter);
-    updateWebValueFloat("p12_oil_par1_kg_h", config.oilmeter.consumption_kg_h);
-    updateWebValueFloat("p12_oil_par2_kg_l", config.oilmeter.oil_density_kg_l);
-
-    updateWebState("p12_sens1_enable", config.sensor.ch1_enable);
-    updateWebText("p12_sens1_name", config.sensor.ch1_name, true);
-    updateWebValueInt("p12_sens1_gpio", config.sensor.ch1_gpio);
-    updateWebState("p12_sens2_enable", config.sensor.ch1_enable);
-    updateWebText("p12_sens2_name", config.sensor.ch2_name, true);
-    updateWebValueInt("p12_sens2_gpio", config.sensor.ch2_gpio);
-
-    updateWebValueInt("p12_language", config.lang);
-
+  switch(webElementUpdateCnt) {
+    case 0: updateWebText("p12_wifi_hostname", config.wifi.hostname, true); break;
+    case 1: updateWebText("p12_wifi_ssid", config.wifi.ssid, true); break;
+    case 2: updateWebText("p12_wifi_password", config.wifi.password, true); break;
+    case 3: updateWebState("p12_ip_enable", config.ip.enable); break;
+    case 4: updateWebText("p12_ip_adr", config.ip.ipaddress, true); break;
+    case 5: updateWebText("p12_ip_subnet", config.ip.subnet, true); break;
+    case 6: updateWebText("p12_ip_gateway", config.ip.gateway, true); break;
+    case 7: updateWebText("p12_ip_dns", config.ip.dns, true); break;
+    case 8: updateWebState("p12_access_enable", config.auth.enable); break;
+    case 9: updateWebText("p12_access_user", config.auth.user, true); break;
+    case 10: updateWebText("p12_access_password", config.auth.password, true); break;
+    case 11: updateWebState("p12_mqtt_enable", config.mqtt.enable); break;
+    case 12: updateWebText("p12_mqtt_server", config.mqtt.server, true); break;
+    case 13: updateWebValueInt("p12_mqtt_port", config.mqtt.port); break;
+    case 14: updateWebText("p12_mqtt_user", config.mqtt.user, true); break;
+    case 15: updateWebText("p12_mqtt_password", config.mqtt.password, true); break;
+    case 16: updateWebText("p12_mqtt_topic", config.mqtt.topic, true); break;
+    case 17: updateWebValueInt("p12_mqtt_language", config.mqtt.language); break;
+    case 18: updateWebState("p12_pushover_enable", config.pushover.enable); break;
+    case 19: updateWebText("p12_pushover_api_token", config.pushover.token, true); break;
+    case 20: updateWebText("p12_pushover_user_key", config.pushover.user_key, true); break;
+    case 21: updateWebValueInt("p12_pushover_filter", config.pushover.filter); break;
+    case 22: updateWebState("p12_hc1_enable", config.km271.use_hc1); break;
+    case 23: updateWebState("p12_hc2_enable", config.km271.use_hc2); break;
+    case 24: updateWebState("p12_hw_enable", config.km271.use_ww); break;
+    case 25: updateWebState("p12_alarm_enable", config.km271.use_alarmMsg); break;
+    case 26: updateWebValueInt("p12_gpio_km271_rx", config.gpio.km271_RX); break;
+    case 27: updateWebValueInt("p12_gpio_km271_tx", config.gpio.km271_TX); break;
+    case 28: updateWebValueInt("p12_gpio_led_heartbeat", config.gpio.led_heartbeat); break;
+    case 29: updateWebValueInt("p12_gpio_led_logmode", config.gpio.led_logmode); break;
+    case 30: updateWebValueInt("p12_gpio_led_wifi", config.gpio.led_wifi); break;
+    case 31: updateWebValueInt("p12_gpio_led_oilcounter", config.gpio.led_oilcounter); break;
+    case 32: updateWebValueInt("p12_gpio_trig_oilcounter", config.gpio.trigger_oilcounter); break;
+    case 33: updateWebState("p12_oil_hardware_enable", config.oilmeter.use_hardware_meter); break;
+    case 34: updateWebState("p12_oil_virtual_enable", config.oilmeter.use_virtual_meter); break;
+    case 35: updateWebValueFloat("p12_oil_par1_kg_h", config.oilmeter.consumption_kg_h); break;
+    case 36: updateWebValueFloat("p12_oil_par2_kg_l", config.oilmeter.oil_density_kg_l); break;
+    case 37: updateWebState("p12_sens1_enable", config.sensor.ch1_enable); break;
+    case 38: updateWebText("p12_sens1_name", config.sensor.ch1_name, true); break;
+    case 39: updateWebValueInt("p12_sens1_gpio", config.sensor.ch1_gpio); break;
+    case 40: updateWebState("p12_sens2_enable", config.sensor.ch2_enable); break;
+    case 41: updateWebText("p12_sens2_name", config.sensor.ch2_name, true); break;
+    case 42: updateWebValueInt("p12_sens2_gpio", config.sensor.ch2_gpio); break;
+    case 43: updateWebValueInt("p12_language", config.lang); break;
+    case 44: updateSettingsElementsDone = true; break;
+    default:
+        webElementUpdateCnt = -1;
+        break;
+  }
+  webElementUpdateCnt = (webElementUpdateCnt + 1) % 45;
+ 
 }
 
 /**
@@ -619,142 +781,267 @@ void updateKm271AlarmElements(){
  * *******************************************************************/
 void updateKm271ConfigElements(){
 
-  updateWebValueInt("p02_hc1_frost_protection_threshold",pkmConfigNum->hc1_frost_protection_threshold);
-  updateWebTextInt("p02_hc1_frost_protection_threshold_txt",pkmConfigNum->hc1_frost_protection_threshold, false);
-  updateWebText("p03_hc1_frost_protection_threshold",pkmConfigStr->hc1_frost_protection_threshold, false);
+  if (checkDiff(&KmCfgHash[0], pkmConfigStr->hc1_frost_protection_threshold)) {
+      updateWebValueInt("p02_hc1_frost_protection_threshold",pkmConfigNum->hc1_frost_protection_threshold);
+      updateWebTextInt("p02_hc1_frost_protection_threshold_txt",pkmConfigNum->hc1_frost_protection_threshold, false);
+      updateWebText("p03_hc1_frost_protection_threshold",pkmConfigStr->hc1_frost_protection_threshold, false);
+  }
+  else if (checkDiff(&KmCfgHash[1], pkmConfigStr->hc1_summer_mode_threshold)) {
+      updateWebValueInt("p02_hc1_summer_mode_threshold",pkmConfigNum->hc1_summer_mode_threshold);
+      updateWebTextInt("p02_hc1_summer_mode_threshold_txt",pkmConfigNum->hc1_summer_mode_threshold, false);
+      updateWebText("p03_hc1_summer_mode_threshold",pkmConfigStr->hc1_summer_mode_threshold, false);
 
-  updateWebValueInt("p02_hc1_summer_mode_threshold",pkmConfigNum->hc1_summer_mode_threshold);
-  updateWebTextInt("p02_hc1_summer_mode_threshold_txt",pkmConfigNum->hc1_summer_mode_threshold, false);
-  updateWebText("p03_hc1_summer_mode_threshold",pkmConfigStr->hc1_summer_mode_threshold, false);
+  }
+  else if (checkDiff(&KmCfgHash[2], pkmConfigStr->hc2_frost_protection_threshold)) {
+      updateWebValueInt("p02_hc2_frost_protection_threshold",pkmConfigNum->hc2_frost_protection_threshold);
+      updateWebTextInt("p04_hc2_frost_protection_threshold_txt",pkmConfigNum->hc2_frost_protection_threshold, false); 
+      updateWebText("p04_hc2_frost_protection_threshold",pkmConfigStr->hc2_frost_protection_threshold, false);  
+  }
+  else if (checkDiff(&KmCfgHash[3], pkmConfigStr->hc2_summer_mode_threshold)) {
+      updateWebValueInt("p02_hc2_summer_mode_threshold",pkmConfigNum->hc2_summer_mode_threshold);
+      updateWebTextInt("p04_hc2_summer_mode_threshold_txt",pkmConfigNum->hc2_summer_mode_threshold, false);
+      updateWebText("p04_hc2_summer_mode_threshold",pkmConfigStr->hc2_summer_mode_threshold, false);
+  }
+  else if (checkDiff(&KmCfgHash[4], pkmConfigStr->hc1_night_temp)) {
+      updateWebText("p03_hc1_night_temp",pkmConfigStr->hc1_night_temp, false);
+  }
+  else if (checkDiff(&KmCfgHash[5], pkmConfigStr->hc1_day_temp)) {
+      updateWebText("p03_hc1_day_temp",pkmConfigStr->hc1_day_temp, false);
+  }
+  else if (checkDiff(&KmCfgHash[6], pkmConfigStr->hc1_operation_mode)) {
+      updateWebState("p02_hc1_opmode_night",pkmConfigNum->hc1_operation_mode==0 ? true:false);
+      updateWebState("p02_hc1_opmode_day",pkmConfigNum->hc1_operation_mode==1 ? true:false);
+      updateWebState("p02_hc1_opmode_auto",pkmConfigNum->hc1_operation_mode==2 ? true:false);
+      updateWebText("p03_hc1_operation_mode",pkmConfigStr->hc1_operation_mode, false);
+  }
+  else if (checkDiff(&KmCfgHash[7], pkmConfigStr->hc1_holiday_temp)) {
+      updateWebText("p03_hc1_holiday_temp",pkmConfigStr->hc1_holiday_temp, false);
+  }
+  else if (checkDiff(&KmCfgHash[8], pkmConfigStr->hc1_max_temp)) {
+     updateWebText("p03_hc1_max_temp",pkmConfigStr->hc1_max_temp, false);
+  }
+  else if (checkDiff(&KmCfgHash[9], pkmConfigStr->hc1_interpretation)) {
+      updateWebValueInt("p02_hc1_interpretation",pkmConfigNum->hc1_interpretation);
+      updateWebTextInt("p02_hc1_interpretation_txt",pkmConfigNum->hc1_interpretation, false);
+      updateWebText("p03_hc1_interpretation",pkmConfigStr->hc1_interpretation, false);
+  }
+  else if (checkDiff(&KmCfgHash[10], pkmConfigStr->hc1_switch_on_temperature)) {
+     kmConfigCpy.hc1_switch_on_temperature = pkmConfigNum->hc1_switch_on_temperature;
+     updateWebText("p03_hc1_switch_on_temperature",pkmConfigStr->hc1_switch_on_temperature, false);
+  }
+  else if (checkDiff(&KmCfgHash[11], pkmConfigStr->hc1_switch_off_threshold)) {
+      updateWebValueInt("p02_hc1_switch_off_threshold",pkmConfigNum->hc1_switch_off_threshold);
+      updateWebTextInt("p02_hc1_switch_off_threshold_txt",pkmConfigNum->hc1_switch_off_threshold, false);
+      updateWebText("p03_hc1_switch_off_threshold",pkmConfigStr->hc1_switch_off_threshold, false); 
+  }
+  else if (checkDiff(&KmCfgHash[12], pkmConfigStr->hc1_reduction_mode)) {
+      updateWebText("p03_hc1_reduction_mode",pkmConfigStr->hc1_reduction_mode, false);
+      updateWebValueInt("p02_hc1_reduct_mode",pkmConfigNum->hc1_reduction_mode);
+  }
+  else if (checkDiff(&KmCfgHash[13], pkmConfigStr->hc1_heating_system)) {
+      updateWebText("p03_hc1_heating_system",pkmConfigStr->hc1_heating_system, false);
+  }
+  else if (checkDiff(&KmCfgHash[14], pkmConfigStr->hc1_temp_offset)) {
+      updateWebText("p03_hc1_temp_offset",pkmConfigStr->hc1_temp_offset, false);
+  }
+  else if (checkDiff(&KmCfgHash[15], pkmConfigStr->hc1_remotecontrol)) {
+      updateWebText("p03_hc1_remotecontrol",pkmConfigStr->hc1_remotecontrol, false);
+  }
+  else if (checkDiff(&KmCfgHash[16], pkmConfigStr->hc2_night_temp)) {
+      updateWebText("p04_hc2_night_temp",pkmConfigStr->hc2_night_temp, false);
+  }
+  else if (checkDiff(&KmCfgHash[17], pkmConfigStr->hc2_day_temp)) {
+      updateWebText("p04_hc2_day_temp",pkmConfigStr->hc2_day_temp, false);
+  }
+  else if (checkDiff(&KmCfgHash[18], pkmConfigStr->hc2_operation_mode)) {
+      kmConfigCpy.hc2_operation_mode = pkmConfigNum->hc2_operation_mode;
+      updateWebState("p02_hc2_opmode_night",pkmConfigNum->hc2_operation_mode==0 ? true:false);
+      updateWebState("p02_hc2_opmode_day",pkmConfigNum->hc2_operation_mode==1 ? true:false);
+      updateWebState("p02_hc2_opmode_auto",pkmConfigNum->hc2_operation_mode==2 ? true:false);
+      updateWebText("p04_hc2_operation_mode",pkmConfigStr->hc2_operation_mode, false);
+  }
+  else if (checkDiff(&KmCfgHash[19], pkmConfigStr->hc2_holiday_temp)) {
+      updateWebText("p04_hc2_holiday_temp",pkmConfigStr->hc2_holiday_temp, false);
+  }
+  else if (checkDiff(&KmCfgHash[20], pkmConfigStr->hc2_max_temp)) {
+      updateWebText("p04_hc2_max_temp",pkmConfigStr->hc2_max_temp, false);
+  }
+  else if (checkDiff(&KmCfgHash[21], pkmConfigStr->hc2_interpretation)) {
+      updateWebValueInt("p02_hc2_interpretation",pkmConfigNum->hc2_interpretation);
+      updateWebTextInt("p02_hc2_interpretation_txt",pkmConfigNum->hc2_interpretation, false);
+      updateWebText("p04_hc2_interpretation",pkmConfigStr->hc2_interpretation, false);
+  }
+  else if (checkDiff(&KmCfgHash[22], pkmConfigStr->ww_priority)) {
+      updateWebText("p05_hw_priority",pkmConfigStr->ww_priority, false);
+  }
+  else if (checkDiff(&KmCfgHash[23], pkmConfigStr->hc2_switch_on_temperature)) {
+      updateWebText("p04_hc2_switch_on_temperature",pkmConfigStr->hc2_switch_on_temperature, false);
+  }
+  else if (checkDiff(&KmCfgHash[24], pkmConfigStr->hc2_switch_off_threshold)) {
+      updateWebValueInt("p02_hc2_switch_off_threshold",pkmConfigNum->hc2_switch_off_threshold);
+      updateWebTextInt("p02_hc2_switch_off_threshold_txt",pkmConfigNum->hc2_switch_off_threshold, false);
+      updateWebText("p04_hc2_switch_off_threshold",pkmConfigStr->hc2_switch_off_threshold, false);
+  }
+  else if (checkDiff(&KmCfgHash[25], pkmConfigStr->hc2_reduction_mode)) {
+      updateWebText("p04_hc2_reduction_mode",pkmConfigStr->hc2_reduction_mode, false);
+      updateWebValueInt("p02_hc2_reduct_mode",pkmConfigNum->hc2_reduction_mode);
+  }
+  else if (checkDiff(&KmCfgHash[26], pkmConfigStr->hc2_heating_system)) {
+      updateWebText("p04_hc2_heating_system",pkmConfigStr->hc2_heating_system, false);
+  }
+  else if (checkDiff(&KmCfgHash[27], pkmConfigStr->hc2_temp_offset)) {
+      updateWebText("p04_hc2_temp_offset",pkmConfigStr->hc2_temp_offset, false);
+  }
+  else if (checkDiff(&KmCfgHash[28], pkmConfigStr->hc2_remotecontrol)) {
+      updateWebText("p04_hc2_remotecontrol",pkmConfigStr->hc2_remotecontrol, false);
+  }
+  else if (checkDiff(&KmCfgHash[29], pkmConfigStr->building_type)) {
+      updateWebText("p07_building_type",pkmConfigStr->building_type, false);
+  }
+  else if (checkDiff(&KmCfgHash[30], pkmConfigStr->ww_temp)) {
+      updateWebValueInt("p02_ww_temp",pkmConfigNum->ww_temp);
+      updateWebTextInt("p02_ww_temp_txt",pkmConfigNum->ww_temp, false);
+      updateWebText("p05_hw_temp",pkmConfigStr->ww_temp, false);
+  }
+  else if (checkDiff(&KmCfgHash[31], pkmConfigStr->ww_operation_mode)) {
+      updateWebState("p02_ww_opmode_night",pkmConfigNum->ww_operation_mode==0 ? true:false);
+      updateWebState("p02_ww_opmode_day",pkmConfigNum->ww_operation_mode==1 ? true:false);
+      updateWebState("p02_ww_opmode_auto",pkmConfigNum->ww_operation_mode==2 ? true:false);
+      updateWebText("p05_hw_operation_mode",pkmConfigStr->ww_operation_mode, false);
+  }
+  else if (checkDiff(&KmCfgHash[32], pkmConfigStr->ww_processing)) {
+      updateWebText("p05_hw_processing",pkmConfigStr->ww_processing, false);
+  }
+  else if (checkDiff(&KmCfgHash[33], pkmConfigStr->ww_circulation)) {
+      updateWebValueInt("p02_ww_circulation",pkmConfigNum->ww_circulation);
+      updateWebTextInt("p02_ww_circulation_txt",pkmConfigNum->ww_circulation, false);
+      updateWebText("p05_hw_circulation",pkmConfigStr->ww_circulation, false);
+  }
+  else if (checkDiff(&KmCfgHash[34], pkmConfigStr->language)) {
+      updateWebText("p07_language",pkmConfigStr->language, false);
+  }
+  else if (checkDiff(&KmCfgHash[35], pkmConfigStr->display)) {
+      updateWebText("p07_display",pkmConfigStr->display, false);
+  }
+  else if (checkDiff(&KmCfgHash[36], pkmConfigStr->burner_type)) {
+      updateWebText("p07_burner_type",pkmConfigStr->burner_type, false);
+  }
+  else if (checkDiff(&KmCfgHash[37], pkmConfigStr->max_boiler_temperature)) {
+      updateWebText("p06_max_boiler_temperature",pkmConfigStr->max_boiler_temperature, false);
+  }
+  else if (checkDiff(&KmCfgHash[38], pkmConfigStr->pump_logic_temp)) {
+      updateWebText("p07_pump_logic_temp",pkmConfigStr->pump_logic_temp, false);
+  }
+  else if (checkDiff(&KmCfgHash[39], pkmConfigStr->exhaust_gas_temperature_threshold)) {
+      updateWebText("p07_exhaust_gas_temperature_threshold",pkmConfigStr->exhaust_gas_temperature_threshold, false);
+  }
+  else if (checkDiff(&KmCfgHash[40], pkmConfigStr->burner_min_modulation)) {
+      updateWebText("p07_burner_min_modulation",pkmConfigStr->burner_min_modulation, false);
+  }
+  else if (checkDiff(&KmCfgHash[41], pkmConfigStr->burner_modulation_runtime)) {
+      updateWebText("p07_burner_modulation_runtime",pkmConfigStr->burner_modulation_runtime, false);
+  }
+  else if (checkDiff(&KmCfgHash[42], pkmConfigStr->hc1_program)) {
+      updateWebValueInt("p02_hc1_prg",pkmConfigNum->hc1_program);
+  }
+  else if (checkDiff(&KmCfgHash[43], pkmConfigStr->hc2_program)) {
+      updateWebValueInt("p02_hc2_prg",pkmConfigNum->hc2_program);
+  }
+  else if (checkDiff(&KmCfgHash[44], pkmConfigStr->time_offset)) {
+      updateWebText("p07_time_offset",pkmConfigStr->time_offset, false);
+  }
+  else if (checkDiff(&KmCfgHash[45], pkmConfigStr->hc1_holiday_days)) {
+      updateWebValueInt("p02_hc1_holiday_days",pkmConfigNum->hc1_holiday_days);
+  }
+  else if (checkDiff(&KmCfgHash[46], pkmConfigStr->hc2_holiday_days)) {
+      updateWebValueInt("p04_hc2_holiday_days",pkmConfigNum->hc2_holiday_days);
+  }
+  else if (checkDiff(&KmCfgHash[47], pkmConfigStr->hc1_timer01)) {
+    updateWebText("p03_hc1_timer01", pkmConfigStr->hc1_timer01, false);
+  }
+  else if (checkDiff(&KmCfgHash[48], pkmConfigStr->hc1_timer02)) {
+      updateWebText("p03_hc1_timer02", pkmConfigStr->hc1_timer02, false);
+  }
+  else if (checkDiff(&KmCfgHash[49], pkmConfigStr->hc1_timer03)) {
+      updateWebText("p03_hc1_timer03", pkmConfigStr->hc1_timer03, false);
+  }
+  else if (checkDiff(&KmCfgHash[50], pkmConfigStr->hc1_timer04)) {
+      updateWebText("p03_hc1_timer04", pkmConfigStr->hc1_timer04, false);
+  }
+  else if (checkDiff(&KmCfgHash[51], pkmConfigStr->hc1_timer05)) {
+      updateWebText("p03_hc1_timer05", pkmConfigStr->hc1_timer05, false);
+  }
+  else if (checkDiff(&KmCfgHash[52], pkmConfigStr->hc1_timer06)) {
+      updateWebText("p03_hc1_timer06", pkmConfigStr->hc1_timer06, false);
+  }
+  else if (checkDiff(&KmCfgHash[53], pkmConfigStr->hc1_timer07)) {
+      updateWebText("p03_hc1_timer07", pkmConfigStr->hc1_timer07, false);
+  }
+  else if (checkDiff(&KmCfgHash[54], pkmConfigStr->hc1_timer08)) {
+      updateWebText("p03_hc1_timer08", pkmConfigStr->hc1_timer08, false);
+  }
+  else if (checkDiff(&KmCfgHash[55], pkmConfigStr->hc1_timer09)) {
+      updateWebText("p03_hc1_timer09", pkmConfigStr->hc1_timer09, false);
+  }
+  else if (checkDiff(&KmCfgHash[56], pkmConfigStr->hc1_timer10)) {
+      updateWebText("p03_hc1_timer10", pkmConfigStr->hc1_timer10, false);
+  }
+  else if (checkDiff(&KmCfgHash[57], pkmConfigStr->hc1_timer11)) {
+      updateWebText("p03_hc1_timer11", pkmConfigStr->hc1_timer11, false);
+  }
+  else if (checkDiff(&KmCfgHash[58], pkmConfigStr->hc1_timer12)) {
+      updateWebText("p03_hc1_timer12", pkmConfigStr->hc1_timer12, false);
+  }
+  else if (checkDiff(&KmCfgHash[59], pkmConfigStr->hc1_timer13)) {
+      updateWebText("p03_hc1_timer13", pkmConfigStr->hc1_timer13, false);
+  }
+  else if (checkDiff(&KmCfgHash[60], pkmConfigStr->hc1_timer14)) {
+      updateWebText("p03_hc1_timer14", pkmConfigStr->hc1_timer14, false);
+  }
+  else if (checkDiff(&KmCfgHash[61], pkmConfigStr->hc2_timer01)) {
+      updateWebText("p04_hc2_timer01", pkmConfigStr->hc2_timer01, false);
+  }
+  else if (checkDiff(&KmCfgHash[62], pkmConfigStr->hc2_timer02)) {
+      updateWebText("p04_hc2_timer02", pkmConfigStr->hc2_timer02, false);
+  }
+  else if (checkDiff(&KmCfgHash[63], pkmConfigStr->hc2_timer03)) {
+      updateWebText("p04_hc2_timer03", pkmConfigStr->hc2_timer03, false);
+  }
+  else if (checkDiff(&KmCfgHash[64], pkmConfigStr->hc2_timer04)) {
+      updateWebText("p04_hc2_timer04", pkmConfigStr->hc2_timer04, false);
+  }
+  else if (checkDiff(&KmCfgHash[65], pkmConfigStr->hc2_timer05)) {
+      updateWebText("p04_hc2_timer05", pkmConfigStr->hc2_timer05, false);
+  }
+  else if (checkDiff(&KmCfgHash[66], pkmConfigStr->hc2_timer06)) {
+      updateWebText("p04_hc2_timer06", pkmConfigStr->hc2_timer06, false);
+  }
+  else if (checkDiff(&KmCfgHash[67], pkmConfigStr->hc2_timer07)) {
+      updateWebText("p04_hc2_timer07", pkmConfigStr->hc2_timer07, false);
+  }
+  else if (checkDiff(&KmCfgHash[68], pkmConfigStr->hc2_timer08)) {
+      updateWebText("p04_hc2_timer08", pkmConfigStr->hc2_timer08, false);
+  }
+  else if (checkDiff(&KmCfgHash[69], pkmConfigStr->hc2_timer09)) {
+      updateWebText("p04_hc2_timer09", pkmConfigStr->hc2_timer09, false);
+  }
+  else if (checkDiff(&KmCfgHash[70], pkmConfigStr->hc2_timer10)) {
+      updateWebText("p04_hc2_timer10", pkmConfigStr->hc2_timer10, false);
+  }
+  else if (checkDiff(&KmCfgHash[71], pkmConfigStr->hc2_timer11)) {
+      updateWebText("p04_hc2_timer11", pkmConfigStr->hc2_timer11, false);
+  }
+  else if (checkDiff(&KmCfgHash[72], pkmConfigStr->hc2_timer12)) {
+      updateWebText("p04_hc2_timer12", pkmConfigStr->hc2_timer12, false);
+  }
+  else if (checkDiff(&KmCfgHash[73], pkmConfigStr->hc2_timer13)) {
+      updateWebText("p04_hc2_timer13", pkmConfigStr->hc2_timer13, false);
+  }
+  else if (checkDiff(&KmCfgHash[74], pkmConfigStr->hc2_timer14)) {
+      updateWebText("p04_hc2_timer14", pkmConfigStr->hc2_timer14, false);
+  }
 
-  updateWebValueInt("p02_hc2_frost_protection_threshold",pkmConfigNum->hc2_frost_protection_threshold);
-  updateWebTextInt("p04_hc2_frost_protection_threshold_txt",pkmConfigNum->hc2_frost_protection_threshold, false); 
-  updateWebText("p04_hc2_frost_protection_threshold",pkmConfigStr->hc2_frost_protection_threshold, false);  
 
-  updateWebValueInt("p02_hc2_summer_mode_threshold",pkmConfigNum->hc2_summer_mode_threshold);
-  updateWebTextInt("p04_hc2_summer_mode_threshold_txt",pkmConfigNum->hc2_summer_mode_threshold, false);
-  updateWebText("p04_hc2_summer_mode_threshold",pkmConfigStr->hc2_summer_mode_threshold, false);
-
-  updateWebText("p03_hc1_night_temp",pkmConfigStr->hc1_night_temp, false);
-  updateWebText("p03_hc1_day_temp",pkmConfigStr->hc1_day_temp, false);
-  
-  updateWebState("p02_hc1_opmode_night",pkmConfigNum->hc1_operation_mode==0 ? true:false);
-  updateWebState("p02_hc1_opmode_day",pkmConfigNum->hc1_operation_mode==1 ? true:false);
-  updateWebState("p02_hc1_opmode_auto",pkmConfigNum->hc1_operation_mode==2 ? true:false);
-  updateWebText("p03_hc1_operation_mode",pkmConfigStr->hc1_operation_mode, false);
-
-  updateWebText("p03_hc1_holiday_temp",pkmConfigStr->hc1_holiday_temp, false);
-  updateWebText("p03_hc1_max_temp",pkmConfigStr->hc1_max_temp, false);
-  
-  updateWebValueInt("p02_hc1_interpretation",pkmConfigNum->hc1_interpretation);
-  updateWebTextInt("p02_hc1_interpretation_txt",pkmConfigNum->hc1_interpretation, false);
-  updateWebText("p03_hc1_interpretation",pkmConfigStr->hc1_interpretation, false);
-
-  updateWebText("p03_hc1_switch_on_temperature",pkmConfigStr->hc1_switch_on_temperature, false);
-
-  updateWebValueInt("p02_hc1_switch_off_threshold",pkmConfigNum->hc1_switch_off_threshold);
-  updateWebTextInt("p02_hc1_switch_off_threshold_txt",pkmConfigNum->hc1_switch_off_threshold, false);
-  updateWebText("p03_hc1_switch_off_threshold",pkmConfigStr->hc1_switch_off_threshold, false); 
-  
-  updateWebText("p03_hc1_reduction_mode",pkmConfigStr->hc1_reduction_mode, false);
-  updateWebValueInt("p02_hc1_reduct_mode",pkmConfigNum->hc1_reduction_mode);
-
-  updateWebText("p03_hc1_heating_system",pkmConfigStr->hc1_heating_system, false);
-  updateWebText("p03_hc1_temp_offset",pkmConfigStr->hc1_temp_offset, false);
-  updateWebText("p03_hc1_remotecontrol",pkmConfigStr->hc1_remotecontrol, false);
-  updateWebText("p04_hc2_night_temp",pkmConfigStr->hc2_night_temp, false);
-  updateWebText("p04_hc2_day_temp",pkmConfigStr->hc2_day_temp, false);
-
-  updateWebState("p02_hc2_opmode_night",pkmConfigNum->hc2_operation_mode==0 ? true:false);
-  updateWebState("p02_hc2_opmode_day",pkmConfigNum->hc2_operation_mode==1 ? true:false);
-  updateWebState("p02_hc2_opmode_auto",pkmConfigNum->hc2_operation_mode==2 ? true:false);
-  updateWebText("p04_hc2_operation_mode",pkmConfigStr->hc2_operation_mode, false);
-
-  updateWebText("p04_hc2_holiday_temp",pkmConfigStr->hc2_holiday_temp, false);
-  updateWebText("p04_hc2_max_temp",pkmConfigStr->hc2_max_temp, false);
-
-  updateWebValueInt("p02_hc2_interpretation",pkmConfigNum->hc2_interpretation);
-  updateWebTextInt("p02_hc2_interpretation_txt",pkmConfigNum->hc2_interpretation, false);
-  updateWebText("p04_hc2_interpretation",pkmConfigStr->hc2_interpretation, false);
-  
-  updateWebText("p05_hw_priority",pkmConfigStr->ww_priority, false);
-  updateWebText("p04_hc2_switch_on_temperature",pkmConfigStr->hc2_switch_on_temperature, false);
-
-  updateWebValueInt("p02_hc2_switch_off_threshold",pkmConfigNum->hc2_switch_off_threshold);
-  updateWebTextInt("p02_hc2_switch_off_threshold_txt",pkmConfigNum->hc2_switch_off_threshold, false);
-  updateWebText("p04_hc2_switch_off_threshold",pkmConfigStr->hc2_switch_off_threshold, false);
-  
-  updateWebText("p04_hc2_reduction_mode",pkmConfigStr->hc2_reduction_mode, false);
-  updateWebValueInt("p02_hc2_reduct_mode",pkmConfigNum->hc2_reduction_mode);
-
-  updateWebText("p04_hc2_heating_system",pkmConfigStr->hc2_heating_system, false);
-  updateWebText("p04_hc2_temp_offset",pkmConfigStr->hc2_temp_offset, false);
-  updateWebText("p04_hc2_remotecontrol",pkmConfigStr->hc2_remotecontrol, false);
-  updateWebText("p07_building_type",pkmConfigStr->building_type, false);
-  
-  updateWebValueInt("p02_ww_temp",pkmConfigNum->ww_temp);
-  updateWebTextInt("p02_ww_temp_txt",pkmConfigNum->ww_temp, false);
-  updateWebText("p05_hw_temp",pkmConfigStr->ww_temp, false);
-
-  updateWebState("p02_ww_opmode_night",pkmConfigNum->ww_operation_mode==0 ? true:false);
-  updateWebState("p02_ww_opmode_day",pkmConfigNum->ww_operation_mode==1 ? true:false);
-  updateWebState("p02_ww_opmode_auto",pkmConfigNum->ww_operation_mode==2 ? true:false);
-  updateWebText("p05_hw_operation_mode",pkmConfigStr->ww_operation_mode, false);
-
-  updateWebText("p05_hw_processing",pkmConfigStr->ww_processing, false);
-  
-  updateWebValueInt("p02_ww_circulation",pkmConfigNum->ww_circulation);
-  updateWebTextInt("p02_ww_circulation_txt",pkmConfigNum->ww_circulation, false);
-  updateWebText("p05_hw_circulation",pkmConfigStr->ww_circulation, false);
-  
-  updateWebText("p07_language",pkmConfigStr->language, false);
-  updateWebText("p07_display",pkmConfigStr->display, false);
-  updateWebText("p07_burner_type",pkmConfigStr->burner_type, false);
-  updateWebText("p06_max_boiler_temperature",pkmConfigStr->max_boiler_temperature, false);
-  updateWebText("p07_pump_logic_temp",pkmConfigStr->pump_logic_temp, false);
-  updateWebText("p07_exhaust_gas_temperature_threshold",pkmConfigStr->exhaust_gas_temperature_threshold, false);
-  updateWebText("p07_burner_min_modulation",pkmConfigStr->burner_min_modulation, false);
-  updateWebText("p07_burner_modulation_runtime",pkmConfigStr->burner_modulation_runtime, false);
-  
-  updateWebValueInt("p02_hc1_prg",pkmConfigNum->hc1_program);
-  updateWebValueInt("p02_hc1_holiday_days",pkmConfigNum->hc1_holiday_days);
-  
-  updateWebText("p03_hc1_timer01",pkmConfigStr->hc1_timer01, false);
-  updateWebText("p03_hc1_timer02",pkmConfigStr->hc1_timer02, false);
-  updateWebText("p03_hc1_timer03",pkmConfigStr->hc1_timer03, false);
-  updateWebText("p03_hc1_timer04",pkmConfigStr->hc1_timer04, false);
-  updateWebText("p03_hc1_timer05",pkmConfigStr->hc1_timer05, false);
-  updateWebText("p03_hc1_timer06",pkmConfigStr->hc1_timer06, false);
-  updateWebText("p03_hc1_timer07",pkmConfigStr->hc1_timer07, false);
-  updateWebText("p03_hc1_timer08",pkmConfigStr->hc1_timer08, false);
-  updateWebText("p03_hc1_timer09",pkmConfigStr->hc1_timer09, false);
-  updateWebText("p03_hc1_timer10",pkmConfigStr->hc1_timer10, false);
-  updateWebText("p03_hc1_timer11",pkmConfigStr->hc1_timer11, false);
-  updateWebText("p03_hc1_timer12",pkmConfigStr->hc1_timer12, false);
-  updateWebText("p03_hc1_timer13",pkmConfigStr->hc1_timer13, false);
-  updateWebText("p03_hc1_timer14",pkmConfigStr->hc1_timer14, false);
-  
-  updateWebValueInt("p02_hc2_prg",pkmConfigNum->hc2_program);
-  updateWebValueInt("p04_hc2_holiday_days",pkmConfigNum->hc2_holiday_days);
-  
-  updateWebText("p04_hc2_timer01",pkmConfigStr->hc2_timer01, false);
-  updateWebText("p04_hc2_timer02",pkmConfigStr->hc2_timer02, false);
-  updateWebText("p04_hc2_timer03",pkmConfigStr->hc2_timer03, false);
-  updateWebText("p04_hc2_timer04",pkmConfigStr->hc2_timer04, false);
-  updateWebText("p04_hc2_timer05",pkmConfigStr->hc2_timer05, false);
-  updateWebText("p04_hc2_timer06",pkmConfigStr->hc2_timer06, false);
-  updateWebText("p04_hc2_timer07",pkmConfigStr->hc2_timer07, false);
-  updateWebText("p04_hc2_timer08",pkmConfigStr->hc2_timer08, false);
-  updateWebText("p04_hc2_timer09",pkmConfigStr->hc2_timer09, false);
-  updateWebText("p04_hc2_timer10",pkmConfigStr->hc2_timer10, false);
-  updateWebText("p04_hc2_timer11",pkmConfigStr->hc2_timer11, false);
-  updateWebText("p04_hc2_timer12",pkmConfigStr->hc2_timer12, false);
-  updateWebText("p04_hc2_timer13",pkmConfigStr->hc2_timer13, false);
-  updateWebText("p04_hc2_timer14",pkmConfigStr->hc2_timer14, false);
-  
-  updateWebText("p07_time_offset",pkmConfigStr->time_offset, false);
-
-  updateKmConfig = false;
 }
 
 /**
@@ -1119,13 +1406,10 @@ void updateKm271StatusElements(){
   else if (kmStatusCpy.Modul != pkmStatus->Modul) {
     kmStatusCpy.Modul = pkmStatus->Modul;
     updateWebTextInt("p09_logamatic_modul", kmStatusCpy.ControllerVersionSub, false);
-
-    // TODO
-    updateKmConfig = true;
   }
   else if (kmStatusCpy.ERR_Alarmstatus != pkmStatus->ERR_Alarmstatus) {
     kmStatusCpy.ERR_Alarmstatus = pkmStatus->ERR_Alarmstatus;
-    // ToDo
+    // TODO: check
   }
 
 }
@@ -1150,15 +1434,18 @@ void webUICylic(){
   {
     updateKm271AlarmElements();
     updateKm271StatusElements();
+    updateKm271ConfigElements();
   }
+
   if (refreshTimer2.cycleTrigger(3000))
   {
     updateSystemInfoElements();
     updateOilmeterElements();
   }
 
-  if(updateKmConfig){
-    updateKm271ConfigElements();
+  // Update Settings Elements once after startup or refresh
+  if (!updateSettingsElementsDone) {
+    updateSettingsElements();
   }
 
   if (simulationTimer.delayOn(clientConnected && !bootInit, 2000))

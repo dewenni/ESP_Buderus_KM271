@@ -1,341 +1,341 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
-    <meta charset="UTF-8">
-    <title> ESP-Buderus-KM271</title>
-    <link rel="stylesheet" type="text/css" href="gzip_m.css">
-    <link rel="stylesheet" type="text/css" href="gzip_c.css">
+    <meta charset="UTF-8" />
+    <title>ESP-Buderus-KM271</title>
+    <link rel="stylesheet" type="text/css" href="gzip_m.css" />
+    <link rel="stylesheet" type="text/css" href="gzip_c.css" />
     <script defer src="gzip.js" defer></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   </head>
-<body>
-  <div class="sidebar open">
-    <div class="logo-details">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <div class="sidebar open">
+      <div class="logo-details">
         <div class="logo_name">ESP-Buderus</div>
-        <i class='svg i_menu' id="btn"></i>
+        <i class="svg i_menu" id="btn"></i>
+      </div>
+      <ul class="nav-list">
+        <li>
+          <a href="#" data-tab="tab1">
+            <i class="svg i_dashboard"></i>
+            <span class="links_name" data-i18n="dashboard">--</span>
+          </a>
+          <span class="tooltip" data-i18n="dashboard">--</span>
+        </li>
+        <li>
+          <a href="#" data-tab="tab2">
+            <i class="svg i_control"></i>
+            <span class="links_name" data-i18n="control">--</span>
+          </a>
+          <span class="tooltip" data-i18n="control">--</span>
+        </li>
+        <li class="OPT_HC1">
+          <a href="#" data-tab="tab3">
+            <i class="svg svg i_dashboard"></i>
+            <span class="links_name" data-i18n="heating_circuit_1">--</span>
+          </a>
+          <span class="tooltip" data-i18n="heating_circuit_1">--</span>
+        </li>
+        <li class="OPT_HC2">
+          <a href="#" data-tab="tab4">
+            <i class="svg svg i_dashboard"></i>
+            <span class="links_name" data-i18n="heating_circuit_2">--</span>
+          </a>
+          <span class="tooltip" data-i18n="heating_circuit_2">--</span>
+        </li>
+        <li class="OPT_HW">
+          <a href="#" data-tab="tab5">
+            <i class="svg i_water"></i>
+            <span class="links_name" data-i18n="hot_water">--</span>
+          </a>
+          <span class="tooltip" data-i18n="hot_water">--</span>
+        </li>
+        <li>
+          <a href="#" data-tab="tab6">
+            <i class="svg i_flame"></i>
+            <span class="links_name" data-i18n="burner">--</span>
+          </a>
+          <span class="tooltip" data-i18n="burner">--</span>
+        </li>
+        <li>
+          <a href="#" data-tab="tab7">
+            <i class="svg i_dashboard"></i>
+            <span class="links_name" data-i18n="general">--</span>
+          </a>
+          <span class="tooltip" data-i18n="general">--</span>
+        </li>
+        <li></li>
+        <li class="OPT_ALARM">
+          <a href="#" data-tab="tab8">
+            <i class="svg i_alarm"></i>
+            <span class="links_name" data-i18n="alarm">--</span>
+          </a>
+          <span class="tooltip" data-i18n="alarm">--</span>
+        </li>
+        <li></li>
+        <li>
+          <a href="#" data-tab="tab9">
+            <i class="svg i_info"></i>
+            <span class="links_name" data-i18n="system"></span>
+          </a>
+          <span class="tooltip" data-i18n="system">--</span>
+        </li>
+        <li>
+          <a href="#" data-tab="tab10">
+            <i class="svg i_log"></i>
+            <span class="links_name" data-i18n="logger">--</span>
+          </a>
+          <span class="tooltip" data-i18n="logger">--</span>
+        </li>
+        <li>
+          <a href="#" data-tab="tab11">
+            <i class="svg i_upload"></i>
+            <span class="links_name" data-i18n="tools">--</span>
+          </a>
+          <span class="tooltip" data-i18n="tools">--</span>
+        </li>
+        <li>
+          <a href="#" data-tab="tab12">
+            <i class="svg i_settings"></i>
+            <span class="links_name" data-i18n="settings">--</span>
+          </a>
+          <span class="tooltip" data-i18n="settings">--</span>
+        </li>
+      </ul>
+      <div id="p00_version" style="margin-top: auto">--</div>
     </div>
-    <ul class="nav-list">
-      <li>
-        <a href="#" data-tab="tab1">
-          <i class='svg i_dashboard'></i>
-          <span class="links_name" data-i18n="dashboard">--</span>
-        </a>
-         <span class="tooltip" data-i18n="dashboard">--</span>
-      </li>
-      <li>
-       <a href="#" data-tab="tab2">
-         <i class='svg i_control'></i>
-         <span class="links_name" data-i18n="control">--</span>
-       </a>
-       <span class="tooltip" data-i18n="control">--</span>
-     </li>
-     <li class="OPT_HC1">
-       <a href="#" data-tab="tab3">
-         <i class='svg svg i_dashboard' ></i>
-         <span class="links_name" data-i18n="heating_circuit_1">--</span>
-       </a>
-       <span class="tooltip" data-i18n="heating_circuit_1">--</span>
-     </li>
-     <li class="OPT_HC2">
-       <a href="#" data-tab="tab4">
-         <i class='svg svg i_dashboard' ></i>
-         <span class="links_name" data-i18n="heating_circuit_2">--</span>
-       </a>
-       <span class="tooltip" data-i18n="heating_circuit_2">--</span>
-     </li>
-     <li class="OPT_HW">
-       <a href="#" data-tab="tab5">
-         <i class='svg i_water'></i>
-         <span class="links_name" data-i18n="hot_water">--</span>
-       </a>
-       <span class="tooltip" data-i18n="hot_water">--</span>
-     </li>
-     <li>
-       <a href="#" data-tab="tab6">
-         <i class='svg i_flame'></i>
-         <span class="links_name" data-i18n="burner">--</span>
-       </a>
-       <span class="tooltip" data-i18n="burner">--</span>
-     </li>
-     <li>
-       <a href="#" data-tab="tab7">
-         <i class='svg i_dashboard' ></i>
-         <span class="links_name" data-i18n="general">--</span>
-       </a>
-       <span class="tooltip" data-i18n="general">--</span>
-     </li>
-     <li>
-    <li class="OPT_ALARM">
-       <a href="#" data-tab="tab8">
-         <i class='svg i_alarm' ></i>
-         <span class="links_name" data-i18n="alarm">--</span>
-       </a>
-       <span class="tooltip" data-i18n="alarm">--</span>
-     </li>
-     <li>
-    <li>
-       <a href="#" data-tab="tab9">
-         <i class='svg i_info'></i>
-         <span class="links_name" data-i18n="system"></span>
-       </a>
-       <span class="tooltip" data-i18n="system">--</span>
-     </li>
-     <li>
-      <a href="#" data-tab="tab10">
-         <i class='svg i_log'></i>
-         <span class="links_name" data-i18n="logger">--</span>
-       </a>
-       <span class="tooltip" data-i18n="logger">--</span>
-     </li>
-     <li>
-      <a href="#" data-tab="tab11">
-         <i class='svg i_upload' ></i>
-         <span class="links_name"data-i18n="tools">--</span>
-       </a>
-       <span class="tooltip"data-i18n="tools">--</span>
-     </li>
-     <li>
-      <a href="#" data-tab="tab12">
-         <i class='svg i_settings' ></i>
-         <span class="links_name" data-i18n="settings">--</span>
-       </a>
-       <span class="tooltip" data-i18n="settings">--</span>
-     </li>
-    </ul>
-    <div id="p00_version" style="margin-top: auto;">--</div>
-  </div> <!--Sidebar-END-->
-  
-  <section class="home-section">
-    <main class="container-fluid">
+    <!--Sidebar-END-->
+
+    <section class="home-section">
+      <main class="container-fluid">
 <!-- Tab-1 -->
-  <div id="tab1" class="tab-content active">
+      <div id="tab1" class="tab-content active">
+        <div class="grid">
+          <article class="dash OPT_HC1">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="hc1$-$opmode">--</div>
+              <div class="dash-content">
+                <div class="value" id="p01_hc1_opmode">--</div>
+              </div>
+            </div>
+            <div class="dash-icon">
+              <div class="svg i_day-night"></div>
+            </div>
+          </article>
 
-    <div class="grid">
-        
-      <article class="dash OPT_HC1">
-        <div class="dash-main">
-          <div class="dash-header" data-i18n="hc1$-$opmode">--</div>
-          <div class="dash-content">
-              <div class="value" id="p01_hc1_opmode">--</div>
-          </div>
-        </div>
-        <div class="dash-icon">
-          <div class="svg i_day-night"></div>
-        </div>
-      </article>
+          <article class="dash OPT_HC2">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="hc2$-$opmode">--</div>
+              <div class="dash-content">
+                <div class="value" id="p01_hc2_opmode">--</div>
+              </div>
+            </div>
+            <div class="dash-icon">
+              <div class="svg i_day-night"></div>
+            </div>
+          </article>
 
-      <article class="dash OPT_HC2">
-        <div class="dash-main">
-          <div class="dash-header" data-i18n="hc2$-$opmode">--</div>
-          <div class="dash-content">
-              <div class="value" id="p01_hc2_opmode">--</div>
-          </div>
-        </div>
-        <div class="dash-icon">
-          <div class="svg i_day-night"></div>
-        </div>
-      </article>
+          <article class="dash">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="hot_water$-$opmode">--</div>
+              <div class="dash-content">
+                <div class="value" id="p01_ww_opmode">--</div>
+              </div>
+            </div>
+            <div class="dash-icon">
+              <div class="svg i_day-night"></div>
+            </div>
+          </article>
 
-      <article class="dash">
-        <div class="dash-main">
-          <div class="dash-header" data-i18n="hot_water$-$opmode">--</div>
-          <div class="dash-content">
-              <div class="value" id="p01_ww_opmode">--</div>
-          </div>
-        </div>
-        <div class="dash-icon">
-          <div class="svg i_day-night"></div>
-        </div>
-      </article>
-         
-      <article class="dash OPT_HC1">
-        <div class="dash-main">
-          <div class="dash-header" data-i18n="hc1$-$day_night">--</div>
-          <div class="dash-content">
-              <div class="value" id="p01_hc1_day_night">--</div>
-          </div>
-        </div>
-        <div class="dash-icon">
-          <div class="svg i_day-night"></div>
-        </div>
-      </article>
+          <article class="dash OPT_HC1">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="hc1$-$day_night">--</div>
+              <div class="dash-content">
+                <div class="value" id="p01_hc1_day_night">--</div>
+              </div>
+            </div>
+            <div class="dash-icon">
+              <div class="svg i_day-night"></div>
+            </div>
+          </article>
 
-        <article class="dash OPT_HC2">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc2$-$day_night">--</div>
-            <div class="dash-content">
+          <article class="dash OPT_HC2">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="hc2$-$day_night">--</div>
+              <div class="dash-content">
                 <div class="value" id="p01_hc2_day_night">--</div>
+              </div>
             </div>
-          </div>
-          <div class="dash-icon">
-            <div class="svg i_day-night"></div>
-          </div>
-        </article>
+            <div class="dash-icon">
+              <div class="svg i_day-night"></div>
+            </div>
+          </article>
 
-      <article class="dash OPT_HC1">
-        <div class="dash-main">
-          <div class="dash-header" data-i18n="hc1$-$summer_winter">--</div>
-          <div class="dash-content">
-              <div class="value" id="p01_hc1_summer_winter">--</div>
-          </div>
-        </div>
-        <div class="dash-icon">
-          <div class="svg i_palm"></div>
-        </div>
-      </article>
+          <article class="dash OPT_HC1">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="hc1$-$summer_winter">--</div>
+              <div class="dash-content">
+                <div class="value" id="p01_hc1_summer_winter">--</div>
+              </div>
+            </div>
+            <div class="dash-icon">
+              <div class="svg i_palm"></div>
+            </div>
+          </article>
 
-        <article class="dash OPT_HC2">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc2$-$summer_winter">--</div>
-            <div class="dash-content">
+          <article class="dash OPT_HC2">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="hc2$-$summer_winter">--</div>
+              <div class="dash-content">
                 <div class="value" id="p01_hc2_summer_winter">--</div>
+              </div>
             </div>
-          </div>
-          <div class="dash-icon">
-            <div class="svg i_palm"></div>
-          </div>
-        </article>
+            <div class="dash-icon">
+              <div class="svg i_palm"></div>
+            </div>
+          </article>
 
-        <article class="dash OPT_HC1">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc1$-$pump">--</div>
-            <div class="dash-content">
+          <article class="dash OPT_HC1">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="hc1$-$pump">--</div>
+              <div class="dash-content">
                 <div class="value" id="p01_hc1_pump">--</div>
+              </div>
             </div>
-          </div>
-          <div class="dash-icon">
-            <div class="svg i_pump"></div>
-          </div>
-        </article>
+            <div class="dash-icon">
+              <div class="svg i_pump"></div>
+            </div>
+          </article>
 
-        <article class="dash OPT_HC2">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc2$-$pump">--</div>
-            <div class="dash-content">
+          <article class="dash OPT_HC2">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="hc2$-$pump">--</div>
+              <div class="dash-content">
                 <div class="value" id="p01_hc2_pump">--</div>
+              </div>
             </div>
-          </div>
-          <div class="dash-icon">
-            <div class="svg i_pump"></div>
-          </div>
-        </article>
+            <div class="dash-icon">
+              <div class="svg i_pump"></div>
+            </div>
+          </article>
 
-        <article class="dash">
+          <article class="dash">
             <div class="dash-main">
               <div class="dash-header" data-i18n="burner">--</div>
               <div class="dash-content">
-                  <div class="value" id="p01_burner">--</div>
+                <div class="value" id="p01_burner">--</div>
               </div>
             </div>
             <div class="dash-icon">
               <div class="svg i_flame"></div>
             </div>
-         </article>
+          </article>
 
-         <article class="dash">
-          <div class="dash-main">
+          <article class="dash">
+            <div class="dash-main">
               <div class="dash-header" data-i18n="oilmeter">--</div>
               <div class="dash-content">
-                  <div class="value" id="p01_oilmeter">--</div>
+                <div class="value" id="p01_oilmeter">--</div>
               </div>
-          </div>
-          <div class="dash-icon">
-            <div class="svg i_oil"></div>
-          </div>
-        </article>  
+            </div>
+            <div class="dash-icon">
+              <div class="svg i_oil"></div>
+            </div>
+          </article>
+        </div>
+        <!-- END Grid1 -->
 
-      </div> <!-- END Grid1 -->
- 
-      <div class="grid"> <!-- START Grid2 --> 
+        <div class="grid">
+          <!-- START Grid2 -->
 
-        <article class="dash">
-          <div class="dash-main">
+          <article class="dash">
+            <div class="dash-main">
               <div class="dash-header" data-i18n="burner_temp">--</div>
               <div class="dash-content">
-                  <div class="value" id="p01_burner_temp_set">--</div>
-                  <div class="value" id="p01_burner_temp_act">--</div>
+                <div class="value" id="p01_burner_temp_set">--</div>
+                <div class="value" id="p01_burner_temp_act">--</div>
               </div>
               <div class="dash-footer">
-                  <div data-i18n="set_temp_c">--</div>
-                  <div data-i18n="act_temp_c">--</div>
+                <div data-i18n="set_temp_c">--</div>
+                <div data-i18n="act_temp_c">--</div>
               </div>
-          </div>
-          <div class="dash-icon">
-            <div class="svg i_temp"></div>
-          </div>
-        </article>         
-        
-        <article class="dash">
-          <div class="dash-main">
+            </div>
+            <div class="dash-icon">
+              <div class="svg i_temp"></div>
+            </div>
+          </article>
+
+          <article class="dash">
+            <div class="dash-main">
               <div class="dash-header" data-i18n="hot_water">--</div>
               <div class="dash-content">
-                  <div class="value" id="p01_ww_temp_set">--</div>
-                  <div class="value" id="p01_ww_temp_act">--</div>
+                <div class="value" id="p01_ww_temp_set">--</div>
+                <div class="value" id="p01_ww_temp_act">--</div>
               </div>
               <div class="dash-footer">
-                  <div data-i18n="set_temp_c">--</div>
-                  <div data-i18n="act_temp_c">--</div>
+                <div data-i18n="set_temp_c">--</div>
+                <div data-i18n="act_temp_c">--</div>
               </div>
-          </div>
-          <div class="dash-icon">
-            <div class="svg i_temp"></div>
-          </div>
-        </article>       
+            </div>
+            <div class="dash-icon">
+              <div class="svg i_temp"></div>
+            </div>
+          </article>
 
-        <article class="dash OPT_HC1">
-          <div class="dash-main">
+          <article class="dash OPT_HC1">
+            <div class="dash-main">
               <div class="dash-header" data-i18n="hc1$-$flow">--</div>
               <div class="dash-content">
-                  <div class="value" id="p01_hc1_flow_set">--</div>
-                  <div class="value" id="p01_hc1_flow_act">--</div>
+                <div class="value" id="p01_hc1_flow_set">--</div>
+                <div class="value" id="p01_hc1_flow_act">--</div>
               </div>
               <div class="dash-footer">
-                  <div data-i18n="set_temp_c">--</div>
-                  <div data-i18n="act_temp_c">--</div>
+                <div data-i18n="set_temp_c">--</div>
+                <div data-i18n="act_temp_c">--</div>
               </div>
-          </div>
-          <div class="dash-icon">
-            <div class="svg i_temp"></div>
-          </div>
-        </article>    
+            </div>
+            <div class="dash-icon">
+              <div class="svg i_temp"></div>
+            </div>
+          </article>
 
-        <article class="dash OPT_HC2">
-          <div class="dash-main">
+          <article class="dash OPT_HC2">
+            <div class="dash-main">
               <div class="dash-header" data-i18n="hc2$-$flow">--</div>
               <div class="dash-content">
-                  <div class="value" id="p01_hc2_flow_set">--</div>
-                  <div class="value" id="p01_hc2_flow_act">--</div>
+                <div class="value" id="p01_hc2_flow_set">--</div>
+                <div class="value" id="p01_hc2_flow_act">--</div>
               </div>
               <div class="dash-footer">
-                  <div data-i18n="set_temp_c">--</div>
-                  <div data-i18n="act_temp_c">--</div>
+                <div data-i18n="set_temp_c">--</div>
+                <div data-i18n="act_temp_c">--</div>
               </div>
-          </div>
-          <div class="dash-icon">
-            <div class="svg i_temp"></div>
-          </div>
-        </article> 
+            </div>
+            <div class="dash-icon">
+              <div class="svg i_temp"></div>
+            </div>
+          </article>
 
-        <article class="dash">
-          <div class="dash-main">
+          <article class="dash">
+            <div class="dash-main">
               <div class="dash-header" data-i18n="temp_out">--</div>
               <div class="dash-content">
-                  <div class="value" id="p01_temp_out_act">--</div>
-                  <div class="value" id="p01_temp_out_dmp">--</div>
+                <div class="value" id="p01_temp_out_act">--</div>
+                <div class="value" id="p01_temp_out_dmp">--</div>
               </div>
               <div class="dash-footer">
-                  <div data-i18n="temp_out_act">--</div>
-                  <div data-i18n="temp_out_dmp">--</div>
+                <div data-i18n="temp_out_act">--</div>
+                <div data-i18n="temp_out_dmp">--</div>
               </div>
-          </div>
-          <div class="dash-icon">
-            <div class="svg i_temp"></div>
-          </div>
-        </article> 
-
-      </div> <!-- END Grid2 -->
- 
-  </div> <!-- END Tab-Content -->
+            </div>
+            <div class="dash-icon">
+              <div class="svg i_temp"></div>
+            </div>
+          </article>
+        </div>
+        <!-- END Grid2 -->
+      </div>
+      <!-- END Tab-Content -->
 <!-- Tab-2 -->
   <div id="tab2" class="tab-content">
 
@@ -1458,259 +1458,329 @@
         <!-- END Grid 2 -->
       </div>
 <div id="tab6" class="tab-content">
-    <div class="grid"> <!-- Grid 1 -->
-    <article class="card">
-        <p class="table-header" data-i18n="status">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="max_boiler_temperature"></td>
-              <td id="p06_max_boiler_temperature" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="burner_control"></td>
-              <td id="p06_burner_control" class="table-value">--</td>
-            </tr>
-          </tbody>
-        </table>
-        <br>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="boiler_temp"></td>
-              <td id="p06_boiler_temp" class="table-value">--</td>
-              <td>°C</td>
-            </tr>
-            <tr>
-              <td data-i18n="boiler_setpoint"></td>
-              <td id="p06_boiler_setpoint" class="table-value">--</td>
-              <td>°C</td>
-            </tr>
-            <tr>
-              <td data-i18n="boiler_switch_off_temp"></td>
-              <td id="p06_boiler_switch_off_temp" class="table-value">--</td>
-              <td>°C</td>
-            </tr>            
-            <tr>
-              <td data-i18n="boiler_switch_on_temp"></td>
-              <td id="p06_boiler_switch_on_temp" class="table-value">--</td>
-              <td>°C</td>
-            </tr>   
-          </tbody>
-        </table>
-      </article>
+        <div class="grid">
+          <!-- Grid 1 -->
+          <article class="card">
+            <p class="table-header" data-i18n="status">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="max_boiler_temperature"></td>
+                  <td id="p06_max_boiler_temperature" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="burner_control"></td>
+                  <td id="p06_burner_control" class="table-value">--</td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="boiler_temp"></td>
+                  <td id="p06_boiler_temp" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="boiler_setpoint"></td>
+                  <td id="p06_boiler_setpoint" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="boiler_switch_off_temp"></td>
+                  <td id="p06_boiler_switch_off_temp" class="table-value">
+                    --
+                  </td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="boiler_switch_on_temp"></td>
+                  <td id="p06_boiler_switch_on_temp" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
 
-      <article class="card">
-        <p class="table-header" data-i18n="operation">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="boiler_state_exhaust_gas_test"></td>
-              <td id="p06_boiler_state_exhaust_gas_test" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="boiler_state_stage1"></td>
-              <td id="p06_boiler_state_stage1" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="boiler_state_boiler_protection"></td>
-              <td id="p06_boiler_state_boiler_protection" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="boiler_state_active"></td>
-              <td id="p06_boiler_state_active" class="table-value">--</td>
-            </tr>            
-            <tr>
-              <td data-i18n="boiler_state_performance_free"></td>
-              <td id="p06_boiler_state_performance_free" class="table-value">--</td>
-            </tr>   
-            <tr>
-              <td data-i18n="boiler_state_performance_high"></td>
-              <td id="p06_boiler_state_performance_high" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="boiler_state_stage2"></td>
-              <td id="p06_boiler_state_stage2" class="table-value">--</td>
-            </tr>            
-          </tbody>
-        </table>
-      </article>
-    </div> <!--END GRID-->
+          <article class="card">
+            <p class="table-header" data-i18n="operation">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="boiler_state_exhaust_gas_test"></td>
+                  <td
+                    id="p06_boiler_state_exhaust_gas_test"
+                    class="table-value"
+                  >
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="boiler_state_stage1"></td>
+                  <td id="p06_boiler_state_stage1" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="boiler_state_boiler_protection"></td>
+                  <td
+                    id="p06_boiler_state_boiler_protection"
+                    class="table-value"
+                  >
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="boiler_state_active"></td>
+                  <td id="p06_boiler_state_active" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="boiler_state_performance_free"></td>
+                  <td
+                    id="p06_boiler_state_performance_free"
+                    class="table-value"
+                  >
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="boiler_state_performance_high"></td>
+                  <td
+                    id="p06_boiler_state_performance_high"
+                    class="table-value"
+                  >
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="boiler_state_stage2"></td>
+                  <td id="p06_boiler_state_stage2" class="table-value">--</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!--END GRID-->
 
-    <div class="grid"> <!-- Grid 2 -->
-    <article class="card">
-        <p class="table-header" data-i18n="error_flags">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="boiler_failure_burner"></td>
-              <td id="p06_boiler_failure_burner" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="boiler_failure_boiler_sensor"></td>
-              <td id="p06_boiler_failure_boiler_sensor" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="boiler_failure_aux_sensor"></td>
-              <td id="p06_boiler_failure_aux_sensor" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="boiler_failure_boiler_stays_cold"></td>
-              <td id="p06_boiler_failure_boiler_stays_cold" class="table-value">--</td>
-            </tr>            
-            <tr>
-              <td data-i18n="boiler_failure_exhaust_gas_sensor"></td>
-              <td id="p06_boiler_failure_exhaust_gas_sensor" class="table-value">--</td>
-            </tr>            
-            <tr>
-              <td data-i18n="boiler_failure_exhaust_gas_over_limit"></td>
-              <td id="p06_boiler_failure_exhaust_gas_over_limit" class="table-value">--</td>
-            </tr>   
-            <tr>
-              <td data-i18n="boiler_failure_safety_chain"></td>
-              <td id="p06_boiler_failure_safety_chain" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="boiler_failure_external"></td>
-              <td id="p06_boiler_failure_external" class="table-value">--</td>
-            </tr>           
-          </tbody>
-        </table>
-      </article>
+        <div class="grid">
+          <!-- Grid 2 -->
+          <article class="card">
+            <p class="table-header" data-i18n="error_flags">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="boiler_failure_burner"></td>
+                  <td id="p06_boiler_failure_burner" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="boiler_failure_boiler_sensor"></td>
+                  <td id="p06_boiler_failure_boiler_sensor" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="boiler_failure_aux_sensor"></td>
+                  <td id="p06_boiler_failure_aux_sensor" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="boiler_failure_boiler_stays_cold"></td>
+                  <td
+                    id="p06_boiler_failure_boiler_stays_cold"
+                    class="table-value"
+                  >
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="boiler_failure_exhaust_gas_sensor"></td>
+                  <td
+                    id="p06_boiler_failure_exhaust_gas_sensor"
+                    class="table-value"
+                  >
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="boiler_failure_exhaust_gas_over_limit"></td>
+                  <td
+                    id="p06_boiler_failure_exhaust_gas_over_limit"
+                    class="table-value"
+                  >
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="boiler_failure_safety_chain"></td>
+                  <td id="p06_boiler_failure_safety_chain" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="boiler_failure_external"></td>
+                  <td id="p06_boiler_failure_external" class="table-value">
+                    --
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
 
-      <article class="card">
-        <p class="table-header" data-i18n="lifetimes">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="burner_runtime_minutes65536"></td>
-              <td id="p06_burner_runtime_minutes65536" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="burner_runtime_minutes256"></td>
-              <td id="p06_burner_runtime_minutes256" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="burner_runtime_minutes"></td>
-              <td id="p06_burner_runtime_minutes" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="burner_runtime_overall"></td>
-              <td id="p06_burner_runtime_overall" class="table-value">--</td>
-            </tr>            
-          </tbody>
-        </table>
-      </article>
-    </div> <!--END GRID-->
-
-</div>
+          <article class="card">
+            <p class="table-header" data-i18n="lifetimes">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="burner_runtime_minutes65536"></td>
+                  <td id="p06_burner_runtime_minutes65536" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="burner_runtime_minutes256"></td>
+                  <td id="p06_burner_runtime_minutes256" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="burner_runtime_minutes"></td>
+                  <td id="p06_burner_runtime_minutes" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="burner_runtime_overall"></td>
+                  <td id="p06_burner_runtime_overall" class="table-value">
+                    --
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!--END GRID-->
+      </div>
 <div id="tab7" class="tab-content">
-    <div class="grid"> <!-- Grid 1 -->
-      <article class="card">
-        <p class="table-header" data-i18n="config">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="building_type">--</td>
-              <td id="p07_building_type" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="language">--</td>
-              <td id="p07_language" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="display">--</td>
-              <td id="p07_display" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="time_offset">--</td>
-              <td id="p07_time_offset" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="burner_type">--</td>
-              <td id="p07_burner_type" class="table-value">--</td>
-            </tr>
-          </tbody>
-        </table>
-      </article>    
+        <div class="grid">
+          <!-- Grid 1 -->
+          <article class="card">
+            <p class="table-header" data-i18n="config">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="building_type">--</td>
+                  <td id="p07_building_type" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="language">--</td>
+                  <td id="p07_language" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="display">--</td>
+                  <td id="p07_display" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="time_offset">--</td>
+                  <td id="p07_time_offset" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="burner_type">--</td>
+                  <td id="p07_burner_type" class="table-value">--</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
 
-      <article class="card">
-        <p class="table-header" data-i18n="limits">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="pump_logic_temp">--</td>
-              <td id="p07_pump_logic_temp" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="burner_min_modulation">--</td>
-              <td id="p07_burner_min_modulation" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="burner_modulation_runtime">--</td>
-              <td id="p07_burner_modulation_runtime" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="exhaust_gas_temperature_threshold">--</td>
-              <td id="p07_exhaust_gas_temperature_threshold" class="table-value">--</td>
-            </tr>
-          </tbody>
-        </table>
-      </article>    
-    </div> <!-- END Grid 1 -->
+          <article class="card">
+            <p class="table-header" data-i18n="limits">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="pump_logic_temp">--</td>
+                  <td id="p07_pump_logic_temp" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="burner_min_modulation">--</td>
+                  <td id="p07_burner_min_modulation" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="burner_modulation_runtime">--</td>
+                  <td id="p07_burner_modulation_runtime" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="exhaust_gas_temperature_threshold">--</td>
+                  <td
+                    id="p07_exhaust_gas_temperature_threshold"
+                    class="table-value"
+                  >
+                    --
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 1 -->
 
-    <div class="grid"> <!-- Grid 2 -->
-      <article class="card">
-        <p class="table-header" data-i18n="temperatures">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="outside_temp">--</td>
-              <td id="p07_outside_temp" class="table-value">--</td>
-              <td>°C</td>
-            </tr>
-            <tr>
-              <td data-i18n="outside_temp_damped">--</td>
-              <td id="p07_outside_temp_damped" class="table-value">--</td>
-              <td>°C</td>
-            </tr>
-            <tr>
-              <td data-i18n="exhaust_gas_temp">--</td>
-              <td id="p07_exhaust_gas_temp" class="table-value">--</td>
-              <td>°C</td>
-            </tr>
-          </tbody>
-        </table>
-      </article> 
-    </div>  <!-- END Grid 2 -->
-</div>
+        <div class="grid">
+          <!-- Grid 2 -->
+          <article class="card">
+            <p class="table-header" data-i18n="temperatures">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="outside_temp">--</td>
+                  <td id="p07_outside_temp" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="outside_temp_damped">--</td>
+                  <td id="p07_outside_temp_damped" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="exhaust_gas_temp">--</td>
+                  <td id="p07_exhaust_gas_temp" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 2 -->
+      </div>
 <div id="tab8" class="tab-content">
-    <div class="grid"> <!-- Grid 1 -->
-      <article class="card">
-        <p class="table-header" data-i18n="alarminfo">--</p>
-        <table class="striped">
-          <tbody>
-            <tr>
-              <td data-i18n="message++ 1">--</td>
-              <td id="p08_err_msg1" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="message++ 2">--</td>
-              <td id="p08_err_msg2" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="message++ 3">--</td>
-              <td id="p08_err_msg3" class="table-value">--</td>
-            </tr>
-            <tr>
-              <td data-i18n="message++ 4">--</td>
-              <td id="p08_err_msg4" class="table-value">--</td>
-            </tr>           
-          </tbody>
-        </table>
-      </article> 
-    </div>
-</div>
+        <div class="grid">
+          <!-- Grid 1 -->
+          <article class="card">
+            <p class="table-header" data-i18n="alarminfo">--</p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="message++ 1">--</td>
+                  <td id="p08_err_msg1" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="message++ 2">--</td>
+                  <td id="p08_err_msg2" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="message++ 3">--</td>
+                  <td id="p08_err_msg3" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="message++ 4">--</td>
+                  <td id="p08_err_msg4" class="table-value">--</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+      </div>
 <!-- System-Inhalt hier -->
       <div id="tab9" class="tab-content">
         <div class="grid">
@@ -1806,264 +1876,505 @@
         <!-- END Grid 1 -->
       </div>
 <!-- Logger-Inhalt hier -->
-<div id="tab10" class="tab-content">
-    <div class="grid"> <!-- Grid 1 -->
-      <button id="p10_clr_log_btn">Log löschen</button>
-      <div id="p10_log_output"></div>
-    </div>
-</div>
+      <div id="tab10" class="tab-content">
+        <div class="grid">
+          <!-- Grid 1 -->
+          <button id="p10_clr_log_btn">Log löschen</button>
+          <div id="p10_log_output"></div>
+        </div>
+      </div>
 <!-- OTA-Inhalt hier -->
-<div id="tab11" class="tab-content">
-<div class="grid">
-  
-    <article class="tools">
-        <div class="dash-main">
-        <div class="dash-header" data-i18n="ota">--</div>
-        <div class="dash-content">
-            <form method='POST' action='#' enctype='multipart/form-data' id='ota_upload_form'>    
-                <input type='file' name='ota_update' id='ota_file_input' onchange='ota_sub_fun(this)'  accept=".bin">
-                <input type="submit" id="ota_updateBtn" disabled="disabled" value="Update">
-                <br><div id="ota_txtUpload" style='display:none; text-align:left' data-i18n="upload">--</div>
-                <br><progress id='ota_upload_bar' style='display:none' max="100" value="1"></progress>
-                <br><div id="ota_txtUpdate" style='display:none; text-align:left' data-i18n="update">--</div>
-                <br><progress id='ota_progress_bar' style='display:none' max="100" value="1"></progress><div id='ota_progress'></div>
-            </form>    
-        </div>
-        </div>
-    </article>
+      <div id="tab11" class="tab-content">
+        <div class="grid">
+          <article class="tools">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="ota">--</div>
+              <div class="dash-content">
+                <form
+                  method="POST"
+                  action="#"
+                  enctype="multipart/form-data"
+                  id="ota_upload_form"
+                >
+                  <input
+                    type="file"
+                    name="ota_update"
+                    id="ota_file_input"
+                    onchange="ota_sub_fun(this)"
+                    accept=".bin"
+                  />
+                  <input
+                    type="submit"
+                    id="ota_updateBtn"
+                    disabled="disabled"
+                    value="Update"
+                  />
+                  <br />
+                  <div
+                    id="ota_txtUpload"
+                    style="display: none; text-align: left"
+                    data-i18n="upload"
+                  >
+                    --
+                  </div>
+                  <br /><progress
+                    id="ota_upload_bar"
+                    style="display: none"
+                    max="100"
+                    value="1"
+                  ></progress>
+                  <br />
+                  <div
+                    id="ota_txtUpdate"
+                    style="display: none; text-align: left"
+                    data-i18n="update"
+                  >
+                    --
+                  </div>
+                  <br /><progress
+                    id="ota_progress_bar"
+                    style="display: none"
+                    max="100"
+                    value="1"
+                  ></progress>
+                  <div id="ota_progress"></div>
+                </form>
+              </div>
+            </div>
+          </article>
 
-    <article class="tools">
-        <div class="dash-main">
-        <div class="dash-header" data-i18n="filemgn">--</div>
-        <div class="dash-content"> 
-            <form method="POST" action="/doUpload" enctype="multipart/form-data" id="file_upload_form">
-                <input type="file" name="file_update" id="file_input" onchange="file_sub_fun(this)">
-                <input type="submit" id="file_updateBtn" disabled="true" value="Upload file">
-                <br><div id="txt_file_upload" style="display:none" data-i18n="upload_ready">--</div>
-                <br><progress id="file_upload_bar" style="display:none" max="100" value="1"></progress> <div id='file_progress'></div>
-                <br><h6 data-i18n="file_content">--</h6>
-                <span id="filelist">%list%</span>
-            </form>    
+          <article class="tools">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="filemgn">--</div>
+              <div class="dash-content">
+                <form
+                  method="POST"
+                  action="/doUpload"
+                  enctype="multipart/form-data"
+                  id="file_upload_form"
+                >
+                  <input
+                    type="file"
+                    name="file_update"
+                    id="file_input"
+                    onchange="file_sub_fun(this)"
+                  />
+                  <input
+                    type="submit"
+                    id="file_updateBtn"
+                    disabled="true"
+                    value="Upload file"
+                  />
+                  <br />
+                  <div
+                    id="txt_file_upload"
+                    style="display: none"
+                    data-i18n="upload_ready"
+                  >
+                    --
+                  </div>
+                  <br /><progress
+                    id="file_upload_bar"
+                    style="display: none"
+                    max="100"
+                    value="1"
+                  ></progress>
+                  <div id="file_progress"></div>
+                  <br />
+                  <h6 data-i18n="file_content">--</h6>
+                  <span id="filelist">%list%</span>
+                </form>
+              </div>
+            </div>
+          </article>
         </div>
-        </div>
-    </article>
-</div>  
-</div>
+      </div>
 <div id="tab12" class="tab-content">
-  <div class="grid" style="max-width: 1024px;">
-        <div style="width: 100%;">
+        <div class="grid" style="max-width: 1024px">
+          <div style="width: 100%">
             <!-- WLAN -->
             <h4 data-i18n="wifi">--</h4>
             <label for="wifi_hostname" data-i18n="hostname">--</label>
-            <input type="text" id="p12_wifi_hostname" name="wifi_hostname">
+            <input type="text" id="p12_wifi_hostname" name="wifi_hostname" />
             <label for="wifi_ssid" data-i18n="ssid">--</label>
-            <input type="text" id="p12_wifi_ssid" name="wifi_ssid">
+            <input type="text" id="p12_wifi_ssid" name="wifi_ssid" />
             <label for="wifi_password">Passwort</label>
-            <input type="password" id="p12_wifi_password" name="wifi_password">
+            <input
+              type="password"
+              id="p12_wifi_password"
+              name="wifi_password" />
 
-            <hr><!-- IP-Settings -->
+            <hr />
+            <!-- IP-Settings -->
             <div class="section-header">
-                <h4 class="section-title" data-i18n="ip_settings">--</h4>
-                <label for="man_ip_enable" data-i18n="activate">--</label>  
-                <div class="switch-container">
-                  <input name="man_ip_enable" type="checkbox" role="switch" id="p12_ip_enable">
-                </div>
+              <h4 class="section-title" data-i18n="ip_settings">--</h4>
+              <label for="man_ip_enable" data-i18n="activate">--</label>
+              <div class="switch-container">
+                <input
+                  name="man_ip_enable"
+                  type="checkbox"
+                  role="switch"
+                  id="p12_ip_enable" />
+              </div>
             </div>
             <label for="ip_adr" data-i18n="ip_adr">--</label>
-            <input type="text" id="p12_ip_adr" name="ip_adr">
+            <input type="text" id="p12_ip_adr" name="ip_adr" />
             <label for="ip_subnet" data-i18n="ip_subnet">--</label>
-            <input type="text" id="p12_ip_subnet" name="ip_subnet">
+            <input type="text" id="p12_ip_subnet" name="ip_subnet" />
             <label for="ip_gateway" data-i18n="ip_gateway">--</label>
-            <input type="text" id="p12_ip_gateway" name="ip_gateway">
+            <input type="text" id="p12_ip_gateway" name="ip_gateway" />
             <label for="ip_dns" data-i18n="ip_dns">--</label>
-            <input type="text" id="p12_ip_dns" name="ip_dns">
+            <input type="text" id="p12_ip_dns" name="ip_dns" />
 
-            <hr><!-- Authentication -->
+            <hr />
+            <!-- Authentication -->
             <div class="section-header">
               <h4 class="section-title" data-i18n="access">--</h4>
-              <label for="access_enable" data-i18n="activate">--</label>  
-                <div class="switch-container">
-                  <input name="access_enable" type="checkbox" role="switch" id="p12_access_enable">
-                </div>
+              <label for="access_enable" data-i18n="activate">--</label>
+              <div class="switch-container">
+                <input
+                  name="access_enable"
+                  type="checkbox"
+                  role="switch"
+                  id="p12_access_enable" />
+              </div>
             </div>
             <label for="access_user" data-i18n="user">--</label>
-            <input type="text" id="p12_access_user" name="access_user">
+            <input type="text" id="p12_access_user" name="access_user" />
             <label for="access_password" data-i18n="password">--</label>
-            <input type="text" id="p12_access_password" name="access_password">
-            <button id="p12_btn_access_logout" data-i18n="logout" style="width: 100%;">--</button>
+            <input
+              type="text"
+              id="p12_access_password"
+              name="access_password" />
+            <button
+              id="p12_btn_access_logout"
+              data-i18n="logout"
+              style="width: 100%">
+              --
+            </button>
 
-            <hr><!-- NTP-Server -->
+            <hr />
+            <!-- NTP-Server -->
             <div class="section-header">
               <h4 class="section-title" data-i18n="ntp">--</h4>
-              <label for="ntp_enable" data-i18n="activate">--</label>  
-                <div class="switch-container">
-                  <input name="ntp_enable" type="checkbox" role="switch" id="p12_ntp_enable">
-                </div>
+              <label for="ntp_enable" data-i18n="activate">--</label>
+              <div class="switch-container">
+                <input
+                  name="ntp_enable"
+                  type="checkbox"
+                  role="switch"
+                  id="p12_ntp_enable" />
+              </div>
             </div>
             <label for="ntp_server" data-i18n="server">--</label>
-            <input type="text" id="p12_ntp_server" name="ntp_server">
+            <input type="text" id="p12_ntp_server" name="ntp_server" />
             <label for="time_zone" data-i18n="ntp_tz">--</label>
-            <input type="text" id="p12_ntp_tz" name="time_zone">
+            <input type="text" id="p12_ntp_tz" name="time_zone" />
 
-            <hr><!-- Datum & Uhrzeit -->
+            <hr />
+            <!-- Datum & Uhrzeit -->
             <div class="section-header">
-              <h4 data-i18n="datetime">--</h4>   
+              <h4 data-i18n="datetime">--</h4>
             </div>
             <label data-i18n="act_date">--</label>
-            <input id="p12_ntp_date" style="margin-right: 2%;" type="date" value="--" aria-label="Read-only input" readonly/>
+            <input
+              id="p12_ntp_date"
+              style="margin-right: 2%"
+              type="date"
+              value="--"
+              aria-label="Read-only input"
+              readonly />
             <label data-i18n="act_time">--</label>
-            <input id="p12_ntp_time" style="margin-right: 2%;" type="time" value="--" aria-label="Read-only input" readonly/>   
-            <button id="p12_ntp_btn" data-i18n="button_ntp" style="white-space: nowrap; width: 100%;">--</button>
-            <br><br>
+            <input
+              id="p12_ntp_time"
+              style="margin-right: 2%"
+              type="time"
+              value="--"
+              aria-label="Read-only input"
+              readonly />
+            <button
+              id="p12_ntp_btn"
+              data-i18n="button_ntp"
+              style="white-space: nowrap; width: 100%">
+              --
+            </button>
+            <br /><br />
             <label data-i18n="set_date">--</label>
-            <input id="p12_dti_date" style="margin-right: 2%;" type="date" aria-label="Date" aria-invalid="true"/> 
+            <input
+              id="p12_dti_date"
+              style="margin-right: 2%"
+              type="date"
+              aria-label="Date"
+              aria-invalid="true" />
             <label data-i18n="set_time">--</label>
-            <input id="p12_dti_time" style="margin-right: 2%;" type="time" aria-label="Time" aria-invalid="true"/>        
-            <button id="p12_dti_btn" data-i18n="button_dti" style="white-space: nowrap; width: 100%;">--</button>
-      
-            <hr><!-- MQTT -->
+            <input
+              id="p12_dti_time"
+              style="margin-right: 2%"
+              type="time"
+              aria-label="Time"
+              aria-invalid="true" />
+            <button
+              id="p12_dti_btn"
+              data-i18n="button_dti"
+              style="white-space: nowrap; width: 100%">
+              --
+            </button>
+
+            <hr />
+            <!-- MQTT -->
             <div class="section-header">
-                <h4 class="section-title" data-i18n="mqtt">--</h4>
-                <label for="mqtt_enable" data-i18n="activate">--</label>  
-                <div class="switch-container">
-                  <input name="mqtt_enable" type="checkbox" role="switch" id="p12_mqtt_enable">
-                </div>
+              <h4 class="section-title" data-i18n="mqtt">--</h4>
+              <label for="mqtt_enable" data-i18n="activate">--</label>
+              <div class="switch-container">
+                <input
+                  name="mqtt_enable"
+                  type="checkbox"
+                  role="switch"
+                  id="p12_mqtt_enable" />
+              </div>
             </div>
             <div class="section-header">
-              <label for="mqtt_cfg_ret" data-i18n="mqtt_cfg_ret">--</label>  
-              <input name="mqtt_cfg_ret" type="checkbox" role="switch" id="p12_mqtt_cfg_ret">
+              <label for="mqtt_cfg_ret" data-i18n="mqtt_cfg_ret">--</label>
+              <input
+                name="mqtt_cfg_ret"
+                type="checkbox"
+                role="switch"
+                id="p12_mqtt_cfg_ret" />
             </div>
-            <br>
+            <br />
             <label for="mqtt_server" data-i18n="server">--</label>
-            <input type="text" id="p12_mqtt_server" name="mqtt_server">
+            <input type="text" id="p12_mqtt_server" name="mqtt_server" />
             <label for="mqtt_port" data-i18n="port">--</label>
-            <input type="text" id="p12_mqtt_port" name="mqtt_port">
+            <input type="text" id="p12_mqtt_port" name="mqtt_port" />
             <label for="mqtt_topic" data-i18n="topic">--</label>
-            <input type="text" id="p12_mqtt_topic" name="mqtt_topic">            
+            <input type="text" id="p12_mqtt_topic" name="mqtt_topic" />
             <label for="mqtt_user" data-i18n="user">--</label>
-            <input type="text" id="p12_mqtt_user" name="mqtt_user">
+            <input type="text" id="p12_mqtt_user" name="mqtt_user" />
             <label for="mqtt_password" data-i18n="password">--</label>
-            <input type="password" id="p12_mqtt_password" name="mqtt_password">
+            <input
+              type="password"
+              id="p12_mqtt_password"
+              name="mqtt_password" />
             <label for="mqtt_language" data-i18n="topic$ $language">--</label>
             <select id="p12_mqtt_language" name="mqtt_language">
-                <option value="0" data-i18n="german">--</option>
-                <option value="1" data-i18n="english">--</option>
+              <option value="0" data-i18n="german">--</option>
+              <option value="1" data-i18n="english">--</option>
             </select>
 
-            <hr><!-- Pushover -->
+            <hr />
+            <!-- Pushover -->
             <div class="section-header">
-                <h4 class="section-title" data-i18n="pushover">--</h4>
-                <label for="pushover_enable" data-i18n="activate">--</label>  
-                <div class="switch-container">
-                    <input name="pushover_enable" type="checkbox" role="switch" id="p12_pushover_enable">
-                </div>
+              <h4 class="section-title" data-i18n="pushover">--</h4>
+              <label for="pushover_enable" data-i18n="activate">--</label>
+              <div class="switch-container">
+                <input
+                  name="pushover_enable"
+                  type="checkbox"
+                  role="switch"
+                  id="p12_pushover_enable" />
+              </div>
             </div>
             <label for="pushover_api_token" data-i18n="api_token">UserID</label>
-            <input type="text" id="p12_pushover_api_token" name="pushover_api_token">
+            <input
+              type="text"
+              id="p12_pushover_api_token"
+              name="pushover_api_token" />
             <label for="pushover_user_key" data-i18n="user_key">--</label>
-            <input type="text" id="p12_pushover_user_key" name="pushover_user_key">
+            <input
+              type="text"
+              id="p12_pushover_user_key"
+              name="pushover_user_key" />
             <label for="appid" data-i18n="test_msg">--</label>
+            <select id="p12_pushover_filter" name="pushover_filter">
+              <option value="0" data-i18n="alarm">--</option>
+              <option value="1" data-i18n="alarm_info">--</option>
+            </select>
             <div>
               <div role="group">
-                <input id="p12_pushover_test_msg" name="text" type="text">
+                <input id="p12_pushover_test_msg" name="text" type="text" />
                 <button id="p12_pushover_test_btn" data-i18n="send"></button>
               </div>
             </div>
-            
-            <hr><!-- Logamatic -->
+
+            <hr />
+            <!-- Logamatic -->
             <h4 data-i18n="logamatic">--</h4>
             <div class="section-header">
-              <label for="heating_circuit_1" data-i18n="heating_circuit_1">--</label>  
-              <input name="heating_circuit_1" type="checkbox" role="switch" id="p12_hc1_enable">
+              <label for="heating_circuit_1" data-i18n="heating_circuit_1"
+                >--</label
+              >
+              <input
+                name="heating_circuit_1"
+                type="checkbox"
+                role="switch"
+                id="p12_hc1_enable" />
             </div>
             <div class="section-header">
-              <label for="heating_circuit_2" data-i18n="heating_circuit_2">--</label>  
-              <input name="mqtt-aktivieren" type="checkbox" role="switch" id="p12_hc2_enable">
+              <label for="heating_circuit_2" data-i18n="heating_circuit_2"
+                >--</label
+              >
+              <input
+                name="heating_circuit_2"
+                type="checkbox"
+                role="switch"
+                id="p12_hc2_enable" />
             </div>
             <div class="section-header">
-              <label for="hot_water" data-i18n="hot_water">--</label>  
-              <input name="hot_water" type="checkbox" role="switch" id="p12_hw_enable">
+              <label for="hot_water" data-i18n="hot_water">--</label>
+              <input
+                name="hot_water"
+                type="checkbox"
+                role="switch"
+                id="p12_hw_enable" />
             </div>
             <div class="section-header">
-              <label for="alarm" data-i18n="alarm">--</label>  
-              <input name="alarm" type="checkbox" role="switch" id="p12_alarm_enable">
+              <label for="alarm" data-i18n="alarm">--</label>
+              <input
+                name="alarm"
+                type="checkbox"
+                role="switch"
+                id="p12_alarm_enable" />
             </div>
 
-            <hr><!-- Hardware -->
+            <hr />
+            <!-- Hardware -->
             <h4 data-i18n="gpio">--</h4>
             <select id="boards" name="boards">
-                <option value="0">Board 0.0.5</option>
-                <option value="1">Board 0.0.6</option>
-                <option value="2">Board 0.0.7</option>
-                <option value="3">generic ESP32</option>
+              <option value="0">Board 0.0.5</option>
+              <option value="1">Board 0.0.6</option>
+              <option value="2">Board 0.0.7</option>
+              <option value="3">generic ESP32</option>
             </select>
-            <label for="km271_rx" data-i18n="km271_rx">--</label>  
-            <input class="num-input" name="km271_rx" type="number" id="p12_gpio_km271_rx" placeholder="-1 to disable">
-            <label for="km271_tx" data-i18n="km271_tx">--</label>  
-            <input class="num-input" name="km271_tx" type="number" id="p12_gpio_km271_tx" placeholder="-1 to disable">
-            <label for="led_heartbeat" data-i18n="led_heartbeat">--</label>  
-            <input class="num-input" name="led_heartbeat" type="number" id="p12_gpio_led_heartbeat" placeholder="-1 to disable">
-            <label for="led_logmode" data-i18n="led_logmode">--</label>  
-            <input class="num-input" name="led_logmode" type="number" id="p12_gpio_led_logmode" placeholder="-1 to disable">
-            <label for="led_wifi" data-i18n="led_wifi">--</label>  
-            <input class="num-input" name="led_wifi" type="number" id="p12_gpio_led_wifi" placeholder="-1 to disable">
-            <label for="led_oilcounter" data-i18n="led_oilcounter">--</label>  
-            <input class="num-input" name="led_oilcounter" type="number" id="p12_gpio_led_oilcounter" placeholder="-1 to disable">
-            <label for="trig_oilcounter" data-i18n="trig_oilcounter">--</label>  
-            <input class="num-input" name="trig_oilcounter" type="number" id="p12_gpio_trig_oilcounter" placeholder="-1 to disable">
+            <label for="km271_rx" data-i18n="km271_rx">--</label>
+            <input
+              class="num-input"
+              name="km271_rx"
+              type="number"
+              id="p12_gpio_km271_rx"
+              placeholder="-1 to disable" />
+            <label for="km271_tx" data-i18n="km271_tx">--</label>
+            <input
+              class="num-input"
+              name="km271_tx"
+              type="number"
+              id="p12_gpio_km271_tx"
+              placeholder="-1 to disable" />
+            <label for="led_heartbeat" data-i18n="led_heartbeat">--</label>
+            <input
+              class="num-input"
+              name="led_heartbeat"
+              type="number"
+              id="p12_gpio_led_heartbeat"
+              placeholder="-1 to disable" />
+            <label for="led_logmode" data-i18n="led_logmode">--</label>
+            <input
+              class="num-input"
+              name="led_logmode"
+              type="number"
+              id="p12_gpio_led_logmode"
+              placeholder="-1 to disable" />
+            <label for="led_wifi" data-i18n="led_wifi">--</label>
+            <input
+              class="num-input"
+              name="led_wifi"
+              type="number"
+              id="p12_gpio_led_wifi"
+              placeholder="-1 to disable" />
+            <label for="led_oilcounter" data-i18n="led_oilcounter">--</label>
+            <input
+              class="num-input"
+              name="led_oilcounter"
+              type="number"
+              id="p12_gpio_led_oilcounter"
+              placeholder="-1 to disable" />
+            <label for="trig_oilcounter" data-i18n="trig_oilcounter">--</label>
+            <input
+              class="num-input"
+              name="trig_oilcounter"
+              type="number"
+              id="p12_gpio_trig_oilcounter"
+              placeholder="-1 to disable" />
 
-            <hr><!-- Oilmeter -->
+            <hr />
+            <!-- Oilmeter -->
             <h4 data-i18n="oilmeter">--</h4>
             <div class="section-header">
-              <h6 for="oil_hardware" data-i18n="oil_hardware">--</h6>  
-              <input name="oil_hardware" type="checkbox" role="switch" id="p12_oil_hardware_enable">
+              <h6 for="oil_hardware" data-i18n="oil_hardware">--</h6>
+              <input
+                name="oil_hardware"
+                type="checkbox"
+                role="switch"
+                id="p12_oil_hardware_enable" />
             </div>
             <div class="section-header">
-              <h6 for="oil_virtual" data-i18n="oil_virtual">--</h6>  
-              <input name="oil_virtual" type="checkbox" role="switch" id="p12_oil_virtual_enable">
+              <h6 for="oil_virtual" data-i18n="oil_virtual">--</h6>
+              <input
+                name="oil_virtual"
+                type="checkbox"
+                role="switch"
+                id="p12_oil_virtual_enable" />
             </div>
-            <br>
+            <br />
             <label for="oil_par1_kg_h" data-i18n="oil_par1_kg_h">--</label>
-            <input name="oil_par1_kg_h" type="number" id="p12_oil_par1_kg_h">
-            <label for="oil_par2_kg_l" data-i18n="oil_par2_kg_l">--</label>  
-            <input name="oil_par2_kg_l" type="number" id="p12_oil_par2_kg_l">
+            <input name="oil_par1_kg_h" type="number" id="p12_oil_par1_kg_h" />
+            <label for="oil_par2_kg_l" data-i18n="oil_par2_kg_l">--</label>
+            <input name="oil_par2_kg_l" type="number" id="p12_oil_par2_kg_l" />
 
-            <hr><!-- Optional Sensors -->
+            <hr />
+            <!-- Optional Sensors -->
             <h4 data-i18n="optional_sensor">--</h4>
             <div class="section-header">
-              <h6 for="sens1" data-i18n="sens1">--</h6>  
-              <input name="sens1" type="checkbox" role="switch" id="p12_sens1_enable">
+              <h6 for="sens1" data-i18n="sens1">--</h6>
+              <input
+                name="sens1"
+                type="checkbox"
+                role="switch"
+                id="p12_sens1_enable" />
             </div>
             <label for="sens1_name" data-i18n="name">--</label>
-            <input type="text" id="p12_sens1_name" name="sens1_name">
-            <label for="sens1_gpio" data-i18n="gpio">--</label>  
-            <input name="sens1_gpio" type="number" id="p12_sens1_gpio" placeholder="-1 to disable">
+            <input type="text" id="p12_sens1_name" name="sens1_name" />
+            <label for="sens1_gpio" data-i18n="gpio">--</label>
+            <input
+              name="sens1_gpio"
+              type="number"
+              id="p12_sens1_gpio"
+              placeholder="-1 to disable" />
 
             <div class="section-header">
-              <h6 for="sens2" data-i18n="sens2">--</h6>  
-              <input name="sens2" type="checkbox" role="switch" id="p12_sens2_enable">
+              <h6 for="sens2" data-i18n="sens2">--</h6>
+              <input
+                name="sens2"
+                type="checkbox"
+                role="switch"
+                id="p12_sens2_enable" />
             </div>
             <label for="sens2_name">Name</label>
-            <input type="text" id="p12_sens2_name" name="sens2_name">
-            <label for="sens2_gpio" data-i18n="gpio">--</label>  
-            <input name="sens2_gpio" type="number" id="p12_sens2_gpio" placeholder="-1 to disable">
+            <input type="text" id="p12_sens2_name" name="sens2_name" />
+            <label for="sens2_gpio" data-i18n="gpio">--</label>
+            <input
+              name="sens2_gpio"
+              type="number"
+              id="p12_sens2_gpio"
+              placeholder="-1 to disable" />
 
-
-            <hr><!-- Language -->
+            <hr />
+            <!-- Language -->
             <h4 data-i18n="language">--</h4>
             <select id="p12_language">
-                <option value="0" data-i18n="german">--</option>
-                <option value="1" data-i18n="english">--</option>
+              <option value="0" data-i18n="german">--</option>
+              <option value="1" data-i18n="english">--</option>
             </select>
-            <hr>
-            <button id="p12_btn_save" data-i18n="save" style="width: 100%;margin-bottom: 10px;">--</button>
-            <button id="p12_btn_restart" data-i18n="restart" style="width: 100%;margin-bottom: 10px;">--</button>
-            <button id="p12_btn_save_restart" data-i18n="save_restart" style="width: 100%;">--</button>
-
-
+            <hr />
+            <!-- Buttons -->
+            <button
+              id="p12_btn_restart"
+              data-i18n="restart"
+              style="width: 100%; margin-bottom: 10px">
+              --
+            </button>
+          </div>
         </div>
-    </div>
-</div>
+      </div>
 </main>  
     <footer>
       <div id="connectionLostBar" style="display: none;">
