@@ -716,10 +716,18 @@ void webReadLogBufferCyclic(){
        // log empty
       logReadEnable = false;
       return;
-    } else if (logData.buffer[logData.lastLine][0] == '\0') {
-      logIdx = logLine % MAX_LOG_LINES; // buffer is not full - start reading at element index 0
-    } else {
-      logIdx = (logData.lastLine + logLine) % MAX_LOG_LINES;  // buffer is full - start reading at element index "logData.lastLine"
+    } if (config.log.order==1){
+      logIdx = (logData.lastLine - logLine - 1) % MAX_LOG_LINES;
+    }
+    else {
+      if (logData.buffer[logData.lastLine][0]=='\0'){
+        // buffer is not full - start reading at element index 0
+        logIdx = logLine % MAX_LOG_LINES;
+      }
+      else {
+        // buffer is full - start reading at element index "logData.lastLine"
+        logIdx = (logData.lastLine + logLine) % MAX_LOG_LINES;
+      }
     } if (logIdx < 0) {
       logIdx += MAX_LOG_LINES;
     } if (logIdx >= MAX_LOG_LINES){
