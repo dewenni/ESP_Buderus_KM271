@@ -45,7 +45,36 @@ muTimer refreshTimer2 = muTimer();         // timer to refresh other values
 muTimer refreshTimer3 = muTimer();         // timer to refresh other values
 muTimer connectionTimer = muTimer();         // timer to refresh other values
 muTimer simulationTimer = muTimer();         // timer to refresh other values
+muTimer logReadTimer = muTimer();         // timer to refresh other values
 
+
+/**
+ * *******************************************************************
+ * @brief   format build date/time information
+ * @param   date input string
+ * @return  hash value
+ * *******************************************************************/
+void getBuildDateTime(char* formatted_date) {
+    // Monatsnamen für die Umwandlung in Zahlen
+    const char* months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    char month_text[4] = {0};
+    int day, year;
+    // Extrahiere den Monat, Tag und Jahr aus dem __DATE__ String
+    sscanf(__DATE__, "%s %d %d", month_text, &day, &year);
+
+    // Finde den Monat im Array und konvertiere ihn in eine Zahl
+    int month = 0;
+    for(int i = 0; i < 12; i++) {
+        if(strcmp(month_text, months[i]) == 0) {
+            month = i + 1;
+            break;
+        }
+    }
+
+    // Format das Datum als "DD-MM-YYYY"
+    sprintf(formatted_date, "%02d.%02d.%d - %s", day, month, year, __TIME__);
+}
 
 /**
  * *******************************************************************
@@ -53,7 +82,7 @@ muTimer simulationTimer = muTimer();         // timer to refresh other values
  * @param   str input string
  * @return  hash value
  * *******************************************************************/
-unsigned int simpleHash(const char *str) {
+unsigned int strHash(const char *str) {
     unsigned int hash = 0;
     while (*str) {
         hash = 31 * hash + (*str++);
@@ -68,8 +97,8 @@ unsigned int simpleHash(const char *str) {
  * @param   currentValue
  * @return  compare result - true if different
  * *******************************************************************/
-bool checkDiff(unsigned int *lastHash, const char *currentValue) {
-    unsigned int currentHash = simpleHash(currentValue);
+bool strDiff(unsigned int *lastHash, const char *currentValue) {
+    unsigned int currentHash = strHash(currentValue);
     if (*lastHash != currentHash) {
         *lastHash = currentHash;
         return true;
@@ -122,58 +151,87 @@ void handleData(AsyncWebServerRequest *request) {
 
 void sendWebUpdate(const char *message, const char * event) {
   events.send(message, event, millis());
-  //delay(20);
 }
 
-void hideElementClass(const String& className, bool hide) {
-  String message = "{\"className\":\"" + className + "\",\"hide\":" + (hide ? "true" : "false") + "}";
-  sendWebUpdate(message.c_str(), "hideElementClass");
+const size_t BUFFER_SIZE = 512;
+
+void hideElementClass(const char* className, bool hide) {
+    char message[BUFFER_SIZE];
+    snprintf(message, BUFFER_SIZE, "{\"className\":\"%s\",\"hide\":%s}", className, hide ? "true" : "false");
+    sendWebUpdate(message, "hideElementClass");
 }
 
 void setLanguage(const char* language) {
-  String message = "{\"language\":\"" + String(language) + "\"" + "}";
-  sendWebUpdate(message.c_str(), "setLanguage");
+    char message[BUFFER_SIZE];
+    snprintf(message, BUFFER_SIZE, "{\"language\":\"%s\"}", language);
+    sendWebUpdate(message, "setLanguage");
 }
 
 void updateWebText(const char* elementID, const char* text, bool isInput) {
-  String message = "{\"elementID\":\"" + String(elementID) + "\",\"text\":\"" + String(text) + "\",\"isInput\":" + (isInput ? "true" : "false") + "}";
-  sendWebUpdate(message.c_str(), "updateText");
+    char message[BUFFER_SIZE];
+    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"text\":\"%s\",\"isInput\":%s}", elementID, text, isInput ? "true" : "false");
+    sendWebUpdate(message, "updateText");
 }
 
 void updateWebTextInt(const char* elementID, long value, bool isInput) {
-  String message = "{\"elementID\":\"" + String(elementID) + "\",\"text\":\"" + String(value) + "\",\"isInput\":" + (isInput ? "true" : "false") + "}";
-  sendWebUpdate(message.c_str(), "updateText");
+    char message[BUFFER_SIZE];
+    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"text\":\"%ld\",\"isInput\":%s}", elementID, value, isInput ? "true" : "false");
+    sendWebUpdate(message, "updateText");
 }
 
-void updateWebTextFloat(const char* elementID, double value, bool isInput) {
-  String message = "{\"elementID\":\"" + String(elementID) + "\",\"text\":\"" + String(value) + "\",\"isInput\":" + (isInput ? "true" : "false") + "}";
-  sendWebUpdate(message.c_str(), "updateText");
+void updateWebTextFloat(const char* elementID, double value, bool isInput, int decimals) {
+    char message[BUFFER_SIZE];
+    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"text\":\"%.1f\",\"isInput\":%s}", elementID, value, isInput ? "true" : "false");
+    if (decimals==0)
+      snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"text\":\"%.0f\",\"isInput\":%s}", elementID, value, isInput ? "true" : "false");
+    else if (decimals==2)
+      snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"text\":\"%.2f\",\"isInput\":%s}", elementID, value, isInput ? "true" : "false");
+    else if (decimals==3)
+      snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"text\":\"%.3f\",\"isInput\":%s}", elementID, value, isInput ? "true" : "false");
+    else
+      snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"text\":\"%.1f\",\"isInput\":%s}", elementID, value, isInput ? "true" : "false");
+
+    sendWebUpdate(message, "updateText");
 }
 
 void updateWebState(const char* elementID, bool state) {
-  String message = "{\"elementID\":\"" + String(elementID) + "\",\"state\":" + (state ? "true" : "false") + "}";
-  sendWebUpdate(message.c_str(), "updateState");
+    char message[BUFFER_SIZE];
+    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"state\":%s}", elementID, state ? "true" : "false");
+    sendWebUpdate(message, "updateState");
 }
 
 void updateWebValueStr(const char* elementID, const char* value) {
-  String message = "{\"elementID\":\"" + String(elementID) + "\",\"value\":\"" + value + "\"}";
-  sendWebUpdate(message.c_str(), "updateValue");
+    char message[BUFFER_SIZE];
+    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"value\":\"%s\"}", elementID, value);
+    sendWebUpdate(message, "updateValue");
 }
 
 void updateWebValueInt(const char* elementID, long value) {
-  String message = "{\"elementID\":\"" + String(elementID) + "\",\"value\":\"" + String(value) + "\"}";
-  sendWebUpdate(message.c_str(), "updateValue");
+    char message[BUFFER_SIZE];
+    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"value\":\"%ld\"}", elementID, value);
+    sendWebUpdate(message, "updateValue");
 }
 
-void updateWebValueFloat(const char* elementID, double value) {
-  String message = "{\"elementID\":\"" + String(elementID) + "\",\"value\":\"" + String(value) + "\"}";
-  sendWebUpdate(message.c_str(), "updateValue");
+void updateWebValueFloat(const char* elementID, double value, int decimals) {
+    char message[BUFFER_SIZE];
+    if (decimals==0)
+      snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"value\":\"%.0f\"}", elementID, value);
+    else if (decimals==2)
+      snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"value\":\"%.2f\"}", elementID, value);
+    else if (decimals==3)
+      snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"value\":\"%.3f\"}", elementID, value);
+    else
+      snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"value\":\"%.1f\"}", elementID, value);
+
+    sendWebUpdate(message, "updateValue");
 }
 
 void enableElement(const char* elementID, bool enable) {
-  String message = "{\"elementID\":\"" + String(elementID) + "\",\"enable\":" + (enable ? "true" : "false") + "}";
-  sendWebUpdate(message.c_str(), "enableElement");
+    char message[BUFFER_SIZE];
+    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"enable\":%s}", elementID, enable ? "true" : "false");
+    sendWebUpdate(message, "enableElement");
 }
+
 
 
 /**
@@ -618,13 +676,46 @@ void updateAllElements(){
  * @param   none 
  * @return  none
  * *******************************************************************/
-void webReadLogBuffer() {
-  sendWebUpdate("", "clr_log");
-  for (int i = 0; i < MAX_LOG_LINES; i++) {
-    if (logData.buffer[i][0] != '\0') {
-      sendWebUpdate(logData.buffer[i], "add_log");
+int logLine, logIdx = 0;
+bool logReadEnable = false;
+void webReadLogBuffer(){
+  logReadEnable = true;
+  logLine = 0;
+  logIdx = 0;
+}
+void webReadLogBufferCyclic(){
+    if (!logReadEnable){
+      return;
     }
-  }
+    if (logLine == 0 && logData.lastLine == 0){
+       // log empty
+      logReadEnable = false;
+      return;
+    } else if (logData.buffer[logData.lastLine][0] == '\0') {
+      logIdx = logLine % MAX_LOG_LINES; // buffer is not full - start reading at element index 0
+    } else {
+      logIdx = (logData.lastLine + logLine) % MAX_LOG_LINES;  // buffer is full - start reading at element index "logData.lastLine"
+    } if (logIdx < 0) {
+      logIdx += MAX_LOG_LINES;
+    } if (logIdx >= MAX_LOG_LINES){
+      logIdx = 0;
+    } if (logLine == 0) {
+      sendWebUpdate("", "clr_log");  // clear log
+      sendWebUpdate(logData.buffer[logIdx], "add_log"); // add first log element
+      logLine++;
+    } else if (logLine == MAX_LOG_LINES - 1) {
+      // end
+      return;
+    } else {
+      if (logData.buffer[logIdx][0] != '\0') {
+        sendWebUpdate(logData.buffer[logIdx], "add_log"); // add next log element
+        logLine++;
+      } else {
+        // no more entries
+        logReadEnable = false;
+        return;
+      }
+    }
 }
 
 /**
@@ -634,6 +725,8 @@ void webReadLogBuffer() {
  * @return  none
  * *******************************************************************/
 void updateOilmeterElements(){
+
+  // TODO: Bein Init anzeigen und auch bei virtuellem Oilmeter
 
   // check if oilcounter value changed
   if (config.oilmeter.use_hardware_meter) {
@@ -697,8 +790,8 @@ void updateSettingsElements(){
     case 32: updateWebValueInt("p12_gpio_trig_oilcounter", config.gpio.trigger_oilcounter); break;
     case 33: updateWebState("p12_oil_hardware_enable", config.oilmeter.use_hardware_meter); break;
     case 34: updateWebState("p12_oil_virtual_enable", config.oilmeter.use_virtual_meter); break;
-    case 35: updateWebValueFloat("p12_oil_par1_kg_h", config.oilmeter.consumption_kg_h); break;
-    case 36: updateWebValueFloat("p12_oil_par2_kg_l", config.oilmeter.oil_density_kg_l); break;
+    case 35: updateWebValueFloat("p12_oil_par1_kg_h", config.oilmeter.consumption_kg_h, 3); break;
+    case 36: updateWebValueFloat("p12_oil_par2_kg_l", config.oilmeter.oil_density_kg_l, 3); break;
     case 37: updateWebState("p12_sens1_enable", config.sensor.ch1_enable); break;
     case 38: updateWebText("p12_sens1_name", config.sensor.ch1_name, true); break;
     case 39: updateWebValueInt("p12_sens1_gpio", config.sensor.ch1_gpio); break;
@@ -732,11 +825,14 @@ void updateSystemInfoElements(){
   updateWebText("p00_version",VERSION, false);
   updateWebText("p09_sw_version",VERSION, false);
 
+  getBuildDateTime(tmpMessage);
+  updateWebText("p09_sw_date", tmpMessage, false);
+
   // ESP informations
-  updateWebTextFloat("p09_esp_flash_usage",(float)ESP.getSketchSize()*100/ESP.getFreeSketchSpace(), false);
-  updateWebTextFloat("p09_esp_heap_usage",(float)(ESP.getHeapSize()-ESP.getFreeHeap())*100/ESP.getHeapSize(), false);
-  updateWebTextFloat("p09_esp_maxallocheap",(float)ESP.getMaxAllocHeap()/1000.0, false);
-  updateWebTextFloat("p09_esp_minfreeheap",(float)ESP.getMinFreeHeap()/1000.0, false);
+  updateWebTextFloat("p09_esp_flash_usage",(float)ESP.getSketchSize()*100/ESP.getFreeSketchSpace(), false, 0);
+  updateWebTextFloat("p09_esp_heap_usage",(float)(ESP.getHeapSize()-ESP.getFreeHeap())*100/ESP.getHeapSize(), false, 0);
+  updateWebTextFloat("p09_esp_maxallocheap",(float)ESP.getMaxAllocHeap()/1000.0, false, 0);
+  updateWebTextFloat("p09_esp_minfreeheap",(float)ESP.getMinFreeHeap()/1000.0, false, 0);
 
   // Uptime and restart reason
   char uptimeStr[64];
@@ -781,263 +877,263 @@ void updateKm271AlarmElements(){
  * *******************************************************************/
 void updateKm271ConfigElements(){
 
-  if (checkDiff(&KmCfgHash[0], pkmConfigStr->hc1_frost_protection_threshold)) {
+  if (strDiff(&KmCfgHash[0], pkmConfigStr->hc1_frost_protection_threshold)) {
       updateWebValueInt("p02_hc1_frost_protection_threshold",pkmConfigNum->hc1_frost_protection_threshold);
       updateWebTextInt("p02_hc1_frost_protection_threshold_txt",pkmConfigNum->hc1_frost_protection_threshold, false);
       updateWebText("p03_hc1_frost_protection_threshold",pkmConfigStr->hc1_frost_protection_threshold, false);
   }
-  else if (checkDiff(&KmCfgHash[1], pkmConfigStr->hc1_summer_mode_threshold)) {
+  else if (strDiff(&KmCfgHash[1], pkmConfigStr->hc1_summer_mode_threshold)) {
       updateWebValueInt("p02_hc1_summer_mode_threshold",pkmConfigNum->hc1_summer_mode_threshold);
       updateWebTextInt("p02_hc1_summer_mode_threshold_txt",pkmConfigNum->hc1_summer_mode_threshold, false);
       updateWebText("p03_hc1_summer_mode_threshold",pkmConfigStr->hc1_summer_mode_threshold, false);
 
   }
-  else if (checkDiff(&KmCfgHash[2], pkmConfigStr->hc2_frost_protection_threshold)) {
+  else if (strDiff(&KmCfgHash[2], pkmConfigStr->hc2_frost_protection_threshold)) {
       updateWebValueInt("p02_hc2_frost_protection_threshold",pkmConfigNum->hc2_frost_protection_threshold);
       updateWebTextInt("p04_hc2_frost_protection_threshold_txt",pkmConfigNum->hc2_frost_protection_threshold, false); 
       updateWebText("p04_hc2_frost_protection_threshold",pkmConfigStr->hc2_frost_protection_threshold, false);  
   }
-  else if (checkDiff(&KmCfgHash[3], pkmConfigStr->hc2_summer_mode_threshold)) {
+  else if (strDiff(&KmCfgHash[3], pkmConfigStr->hc2_summer_mode_threshold)) {
       updateWebValueInt("p02_hc2_summer_mode_threshold",pkmConfigNum->hc2_summer_mode_threshold);
       updateWebTextInt("p04_hc2_summer_mode_threshold_txt",pkmConfigNum->hc2_summer_mode_threshold, false);
       updateWebText("p04_hc2_summer_mode_threshold",pkmConfigStr->hc2_summer_mode_threshold, false);
   }
-  else if (checkDiff(&KmCfgHash[4], pkmConfigStr->hc1_night_temp)) {
+  else if (strDiff(&KmCfgHash[4], pkmConfigStr->hc1_night_temp)) {
       updateWebText("p03_hc1_night_temp",pkmConfigStr->hc1_night_temp, false);
   }
-  else if (checkDiff(&KmCfgHash[5], pkmConfigStr->hc1_day_temp)) {
+  else if (strDiff(&KmCfgHash[5], pkmConfigStr->hc1_day_temp)) {
       updateWebText("p03_hc1_day_temp",pkmConfigStr->hc1_day_temp, false);
   }
-  else if (checkDiff(&KmCfgHash[6], pkmConfigStr->hc1_operation_mode)) {
+  else if (strDiff(&KmCfgHash[6], pkmConfigStr->hc1_operation_mode)) {
       updateWebState("p02_hc1_opmode_night",pkmConfigNum->hc1_operation_mode==0 ? true:false);
       updateWebState("p02_hc1_opmode_day",pkmConfigNum->hc1_operation_mode==1 ? true:false);
       updateWebState("p02_hc1_opmode_auto",pkmConfigNum->hc1_operation_mode==2 ? true:false);
       updateWebText("p03_hc1_operation_mode",pkmConfigStr->hc1_operation_mode, false);
   }
-  else if (checkDiff(&KmCfgHash[7], pkmConfigStr->hc1_holiday_temp)) {
+  else if (strDiff(&KmCfgHash[7], pkmConfigStr->hc1_holiday_temp)) {
       updateWebText("p03_hc1_holiday_temp",pkmConfigStr->hc1_holiday_temp, false);
   }
-  else if (checkDiff(&KmCfgHash[8], pkmConfigStr->hc1_max_temp)) {
+  else if (strDiff(&KmCfgHash[8], pkmConfigStr->hc1_max_temp)) {
      updateWebText("p03_hc1_max_temp",pkmConfigStr->hc1_max_temp, false);
   }
-  else if (checkDiff(&KmCfgHash[9], pkmConfigStr->hc1_interpretation)) {
+  else if (strDiff(&KmCfgHash[9], pkmConfigStr->hc1_interpretation)) {
       updateWebValueInt("p02_hc1_interpretation",pkmConfigNum->hc1_interpretation);
       updateWebTextInt("p02_hc1_interpretation_txt",pkmConfigNum->hc1_interpretation, false);
       updateWebText("p03_hc1_interpretation",pkmConfigStr->hc1_interpretation, false);
   }
-  else if (checkDiff(&KmCfgHash[10], pkmConfigStr->hc1_switch_on_temperature)) {
+  else if (strDiff(&KmCfgHash[10], pkmConfigStr->hc1_switch_on_temperature)) {
      kmConfigCpy.hc1_switch_on_temperature = pkmConfigNum->hc1_switch_on_temperature;
      updateWebText("p03_hc1_switch_on_temperature",pkmConfigStr->hc1_switch_on_temperature, false);
   }
-  else if (checkDiff(&KmCfgHash[11], pkmConfigStr->hc1_switch_off_threshold)) {
+  else if (strDiff(&KmCfgHash[11], pkmConfigStr->hc1_switch_off_threshold)) {
       updateWebValueInt("p02_hc1_switch_off_threshold",pkmConfigNum->hc1_switch_off_threshold);
       updateWebTextInt("p02_hc1_switch_off_threshold_txt",pkmConfigNum->hc1_switch_off_threshold, false);
       updateWebText("p03_hc1_switch_off_threshold",pkmConfigStr->hc1_switch_off_threshold, false); 
   }
-  else if (checkDiff(&KmCfgHash[12], pkmConfigStr->hc1_reduction_mode)) {
+  else if (strDiff(&KmCfgHash[12], pkmConfigStr->hc1_reduction_mode)) {
       updateWebText("p03_hc1_reduction_mode",pkmConfigStr->hc1_reduction_mode, false);
       updateWebValueInt("p02_hc1_reduct_mode",pkmConfigNum->hc1_reduction_mode);
   }
-  else if (checkDiff(&KmCfgHash[13], pkmConfigStr->hc1_heating_system)) {
+  else if (strDiff(&KmCfgHash[13], pkmConfigStr->hc1_heating_system)) {
       updateWebText("p03_hc1_heating_system",pkmConfigStr->hc1_heating_system, false);
   }
-  else if (checkDiff(&KmCfgHash[14], pkmConfigStr->hc1_temp_offset)) {
+  else if (strDiff(&KmCfgHash[14], pkmConfigStr->hc1_temp_offset)) {
       updateWebText("p03_hc1_temp_offset",pkmConfigStr->hc1_temp_offset, false);
   }
-  else if (checkDiff(&KmCfgHash[15], pkmConfigStr->hc1_remotecontrol)) {
+  else if (strDiff(&KmCfgHash[15], pkmConfigStr->hc1_remotecontrol)) {
       updateWebText("p03_hc1_remotecontrol",pkmConfigStr->hc1_remotecontrol, false);
   }
-  else if (checkDiff(&KmCfgHash[16], pkmConfigStr->hc2_night_temp)) {
+  else if (strDiff(&KmCfgHash[16], pkmConfigStr->hc2_night_temp)) {
       updateWebText("p04_hc2_night_temp",pkmConfigStr->hc2_night_temp, false);
   }
-  else if (checkDiff(&KmCfgHash[17], pkmConfigStr->hc2_day_temp)) {
+  else if (strDiff(&KmCfgHash[17], pkmConfigStr->hc2_day_temp)) {
       updateWebText("p04_hc2_day_temp",pkmConfigStr->hc2_day_temp, false);
   }
-  else if (checkDiff(&KmCfgHash[18], pkmConfigStr->hc2_operation_mode)) {
+  else if (strDiff(&KmCfgHash[18], pkmConfigStr->hc2_operation_mode)) {
       kmConfigCpy.hc2_operation_mode = pkmConfigNum->hc2_operation_mode;
       updateWebState("p02_hc2_opmode_night",pkmConfigNum->hc2_operation_mode==0 ? true:false);
       updateWebState("p02_hc2_opmode_day",pkmConfigNum->hc2_operation_mode==1 ? true:false);
       updateWebState("p02_hc2_opmode_auto",pkmConfigNum->hc2_operation_mode==2 ? true:false);
       updateWebText("p04_hc2_operation_mode",pkmConfigStr->hc2_operation_mode, false);
   }
-  else if (checkDiff(&KmCfgHash[19], pkmConfigStr->hc2_holiday_temp)) {
+  else if (strDiff(&KmCfgHash[19], pkmConfigStr->hc2_holiday_temp)) {
       updateWebText("p04_hc2_holiday_temp",pkmConfigStr->hc2_holiday_temp, false);
   }
-  else if (checkDiff(&KmCfgHash[20], pkmConfigStr->hc2_max_temp)) {
+  else if (strDiff(&KmCfgHash[20], pkmConfigStr->hc2_max_temp)) {
       updateWebText("p04_hc2_max_temp",pkmConfigStr->hc2_max_temp, false);
   }
-  else if (checkDiff(&KmCfgHash[21], pkmConfigStr->hc2_interpretation)) {
+  else if (strDiff(&KmCfgHash[21], pkmConfigStr->hc2_interpretation)) {
       updateWebValueInt("p02_hc2_interpretation",pkmConfigNum->hc2_interpretation);
       updateWebTextInt("p02_hc2_interpretation_txt",pkmConfigNum->hc2_interpretation, false);
       updateWebText("p04_hc2_interpretation",pkmConfigStr->hc2_interpretation, false);
   }
-  else if (checkDiff(&KmCfgHash[22], pkmConfigStr->ww_priority)) {
+  else if (strDiff(&KmCfgHash[22], pkmConfigStr->ww_priority)) {
       updateWebText("p05_hw_priority",pkmConfigStr->ww_priority, false);
   }
-  else if (checkDiff(&KmCfgHash[23], pkmConfigStr->hc2_switch_on_temperature)) {
+  else if (strDiff(&KmCfgHash[23], pkmConfigStr->hc2_switch_on_temperature)) {
       updateWebText("p04_hc2_switch_on_temperature",pkmConfigStr->hc2_switch_on_temperature, false);
   }
-  else if (checkDiff(&KmCfgHash[24], pkmConfigStr->hc2_switch_off_threshold)) {
+  else if (strDiff(&KmCfgHash[24], pkmConfigStr->hc2_switch_off_threshold)) {
       updateWebValueInt("p02_hc2_switch_off_threshold",pkmConfigNum->hc2_switch_off_threshold);
       updateWebTextInt("p02_hc2_switch_off_threshold_txt",pkmConfigNum->hc2_switch_off_threshold, false);
       updateWebText("p04_hc2_switch_off_threshold",pkmConfigStr->hc2_switch_off_threshold, false);
   }
-  else if (checkDiff(&KmCfgHash[25], pkmConfigStr->hc2_reduction_mode)) {
+  else if (strDiff(&KmCfgHash[25], pkmConfigStr->hc2_reduction_mode)) {
       updateWebText("p04_hc2_reduction_mode",pkmConfigStr->hc2_reduction_mode, false);
       updateWebValueInt("p02_hc2_reduct_mode",pkmConfigNum->hc2_reduction_mode);
   }
-  else if (checkDiff(&KmCfgHash[26], pkmConfigStr->hc2_heating_system)) {
+  else if (strDiff(&KmCfgHash[26], pkmConfigStr->hc2_heating_system)) {
       updateWebText("p04_hc2_heating_system",pkmConfigStr->hc2_heating_system, false);
   }
-  else if (checkDiff(&KmCfgHash[27], pkmConfigStr->hc2_temp_offset)) {
+  else if (strDiff(&KmCfgHash[27], pkmConfigStr->hc2_temp_offset)) {
       updateWebText("p04_hc2_temp_offset",pkmConfigStr->hc2_temp_offset, false);
   }
-  else if (checkDiff(&KmCfgHash[28], pkmConfigStr->hc2_remotecontrol)) {
+  else if (strDiff(&KmCfgHash[28], pkmConfigStr->hc2_remotecontrol)) {
       updateWebText("p04_hc2_remotecontrol",pkmConfigStr->hc2_remotecontrol, false);
   }
-  else if (checkDiff(&KmCfgHash[29], pkmConfigStr->building_type)) {
+  else if (strDiff(&KmCfgHash[29], pkmConfigStr->building_type)) {
       updateWebText("p07_building_type",pkmConfigStr->building_type, false);
   }
-  else if (checkDiff(&KmCfgHash[30], pkmConfigStr->ww_temp)) {
+  else if (strDiff(&KmCfgHash[30], pkmConfigStr->ww_temp)) {
       updateWebValueInt("p02_ww_temp",pkmConfigNum->ww_temp);
       updateWebTextInt("p02_ww_temp_txt",pkmConfigNum->ww_temp, false);
       updateWebText("p05_hw_temp",pkmConfigStr->ww_temp, false);
   }
-  else if (checkDiff(&KmCfgHash[31], pkmConfigStr->ww_operation_mode)) {
+  else if (strDiff(&KmCfgHash[31], pkmConfigStr->ww_operation_mode)) {
       updateWebState("p02_ww_opmode_night",pkmConfigNum->ww_operation_mode==0 ? true:false);
       updateWebState("p02_ww_opmode_day",pkmConfigNum->ww_operation_mode==1 ? true:false);
       updateWebState("p02_ww_opmode_auto",pkmConfigNum->ww_operation_mode==2 ? true:false);
       updateWebText("p05_hw_operation_mode",pkmConfigStr->ww_operation_mode, false);
   }
-  else if (checkDiff(&KmCfgHash[32], pkmConfigStr->ww_processing)) {
+  else if (strDiff(&KmCfgHash[32], pkmConfigStr->ww_processing)) {
       updateWebText("p05_hw_processing",pkmConfigStr->ww_processing, false);
   }
-  else if (checkDiff(&KmCfgHash[33], pkmConfigStr->ww_circulation)) {
+  else if (strDiff(&KmCfgHash[33], pkmConfigStr->ww_circulation)) {
       updateWebValueInt("p02_ww_circulation",pkmConfigNum->ww_circulation);
       updateWebTextInt("p02_ww_circulation_txt",pkmConfigNum->ww_circulation, false);
       updateWebText("p05_hw_circulation",pkmConfigStr->ww_circulation, false);
   }
-  else if (checkDiff(&KmCfgHash[34], pkmConfigStr->language)) {
+  else if (strDiff(&KmCfgHash[34], pkmConfigStr->language)) {
       updateWebText("p07_language",pkmConfigStr->language, false);
   }
-  else if (checkDiff(&KmCfgHash[35], pkmConfigStr->display)) {
+  else if (strDiff(&KmCfgHash[35], pkmConfigStr->display)) {
       updateWebText("p07_display",pkmConfigStr->display, false);
   }
-  else if (checkDiff(&KmCfgHash[36], pkmConfigStr->burner_type)) {
+  else if (strDiff(&KmCfgHash[36], pkmConfigStr->burner_type)) {
       updateWebText("p07_burner_type",pkmConfigStr->burner_type, false);
   }
-  else if (checkDiff(&KmCfgHash[37], pkmConfigStr->max_boiler_temperature)) {
+  else if (strDiff(&KmCfgHash[37], pkmConfigStr->max_boiler_temperature)) {
       updateWebText("p06_max_boiler_temperature",pkmConfigStr->max_boiler_temperature, false);
   }
-  else if (checkDiff(&KmCfgHash[38], pkmConfigStr->pump_logic_temp)) {
+  else if (strDiff(&KmCfgHash[38], pkmConfigStr->pump_logic_temp)) {
       updateWebText("p07_pump_logic_temp",pkmConfigStr->pump_logic_temp, false);
   }
-  else if (checkDiff(&KmCfgHash[39], pkmConfigStr->exhaust_gas_temperature_threshold)) {
+  else if (strDiff(&KmCfgHash[39], pkmConfigStr->exhaust_gas_temperature_threshold)) {
       updateWebText("p07_exhaust_gas_temperature_threshold",pkmConfigStr->exhaust_gas_temperature_threshold, false);
   }
-  else if (checkDiff(&KmCfgHash[40], pkmConfigStr->burner_min_modulation)) {
+  else if (strDiff(&KmCfgHash[40], pkmConfigStr->burner_min_modulation)) {
       updateWebText("p07_burner_min_modulation",pkmConfigStr->burner_min_modulation, false);
   }
-  else if (checkDiff(&KmCfgHash[41], pkmConfigStr->burner_modulation_runtime)) {
+  else if (strDiff(&KmCfgHash[41], pkmConfigStr->burner_modulation_runtime)) {
       updateWebText("p07_burner_modulation_runtime",pkmConfigStr->burner_modulation_runtime, false);
   }
-  else if (checkDiff(&KmCfgHash[42], pkmConfigStr->hc1_program)) {
+  else if (strDiff(&KmCfgHash[42], pkmConfigStr->hc1_program)) {
       updateWebValueInt("p02_hc1_prg",pkmConfigNum->hc1_program);
   }
-  else if (checkDiff(&KmCfgHash[43], pkmConfigStr->hc2_program)) {
+  else if (strDiff(&KmCfgHash[43], pkmConfigStr->hc2_program)) {
       updateWebValueInt("p02_hc2_prg",pkmConfigNum->hc2_program);
   }
-  else if (checkDiff(&KmCfgHash[44], pkmConfigStr->time_offset)) {
+  else if (strDiff(&KmCfgHash[44], pkmConfigStr->time_offset)) {
       updateWebText("p07_time_offset",pkmConfigStr->time_offset, false);
   }
-  else if (checkDiff(&KmCfgHash[45], pkmConfigStr->hc1_holiday_days)) {
+  else if (strDiff(&KmCfgHash[45], pkmConfigStr->hc1_holiday_days)) {
       updateWebValueInt("p02_hc1_holiday_days",pkmConfigNum->hc1_holiday_days);
   }
-  else if (checkDiff(&KmCfgHash[46], pkmConfigStr->hc2_holiday_days)) {
+  else if (strDiff(&KmCfgHash[46], pkmConfigStr->hc2_holiday_days)) {
       updateWebValueInt("p04_hc2_holiday_days",pkmConfigNum->hc2_holiday_days);
   }
-  else if (checkDiff(&KmCfgHash[47], pkmConfigStr->hc1_timer01)) {
+  else if (strDiff(&KmCfgHash[47], pkmConfigStr->hc1_timer01)) {
     updateWebText("p03_hc1_timer01", pkmConfigStr->hc1_timer01, false);
   }
-  else if (checkDiff(&KmCfgHash[48], pkmConfigStr->hc1_timer02)) {
+  else if (strDiff(&KmCfgHash[48], pkmConfigStr->hc1_timer02)) {
       updateWebText("p03_hc1_timer02", pkmConfigStr->hc1_timer02, false);
   }
-  else if (checkDiff(&KmCfgHash[49], pkmConfigStr->hc1_timer03)) {
+  else if (strDiff(&KmCfgHash[49], pkmConfigStr->hc1_timer03)) {
       updateWebText("p03_hc1_timer03", pkmConfigStr->hc1_timer03, false);
   }
-  else if (checkDiff(&KmCfgHash[50], pkmConfigStr->hc1_timer04)) {
+  else if (strDiff(&KmCfgHash[50], pkmConfigStr->hc1_timer04)) {
       updateWebText("p03_hc1_timer04", pkmConfigStr->hc1_timer04, false);
   }
-  else if (checkDiff(&KmCfgHash[51], pkmConfigStr->hc1_timer05)) {
+  else if (strDiff(&KmCfgHash[51], pkmConfigStr->hc1_timer05)) {
       updateWebText("p03_hc1_timer05", pkmConfigStr->hc1_timer05, false);
   }
-  else if (checkDiff(&KmCfgHash[52], pkmConfigStr->hc1_timer06)) {
+  else if (strDiff(&KmCfgHash[52], pkmConfigStr->hc1_timer06)) {
       updateWebText("p03_hc1_timer06", pkmConfigStr->hc1_timer06, false);
   }
-  else if (checkDiff(&KmCfgHash[53], pkmConfigStr->hc1_timer07)) {
+  else if (strDiff(&KmCfgHash[53], pkmConfigStr->hc1_timer07)) {
       updateWebText("p03_hc1_timer07", pkmConfigStr->hc1_timer07, false);
   }
-  else if (checkDiff(&KmCfgHash[54], pkmConfigStr->hc1_timer08)) {
+  else if (strDiff(&KmCfgHash[54], pkmConfigStr->hc1_timer08)) {
       updateWebText("p03_hc1_timer08", pkmConfigStr->hc1_timer08, false);
   }
-  else if (checkDiff(&KmCfgHash[55], pkmConfigStr->hc1_timer09)) {
+  else if (strDiff(&KmCfgHash[55], pkmConfigStr->hc1_timer09)) {
       updateWebText("p03_hc1_timer09", pkmConfigStr->hc1_timer09, false);
   }
-  else if (checkDiff(&KmCfgHash[56], pkmConfigStr->hc1_timer10)) {
+  else if (strDiff(&KmCfgHash[56], pkmConfigStr->hc1_timer10)) {
       updateWebText("p03_hc1_timer10", pkmConfigStr->hc1_timer10, false);
   }
-  else if (checkDiff(&KmCfgHash[57], pkmConfigStr->hc1_timer11)) {
+  else if (strDiff(&KmCfgHash[57], pkmConfigStr->hc1_timer11)) {
       updateWebText("p03_hc1_timer11", pkmConfigStr->hc1_timer11, false);
   }
-  else if (checkDiff(&KmCfgHash[58], pkmConfigStr->hc1_timer12)) {
+  else if (strDiff(&KmCfgHash[58], pkmConfigStr->hc1_timer12)) {
       updateWebText("p03_hc1_timer12", pkmConfigStr->hc1_timer12, false);
   }
-  else if (checkDiff(&KmCfgHash[59], pkmConfigStr->hc1_timer13)) {
+  else if (strDiff(&KmCfgHash[59], pkmConfigStr->hc1_timer13)) {
       updateWebText("p03_hc1_timer13", pkmConfigStr->hc1_timer13, false);
   }
-  else if (checkDiff(&KmCfgHash[60], pkmConfigStr->hc1_timer14)) {
+  else if (strDiff(&KmCfgHash[60], pkmConfigStr->hc1_timer14)) {
       updateWebText("p03_hc1_timer14", pkmConfigStr->hc1_timer14, false);
   }
-  else if (checkDiff(&KmCfgHash[61], pkmConfigStr->hc2_timer01)) {
+  else if (strDiff(&KmCfgHash[61], pkmConfigStr->hc2_timer01)) {
       updateWebText("p04_hc2_timer01", pkmConfigStr->hc2_timer01, false);
   }
-  else if (checkDiff(&KmCfgHash[62], pkmConfigStr->hc2_timer02)) {
+  else if (strDiff(&KmCfgHash[62], pkmConfigStr->hc2_timer02)) {
       updateWebText("p04_hc2_timer02", pkmConfigStr->hc2_timer02, false);
   }
-  else if (checkDiff(&KmCfgHash[63], pkmConfigStr->hc2_timer03)) {
+  else if (strDiff(&KmCfgHash[63], pkmConfigStr->hc2_timer03)) {
       updateWebText("p04_hc2_timer03", pkmConfigStr->hc2_timer03, false);
   }
-  else if (checkDiff(&KmCfgHash[64], pkmConfigStr->hc2_timer04)) {
+  else if (strDiff(&KmCfgHash[64], pkmConfigStr->hc2_timer04)) {
       updateWebText("p04_hc2_timer04", pkmConfigStr->hc2_timer04, false);
   }
-  else if (checkDiff(&KmCfgHash[65], pkmConfigStr->hc2_timer05)) {
+  else if (strDiff(&KmCfgHash[65], pkmConfigStr->hc2_timer05)) {
       updateWebText("p04_hc2_timer05", pkmConfigStr->hc2_timer05, false);
   }
-  else if (checkDiff(&KmCfgHash[66], pkmConfigStr->hc2_timer06)) {
+  else if (strDiff(&KmCfgHash[66], pkmConfigStr->hc2_timer06)) {
       updateWebText("p04_hc2_timer06", pkmConfigStr->hc2_timer06, false);
   }
-  else if (checkDiff(&KmCfgHash[67], pkmConfigStr->hc2_timer07)) {
+  else if (strDiff(&KmCfgHash[67], pkmConfigStr->hc2_timer07)) {
       updateWebText("p04_hc2_timer07", pkmConfigStr->hc2_timer07, false);
   }
-  else if (checkDiff(&KmCfgHash[68], pkmConfigStr->hc2_timer08)) {
+  else if (strDiff(&KmCfgHash[68], pkmConfigStr->hc2_timer08)) {
       updateWebText("p04_hc2_timer08", pkmConfigStr->hc2_timer08, false);
   }
-  else if (checkDiff(&KmCfgHash[69], pkmConfigStr->hc2_timer09)) {
+  else if (strDiff(&KmCfgHash[69], pkmConfigStr->hc2_timer09)) {
       updateWebText("p04_hc2_timer09", pkmConfigStr->hc2_timer09, false);
   }
-  else if (checkDiff(&KmCfgHash[70], pkmConfigStr->hc2_timer10)) {
+  else if (strDiff(&KmCfgHash[70], pkmConfigStr->hc2_timer10)) {
       updateWebText("p04_hc2_timer10", pkmConfigStr->hc2_timer10, false);
   }
-  else if (checkDiff(&KmCfgHash[71], pkmConfigStr->hc2_timer11)) {
+  else if (strDiff(&KmCfgHash[71], pkmConfigStr->hc2_timer11)) {
       updateWebText("p04_hc2_timer11", pkmConfigStr->hc2_timer11, false);
   }
-  else if (checkDiff(&KmCfgHash[72], pkmConfigStr->hc2_timer12)) {
+  else if (strDiff(&KmCfgHash[72], pkmConfigStr->hc2_timer12)) {
       updateWebText("p04_hc2_timer12", pkmConfigStr->hc2_timer12, false);
   }
-  else if (checkDiff(&KmCfgHash[73], pkmConfigStr->hc2_timer13)) {
+  else if (strDiff(&KmCfgHash[73], pkmConfigStr->hc2_timer13)) {
       updateWebText("p04_hc2_timer13", pkmConfigStr->hc2_timer13, false);
   }
-  else if (checkDiff(&KmCfgHash[74], pkmConfigStr->hc2_timer14)) {
+  else if (strDiff(&KmCfgHash[74], pkmConfigStr->hc2_timer14)) {
       updateWebText("p04_hc2_timer14", pkmConfigStr->hc2_timer14, false);
   }
 
@@ -1381,7 +1477,7 @@ void updateKm271StatusElements(){
   }
   else if (kmStatusCpy.BurnerCalcOilConsumption != pkmStatus->BurnerCalcOilConsumption) {
     kmStatusCpy.BurnerCalcOilConsumption = pkmStatus->BurnerCalcOilConsumption;
-    //TODO
+    //TODO:
   }
   else if (kmStatusCpy.OutsideTemp != pkmStatus->OutsideTemp) {
     kmStatusCpy.OutsideTemp = pkmStatus->OutsideTemp;
@@ -1405,7 +1501,7 @@ void updateKm271StatusElements(){
   }
   else if (kmStatusCpy.Modul != pkmStatus->Modul) {
     kmStatusCpy.Modul = pkmStatus->Modul;
-    updateWebTextInt("p09_logamatic_modul", kmStatusCpy.ControllerVersionSub, false);
+    updateWebTextInt("p09_logamatic_modul", kmStatusCpy.Modul, false);
   }
   else if (kmStatusCpy.ERR_Alarmstatus != pkmStatus->ERR_Alarmstatus) {
     kmStatusCpy.ERR_Alarmstatus = pkmStatus->ERR_Alarmstatus;
@@ -1435,6 +1531,7 @@ void webUICylic(){
     updateKm271AlarmElements();
     updateKm271StatusElements();
     updateKm271ConfigElements();
+    webReadLogBufferCyclic();
   }
 
   if (refreshTimer2.cycleTrigger(3000))
