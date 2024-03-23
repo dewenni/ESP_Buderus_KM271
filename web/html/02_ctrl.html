@@ -327,13 +327,22 @@ setInterval(test, 1000);
       </div>  <!-- END Grid-2 -->
 
       <div class="grid"> <!-- Start Grid-3 -->
-         
-        <article class="dash">
+        <article class="dash OPT_HW_OIL">
           <div class="dash-main">
             <div class="dash-header" data-i18n="oilmeter">--</div>
               <div class="dash-content">
+                <table class="striped">
+                  <tbody>
+                    <tr>
+                      <td data-i18n="act_value">--</td>
+                      <td id="p02_oilmeter_act" class="table-value">--</td>
+                    </tr>
+                  </tbody>
+                </table>           
+                </div>
+                <div class="dash-content">
                 <div role="group">
-                  <input type="number" id="p02_oilmeter_value">
+                  <input type="number" id="p02_oilmeter_set">
                   <button data-i18n="set" id="p02_oilmeter_btn">
                 </div>
               </div>

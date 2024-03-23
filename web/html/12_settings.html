@@ -347,6 +347,7 @@
                 name="oil_hardware"
                 type="checkbox"
                 role="switch"
+                hideOpt="OPT_HW_OIL"
                 id="p12_oil_hardware_enable" />
             </div>
             <div class="section-header">
@@ -355,19 +356,38 @@
                 name="oil_virtual"
                 type="checkbox"
                 role="switch"
+                hideOpt="OPT_V_OIL"
                 id="p12_oil_virtual_enable" />
             </div>
             <br />
-            <label for="oil_par1_kg_h" data-i18n="oil_par1_kg_h">--</label>
-            <input name="oil_par1_kg_h" type="number" id="p12_oil_par1_kg_h" />
-            <label for="oil_par2_kg_l" data-i18n="oil_par2_kg_l">--</label>
-            <input name="oil_par2_kg_l" type="number" id="p12_oil_par2_kg_l" />
+            <label
+              class="OPT_V_OIL"
+              for="oil_par1_kg_h"
+              data-i18n="oil_par1_kg_h"
+              >--</label
+            >
+            <input
+              class="OPT_V_OIL"
+              name="oil_par1_kg_h"
+              type="number"
+              id="p12_oil_par1_kg_h" />
+            <label
+              class="OPT_V_OIL"
+              for="oil_par2_kg_l"
+              data-i18n="oil_par2_kg_l"
+              >--</label
+            >
+            <input
+              class="OPT_V_OIL"
+              name="oil_par2_kg_l"
+              type="number"
+              id="p12_oil_par2_kg_l" />
 
             <hr />
             <!-- Optional Sensors -->
             <h4 data-i18n="optional_sensor">--</h4>
             <div class="section-header">
-              <h6 for="sens1" data-i18n="sens1">--</h6>
+              <h6 for="sens1" data-i18n="refresh">--</h6>
               <input
                 name="sens1"
                 type="checkbox"

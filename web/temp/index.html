@@ -231,17 +231,30 @@
             </div>
           </article>
 
-          <article class="dash">
+          <article class="dash OPT_HW_OIL">
             <div class="dash-main">
               <div class="dash-header" data-i18n="oilmeter">--</div>
               <div class="dash-content">
-                <div class="value" id="p01_oilmeter">--</div>
+                <div class="value" id="p01_hw_oilmeter">--</div>
               </div>
             </div>
             <div class="dash-icon">
               <div class="svg i_oil"></div>
             </div>
           </article>
+
+          <article class="dash OPT_V_OIL">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="oilmeter">--</div>
+              <div class="dash-content">
+                <div class="value" id="p01_v_oilmeter">--</div>
+              </div>
+            </div>
+            <div class="dash-icon">
+              <div class="svg i_oil"></div>
+            </div>
+          </article>
+
         </div>
         <!-- END Grid1 -->
 
@@ -642,13 +655,22 @@
       </div>  <!-- END Grid-2 -->
 
       <div class="grid"> <!-- Start Grid-3 -->
-         
-        <article class="dash">
+        <article class="dash OPT_HW_OIL">
           <div class="dash-main">
             <div class="dash-header" data-i18n="oilmeter">--</div>
               <div class="dash-content">
+                <table class="striped">
+                  <tbody>
+                    <tr>
+                      <td data-i18n="act_value">--</td>
+                      <td id="p02_oilmeter_act" class="table-value">--</td>
+                    </tr>
+                  </tbody>
+                </table>           
+                </div>
+                <div class="dash-content">
                 <div role="group">
-                  <input type="number" id="p02_oilmeter_value">
+                  <input type="number" id="p02_oilmeter_set">
                   <button data-i18n="set" id="p02_oilmeter_btn">
                 </div>
               </div>
@@ -1883,8 +1905,32 @@
       <div id="tab10" class="tab-content">
         <div class="grid">
           <!-- Grid 1 -->
-          <button id="p10_clr_log_btn">Log löschen</button>
-          <div id="p10_log_output"></div>
+          <article style="width: 100%">
+            <div
+              class="dash-content"
+              style="margin-bottom: 0px; flex-wrap: wrap">
+              <button id="p10_log_clr_btn" data-i18n="clear">--</button>
+              <button id="p10_log_refresh_btn" data-i18n="refresh">--</button>
+              <select id="p10_log_mode" style="max-width: 390px; margin: 0px">
+                <option value="0" data-i18n="log_mode_1">--</option>
+                <option value="1" data-i18n="log_mode_2">--</option>
+                <option value="2" data-i18n="log_mode_3">--</option>
+                <option value="3" data-i18n="log_mode_4">--</option>
+                <option value="4" data-i18n="log_mode_5">--</option>
+              </select>
+              <select id="p10_log_order" style="max-width: 220px; margin: 0px">
+                <option value="0" data-i18n="sort_up">--</option>
+                <option value="1" data-i18n="sort_down">--</option>
+              </select>
+              <input
+                name="log_enable"
+                type="checkbox"
+                role="switch"
+                id="p10_log_enable" />
+            </div>
+            <hr style="border-top: 1px solid white" />
+            <div id="p10_log_output">--</div>
+          </article>
         </div>
       </div>
 <!-- OTA-Inhalt hier -->
@@ -2312,6 +2358,7 @@
                 name="oil_hardware"
                 type="checkbox"
                 role="switch"
+                hideOpt="OPT_HW_OIL"
                 id="p12_oil_hardware_enable" />
             </div>
             <div class="section-header">
@@ -2320,19 +2367,38 @@
                 name="oil_virtual"
                 type="checkbox"
                 role="switch"
+                hideOpt="OPT_V_OIL"
                 id="p12_oil_virtual_enable" />
             </div>
             <br />
-            <label for="oil_par1_kg_h" data-i18n="oil_par1_kg_h">--</label>
-            <input name="oil_par1_kg_h" type="number" id="p12_oil_par1_kg_h" />
-            <label for="oil_par2_kg_l" data-i18n="oil_par2_kg_l">--</label>
-            <input name="oil_par2_kg_l" type="number" id="p12_oil_par2_kg_l" />
+            <label
+              class="OPT_V_OIL"
+              for="oil_par1_kg_h"
+              data-i18n="oil_par1_kg_h"
+              >--</label
+            >
+            <input
+              class="OPT_V_OIL"
+              name="oil_par1_kg_h"
+              type="number"
+              id="p12_oil_par1_kg_h" />
+            <label
+              class="OPT_V_OIL"
+              for="oil_par2_kg_l"
+              data-i18n="oil_par2_kg_l"
+              >--</label
+            >
+            <input
+              class="OPT_V_OIL"
+              name="oil_par2_kg_l"
+              type="number"
+              id="p12_oil_par2_kg_l" />
 
             <hr />
             <!-- Optional Sensors -->
             <h4 data-i18n="optional_sensor">--</h4>
             <div class="section-header">
-              <h6 for="sens1" data-i18n="sens1">--</h6>
+              <h6 for="sens1" data-i18n="refresh">--</h6>
               <input
                 name="sens1"
                 type="checkbox"

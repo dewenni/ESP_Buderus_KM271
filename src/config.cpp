@@ -2,17 +2,35 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <LittleFS.h>
+#include <basics.h>
 
 /* D E C L A R A T I O N S ****************************************************/  
 char filename[24] = {"/config.json"};
 bool setupMode;
+bool configInitDone = false;
+unsigned long hashOld;
 s_config config;
-
+muTimer checkTimer = muTimer();         // timer to refresh other values
 
 /* P R O T O T Y P E S ********************************************************/
 void configGPIO();
 void configInitValue();
 
+/**
+ * *******************************************************************
+ * @brief   hash djb2 function
+ * @param   str, len
+ * @return  none
+ * *******************************************************************/
+unsigned long hash(void *str, size_t len) {
+    unsigned char *p = (unsigned char*)str;
+    unsigned long hash = 5381;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        hash = ((hash << 5) + hash) + p[i]; /* hash * 33 + c */
+    }
+    return hash;
+}
 
 /**
  * *******************************************************************
@@ -46,6 +64,37 @@ void configSetup(){
   configLoadFromFile();  
   // gpio settings
   configGPIO();
+
+}
+
+/**
+ * *******************************************************************
+ * @brief   init hash value
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void configHashInit(){
+  hashOld = hash(&config, sizeof(s_config));
+  configInitDone = true;
+}
+
+/**
+ * *******************************************************************
+ * @brief   cyclic function for configuration
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void configCyclic(){
+  
+  if (checkTimer.cycleTrigger(1000) && configInitDone)
+  {
+    unsigned long hashNew = hash(&config, sizeof(s_config));
+    if (hashNew != hashOld)
+    {
+      hashOld = hashNew;
+      configSaveToFile();
+    }
+  }
 
 }
 
@@ -253,6 +302,7 @@ void configLoadFromFile() {
     msgLn("Failed to read file, using default configuration and start wifi-AP");
     configInitValue();
     setupMode = true;
+
   }
   else {
     // Copy values from the JsonDocument to the Config structure
@@ -326,7 +376,8 @@ void configLoadFromFile() {
     config.log.filter = doc["logger"]["filter"];
     config.log.order = doc["logger"]["order"];
   }
-  // Close the file (Curiously, File's destructor doesn't close the file)
-  file.close();
+  
+  file.close();     // Close the file (Curiously, File's destructor doesn't close the file)
+  configHashInit(); // init hash value
 }
 

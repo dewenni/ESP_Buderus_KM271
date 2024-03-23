@@ -135,5 +135,6 @@ typedef struct {
 extern s_config config;
 extern bool setupMode;
 void configSetup();
+void configCyclic();
 void configSaveToFile();
 void configLoadFromFile();

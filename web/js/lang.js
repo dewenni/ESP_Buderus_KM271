@@ -1187,4 +1187,32 @@ const translations = {
     de: "Dateiübersicht",
     en: "File system content",
   },
+  sort_up: {
+    de: "aufsteigend \u2B06",
+    en: "ascending \u2B06",
+  },
+  sort_down: {
+    de: "absteigend \u2B07",
+    en: "descending \u2B07",
+  },
+  log_mode_1: {
+    de: "Modus: Alarm",
+    en: "Mode: Alarm",
+  },
+  log_mode_2: {
+    de: "Modus: Alarm + Info",
+    en: "Modus: Alarm + Info",
+  },
+  log_mode_3: {
+    de: "Modus: Logamatic Werte",
+    en: "Mode: Logamatic values",
+  },
+  log_mode_4: {
+    de: "Modus: unbekannte Datagramme",
+    en: "Mode: unknown datagramms",
+  },
+  log_mode_5: {
+    de: "Modus: debug Datagramme",
+    en: "Mode: debug datagramms",
+  },
 };

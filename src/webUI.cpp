@@ -12,8 +12,9 @@ AsyncEventSource events("/events");
 bool clientConnected = false;
 bool bootInit = false;
 bool updateSettingsElementsDone = false;
+bool oilmeterInit = false;
 long oilcounter, oilcounterOld;
-
+double oilcounterVirtOld = 0.0;
 
 s_km271_status *pkmStatus;
 s_km271_status kmStatusCpy;
@@ -418,7 +419,7 @@ void webCallback(const char *elementId, const char *value){
   }
 
   // store input of Oilcounter value
-  if(strcmp(elementId,"p02_oilmeter_value")==0) {
+  if(strcmp(elementId,"p02_oilmeter_set")==0) {
     oilmeterSetValue = strtol(value, NULL, 10);
   }
 
@@ -655,6 +656,29 @@ void webCallback(const char *elementId, const char *value){
     storeData();
     ESP.restart();
   }
+
+  // Logger
+  if(strcmp(elementId,"p10_log_enable")==0) {
+    config.log.enable = stringToBool(value);
+  }
+  if(strcmp(elementId,"p10_log_mode")==0) {
+    config.log.filter = strtoul(value, NULL, 10);
+    clearLogBuffer();
+    sendWebUpdate("", "clr_log");  // clear log
+  }
+  if(strcmp(elementId,"p10_log_order")==0) {
+    config.log.order = strtoul(value, NULL, 10);
+    sendWebUpdate("", "clr_log");  // clear log
+    webReadLogBuffer();
+  }
+  if(strcmp(elementId,"p10_log_clr_btn")==0) {
+    clearLogBuffer();
+    sendWebUpdate("", "clr_log");  // clear log
+  }
+  if(strcmp(elementId,"p10_log_refresh_btn")==0) {
+    webReadLogBuffer();
+  }
+
 }
 
 
@@ -668,6 +692,7 @@ void updateAllElements(){
   memset((void *)&kmStatusCpy, 111, sizeof(s_km271_status));
   memset((void *)&kmConfigCpy, 111, sizeof(s_km271_config_num));
   updateSettingsElementsDone = false;
+  oilmeterInit = false;
 }
 
 /**
@@ -726,24 +751,32 @@ void webReadLogBufferCyclic(){
  * *******************************************************************/
 void updateOilmeterElements(){
 
-  // TODO: Bein Init anzeigen und auch bei virtuellem Oilmeter
-
-  // check if oilcounter value changed
   if (config.oilmeter.use_hardware_meter) {
     oilcounter = getOilmeter();
-    if (oilcounter!=oilcounterOld) {
+    if (!oilmeterInit || oilcounter!=oilcounterOld) {
       oilcounterOld = oilcounter;
 
       // Oilmeter value in controlTab
       snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f", float(oilcounter)/100);
-      updateWebText("p02_oilmeter_value",tmpMessage, true);
+      updateWebText("p02_oilmeter_act",tmpMessage, false);
+      snprintf(tmpMessage, sizeof(tmpMessage), "%lu", (oilcounter));
+      updateWebText("p02_oilmeter_set",tmpMessage, true);
 
       // Oilmeter value in dashboardTab
       snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f  L", float(oilcounter)/100);
-      updateWebText("p01_oilmeter",tmpMessage, false);
+      updateWebText("p01_hw_oilmeter",tmpMessage, false);
     } 
   }
+  else if (config.oilmeter.use_virtual_meter) {
+    if (!oilmeterInit || kmStatusCpy.BurnerCalcOilConsumption!=oilcounterVirtOld) {
+      oilcounterVirtOld = kmStatusCpy.BurnerCalcOilConsumption;
 
+      // Oilmeter value in dashboardTab
+      snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f  L", float(oilcounter)/100);
+      updateWebText("p01_v_oilmeter",tmpMessage, false);
+    } 
+  }
+  oilmeterInit = true;
 }
 
 /**
@@ -799,12 +832,15 @@ void updateSettingsElements(){
     case 41: updateWebText("p12_sens2_name", config.sensor.ch2_name, true); break;
     case 42: updateWebValueInt("p12_sens2_gpio", config.sensor.ch2_gpio); break;
     case 43: updateWebValueInt("p12_language", config.lang); break;
-    case 44: updateSettingsElementsDone = true; break;
+    case 44: updateWebState("p10_log_enable", config.log.enable); break; 
+    case 45: updateWebValueInt("p10_log_mode", config.log.filter); break; 
+    case 46: updateWebValueInt("p10_log_order", config.log.order); break; 
+    case 47: updateSettingsElementsDone = true; break;
     default:
         webElementUpdateCnt = -1;
         break;
   }
-  webElementUpdateCnt = (webElementUpdateCnt + 1) % 45;
+  webElementUpdateCnt = (webElementUpdateCnt + 1) % 48;
  
 }
 

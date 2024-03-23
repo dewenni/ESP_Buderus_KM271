@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Event-Listener für alle Eingabefelder, die bei "blur" sendData aufrufen
   document
     .querySelectorAll(
-      'input[type="text"], input[type="password"], input[type="date"], input[type="time"]'
+      'input[type="text"], input[type="number"], input[type="password"], input[type="date"], input[type="time"]'
     )
     .forEach(function (input) {
       input.addEventListener("blur", function () {

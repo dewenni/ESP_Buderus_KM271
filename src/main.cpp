@@ -196,6 +196,9 @@ void loop()
   // telnet communication
   cyclicTelnet();
 
+  // check if config has changed
+  configCyclic();
+
   main_reboot = false; // reset reboot flag
 }
 
