@@ -5,6 +5,7 @@
 #include <simulation.h>
 #include <oilmeter.h>
 #include <sensor.h>
+#include <LittleFS.h>
 
 AsyncWebServer server(80);
 AsyncEventSource events("/events");
@@ -265,6 +266,31 @@ void webUISetup(){
     AsyncWebServerResponse *response = request->beginResponse_P(200, "text/js", gzip_js, gzip_js_size);
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
+  });
+
+  // config.json download  
+  server.on("/config-download", HTTP_GET, [](AsyncWebServerRequest *request){
+    AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/config.json", "application/octet-stream");
+    response->addHeader("Content-Disposition", "attachment; filename=\"config.json\"");
+    request->send(response);
+  });
+
+  // config.json upload
+  server.on("/config-upload", HTTP_POST, [](AsyncWebServerRequest *request) {
+    request->send(200);
+  }, [](AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final) {
+    // Datei-Upload verarbeiten
+    if (!index) {
+      Serial.printf("UploadStart: %s\n", filename.c_str());
+      request->_tempFile = LittleFS.open("/" + filename, "w");
+    }
+    if (len) {
+      request->_tempFile.write(data, len);
+    }
+    if (final) {
+      Serial.printf("UploadEnd: %s, %u B\n", filename.c_str(), index + len);
+      request->_tempFile.close();
+    }
   });
 
   server.on("/sendData", HTTP_GET, handleData);

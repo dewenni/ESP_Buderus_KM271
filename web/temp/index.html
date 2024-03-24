@@ -1944,49 +1944,42 @@
                   method="POST"
                   action="#"
                   enctype="multipart/form-data"
-                  id="ota_upload_form"
-                >
+                  id="ota_upload_form">
                   <input
                     type="file"
                     name="ota_update"
                     id="ota_file_input"
                     onchange="ota_sub_fun(this)"
-                    accept=".bin"
-                  />
+                    accept=".bin" />
                   <input
                     type="submit"
                     id="ota_updateBtn"
                     disabled="disabled"
-                    value="Update"
-                  />
+                    value="Update" />
                   <br />
                   <div
                     id="ota_txtUpload"
                     style="display: none; text-align: left"
-                    data-i18n="upload"
-                  >
+                    data-i18n="upload">
                     --
                   </div>
                   <br /><progress
                     id="ota_upload_bar"
                     style="display: none"
                     max="100"
-                    value="1"
-                  ></progress>
+                    value="1"></progress>
                   <br />
                   <div
                     id="ota_txtUpdate"
                     style="display: none; text-align: left"
-                    data-i18n="update"
-                  >
+                    data-i18n="update">
                     --
                   </div>
                   <br /><progress
                     id="ota_progress_bar"
                     style="display: none"
                     max="100"
-                    value="1"
-                  ></progress>
+                    value="1"></progress>
                   <div id="ota_progress"></div>
                 </form>
               </div>
@@ -1995,46 +1988,31 @@
 
           <article class="tools">
             <div class="dash-main">
-              <div class="dash-header" data-i18n="filemgn">--</div>
+              <div class="dash-header" data-i18n="config_mgn">--</div>
               <div class="dash-content">
                 <form
                   method="POST"
-                  action="/doUpload"
+                  action="/config-upload"
                   enctype="multipart/form-data"
-                  id="file_upload_form"
-                >
+                  id="file_upload_form">
                   <input
                     type="file"
                     name="file_update"
                     id="file_input"
-                    onchange="file_sub_fun(this)"
-                  />
-                  <input
+                    accept="config.json"
+                    onchange="file_sub_fun(this)" />
+                  <button
                     type="submit"
-                    id="file_updateBtn"
-                    disabled="true"
-                    value="Upload file"
-                  />
-                  <br />
-                  <div
-                    id="txt_file_upload"
-                    style="display: none"
-                    data-i18n="upload_ready"
-                  >
-                    --
-                  </div>
-                  <br /><progress
-                    id="file_upload_bar"
-                    style="display: none"
-                    max="100"
-                    value="1"
-                  ></progress>
-                  <div id="file_progress"></div>
-                  <br />
-                  <h6 data-i18n="file_content">--</h6>
-                  <span id="filelist">%list%</span>
+                    id="file_upload_btn"
+                    data-i18n="import"
+                    disabled="true"></button>
                 </form>
               </div>
+              <button
+                id="p11_export_btn"
+                data-i18n="export"
+                style="width: 100%"
+                onclick="exportConfig()"></button>
             </div>
           </article>
         </div>

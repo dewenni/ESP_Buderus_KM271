@@ -531,9 +531,9 @@ const translations = {
     de: "OTA Firmware Update",
     en: "OTA Firmware Update",
   },
-  filemgn: {
-    de: "Dateimanager",
-    en: "Filemanager",
+  config_mgn: {
+    de: "Konfiguration import/export",
+    en: "configuration import/export",
   },
   tools: {
     de: "Tools",
@@ -1214,5 +1214,13 @@ const translations = {
   log_mode_5: {
     de: "Modus: debug Datagramme",
     en: "Mode: debug datagramms",
+  },
+  import: {
+    de: "import Konfig",
+    en: "import config",
+  },
+  export: {
+    de: "export Konfig",
+    en: "export config",
   },
 };
