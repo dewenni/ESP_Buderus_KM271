@@ -270,9 +270,7 @@ void webUISetup(){
 
   // config.json download  
   server.on("/config-download", HTTP_GET, [](AsyncWebServerRequest *request){
-    AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/config.json", "application/octet-stream");
-    response->addHeader("Content-Disposition", "attachment; filename=\"config.json\"");
-    request->send(response);
+    request->send(LittleFS, "/config.json", "application/octet-stream");
   });
 
   // config.json upload

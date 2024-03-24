@@ -1216,11 +1216,12 @@ const translations = {
     en: "Mode: debug datagramms",
   },
   import: {
-    de: "import Konfig",
-    en: "import config",
+    de: "import (config.json)",
+    en: "import (config.json)",
   },
   export: {
-    de: "export Konfig",
-    en: "export config",
+    de: "export (config.json)",
+    en: "export (config.json)",
   },
 };
+s;

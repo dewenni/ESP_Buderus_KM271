@@ -1674,7 +1674,7 @@ document.querySelector("form").addEventListener("submit", function (e) {
 
 setInterval(updateOTABar, 1000);
 
-// <<<< function for config import/export >>>>>>
+// <<<< function for config >>>>>>
 
 // function for download config.json file
 function exportConfig() {
