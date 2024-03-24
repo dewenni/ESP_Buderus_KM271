@@ -277,7 +277,6 @@ void webUISetup(){
   server.on("/config-upload", HTTP_POST, [](AsyncWebServerRequest *request) {
     request->send(200);
   }, [](AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final) {
-    // Datei-Upload verarbeiten
     if (!index) {
       Serial.printf("UploadStart: %s\n", filename.c_str());
       request->_tempFile = LittleFS.open("/" + filename, "w");

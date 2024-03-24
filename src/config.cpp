@@ -86,7 +86,7 @@ void configHashInit(){
  * *******************************************************************/
 void configCyclic(){
   
-  if (checkTimer.cycleTrigger(1000) && configInitDone)
+/*   if (checkTimer.cycleTrigger(1000) && configInitDone)
   {
     unsigned long hashNew = hash(&config, sizeof(s_config));
     if (hashNew != hashOld)
@@ -94,7 +94,7 @@ void configCyclic(){
       hashOld = hashNew;
       configSaveToFile();
     }
-  }
+  } */
 
 }
 
@@ -378,6 +378,6 @@ void configLoadFromFile() {
   }
   
   file.close();     // Close the file (Curiously, File's destructor doesn't close the file)
-  configHashInit(); // init hash value
+  // configHashInit(); // init hash value
 }
 
