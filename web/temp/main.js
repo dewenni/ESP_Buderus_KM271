@@ -242,6 +242,19 @@ evtSource.addEventListener(
   false
 );
 
+// update add class to element
+evtSource.addEventListener(
+  "updateSetIcon",
+  function (e) {
+    var data = JSON.parse(e.data);
+    var element = document.getElementById(data.elementID);
+    if (element) {
+      element.className = "svg " + data.icon;
+    }
+  },
+  false
+);
+
 // hide/show element
 evtSource.addEventListener(
   "hideElement",

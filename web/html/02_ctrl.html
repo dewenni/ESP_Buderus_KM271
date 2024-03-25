@@ -10,6 +10,7 @@
 <script>
 function test() {    
     document.getElementById("tab2").classList.add('active');
+    localizePage("de");
 }
 setInterval(test, 1000);
 </script>
@@ -330,16 +331,11 @@ setInterval(test, 1000);
         <article class="dash OPT_HW_OIL">
           <div class="dash-main">
             <div class="dash-header" data-i18n="oilmeter">--</div>
-              <div class="dash-content">
-                <table class="striped">
-                  <tbody>
-                    <tr>
-                      <td data-i18n="act_value">--</td>
-                      <td id="p02_oilmeter_act" class="table-value">--</td>
-                    </tr>
-                  </tbody>
-                </table>           
+              <div style="display: flex; justify-content: space-between; width: 100%; padding-left: 10px; padding-right: 10px">
+                      <span data-i18n="act_value">--</span>
+                      <span id="p02_oilmeter_act">--</span> 
                 </div>
+                <br> 
                 <div class="dash-content">
                 <div role="group">
                   <input type="number" id="p02_oilmeter_set">

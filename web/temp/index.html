@@ -31,14 +31,14 @@
         </li>
         <li class="OPT_HC1">
           <a href="#" data-tab="tab3">
-            <i class="svg svg i_dashboard"></i>
+            <i class="svg svg i_table"></i>
             <span class="links_name" data-i18n="heating_circuit_1">--</span>
           </a>
           <span class="tooltip" data-i18n="heating_circuit_1">--</span>
         </li>
         <li class="OPT_HC2">
           <a href="#" data-tab="tab4">
-            <i class="svg svg i_dashboard"></i>
+            <i class="svg svg i_table"></i>
             <span class="links_name" data-i18n="heating_circuit_2">--</span>
           </a>
           <span class="tooltip" data-i18n="heating_circuit_2">--</span>
@@ -59,7 +59,7 @@
         </li>
         <li>
           <a href="#" data-tab="tab7">
-            <i class="svg i_dashboard"></i>
+            <i class="svg i_table"></i>
             <span class="links_name" data-i18n="general">--</span>
           </a>
           <span class="tooltip" data-i18n="general">--</span>
@@ -119,7 +119,7 @@
               </div>
             </div>
             <div class="dash-icon">
-              <div class="svg i_day-night"></div>
+              <div id="p01_hc1_opmode_icon"></div>
             </div>
           </article>
 
@@ -131,7 +131,7 @@
               </div>
             </div>
             <div class="dash-icon">
-              <div class="svg i_day-night"></div>
+              <div id="p01_hc2_opmode_icon"></div>
             </div>
           </article>
 
@@ -143,7 +143,7 @@
               </div>
             </div>
             <div class="dash-icon">
-              <div class="svg i_day-night"></div>
+              <div id="p01_ww_opmode_icon"></div>
             </div>
           </article>
 
@@ -155,7 +155,7 @@
               </div>
             </div>
             <div class="dash-icon">
-              <div class="svg i_day-night"></div>
+              <div id="p01_hc1_day_night_icon" class=""></div>
             </div>
           </article>
 
@@ -167,7 +167,7 @@
               </div>
             </div>
             <div class="dash-icon">
-              <div class="svg i_day-night"></div>
+              <div id="p01_hc2_day_night_icon"></div>
             </div>
           </article>
 
@@ -179,7 +179,7 @@
               </div>
             </div>
             <div class="dash-icon">
-              <div class="svg i_palm"></div>
+              <div id="p01_hc1_summer_winter_icon"></div>
             </div>
           </article>
 
@@ -191,7 +191,7 @@
               </div>
             </div>
             <div class="dash-icon">
-              <div class="svg i_palm"></div>
+              <div id="p01_hc2_summer_winter_icon"></div>
             </div>
           </article>
 
@@ -254,7 +254,6 @@
               <div class="svg i_oil"></div>
             </div>
           </article>
-
         </div>
         <!-- END Grid1 -->
 
@@ -658,16 +657,11 @@
         <article class="dash OPT_HW_OIL">
           <div class="dash-main">
             <div class="dash-header" data-i18n="oilmeter">--</div>
-              <div class="dash-content">
-                <table class="striped">
-                  <tbody>
-                    <tr>
-                      <td data-i18n="act_value">--</td>
-                      <td id="p02_oilmeter_act" class="table-value">--</td>
-                    </tr>
-                  </tbody>
-                </table>           
+              <div style="display: flex; justify-content: space-between; width: 100%; padding-left: 10px; padding-right: 10px">
+                      <span data-i18n="act_value">--</span>
+                      <span id="p02_oilmeter_act">--</span> 
                 </div>
+                <br> 
                 <div class="dash-content">
                 <div role="group">
                   <input type="number" id="p02_oilmeter_set">
@@ -1933,10 +1927,9 @@
           </article>
         </div>
       </div>
-<!-- OTA-update -->
-      <div id="tab11" class="tab-content">
+<div id="tab11" class="tab-content">
+        <!-- Dialog OTA-Done -->
         <dialog id="ota_update_done_dialog">
-          <!-- Dialog OTA-Done -->
           <article class="dash">
             <div class="dash-main">
               <div class="dash-header" data-i18n="update_done">--</div>
@@ -1955,8 +1948,8 @@
             </div>
           </article>
         </dialog>
+        <!-- Dialog OTA-FAILED -->
         <dialog id="ota_update_failed_dialog">
-          <!-- Dialog OTA-FAILED -->
           <article class="dash">
             <div class="dash-main">
               <div class="dash-header" data-i18n="update_failed">--</div>
@@ -1979,6 +1972,7 @@
             </div>
           </article>
         </dialog>
+        <!-- OTA-update -->
         <div class="grid">
           <article class="tools">
             <div class="dash-main">

@@ -242,6 +242,12 @@ void updateDialog(const char* elementID, const char* state) {
     sendWebUpdate(message, "updateDialog");
 }
 
+void updateSetIcon(const char* elementID, const char* icon) {
+    char message[BUFFER_SIZE];
+    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"icon\":\"%s\"}", elementID, icon);
+    sendWebUpdate(message, "updateSetIcon");
+}
+
 /**
  * *******************************************************************
  * @brief   function to process the firmware update
@@ -1314,13 +1320,16 @@ void updateKm271StatusElements(){
     // AUTOMATIC / MANUAL (Day/Night)
     if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) {              // AUTOMATIC
       snprintf(tmpMessage, sizeof(tmpMessage), "%s ", webText.AUTOMATIC[config.lang]);
+      updateSetIcon("p01_hc1_opmode_icon", "i_auto");
     }
     else {                                                            // MANUAL
       if (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1)) {            // DAY
         snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.DAY[config.lang]);
+        updateSetIcon("p01_hc1_opmode_icon", "i_manual");
       }
       else {                                                          // NIGHT
         snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.NIGHT[config.lang]);
+        updateSetIcon("p01_hc1_opmode_icon", "i_manual");
       }
     }
     updateWebText("p01_hc1_opmode", tmpMessage, false);
@@ -1328,11 +1337,12 @@ void updateKm271StatusElements(){
     // Summer / Winter
     if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) {              // AUTOMATIC
       updateWebText("p01_hc1_summer_winter", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]), false);  
+      updateSetIcon("p01_hc1_summer_winter_icon", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
     }
     else { // generate status from actual temperature and summer threshold
       updateWebText("p01_hc1_summer_winter", (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc1_summer_mode_threshold ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]), false);
+      updateSetIcon("p01_hc1_summer_winter_icon", (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc1_summer_mode_threshold ? "i_summer" : "i_winter"));
     }
-    updateWebText("p01_hc1_summer_winter", tmpMessage, false);
 
     updateWebText("p03_hc1_ov1_off_time_optimization", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 0)), false); 
     updateWebText("p03_hc1_ov1_on_time_optimization", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 1)), false); 
@@ -1347,6 +1357,7 @@ void updateKm271StatusElements(){
 
     // Day / Night
     updateWebText("p01_hc1_day_night", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? webText.DAY[config.lang] : webText.NIGHT[config.lang]), false);
+    updateSetIcon("p01_hc1_day_night_icon", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? "i_day" : "i_night"));
 
     updateWebText("p03_hc1_ov2_summer",  onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 0)), false); 
     updateWebText("p03_hc1_ov2_day",  onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 1)), false); 
@@ -1368,8 +1379,7 @@ void updateKm271StatusElements(){
     updateWebTextInt("p01_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardTargetTemp, false);
     updateWebTextInt("p03_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardTargetTemp, false);
     
-  }
-  else if (kmStatusCpy.HC1_RoomTargetTemp != pkmStatus->HC1_RoomTargetTemp) {
+  } else if (kmStatusCpy.HC1_RoomTargetTemp != pkmStatus->HC1_RoomTargetTemp) {
     kmStatusCpy.HC1_RoomTargetTemp = pkmStatus->HC1_RoomTargetTemp;
     updateWebTextInt("p03_hc1_room_setpoint", kmStatusCpy.HC1_RoomTargetTemp, false);
   }
@@ -1411,13 +1421,15 @@ void updateKm271StatusElements(){
     // HC2-Operating State
     if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) {              // AUTOMATIC
       snprintf(tmpMessage, sizeof(tmpMessage), "%s", webText.AUTOMATIC[config.lang]);
+      updateSetIcon("p01_hc2_opmode_icon", "i_auto");
     }
     else {                                                            // MANUAL
       if (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1)) {            // DAY
         snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.DAY[config.lang]);
-      }
-      else {                                                          // NIGHT
+        updateSetIcon("p01_hc2_opmode_icon", "i_manual");
+      } else {                                                          // NIGHT
         snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.NIGHT[config.lang]);
+        updateSetIcon("p01_hc2_opmode_icon", "i_manual");
       }
     }
     updateWebText("p01_hc2_opmode", tmpMessage, false);
@@ -1425,12 +1437,12 @@ void updateKm271StatusElements(){
     // Summer / Winter
     if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) {              // AUTOMATIC
       updateWebText("p01_hc2_summer_winter", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]), false);
+      updateSetIcon("p01_hc2_summer_winter_icon", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
     }
     else { // generate status from actual temperature and summer threshold
       updateWebText("p01_hc2_summer_winter", (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc2_summer_mode_threshold ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]), false);
-    
+      updateSetIcon("p01_hc2_summer_winter_icon", (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc2_summer_mode_threshold ? "i_summer" : "i_winter"));
     }
-    updateWebText("p01_hc2_summer_winter", tmpMessage, false);
 
     updateWebText("p04_hc2_ov1_off_time_optimization", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 0)), false); 
     updateWebText("p04_hc2_ov1_on_time_optimization", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 1)), false); 
@@ -1445,6 +1457,7 @@ void updateKm271StatusElements(){
     kmStatusCpy.HC2_OperatingStates_2 = pkmStatus->HC2_OperatingStates_2;
     // Day / Night
     updateWebText("p01_hc2_day_night", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? webText.DAY[config.lang] : webText.NIGHT[config.lang]), false);
+    updateSetIcon("p01_hc2_day_night_icon", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? "i_day" : "i_night"));
 
     updateWebText("p04_hc2_ov2_summer",  onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 0)), false); 
     updateWebText("p04_hc2_ov2_day",  onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 1)), false); 
@@ -1507,12 +1520,15 @@ void updateKm271StatusElements(){
     // WW-Operating State
     if (bitRead(kmStatusCpy.HotWaterOperatingStates_1, 0)) {       // AUTOMATIC
       snprintf(tmpMessage, sizeof(tmpMessage), "%s", webText.AUTOMATIC[config.lang]);
-      }
-    else {                                                         // MANUAL
-      if (bitRead(kmStatusCpy.HotWaterOperatingStates_2, 5))       // DAY
+      updateSetIcon("p01_ww_opmode_icon", "i_auto");
+    } else {                                                         // MANUAL
+      if (bitRead(kmStatusCpy.HotWaterOperatingStates_2, 5)) {      // DAY
         snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.DAY[config.lang]);
+        updateSetIcon("p01_ww_opmode_icon", "i_manual");
+      }
       else {                                                       // NIGHT
         snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.NIGHT[config.lang]);
+        updateSetIcon("p01_ww_opmode_icon", "i_manual");
       }
     }
     updateWebText("p01_ww_opmode", tmpMessage, false); 
