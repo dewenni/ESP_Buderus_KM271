@@ -1223,5 +1223,32 @@ const translations = {
     de: "export (config.json)",
     en: "export (config.json)",
   },
+  update_done: {
+    de: "Update erfolgreich!",
+    en: "Update sucessfull!",
+  },
+  update_failed: {
+    de: "Update nicht erflgreich!",
+    en: "Update not sucessfull!",
+  },
+  update_ready: {
+    de: "Update bereit!",
+    en: "Update ready!",
+  },
+  update_info: {
+    de: "ESP muss neu gestartet werden um das Update zu übernehmen.",
+    en: "ESP must be restarted to apply the update",
+  },
+  error_text: {
+    de: "Ferhler:",
+    en: "Error:",
+  },
+  update_error_info: {
+    de: "Bitte das Update erneut ausführen!",
+    en: "Please run the update again!",
+  },
+  import_ready: {
+    de: "Import bereit!",
+    en: "import ready!",
+  },
 };
-s;

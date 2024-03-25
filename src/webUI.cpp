@@ -1,11 +1,11 @@
 #include <webUI.h>
-#include <webTools.h>
 #include <basics.h>
 #include <km271.h>
 #include <simulation.h>
 #include <oilmeter.h>
 #include <sensor.h>
 #include <LittleFS.h>
+#include <Update.h>
 
 AsyncWebServer server(80);
 AsyncEventSource events("/events");
@@ -16,6 +16,7 @@ bool updateSettingsElementsDone = false;
 bool oilmeterInit = false;
 long oilcounter, oilcounterOld;
 double oilcounterVirtOld = 0.0;
+size_t content_len;             
 
 s_km271_status *pkmStatus;
 s_km271_status kmStatusCpy;
@@ -48,6 +49,7 @@ muTimer refreshTimer3 = muTimer();         // timer to refresh other values
 muTimer connectionTimer = muTimer();         // timer to refresh other values
 muTimer simulationTimer = muTimer();         // timer to refresh other values
 muTimer logReadTimer = muTimer();         // timer to refresh other values
+muTimer otaUpdateTimer = muTimer();         // timer to refresh other values
 
 
 /**
@@ -140,7 +142,7 @@ const char* errOkString(uint8_t value){
   return ret_str;
 }
 
-void handleData(AsyncWebServerRequest *request) {
+void handleWebClientData(AsyncWebServerRequest *request) {
   if (request->hasParam("elementId") && request->hasParam("value")) {
     String elementId = request->getParam("elementId")->value();
     String value = request->getParam("value")->value();
@@ -234,7 +236,67 @@ void enableElement(const char* elementID, bool enable) {
     sendWebUpdate(message, "enableElement");
 }
 
+void updateDialog(const char* elementID, const char* state) {
+    char message[BUFFER_SIZE];
+    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"state\":\"%s\"}", elementID, state);
+    sendWebUpdate(message, "updateDialog");
+}
 
+/**
+ * *******************************************************************
+ * @brief   function to process the firmware update
+ * @param   request, filename, index, data, len, final
+ * @return  none
+ * *******************************************************************/
+void handleDoUpdate(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final) {
+  if (!index) {
+    Serial.println("Update");
+    storeData(); // store data before updating
+    content_len = request->contentLength();
+    if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) {
+      Update.printError(Serial);
+      updateWebText("p11_ota_update_error", Update.errorString(), false);
+      updateDialog("ota_update_failed_dialog", "open");
+    }
+  }
+
+  if (Update.write(data, len) != len) {
+    Update.printError(Serial);
+    updateWebText("p11_ota_update_error", Update.errorString(), false);
+    updateDialog("ota_update_failed_dialog", "open");
+  }
+  else
+  {
+    // Sende den Fortschritt über SSE
+    int progress = (Update.progress() * 100) / content_len;
+    Serial.printf("Progress: %d%%\n", progress);
+    char message[32];
+    if (otaUpdateTimer.cycleTrigger(200))
+    {
+      snprintf(message, 32, "Progress: %d%%", progress);
+      events.send(message, "ota-progress", millis());
+    }
+  }
+
+  if (final) {
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Ok");
+    response->addHeader("Refresh", "30");
+    response->addHeader("Location", "/");
+    request->send(response);
+    if (!Update.end(true)) {
+      Update.printError(Serial);
+      updateWebText("p11_ota_update_error", Update.errorString(), false);
+      updateDialog("ota_update_failed_dialog", "open");
+    } else {
+      char message[32];
+      snprintf(message, 32, "Progress: %d%%", 100);
+      events.send(message, "ota-progress", millis());
+      Serial.println("Update complete");
+      Serial.flush();
+      updateDialog("ota_update_done_dialog", "open");
+    }
+  }
+}
 
 /**
  * *******************************************************************
@@ -275,22 +337,44 @@ void webUISetup(){
 
   // config.json upload
   server.on("/config-upload", HTTP_POST, [](AsyncWebServerRequest *request) {
-    request->send(200);
-  }, [](AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final) {
-    if (!index) {
+    // Keine Aktion erforderlich, wenn alles erfolgreich war
+    request->send(200, "text/plain", "upload done!");
+  }, 
+  [](AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final) {
+    static File uploadFile;
+    
+    if (!index) { // Erster Aufruf für neuen Upload
+      updateWebText("upload_status_txt", "uploading...", false);
       Serial.printf("UploadStart: %s\n", filename.c_str());
-      request->_tempFile = LittleFS.open("/" + filename, "w");
+      uploadFile = LittleFS.open("/" + filename, "w");
+      
+      if (!uploadFile) {
+        Serial.println("Fehler: Datei konnte nicht geöffnet werden.");
+        updateWebText("upload_status_txt", "error on file close!", false);
+        return; // Früher Rückkehr, um weitere Verarbeitung zu verhindern
+      }
     }
-    if (len) {
-      request->_tempFile.write(data, len);
+    
+    if (len) { // Wenn Daten vorhanden sind, schreibe sie
+      uploadFile.write(data, len);
     }
-    if (final) {
-      Serial.printf("UploadEnd: %s, %u B\n", filename.c_str(), index + len);
-      request->_tempFile.close();
+    
+    if (final) { // Abschluss des Uploads
+      if (uploadFile) { // Überprüfe, ob die Datei ordnungsgemäß geöffnet wurde
+        uploadFile.close();
+        Serial.printf("UploadEnd: %s, %u B\n", filename.c_str(), index + len);
+        updateWebText("upload_status_txt", "upload done!", false);
+      } else {
+        updateWebText("upload_status_txt", "error on file close!", false);
+      }
     }
   });
 
-  server.on("/sendData", HTTP_GET, handleData);
+  // Route für OTA-Updates
+  server.on("/update", HTTP_POST, [](AsyncWebServerRequest *request) {}, handleDoUpdate);
+
+  // message from webClient to server
+  server.on("/sendData", HTTP_GET, handleWebClientData);
 
   // SSE Endpoint
   events.onConnect([](AsyncEventSourceClient *client)
@@ -466,16 +550,16 @@ void webCallback(const char *elementId, const char *value){
   if(strcmp(elementId,"p12_ip_enable")==0) {
     config.ip.enable = stringToBool(value);
   }
-  if(strcmp(elementId,"ip_adr")==0) {
+  if(strcmp(elementId,"p12_ip_adr")==0) {
     snprintf(config.ip.ipaddress, sizeof(config.ip.ipaddress), value);
   } 
-  if(strcmp(elementId,"ip_subnet")==0) {
+  if(strcmp(elementId,"p12_ip_subnet")==0) {
     snprintf(config.ip.subnet, sizeof(config.ip.subnet), value);
   } 
-  if(strcmp(elementId,"ip_gateway")==0) {
+  if(strcmp(elementId,"p12_ip_gateway")==0) {
     snprintf(config.ip.gateway, sizeof(config.ip.gateway), value);
   }
-  if(strcmp(elementId,"ip_dns")==0) {
+  if(strcmp(elementId,"p12_ip_dns")==0) {
     snprintf(config.ip.dns, sizeof(config.ip.dns), value);
   } 
 
@@ -497,7 +581,7 @@ void webCallback(const char *elementId, const char *value){
   if(strcmp(elementId,"p12_ntp_server")==0) {
     snprintf(config.ntp.server, sizeof(config.ntp.server), value);
   }
-  if(strcmp(elementId,"ntp_tz")==0) {
+  if(strcmp(elementId,"p12_ntp_tz")==0) {
     snprintf(config.ntp.tz, sizeof(config.ntp.tz), value);
   }
 
@@ -642,10 +726,10 @@ void webCallback(const char *elementId, const char *value){
   if(strcmp(elementId,"p12_oil_virtual_enable")==0) {
     config.oilmeter.use_virtual_meter = stringToBool(value);
   }
-  if(strcmp(elementId,"oil_par1_kg_h")==0) {
+  if(strcmp(elementId,"p12_oil_par1_kg_h")==0) {
     config.oilmeter.consumption_kg_h = strtof(value, NULL);
   }
-  if(strcmp(elementId,"oil_par2_kg_l")==0) {
+  if(strcmp(elementId,"p12_oil_par2_kg_l")==0) {
     config.oilmeter.oil_density_kg_l = strtof(value, NULL);
   }
 
@@ -702,6 +786,12 @@ void webCallback(const char *elementId, const char *value){
     webReadLogBuffer();
   }
 
+  // OTA-Confirm
+  if(strcmp(elementId,"p11_ota_confirm_btn")==0) {
+    updateDialog("ota_update_done_dialog", "close");
+    storeData();
+    ESP.restart();
+  }
 }
 
 
@@ -866,12 +956,15 @@ void updateSettingsElements(){
     case 44: updateWebState("p10_log_enable", config.log.enable); break; 
     case 45: updateWebValueInt("p10_log_mode", config.log.filter); break; 
     case 46: updateWebValueInt("p10_log_order", config.log.order); break; 
-    case 47: updateSettingsElementsDone = true; break;
+    case 47: updateWebState("p12_ntp_enable", config.ntp.enable); break; 
+    case 48: updateWebText("p12_ntp_server", config.ntp.server, true); break;
+    case 49: updateWebText("p12_ntp_tz", config.ntp.tz, true); break;
+    case 50: updateSettingsElementsDone = true; break;
     default:
         webElementUpdateCnt = -1;
         break;
   }
-  webElementUpdateCnt = (webElementUpdateCnt + 1) % 48;
+  webElementUpdateCnt = (webElementUpdateCnt + 1) % 51;
  
 }
 
@@ -1599,6 +1692,12 @@ void webUICylic(){
     updateKm271StatusElements();
     updateKm271ConfigElements();
     webReadLogBufferCyclic();
+
+    // Update Settings Elements once after startup or refresh
+    if (!updateSettingsElementsDone) {
+      updateSettingsElements();
+    }
+    
   }
 
   if (refreshTimer2.cycleTrigger(3000))
@@ -1607,10 +1706,6 @@ void webUICylic(){
     updateOilmeterElements();
   }
 
-  // Update Settings Elements once after startup or refresh
-  if (!updateSettingsElementsDone) {
-    updateSettingsElements();
-  }
 
   if (simulationTimer.delayOn(clientConnected && !bootInit, 2000))
   {

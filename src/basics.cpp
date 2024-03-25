@@ -1,5 +1,4 @@
 #include <basics.h>
-#include <webTools.h>
 
 /* P R O T O T Y P E S ********************************************************/ 
 void ntpSetup();

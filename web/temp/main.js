@@ -1594,86 +1594,115 @@ const translations = {
     de: "export (config.json)",
     en: "export (config.json)",
   },
+  update_done: {
+    de: "Update erfolgreich!",
+    en: "Update sucessfull!",
+  },
+  update_failed: {
+    de: "Update nicht erflgreich!",
+    en: "Update not sucessfull!",
+  },
+  update_ready: {
+    de: "Update bereit!",
+    en: "Update ready!",
+  },
+  update_info: {
+    de: "ESP muss neu gestartet werden um das Update zu übernehmen.",
+    en: "ESP must be restarted to apply the update",
+  },
+  error_text: {
+    de: "Ferhler:",
+    en: "Error:",
+  },
+  update_error_info: {
+    de: "Bitte das Update erneut ausführen!",
+    en: "Please run the update again!",
+  },
+  import_ready: {
+    de: "Import bereit!",
+    en: "import ready!",
+  },
 };
-s;
 
 // <<<< function for OTA update >>>>>>
-var updateActive = false;
-
-function updateOTABar() {
-  if (updateActive) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", "/getOTAProgress", true);
-    xhr.responseType = "json";
-    xhr.onload = function () {
-      if (xhr.status === 200) {
-        const otaProgress = xhr.response.progress;
-        document.getElementById("ota_progress_bar").value = otaProgress;
-      }
-    };
-    xhr.send();
-  }
-}
-
 function ota_sub_fun(obj) {
   var a = obj.value;
   console.log(a);
   var fileName = a.replace(/^.*[\\\/]/, "");
   console.log(fileName);
   document.getElementById("ota_file_input").textContent = fileName; // Geändert von innerHTML zu textContent
-  document.getElementById("ota_updateBtn").disabled = false;
-  document.getElementById("ota_upload_bar").style.display = "block";
+  document.getElementById("ota_update_btn").disabled = false;
   document.getElementById("ota_progress_bar").style.display = "block";
-  document.getElementById("ota_txtUpload").style.display = "block";
-  document.getElementById("ota_txtUpdate").style.display = "block";
+  document.getElementById("ota_status_txt").style.display = "block";
 }
 
 document.querySelector("form").addEventListener("submit", function (e) {
   e.preventDefault();
-  document.getElementById("ota_updateBtn").disabled = true;
+  document.getElementById("ota_status_txt").disabled = true;
+
+  // Füge eine visuelle Rückmeldung hinzu, um den Upload-Status anzuzeigen
+  document.getElementById("ota_status_txt").textContent = "Uploading...";
 
   var form = document.getElementById("ota_upload_form"); // Geändert von jQuery zu nativem Selektor
   var data = new FormData(form);
 
-  var xhr = new XMLHttpRequest();
-  xhr.open("POST", "/update", true);
+  // Verwende die Fetch API, um die Daten asynchron an deinen ESP32 Server zu senden
+  fetch("/update", {
+    // Ändere '/update' auf die tatsächliche URL, die das OTA Update auf deinem ESP32 behandelt
+    method: "POST",
+    body: data,
+  })
+    .then((response) => {
+      if (response.ok) {
+        return response.text();
+      }
+      throw new Error("Network response was not ok.");
+    })
+    .then((data) => {
+      console.log(data);
+      document.getElementById("ota_status_txt").textContent = "Upload Complete";
+    })
+    .catch((error) => {
+      console.error(
+        "There has been a problem with your fetch operation:",
+        error
+      );
+      document.getElementById("ota_status_txt").textContent = "Upload Failed";
+    });
 
-  xhr.upload.onprogress = function (evt) {
-    if (evt.lengthComputable) {
-      var per = (evt.loaded / evt.total) * 100;
-      document.getElementById("ota_progress").textContent = "Progress: "; // Änderung der Methode
-      document.getElementById("ota_progress_bar").value = per;
-    }
-  };
-
-  xhr.onload = function () {
-    if (xhr.status === 200) {
-      console.log("success!");
-      alert("OTA-Update successful - ESP will restart!");
-      setTimeout(function () {
-        location.href = "../ota";
-      }, 2000);
-      updateActive = false;
-    } else {
-      alert("Upload error");
-      setTimeout(function () {
-        location.href = "../ota";
-      }, 1000);
-    }
-  };
-
-  xhr.onerror = function () {
-    alert("Upload error");
-    setTimeout(function () {
-      location.href = "../ota";
-    }, 1000);
-  };
-
-  xhr.send(data);
-  updateActive = true;
+  // Fortschrittsbalken und Statusaktualisierungen basierend auf SSE einrichten
+  var source = new EventSource("/events");
+  source.addEventListener(
+    "ota-progress",
+    function (e) {
+      var progress = parseInt(e.data.replace("Progress: ", ""), 10);
+      document.getElementById("ota_progress_bar").value = progress; // Aktualisiere deinen Fortschrittsbalken entsprechend
+      document.getElementById(
+        "ota_status_txt"
+      ).textContent = `Update Progress: ${progress}%`;
+    },
+    false
+  );
+  source.addEventListener(
+    "updateDialog",
+    function (e) {
+      var data = JSON.parse(e.data);
+      var dialog = document.getElementById(data.elementID);
+      if (data.state == "open") {
+        dialog.showModal();
+      } else if (data.state == "close") {
+        dialog.close();
+      }
+    },
+    false
+  );
 });
 
-setInterval(updateOTABar, 1000);
+document
+  .getElementById("p11_ota_failed_btn")
+  .addEventListener("click", function () {
+    document.getElementById("ota_update_failed_dialog").close();
+  });
 
 // <<<< function for config >>>>>>
 
@@ -1683,19 +1712,35 @@ function exportConfig() {
 }
 
 function file_sub_fun(obj) {
-  var a = obj.value;
-  console.log(a);
-  var fileName = a.replace(/^.*[\\\/]/, "");
-  console.log(fileName);
-  document.getElementById("file_updateBtn").disabled = false;
-  document.getElementById("file_upload_bar").style.display = "block";
-  document.getElementById("txt_file_upload").style.display = "block";
+  document.getElementById("file_upload_btn").disabled = false;
+  document.getElementById("upload_status_txt").style.display = "block";
 }
 
-document.querySelector("form").addEventListener("submit", function (e) {
-  e.preventDefault();
-  document.getElementById("file_updateBtn").disabled = true;
-  var form = document.getElementById("file_upload_form");
-  var data = new FormData(form);
-});
+document
+  .getElementById("file_upload_form")
+  .addEventListener("submit", function (event) {
+    event.preventDefault(); // Verhindert den normalen Formular-Submit
+
+    var form = document.getElementById("file_upload_form");
+    var formData = new FormData(form);
+    var xhr = new XMLHttpRequest();
+
+    xhr.open("POST", "/config-upload", true);
+
+    xhr.onload = function () {
+      if (xhr.status === 200) {
+        // Erfolg
+        document.getElementById("upload_status_txt").style.display = "block";
+        document.getElementById("upload_status_txt").innerText =
+          "Upload erfolgreich";
+      } else {
+        // Fehler
+        document.getElementById("upload_status_txt").style.display = "block";
+        document.getElementById("upload_status_txt").innerText =
+          "Upload fehlgeschlagen";
+      }
+    };
+
+    xhr.send(formData);
+  });
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <title>ESP-Buderus-KM271</title>
@@ -1928,13 +1928,57 @@
                 role="switch"
                 id="p10_log_enable" />
             </div>
-            <hr style="border-top: 1px solid white" />
+            <hr />
             <div id="p10_log_output">--</div>
           </article>
         </div>
       </div>
-<!-- OTA-Inhalt hier -->
+<!-- OTA-update -->
       <div id="tab11" class="tab-content">
+        <dialog id="ota_update_done_dialog">
+          <!-- Dialog OTA-Done -->
+          <article class="dash">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="update_done">--</div>
+              <div class="dash-content">
+                <p data-i18n="update_info">--</p>
+              </div>
+              <div class="dash-footer">
+                <button
+                  id="p11_ota_confirm_btn"
+                  data-i18n="restart"
+                  style="width: 75%"></button>
+              </div>
+            </div>
+            <div class="dash-icon">
+              <div class="svg i_update_done"></div>
+            </div>
+          </article>
+        </dialog>
+        <dialog id="ota_update_failed_dialog">
+          <!-- Dialog OTA-FAILED -->
+          <article class="dash">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="update_failed">--</div>
+              <div style="text-align: center">
+                <span data-i18n="error_text">--</span>
+                <span id="p11_ota_update_error">--</span>
+              </div>
+              <div class="dash-content">
+                <p data-i18n="update_error_info">--</p>
+              </div>
+              <div class="dash-footer">
+                <button
+                  id="p11_ota_failed_btn"
+                  data-i18n="ok"
+                  style="width: 75%"></button>
+              </div>
+            </div>
+            <div class="dash-icon">
+              <div class="svg i_alarm"></div>
+            </div>
+          </article>
+        </dialog>
         <div class="grid">
           <article class="tools">
             <div class="dash-main">
@@ -1953,39 +1997,26 @@
                     accept=".bin" />
                   <input
                     type="submit"
-                    id="ota_updateBtn"
+                    id="ota_update_btn"
                     disabled="disabled"
                     value="Update" />
                   <br />
                   <div
-                    id="ota_txtUpload"
+                    id="ota_status_txt"
                     style="display: none; text-align: left"
-                    data-i18n="upload">
-                    --
-                  </div>
-                  <br /><progress
-                    id="ota_upload_bar"
-                    style="display: none"
-                    max="100"
-                    value="1"></progress>
-                  <br />
-                  <div
-                    id="ota_txtUpdate"
-                    style="display: none; text-align: left"
-                    data-i18n="update">
+                    data-i18n="update_ready">
                     --
                   </div>
                   <br /><progress
                     id="ota_progress_bar"
                     style="display: none"
                     max="100"
-                    value="1"></progress>
-                  <div id="ota_progress"></div>
+                    value="0"></progress>
                 </form>
               </div>
             </div>
           </article>
-
+          <!-- config import/export -->
           <article class="tools">
             <div class="dash-main">
               <div class="dash-header" data-i18n="config_mgn">--</div>
@@ -2001,6 +2032,12 @@
                     id="file_input"
                     accept=".json"
                     onchange="file_sub_fun(this)" />
+                  <div
+                    id="upload_status_txt"
+                    style="display: none; text-align: left"
+                    data-i18n="import_ready">
+                    --
+                  </div>
                   <button
                     type="submit"
                     id="file_upload_btn"
@@ -2031,7 +2068,6 @@
               type="password"
               id="p12_wifi_password"
               name="wifi_password" />
-
             <hr />
             <!-- IP-Settings -->
             <div class="section-header">
@@ -2071,7 +2107,7 @@
             <input type="text" id="p12_access_user" name="access_user" />
             <label for="access_password" data-i18n="password">--</label>
             <input
-              type="text"
+              type="password"
               id="p12_access_password"
               name="access_password" />
             <button

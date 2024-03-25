@@ -5,7 +5,6 @@
 #include <km271.h>
 #include <webUI.h>
 #include <oilmeter.h>
-#include <webTools.h>
 #include <sensor.h>
 #include <message.h>
 #include <simulation.h>
@@ -14,7 +13,7 @@
 // Double-Reset-Detector
 #define ESP_DRD_USE_LITTLEFS          true
 #define DOUBLERESETDETECTOR_DEBUG     true
-#define DRD_TIMEOUT 10
+#define DRD_TIMEOUT 2
 #define DRD_ADDRESS 0  // not used > LittleFS
 #include <ESP_DoubleResetDetector.h>
 DoubleResetDetector* drd;
@@ -88,9 +87,6 @@ void setup()
   // webUI Setup
   if (config.webUI.enable) { 
     webUISetup();
-
-    // webTools
-  //  webToolsSetup();
 
   }
 

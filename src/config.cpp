@@ -86,7 +86,7 @@ void configHashInit(){
  * *******************************************************************/
 void configCyclic(){
   
-/*   if (checkTimer.cycleTrigger(1000) && configInitDone)
+  if (checkTimer.cycleTrigger(1000) && configInitDone)
   {
     unsigned long hashNew = hash(&config, sizeof(s_config));
     if (hashNew != hashOld)
@@ -94,7 +94,7 @@ void configCyclic(){
       hashOld = hashNew;
       configSaveToFile();
     }
-  } */
+  }
 
 }
 
@@ -139,15 +139,9 @@ void configInitValue(){
     memset((void *)&config, 0, sizeof(config));
 
     // WiFi
-    snprintf(config.wifi.ssid, sizeof(config.wifi.ssid), "enter SSID...");
-    snprintf(config.wifi.password, sizeof(config.wifi.password), "enter password...");
     snprintf(config.wifi.hostname, sizeof(config.wifi.hostname), "ESP-Buderus-KM271");
 
     // MQTT
-    snprintf(config.mqtt.server, sizeof(config.mqtt.server), "enter MQTT server...");
-    snprintf(config.mqtt.user, sizeof(config.mqtt.user), "enter MQTT user...");
-    snprintf(config.mqtt.password, sizeof(config.mqtt.password), "enter MQTT password...");
-    snprintf(config.mqtt.topic, sizeof(config.mqtt.topic), "enter MQTT topic...");
     config.mqtt.port = 1883;
     config.mqtt.enable = false;
 
@@ -176,10 +170,6 @@ void configInitValue(){
 
     // gpio
     memset(&config.gpio, -1, sizeof(config.gpio));
-
-    // Pushover
-    snprintf(config.pushover.token, sizeof(config.pushover.token), "enter Api-Token here");
-    snprintf(config.pushover.user_key, sizeof(config.pushover.user_key), "enter User-Key here");
 
 }
 
@@ -378,6 +368,6 @@ void configLoadFromFile() {
   }
   
   file.close();     // Close the file (Curiously, File's destructor doesn't close the file)
-  // configHashInit(); // init hash value
+   configHashInit(); // init hash value
 }
 
