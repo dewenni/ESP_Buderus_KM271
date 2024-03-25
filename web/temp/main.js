@@ -1,6 +1,6 @@
 // <<<< functions >>>>>>
 
-// Funktion zum Umschalten der Sichtbarkeit von Elementen
+// Function for switching the visibility of elements
 function toggleElementVisibility(className, isVisible) {
   const elements = document.querySelectorAll(`.${className}`);
   elements.forEach((element) => {
@@ -8,12 +8,12 @@ function toggleElementVisibility(className, isVisible) {
   });
 }
 
-// Funktion zur Initialisierung der Sichtbarkeit basierend auf dem Zustand der Schalter
+// Function for initializing the visibility based on the status of the switches
 function initializeVisibilityBasedOnSwitches() {
   document
     .querySelectorAll('input[type="checkbox"][role="switch"]')
     .forEach(function (switchElement) {
-      // Zustand des Schalters auswerten und Sichtbarkeit anpassen
+      // Evaluate the status of the switch and adjust visibility
       toggleElementVisibility(
         switchElement.getAttribute("hideOpt"),
         switchElement.checked
@@ -64,15 +64,11 @@ function localizePage(lang = "en") {
 
 var pingTimeout;
 function resetPingTimeout() {
-  // Zuvor gesetzten Timeout löschen
   clearTimeout(pingTimeout);
-
-  // Setzt einen neuen Timeout
   pingTimeout = setTimeout(function () {
     console.log("Ping Timeout - Keine Ping-Nachricht empfangen.");
-    // Zeige einen "Seite neu laden" Button an
     showReloadBar();
-  }, 5000); // 5 Sekunden Wartezeit für den Ping
+  }, 5000); // 5 seconds waiting time for the ping
 }
 
 function showReloadBar() {
@@ -88,7 +84,6 @@ function sendData(elementId, value) {
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-      // Behandlung der erfolgreichen Antwort
     })
     .catch((error) => console.error("Fetch error:", error));
 }
@@ -112,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-  // Event-Listener für alle Eingabefelder, die bei "blur" sendData aufrufen
+  // vent listener for all input fields that call sendData on "blur"
   document
     .querySelectorAll(
       'input[type="text"], input[type="number"], input[type="password"], input[type="date"], input[type="time"]'
@@ -123,26 +118,37 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       input.addEventListener("keypress", function (e) {
         if (e.key === "Enter") {
-          input.blur(); // Löst "blur" Event aus und sendet Daten
+          input.blur(); // Triggers "blur" event and sends data
         }
       });
     });
 
-  // Event-Listener für Range Inputs hinzufügen
+  // Event-Listener for Range Inputs (Slider)
   document.querySelectorAll('input[type="range"]').forEach(function (slider) {
     slider.addEventListener("change", function () {
       sendData(slider.id, slider.value);
     });
   });
 
-  // Event-Listener für Buttons
+  // Event-Listener for Slider labels
+  document.querySelectorAll(".rangeSlider").forEach((slider) => {
+    const valueId = slider.getAttribute("data-value-id");
+    const valueDisplay = document.getElementById(valueId);
+    slider.oninput = () => {
+      valueDisplay.textContent = slider.value;
+    };
+    // set initial value
+    valueDisplay.textContent = slider.value;
+  });
+
+  // Event-Listener for Buttons
   document.querySelectorAll("button").forEach(function (button) {
     button.addEventListener("click", function () {
       sendData(button.id, true);
     });
   });
 
-  // Event-Listener für Schalter
+  // Event-Listener for Switches
   document
     .querySelectorAll('input[type="checkbox"][role="switch"]')
     .forEach(function (switchElement) {
@@ -155,7 +161,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-  // Event-Listener für Radio
+  // Event-Listener for Radio
   document
     .querySelectorAll('input[type="radio"]')
     .forEach(function (switchElement) {
@@ -164,45 +170,35 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-  // Event-Listener für Select Elemente hinzufügen
+  // Event-Listener for Select Elements
   document.querySelectorAll("select").forEach(function (selectElement) {
     selectElement.addEventListener("change", function () {
       sendData(selectElement.id, selectElement.value);
     });
-  });
-
-  document.querySelectorAll(".rangeSlider").forEach((slider) => {
-    const valueId = slider.getAttribute("data-value-id");
-    const valueDisplay = document.getElementById(valueId);
-    slider.oninput = () => {
-      valueDisplay.textContent = slider.value;
-    };
-    // Initialwert setzen
-    valueDisplay.textContent = slider.value;
   });
 });
 
 // <<<< Server-Side-Events (Client <- ESP) >>>>>>
 var evtSource = new EventSource("/events");
 
-// Event Listener für den Reload-Button
+// Event Listener for Reload-Button
 document
   .getElementById("p99_reloadButton")
   .addEventListener("click", function () {
     window.location.reload();
   });
 
-// Listener für Ping-Nachrichten
+// Listener for Ping-Message
 evtSource.addEventListener(
   "ping",
   function (e) {
     console.log("Ping-Nachricht empfangen");
-    resetPingTimeout(); // Setzt den Timeout zurück, wenn ein Ping empfangen wird
+    resetPingTimeout();
   },
   false
 );
 
-// Aktualisierung für Texte
+// update Text elements
 evtSource.addEventListener(
   "updateText",
   function (e) {
@@ -219,7 +215,7 @@ evtSource.addEventListener(
   false
 );
 
-// Aktualisierung für Switches
+// update switch elements
 evtSource.addEventListener(
   "updateState",
   function (e) {
@@ -233,7 +229,7 @@ evtSource.addEventListener(
   false
 );
 
-// Aktualisierung für element.value
+// update element.value
 evtSource.addEventListener(
   "updateValue",
   function (e) {
@@ -246,42 +242,25 @@ evtSource.addEventListener(
   false
 );
 
-// Elemente ein/ausblenden
+// hide/show element
 evtSource.addEventListener(
-  "enableElement",
+  "hideElement",
   function (e) {
     var data = JSON.parse(e.data);
     var element = document.getElementById(data.elementID);
     if (element) {
       if (data.enable) {
-        element.style.display = ""; // Element einblenden
+        element.style.display = "";
       } else {
-        element.style.display = "none"; // Element ausblenden
+        element.style.display = "none";
       }
     }
   },
   false
 );
 
-// Elemente ein/ausblenden
-evtSource.addEventListener(
-  "hideElements",
-  function (e) {
-    var data = JSON.parse(e.data);
-    const elements = document.querySelectorAll(data.elements);
-    elements.forEach((el) => {
-      if (data.enable) {
-        el.classList.add("hidden");
-      } else {
-        el.classList.remove("hidden");
-      }
-    });
-  },
-  false
-);
-
+// hide/show elements based on className
 evtSource.addEventListener("hideElementClass", (event) => {
-  // Parsen des JSON-Strings aus dem Event-Daten
   const data = JSON.parse(event.data);
   const { className, hide } = data;
   console.log("class: " + className + " visibility " + hide);
@@ -298,6 +277,7 @@ evtSource.addEventListener(
   false
 );
 
+// add log message
 evtSource.addEventListener(
   "add_log",
   function (event) {
@@ -307,6 +287,7 @@ evtSource.addEventListener(
   false
 );
 
+// clear log
 evtSource.addEventListener(
   "clr_log",
   function (event) {
@@ -320,55 +301,47 @@ evtSource.addEventListener(
 let sidebar = document.querySelector(".sidebar");
 let closeBtn = document.querySelector("#btn");
 
-  closeBtn.addEventListener("click", ()=>{
-    sidebar.classList.toggle("open");
-    menuBtnChange();//calling the function(optional)
-  });
+closeBtn.addEventListener("click", () => {
+  sidebar.classList.toggle("open");
+  menuBtnChange(); //calling the function(optional)
+});
 
-  // Event-Listener für Tab-Menü
-  document.querySelectorAll('.nav-list a').forEach(tab => {
-    tab.onclick = function(e) {
-        e.preventDefault();
-        document.querySelectorAll('.nav-list a').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+// Event-Listener for Tab-Menü
+document.querySelectorAll(".nav-list a").forEach((tab) => {
+  tab.onclick = function (e) {
+    e.preventDefault();
+    document
+      .querySelectorAll(".nav-list a")
+      .forEach((t) => t.classList.remove("active"));
+    document
+      .querySelectorAll(".tab-content")
+      .forEach((content) => content.classList.remove("active"));
 
-        const activeTab = this.getAttribute('data-tab');
-        this.classList.add('active');
-        document.getElementById(activeTab).classList.add('active');
-    };
-  });
+    const activeTab = this.getAttribute("data-tab");
+    this.classList.add("active");
+    document.getElementById(activeTab).classList.add("active");
+  };
+});
 
-  // following are the code to change sidebar button(optional)
-  function menuBtnChange() {
-   if(sidebar.classList.contains("open")){
-     closeBtn.classList.replace("bx-menu", "bx-menu-alt-right");//replacing the iocns class
-   }else {
-     closeBtn.classList.replace("bx-menu-alt-right","bx-menu");//replacing the iocns class
-   }
-  }
-
-  // Funktion zum Umschalten des Menüs basierend auf der Fensterbreite
+// Function for switching the menu based on the window width
 function toggleMenuBasedOnWidth() {
   const screenWidth = window.innerWidth;
-  const threshold = 1024; // Schwellenwert für die Fensterbreite
+  const threshold = 1024;
 
-  if(screenWidth > threshold) {
-    // Fenster ist schmal, Menü einklappen
-      sidebar.classList.add("open");
-      menuBtnChange(); // Optional, ändert den Button
+  if (screenWidth > threshold) {
+    sidebar.classList.add("open");
   } else {
-    // Fenster ist breit, Menü ausklappen
-      sidebar.classList.remove("open");
-      menuBtnChange(); // Optional, ändert den Button
+    sidebar.classList.remove("open");
   }
 }
 
-// Event-Listener für Fenstergrößenänderung hinzufügen
+// Event-Listener for window resize
 window.addEventListener("resize", toggleMenuBasedOnWidth);
 
-// Initialprüfung beim Laden der Seite
+// check window size on refresh
 toggleMenuBasedOnWidth();
 // <<< END Sidebar Script >>>
+
 const translations = {
   system: {
     de: "System",
@@ -1639,16 +1612,12 @@ function ota_sub_fun(obj) {
 document.querySelector("form").addEventListener("submit", function (e) {
   e.preventDefault();
   document.getElementById("ota_status_txt").disabled = true;
-
-  // Füge eine visuelle Rückmeldung hinzu, um den Upload-Status anzuzeigen
   document.getElementById("ota_status_txt").textContent = "Uploading...";
 
-  var form = document.getElementById("ota_upload_form"); // Geändert von jQuery zu nativem Selektor
+  var form = document.getElementById("ota_upload_form");
   var data = new FormData(form);
 
-  // Verwende die Fetch API, um die Daten asynchron an deinen ESP32 Server zu senden
   fetch("/update", {
-    // Ändere '/update' auf die tatsächliche URL, die das OTA Update auf deinem ESP32 behandelt
     method: "POST",
     body: data,
   })
@@ -1670,13 +1639,12 @@ document.querySelector("form").addEventListener("submit", function (e) {
       document.getElementById("ota_status_txt").textContent = "Upload Failed";
     });
 
-  // Fortschrittsbalken und Statusaktualisierungen basierend auf SSE einrichten
   var source = new EventSource("/events");
   source.addEventListener(
     "ota-progress",
     function (e) {
       var progress = parseInt(e.data.replace("Progress: ", ""), 10);
-      document.getElementById("ota_progress_bar").value = progress; // Aktualisiere deinen Fortschrittsbalken entsprechend
+      document.getElementById("ota_progress_bar").value = progress;
       document.getElementById(
         "ota_status_txt"
       ).textContent = `Update Progress: ${progress}%`;
@@ -1710,7 +1678,7 @@ document
 function exportConfig() {
   window.location.href = "/config-download";
 }
-
+// function to activate import button and show status
 function file_sub_fun(obj) {
   document.getElementById("file_upload_btn").disabled = false;
   document.getElementById("upload_status_txt").style.display = "block";
@@ -1719,7 +1687,7 @@ function file_sub_fun(obj) {
 document
   .getElementById("file_upload_form")
   .addEventListener("submit", function (event) {
-    event.preventDefault(); // Verhindert den normalen Formular-Submit
+    event.preventDefault();
 
     var form = document.getElementById("file_upload_form");
     var formData = new FormData(form);
@@ -1729,18 +1697,15 @@ document
 
     xhr.onload = function () {
       if (xhr.status === 200) {
-        // Erfolg
         document.getElementById("upload_status_txt").style.display = "block";
         document.getElementById("upload_status_txt").innerText =
           "Upload erfolgreich";
       } else {
-        // Fehler
         document.getElementById("upload_status_txt").style.display = "block";
         document.getElementById("upload_status_txt").innerText =
           "Upload fehlgeschlagen";
       }
     };
-
     xhr.send(formData);
   });
 

@@ -662,7 +662,7 @@ void webCallback(const char *elementId, const char *value){
     snprintf(config.mqtt.password, sizeof(config.mqtt.password), value);
   }
   if(strcmp(elementId,"p12_mqtt_language")==0) {
-    config.mqtt.language = strtoul(value, NULL, 10);
+    config.mqtt.lang = strtoul(value, NULL, 10);
   }
 
   // Pushover
@@ -926,7 +926,7 @@ void updateSettingsElements(){
     case 14: updateWebText("p12_mqtt_user", config.mqtt.user, true); break;
     case 15: updateWebText("p12_mqtt_password", config.mqtt.password, true); break;
     case 16: updateWebText("p12_mqtt_topic", config.mqtt.topic, true); break;
-    case 17: updateWebValueInt("p12_mqtt_language", config.mqtt.language); break;
+    case 17: updateWebValueInt("p12_mqtt_language", config.mqtt.lang); break;
     case 18: updateWebState("p12_pushover_enable", config.pushover.enable); break;
     case 19: updateWebText("p12_pushover_api_token", config.pushover.token, true); break;
     case 20: updateWebText("p12_pushover_user_key", config.pushover.user_key, true); break;

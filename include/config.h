@@ -55,7 +55,7 @@ typedef struct {
     char topic[128];                // MQTT Topic Prefix
     uint16_t port = 1883;           // MQTT Server Port
     bool config_retain;             // retain config messages
-    int language;                   // MQTT Topic Language  
+    int lang;                       // MQTT Topic Language  
 } s_cfg_mqtt;
 
 typedef struct {
