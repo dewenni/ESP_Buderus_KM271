@@ -781,6 +781,10 @@ void updateAllElements(){
   // set compare structures to a "random" value to force updates
   memset((void *)&kmStatusCpy, 111, sizeof(s_km271_status));
 
+  // reset hash values to force updates
+  memset((void *)KmCfgHash, 0, sizeof(KmCfgHash));
+  memset((void *)KmAlarmHash, 0, sizeof(KmAlarmHash));
+
   updateSettingsElementsDone = false; // update all settings values
   oilmeterInit = false;               // update oil-meter values
 
@@ -1022,13 +1026,13 @@ void updateKm271AlarmElements(){
   if (strDiff(&KmAlarmHash[0], pkmAlarmStr->alarm1)) {
     updateWebText("p08_err_msg1",pkmAlarmStr->alarm1, false);
   }
-  if (strDiff(&KmAlarmHash[0], pkmAlarmStr->alarm2)) {
+  if (strDiff(&KmAlarmHash[1], pkmAlarmStr->alarm2)) {
     updateWebText("p08_err_msg2",pkmAlarmStr->alarm2, false);
   }
-  if (strDiff(&KmAlarmHash[0], pkmAlarmStr->alarm3)) {
+  if (strDiff(&KmAlarmHash[2], pkmAlarmStr->alarm3)) {
     updateWebText("p08_err_msg3",pkmAlarmStr->alarm3, false);
   }
-  if (strDiff(&KmAlarmHash[0], pkmAlarmStr->alarm4)) {
+  if (strDiff(&KmAlarmHash[3], pkmAlarmStr->alarm4)) {
     updateWebText("p08_err_msg4",pkmAlarmStr->alarm4, false);
   }
 
