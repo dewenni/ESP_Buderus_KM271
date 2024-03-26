@@ -60,18 +60,26 @@ hr {
   gap: 20px;
   padding: 20px;
 }
-
-#simModeBar {
+#simModeBarWrapper {
   position: fixed;
   left: 0;
   right: 0;
   top: 0;
-  height: 30px;
+  height: 30px; /* Höhe der Info-Bar */
+}
+
+#simModeBar {
   background-color: #9b8904;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+#setupModeBar {
+  background-color: #4650df;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
 }
 
 /* Basis Flexbox-Layout */

@@ -6,14 +6,16 @@
 #include <sensor.h>
 #include <LittleFS.h>
 #include <Update.h>
+#include <stringHelper.h>
 
 AsyncWebServer server(80);
 AsyncEventSource events("/events");
 
 bool clientConnected = false;
-bool bootInit = false;
+bool webInitDone = false;
 bool updateSettingsElementsDone = false;
 bool oilmeterInit = false;
+bool simulationInit = false;
 long oilcounter, oilcounterOld;
 double oilcounterVirtOld = 0.0;
 size_t content_len;             
@@ -816,10 +818,10 @@ void updateAllElements(){
   updateSettingsElementsDone = false; // update all settings values
   oilmeterInit = false;               // update oil-meter values
 
-  // Show SIM_MODE Header in Simulation-Mode
-  if (SIM_MODE){
-    hideElementId("p00_simModeBar", false);
+  if (setupMode){
+    hideElementId("setupModeBar", false);
   }
+
 }
 
 /**
@@ -1661,7 +1663,7 @@ void updateKm271StatusElements(){
   }
   else if (kmStatusCpy.BurnerCalcOilConsumption != pkmStatus->BurnerCalcOilConsumption) {
     kmStatusCpy.BurnerCalcOilConsumption = pkmStatus->BurnerCalcOilConsumption;
-    //TODO:
+    // is handled somewhere else
   }
   else if (kmStatusCpy.OutsideTemp != pkmStatus->OutsideTemp) {
     kmStatusCpy.OutsideTemp = pkmStatus->OutsideTemp;
@@ -1710,6 +1712,7 @@ void webUICylic(){
     events.send("ping", "ping", millis());
   }
 
+  // refresh elemets not faster than 50ms
   if (refreshTimer1.cycleTrigger(50))
   {
     updateKm271AlarmElements();
@@ -1724,20 +1727,22 @@ void webUICylic(){
     
   }
 
+  // refresh elemets every 3 seconds
   if (refreshTimer2.cycleTrigger(3000))
   {
     updateSystemInfoElements();
     updateOilmeterElements();
   }
 
-
-  if (simulationTimer.delayOn(clientConnected && !bootInit, 2000))
+  // in simulation mode, load simdata and display simModeBar
+  if (simulationTimer.delayOn(SIM_MODE && clientConnected && !simulationInit && !setupMode, 2000))
   {
-    bootInit = true;
+    simulationInit = true;
+    hideElementId("simModeBar", false);
     startSimData();
   }
 
   
-
+  webInitDone = true; // init done
 
 }
