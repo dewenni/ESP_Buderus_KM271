@@ -8,156 +8,16 @@
 // mqtt messages : texts that are used for mqtt messages from KM271
 // ======================================================================================
 typedef struct {
-const char* SYSTEM[MAX_LANG] =                   {"System",                                                     "System"};
-const char* CONTROL[MAX_LANG] =                  {"Bedienung",                                                  "Control"};
-const char* DASHBORAD[MAX_LANG] =                {"Dashboard",                                                  "Dashboard"};
-const char* BOILER[MAX_LANG] =                   {"Kessel",                                                     "Boiler"};
-const char* AUTOMATIC[MAX_LANG] =                {"Automatik",                                                  "Automatic"};  
-const char* OPMODES[MAX_LANG] =                  {"Betriebsarten",                                              "Operation Modes"};
-const char* PROGRAMS[MAX_LANG] =                 {"Programme",                                                  "Programs"};
-const char* CONFIG[MAX_LANG] =                   {"Konfiguration",                                              "Config"};
-const char* STATUS[MAX_LANG] =                   {"Status",                                                     "Status"};
-const char* SETTINGS[MAX_LANG] =                 {"Einstellungen",                                              "Settings"};
-const char* OP_VALUES[MAX_LANG] =                {"Betriebswerte",                                              "Operating-States"};
-const char* TEMPERATURES[MAX_LANG] =             {"Temperaturen",                                               "Temperatures"};      
-const char* MANUAL[MAX_LANG] =                   {"Handbetrieb",                                                "Manual"}; 
-const char* DAY[MAX_LANG] =                      {"Tag",                                                        "Day"};    
-const char* NIGHT[MAX_LANG] =                    {"Nacht",                                                      "Night"};
-const char* HC1_DAY_NIGHT[MAX_LANG] =            {"HK1 Tag/Nacht",                                              "HC1 Day/Night"};
-const char* HC2_DAY_NIGHT[MAX_LANG] =            {"HK2 Tag/Nacht",                                              "HC2 Day/Night"};
-const char* SUMMER[MAX_LANG] =                   {"Sommer",                                                     "Summer"};    
-const char* WINTER[MAX_LANG] =                   {"Winter",                                                     "Winter"};
-const char* HC1_SUMMER_WINTER[MAX_LANG] =        {"HK1 Sommer/Winter",                                          "HC1 Summer/Winter"};
-const char* HC2_SUMMER_WINTER[MAX_LANG] =        {"HK2 Sommer/Winter",                                          "HC2 Summer/Winter"};
-const char* SETPOINT[MAX_LANG] =                 {"Sollwert",                                                   "Setpoint"};    
-const char* ACT_VALUE[MAX_LANG] =                {"Istwert",                                                    "Actual Value"};    
-const char* SET_TEMP[MAX_LANG] =                 {"Solltemperatur",                                             "Set Temperature"};
-const char* SET_TEMP_C[MAX_LANG] =               {"Solltemperatur °C",                                          "Set Temperature °C"};
-const char* ACT_TEMP[MAX_LANG] =                 {"Isttemperatur",                                              "Actual Temperature"}; 
-const char* ACT_TEMP_C[MAX_LANG] =               {"Isttemperatur °C",                                           "Actual Temperature °C"}; 
-const char* HC1_OPMODE[MAX_LANG] =               {"HK1-Betriebsart",                                            "HC1 Operation Mode"}; 
-const char* HC2_OPMODE[MAX_LANG] =               {"HK2-Betriebsart",                                            "HC2 Operation Mode"}; 
-const char* WW_OPMODE[MAX_LANG] =                {"WW-Betriebsart",                                             "WW Operation Mode"}; 
-const char* ON[MAX_LANG] =                       {"EIN",                                                        "ON"}; 
-const char* OFF[MAX_LANG] =                      {"AUS",                                                        "OFF"};
-const char* OK[MAX_LANG] =                       {"OK",                                                         "OK"};
-const char* ERROR[MAX_LANG] =                    {"FEHLER",                                                     "ERROR"};
-const char* ERROR_FLAGS[MAX_LANG] =              {"Fehlermeldungen",                                            "Error Flags"};
-const char* BURNER[MAX_LANG] =                   {"Brenner",                                                    "Burner"}; 
-const char* HC1_PUMP[MAX_LANG] =                 {"HK1-Umwälzpumpe",                                            "HC1 Flow Pump"};
-const char* HC2_PUMP[MAX_LANG] =                 {"HK2-Umwälzpumpe",                                            "HC2 Flow Pump"}; 
-const char* WW[MAX_LANG] =                       {"Warmwasser",                                                 "Warm Water"}; 
-const char* BURNER_TEMP[MAX_LANG] =              {"Kessel-Vorlauf",                                             "Boiler Temperature"};
-const char* HC1_FLOW[MAX_LANG] =                 {"HK1-Vorlauf",                                                "HC1 Flow Temperature"};
-const char* HC2_FLOW[MAX_LANG] =                 {"HK2-Vorlauf",                                                "HC2 Flow Temperature"};
-const char* WIFI_INFO[MAX_LANG] =                {"WiFi-Information",                                           "WiFi-Informations"};
-const char* WIFI_IP[MAX_LANG] =                  {"IP-Adresse",                                                 "IP-Address"};
-const char* HC1[MAX_LANG] =                      {"Heizkreis 1",                                                "Heating Circuit 1"};
-const char* HC2[MAX_LANG] =                      {"Heizkreis 2",                                                "Heating Circuit 2"};
-const char* HC[MAX_LANG] =                       {"Heizkreise",                                                 "Heating Circuits"};
-const char* GENERAL[MAX_LANG] =                  {"Allgemeine Werte",                                           "General Values"};
-const char* SW_VERSION[MAX_LANG] =               {"Software-Version",                                           "Software-Version"};
-const char* LOGAMATIC_VERSION[MAX_LANG] =        {"Logamatic-Version",                                          "Logamatic-Version"};
-const char* LOGAMATIC_MODUL[MAX_LANG] =          {"Logamatic-Modul",                                            "Logamatic-Module"};
-const char* VERSION_INFO[MAX_LANG] =             {"Versionsinformationen",                                      "Version Informations"};
-const char* HC1_PRG[MAX_LANG] =                  {"HK1-Programm",                                               "HC1 Program"}; 
-const char* HC2_PRG[MAX_LANG] =                  {"HK2-Programm",                                               "HC2 Program"};
-const char* INFO_SUMMER1[MAX_LANG] =             {"Umschalttemperatur zwischen Sommer / Winter",                "Threshold to switch between Summer/Winter"};
-const char* INFO_SUMMER2[MAX_LANG] =             {"9:Sommer | 10..30:Schwelle (°C) | 31:Winter",                "9:Summer | 10..30:Threshold (°C) | 31:Winter"};
-const char* INFO_FROST[MAX_LANG] =               {"Umschalttemperatur Frostschutz",                             "Threshold for Frostprotection"};
-const char* INFO_DESIGNTEMP[MAX_LANG] =          {"Auslegungstemperatur Heizkennlinie",                         "Design Temperature for heating curve"};
-const char* INFO_SWITCHOFF[MAX_LANG] =           {"Umschaltschwelle für Absenkung Aussenhalt",                  "Threshold for reduction mode"};
-const char* INFO_WWTEMP[MAX_LANG] =              {"Solltemperatur für Warmwasser",                              "Setpoint for Hot Water"};
-const char* INFO_UNIT_C[MAX_LANG] =              {"Einheit: °C",                                                "Unit: °C"};
-const char* INFO_WW_PUMP_CIRC1[MAX_LANG] =       {"Anzahl der Zyklen pro Stunde",                               "count of operation cycles per hour"};
-const char* INFO_WW_PUMP_CIRC2[MAX_LANG] =       {"0:AUS | 1..6: Zyklen/Stunde | 7:EIN",                        "0:OFF | 1..6: cycles/hour | 7:ON"};
-const char* OILMETER[MAX_LANG] =                 {"Ölzähler",                                                   "Oil-Meter"};
-const char* INFO_UNIT_L[MAX_LANG] =              {"Einheit: Liter",                                             "Unit: Litre"};
-const char* OILMETER_ACT[MAX_LANG] =             {"Ölzählerstand",                                              "Oil-Meter value"};
-const char* BUTTON_SET[MAX_LANG] =               {"setzen",                                                     "set"};
-const char* BUTTON_NTP[MAX_LANG] =               {"setzen NTP",                                                 "set NTP"};
-const char* BUTTON_DTI[MAX_LANG] =               {"setzen manuell",                                             "set manually"};
-const char* VOLTAGE[MAX_LANG] =                  {"Spannung",                                                   "Voltage"};
-const char* ESP_HEAPSIZE[MAX_LANG] =             {"ESP HeapSize",                                               "ESP HeapSize"};
-const char* ESP_FREEHEAP[MAX_LANG] =             {"ESP FreeHeap",                                               "ESP FreeHeap"};
-const char* ESP_MAXALLOCHEAP[MAX_LANG] =         {"ESP MaxAllocHeap",                                           "ESP MaxAllocHeap"};
-const char* ESP_MINFREEHEAP[MAX_LANG] =          {"ESP MinFreeHeap",                                            "ESP MinFreeHeap"};
-const char* ESP_FLASH_USAGE[MAX_LANG] =          {"ESP Flash usage",                                            "ESP Flash usage"};
-const char* ESP_HEAP_USAGE[MAX_LANG] =           {"ESP Heap usage",                                             "ESP Heap usage"};
-const char* SYSINFO[MAX_LANG] =                  {"Systeminformationen",                                        "System Informations"};
-const char* ALARM[MAX_LANG] =                    {"Alarme",                                                     "Alarms"};
-const char* ALARMINFO[MAX_LANG] =                {"letzte Alarm Meldungen",                                     "latest Alarm Messages"};
-const char* MESSAGE[MAX_LANG] =                  {"Meldung",                                                    "Message"};
-const char* ESP_INFO[MAX_LANG] =                 {"ESP-Info",                                                   "ESP-Info"};
-const char* OPERATION[MAX_LANG] =                {"Betrieb",                                                    "Operation"};
-const char* LIFETIMES[MAX_LANG] =                {"Laufzeiten",                                                 "Runtimes"};
-const char* LIMITS[MAX_LANG] =                   {"Grenzwerte",                                                 "Limits"};
-const char* DATETIME[MAX_LANG] =                 {"Datum und Uhrzeit",                                          "Date and Time"};
-const char* DATE[MAX_LANG] =                     {"Datum",                                                      "Date"};
-const char* TIME[MAX_LANG] =                     {"Uhrzeit",                                                    "Time"};
-const char* LOGAMATIC[MAX_LANG] =                {"Logamatic",                                                  "Logamatic"};
-const char* WIFI[MAX_LANG] =                     {"WiFi",                                                       "WiFi"};
-const char* SSID[MAX_LANG] =                     {"SSID",                                                       "SSID"};
-const char* PASSWORD[MAX_LANG] =                 {"Passwort",                                                   "Password"};
-const char* USER[MAX_LANG] =                     {"Benutzer",                                                   "User"};
-const char* HOSTNAME[MAX_LANG] =                 {"Hostname",                                                   "Hostname"};
-const char* SERVER[MAX_LANG] =                   {"Server",                                                     "Server"};
-const char* TOPIC[MAX_LANG] =                    {"Topic",                                                      "Topic"};
-const char* MQTT[MAX_LANG] =                     {"MQTT",                                                       "MQTT"};
-const char* PORT[MAX_LANG] =                     {"Port",                                                       "Port"};
-const char* NTP[MAX_LANG] =                      {"NTP-Server",                                                 "NTP-Server"};
-const char* NTP_TZ[MAX_LANG] =                   {"Time-Zone",                                                  "Time-Zone"};
-const char* SPRACHE[MAX_LANG] =                  {"Sprache",                                                    "Language"};
-const char* GPIO[MAX_LANG] =                     {"GPIO-Zuweisung",                                             "GPIO-Settings"};
-const char* LED_WIFI[MAX_LANG] =                 {"LED-WiFi",                                                   "LED-WiFi"};
-const char* LED_HEARTBEAT[MAX_LANG] =            {"LED-Heartbeat",                                              "LED-Heartbeat"};
-const char* LED_LOGMODE[MAX_LANG] =              {"LED-Logmode",                                                "LED-Logmode"};
-const char* LED_OILCOUNTER[MAX_LANG] =           {"LED-Ölzähler",                                               "LED-Oilcounter"};
-const char* TRIG_OILCOUNTER[MAX_LANG] =          {"Impuls-Ölzähler",                                            "Trigger-Oilcounter"};
-const char* KM271_TX[MAX_LANG] =                 {"KM271-TX",                                                   "KM271-TX"};
-const char* KM271_RX[MAX_LANG] =                 {"KM271-RX",                                                   "KM271-RX"};
-const char* WEBUI[MAX_LANG] =                    {"Webserver",                                                  "Webserver"};
-const char* SAVE_RESTART[MAX_LANG] =             {"Speichern und Neustart",                                     "save and restart"};
-const char* OIL_HARDWARE[MAX_LANG] =             {"Ölzähler Hardware",                                          "Oil Meter Hardware"};
-const char* OIL_VIRTUAL[MAX_LANG] =              {"Ölzähler virtuell",                                          "Oil Meter virtual"};
-const char* OIL_PAR1_KG_H[MAX_LANG] =            {"Verbrauch Kg/h",                                             "consumption Kg/h"};
-const char* OIL_PAR2_KG_L[MAX_LANG] =            {"Öl-Dichte Kg/L",                                             "oil density Kg/L"};
-const char* WIFI_AP_INFO_1[MAX_LANG] =           {"\n⚠️ um den ESP in den Accesspoint Mode zu versetzen ⚠️",      "\n⚠️ to set the ESP in Accesspoint Mode ⚠️"};
-const char* WIFI_AP_INFO_2[MAX_LANG] =           {"Reset drücken und nach 5s erneut Reset drücken",             "press reset and after 5s press reset again"};
-const char* LANGUAGE[MAX_LANG] =                 {"Sprache",                                                    "Language"};
-const char* PREDEFINE[MAX_LANG] =                {"Voreinstellung",                                             "Predefine"};
-const char* GPIO_UNUSED[MAX_LANG] =              {"⚠️ \"-1\" = unbenutzt ⚠️",                                     "⚠️ \"-1\" = unused ⚠️"};
-const char* OTA[MAX_LANG] =                      {"OTA Firmware Update",                                        "OTA Firmware Update"};
-const char* FILEMGN[MAX_LANG] =                  {"Dateimanager",                                               "Filemanager"};
-const char* TOOLS[MAX_LANG] =                    {"Tools",                                                      "Tools"};
-const char* TEMP_OUT[MAX_LANG] =                 {"Außentemperatur",                                            "Temperature outdoor"};
-const char* TEMP_OUT_ACT[MAX_LANG] =             {"aktuell °C",                                                 "actually °C"};
-const char* TEMP_OUT_DMP[MAX_LANG] =             {"gedämpft °C",                                                "damped °C"};
-const char* MQTT_CFG_RET[MAX_LANG] =             {"Config Nachrichten als retain",                              "config messages as retain"};
-const char* ACTIVATE[MAX_LANG] =                 {"Aktivieren",                                                 "activate"};
-const char* MAN_IP_SETTINGS[MAX_LANG] =          {"manuelle IP-Einstellungen",                                  "manual IP settings"};
-const char* IP_ADR[MAX_LANG] =                   {"IP-Adresse",                                                 "IP-Address"};
-const char* IP_SUBNET[MAX_LANG] =                {"Subnetz",                                                    "Subnet"};
-const char* IP_GATEWAY[MAX_LANG] =               {"Gateway",                                                    "Gateway"};
-const char* IP_DNS[MAX_LANG] =                   {"DNS-Server",                                                 "DNS-Server"};
-const char* ACCESSS[MAX_LANG] =                  {"Zugangskontrolle",                                           "Authentication"};
-const char* SENSOR[MAX_LANG] =                   {"optionale Sensoren",                                         "optional sensors"};
-const char* SENS1[MAX_LANG] =                    {"Sensor 1",                                                   "Sensor 1"};
-const char* SENS2[MAX_LANG] =                    {"Sensor 2",                                                   "Sensor 2"};
-const char* NAME[MAX_LANG] =                     {"Name",                                                       "Name"};
-const char* TEST[MAX_LANG] =                     {"Test",                                                       "test"};
-const char* FILTER[MAX_LANG] =                   {"Filter",                                                     "Filter"};
-const char* PUSHOVER[MAX_LANG] =                 {"Pushover",                                                   "Pushover"};
-const char* API_TOKEN[MAX_LANG] =                {"API-Token",                                                  "API-Token"};
-const char* USER_KEY[MAX_LANG] =                 {"User-Key",                                                   "User-Key"};
-const char* LOGGER[MAX_LANG] =                   {"Logbuch",                                                    "Logger"};
-const char* LANG_INFO[MAX_LANG] =                {"⚠️ Ein Wechsel der Sprache ändert auch die mqtt Topics ⚠️",    "⚠️ Changing the language also changes the mqtt topics ⚠️"};
-const char* SAVE[MAX_LANG] =                     {"Speichern",                                                  "save"};
-const char* RESTART[MAX_LANG] =                  {"Neustart",                                                   "restart"};
-const char* CLEAR[MAX_LANG] =                    {"Löschen",                                                    "clear"};
-const char* REFRESH[MAX_LANG] =                  {"Aktualisieren",                                              "refresh"};
-const char* LIFETIME[MAX_LANG] =                 {"Laufzeit",                                                   "Runtime"};
-const char* RESTART_REASON[MAX_LANG] =           {"Neustart Grund",                                             "restart reason"};
+ const char* AUTOMATIC[MAX_LANG] =                {"Automatik",                                                  "Automatic"};  
+ const char* MANUAL[MAX_LANG] =                   {"Handbetrieb",                                                "Manual"}; 
+ const char* DAY[MAX_LANG] =                      {"Tag",                                                        "Day"};    
+ const char* NIGHT[MAX_LANG] =                    {"Nacht",                                                      "Night"};
+ const char* SUMMER[MAX_LANG] =                   {"Sommer",                                                     "Summer"};    
+ const char* WINTER[MAX_LANG] =                   {"Winter",                                                     "Winter"};
+ const char* ON[MAX_LANG] =                       {"EIN",                                                        "ON"}; 
+ const char* OFF[MAX_LANG] =                      {"AUS",                                                        "OFF"};
+ const char* OK[MAX_LANG] =                       {"OK",                                                         "OK"};
+ const char* ERROR[MAX_LANG] =                    {"FEHLER",                                                     "ERROR"};
 } s_webui_texts; 
 
 
@@ -573,26 +433,10 @@ typedef struct {
 // 2. ENGLISH
 // ======================================================================================
 typedef struct {
-    const char* LANGUAGE[MAX_LANG][2]={
-        {"🇩🇪 Deutsch", "🇬🇧 Englisch"},
-        {"🇩🇪 German", "🇬🇧 English"}
-    };
-    const char* BOARDS[MAX_LANG][4]={
-        {"Board wählen...", "generic ESP32", "KM271-WiFi v0.0.5", "KM271-WiFi v0.0.6"},
-        {"select Board...", "generic ESP32", "KM271-WiFi v0.0.5", "KM271-WiFi v0.0.6"}
-    };
-    const char* MSG_FILTER[MAX_LANG][2]={
-        {"Alarm", "Alarm + Info"},
-        {"Alarm", "Alarm + Info"}
-    };
     const char* LOG_FILTER[MAX_LANG][5]={
         {"Modus: Alarm", "Modus: Alarm + Info", "Modus: Logamatic Werte", "Modus: unbekannte Datagramme", "Modus: debug Datagramme"},
         {"Mode: Alarm", "Mode: Alarm + Info", "Mode: Logamatic values", "Mode: unknown datagramms", "Mode: debug datagramms"}
     };
-    const char* ORDER[MAX_LANG][2]={
-        {"Sortierung: ↓", "Sortierung: ↑"},
-        {"order: ↓", "order: ↑"}
-    };    
 } s_opt_arrays;
 
 // ======================================================================================
