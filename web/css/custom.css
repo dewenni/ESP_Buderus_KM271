@@ -32,6 +32,14 @@
   }
 }
 
+details > summary {
+  font-size: 1.125rem;
+}
+
+details[open] > summary {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
 
 hr {
   border-top: 2px solid #646b79;
