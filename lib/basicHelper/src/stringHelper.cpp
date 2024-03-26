@@ -206,3 +206,35 @@ const char * getTimeString() {
   snprintf(timeInfo, sizeof(timeInfo), "%02i:%02i:%02i", dti.tm_hour, dti.tm_min, dti.tm_sec);
   return timeInfo;
 }
+
+
+/**
+ * *******************************************************************
+ * @brief   simple hash function
+ * @param   str input string
+ * @return  hash value
+ * *******************************************************************/
+unsigned int strHash(const char *str) {
+    unsigned int hash = 0;
+    while (*str) {
+        hash = 31 * hash + (*str++);
+    }
+    return hash;
+}
+
+/**
+ * *******************************************************************
+ * @brief   helper function to check if a string has changed
+ * @param   lastHash 
+ * @param   currentValue
+ * @return  compare result - true if different
+ * *******************************************************************/
+bool strDiff(unsigned int *lastHash, const char *currentValue) {
+    unsigned int currentHash = strHash(currentValue);
+    if (*lastHash != currentHash) {
+        *lastHash = currentHash;
+        return true;
+    }
+    return false;
+}
+

@@ -16,3 +16,5 @@ const char * getDateTimeString();
 const char * getDateString();
 const char *getDateStringWeb();
 const char *getTimeString();
+unsigned int strHash(const char *str);
+bool strDiff(unsigned int *lastHash, const char *currentValue);
