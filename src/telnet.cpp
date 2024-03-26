@@ -8,41 +8,51 @@
 #include <oilmeter.h>
 #include "EscapeCodes.h"
 
+/* D E C L A R A T I O N S ****************************************************/  
 ESPTelnet telnet;
 s_telnetIF telnetIF;
-
-const char HELP[] PROGMEM = R"rawliteral(
-here is a list of supported commands:
-x                                 aboard active streaming (Serial/KM271)
-cls                               clear screen
-info                              print system information
-restart                           restart the ESP
-disconnect                        disconnect from telnet server
-simdata                           generate simulation data 
-log read                          read all entries of the log buffer
-log clear                         clear the log buffer
-log mode                          get actual log mode
-log mode 1..5                     set log mode 1:Alarm, 2:Alarm+Info, 3:Logamatic values, 4:unknown telegrams, 5:debug telegrams
-debug <0/1>                       get status or enable/disable debug messages
-debug filter <XX_XX..>            get or set debug filter
-serial stream start/stop          start stop serial stream
-km271 stream start/stop           start stop serial stream
-oilmeter <value>                  get or set Oil Meter value
-)rawliteral";
-
-void readLogger();
 s_opt_arrays webOptArrays;
-const int MAX_PAR = 3;
-const int MAX_CHAR = 64;
-char param[MAX_PAR][MAX_CHAR];
 EscapeCodes ansi;
+char param[MAX_PAR][MAX_CHAR];
 
+/* P R O T O T Y P E S ********************************************************/
+void readLogger();
+void dispatchCommand(char param[MAX_PAR][MAX_CHAR]);
+bool extractMessage(String str, char param[MAX_PAR][MAX_CHAR]);
+void cmdHelp(char param[MAX_PAR][MAX_CHAR]);
+void cmdCls(char param[MAX_PAR][MAX_CHAR]);
+void cmdInfo(char param[MAX_PAR][MAX_CHAR]);
+void cmdDisconnect(char param[MAX_PAR][MAX_CHAR]);
+void cmdRestart(char param[MAX_PAR][MAX_CHAR]);
+void cmdSimdata(char param[MAX_PAR][MAX_CHAR]);
+void cmdOilmeter(char param[MAX_PAR][MAX_CHAR]);
+void cmdLog(char param[MAX_PAR][MAX_CHAR]);
+void cmdDebug(char param[MAX_PAR][MAX_CHAR]);
+void cmdSerial(char param[MAX_PAR][MAX_CHAR]);
+void cmdKm271(char param[MAX_PAR][MAX_CHAR]);
+
+Command commands[] = {
+    {"help", cmdHelp, "Displays this help message", "[command]"},
+    {"cls", cmdCls, "Clear screen", ""},
+    {"info", cmdInfo, "Print system information", ""},
+    {"disconnect", cmdDisconnect, "disconnect telnet", ""},
+    {"restart", cmdRestart, "Restart the ESP", ""},
+    {"simdata", cmdSimdata, "generate simulated KM271 values", ""},
+    {"oilmeter", cmdOilmeter, "Get or set oil-meter value", "[value]"},
+    {"log", cmdLog, "logger commands", "[enable], [disable], [read], [clear], [mode], [mode <1..5>]"},
+    {"debug", cmdDebug, "configure debug options", "[enable], [disable], [filter], [filter <XX_XX_...>]"},
+    {"serial", cmdSerial, "serial stream output", "<stream> <[start], [stop]>"},
+    {"km271", cmdKm271, "km271 stream output", "<stream> <[start], [stop]>"},
+};
+const int commandsCount = sizeof(commands) / sizeof(commands[0]);
+
+
+// print telnet shell 
 void telnetShell(){
   telnet.print(ansi.setFG(ANSI_BRIGHT_GREEN));
   telnet.print("$ >");
   telnet.print(ansi.reset());
 }
-
 
 void onTelnetConnect(String ip)
 {
@@ -77,13 +87,54 @@ void onTelnetConnectionAttempt(String ip) {
   msgLn(" tried to connected");
 }
 
+void onTelnetInput(String str) {
+  if (!extractMessage(str, param)) {
+      telnet.println("Syntax error");
+  } else {
+      dispatchCommand(param);
+  }
+  telnetShell();
+}
+
 /**
  * *******************************************************************
- * @brief   log commands
+ * @brief   setup function for Telnet
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void setupTelnet() {  
+  // passing on functions for various telnet events
+  telnet.onConnect(onTelnetConnect);
+  telnet.onConnectionAttempt(onTelnetConnectionAttempt);
+  telnet.onReconnect(onTelnetReconnect);
+  telnet.onDisconnect(onTelnetDisconnect);
+  telnet.onInputReceived(onTelnetInput);
+
+  msg("Telnet Server: ");
+  if (telnet.begin()) {
+    msgLn("running!");
+  } else {
+    msgLn("error!");
+  }
+}
+
+/**
+ * *******************************************************************
+ * @brief   cyclic function for Telnet
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void cyclicTelnet() {
+  telnet.loop();
+}
+
+/**
+ * *******************************************************************
+ * @brief   telnet command: log commands
  * @param   params received parameters
  * @return  none
  * *******************************************************************/
-void telCmdLog(char param[MAX_PAR][MAX_CHAR]){
+void cmdLog(char param[MAX_PAR][MAX_CHAR]){
  
   if (strlen(param[1])==0) {
       if (config.log.enable)
@@ -92,33 +143,25 @@ void telCmdLog(char param[MAX_PAR][MAX_CHAR]){
         telnet.println("disabled");
       telnetShell();
   // log: disable
-  } else if (!strcmp(param[1], "0") && strlen(param[2])==0) {
+  } else if (!strcmp(param[1], "disable") && strlen(param[2])==0) {
       config.log.enable = false;
       clearLogBuffer();
-      configSaveToFile();
       //updateSettingsValues();
       telnet.println("disabled");
-      telnetShell();
   // log enable
-  } else if (!strcmp(param[1], "1") && strlen(param[2])==0) {
+  } else if (!strcmp(param[1], "enable") && strlen(param[2])==0) {
       config.log.enable = true;
       clearLogBuffer();
-      configSaveToFile();
-      //updateSettingsValues();
       telnet.println("enabled");
-      telnetShell();
   // log: read buffer
   } else if (!strcmp(param[1], "read") && strlen(param[2])==0) {
       readLogger();
-      telnetShell();
   // log clear buffer
   } else if (!strcmp(param[1], "clear") && strlen(param[2])==0) {
       clearLogBuffer();
-      telnetShell();
   // log mode read
   } else if (!strcmp(param[1], "mode") && strlen(param[2])==0) {
       telnet.println(webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
-      telnetShell();
   // log mode set
   } else if (!strcmp(param[1], "mode") && strlen(param[2])>0) {
     int mode = atoi(param[2]);
@@ -126,53 +169,41 @@ void telCmdLog(char param[MAX_PAR][MAX_CHAR]){
     {
       config.log.filter = mode - 1;
       clearLogBuffer();
-      configSaveToFile();
-      //updateSettingsValues();
       telnet.println(webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
     } else {
       telnet.println("invalid mode - mode must be between 1 and 5");
     }
-    telnetShell();
   } else {
       telnet.println("unknown parameter");
-      telnetShell();
   }
 }
 
 /**
  * *******************************************************************
- * @brief   Debug commands
+ * @brief   telnet command: debug options
  * @param   params received parameters
  * @return  none
  * *******************************************************************/
-void telCmdDebug(char param[MAX_PAR][MAX_CHAR]){
+void cmdDebug(char param[MAX_PAR][MAX_CHAR]){
   if (strlen(param[1])==0 && strlen(param[2])==0) {
     if (config.debug.enable) {
       telnet.println("enabled");
     } else {
       telnet.println("disabled");
     }
-    telnetShell();
   // debug: disable
-  } else if (!strcmp(param[1], "0") && strlen(param[2])==0) {
+  } else if (!strcmp(param[1], "disable") && strlen(param[2])==0) {
       config.debug.enable = false;
       clearLogBuffer();
-      configSaveToFile();
-      //updateSettingsValues();
       telnet.println("disabled");
-      telnetShell();
   // debug: enable
-  } else if (!strcmp(param[1], "1") && strlen(param[2])==0) {
+  } else if (!strcmp(param[1], "enable") && strlen(param[2])==0) {
       config.debug.enable = true;
       clearLogBuffer();
-      configSaveToFile();
-      //updateSettingsValues();
       telnet.println("enabled");
-      telnetShell();
   // debug: get filter
   } else if (!strcmp(param[1], "filter") && strlen(param[2])==0) {
       telnet.println(config.debug.filter);
-      telnetShell();
   // debug: set filter
   } else if (!strcmp(param[1], "filter") && strlen(param[2])!=0) {
       char errMsg[256];
@@ -180,21 +211,19 @@ void telCmdDebug(char param[MAX_PAR][MAX_CHAR]){
         telnet.println(config.debug.filter);
       } else {
         telnet.println(errMsg);
-      }
-      telnetShell();     
+      } 
   } else {
       telnet.println("unknown parameter");
-      telnetShell();
   }
 }
 
 /**
  * *******************************************************************
- * @brief   function to print system parameters
- * @param   none
+ * @brief   telnet command: print system information
+ * @param   params received parameters
  * @return  none
  * *******************************************************************/
-void getSysInfo(){
+void cmdInfo(char param[MAX_PAR][MAX_CHAR]) {
 
   telnet.print(ansi.setFG(ANSI_BRIGHT_WHITE));
   telnet.println("ESP-INFO");
@@ -233,11 +262,146 @@ void getSysInfo(){
 
 /**
  * *******************************************************************
+ * @brief   telnet command: clear output
+ * @param   params received parameters
+ * @return  none
+ * *******************************************************************/
+void cmdCls(char param[MAX_PAR][MAX_CHAR]) {
+  telnet.print(ansi.cls());
+  telnet.print(ansi.home());
+}
+
+/**
+ * *******************************************************************
+ * @brief   telnet command: disconnect
+ * @param   params received parameters
+ * @return  none
+ * *******************************************************************/
+void cmdDisconnect(char param[MAX_PAR][MAX_CHAR]) {
+  telnet.println("disconnect");
+  telnet.disconnectClient();
+ }  
+
+/**
+ * *******************************************************************
+ * @brief   telnet command: restart ESP
+ * @param   params received parameters
+ * @return  none
+ * *******************************************************************/
+void cmdRestart(char param[MAX_PAR][MAX_CHAR]) {
+  telnet.println("ESP will restart - you have to reconnect");
+  ESP.restart();
+}
+
+/**
+ * *******************************************************************
+ * @brief   telnet command: generate simulation values
+ * @param   params received parameters
+ * @return  none
+ * *******************************************************************/
+void cmdSimdata(char param[MAX_PAR][MAX_CHAR]) {
+  startSimData();
+  telnet.println("simdata started");
+}
+
+/**
+ * *******************************************************************
+ * @brief   telnet command: serial stream
+ * @param   params received parameters
+ * @return  none
+ * *******************************************************************/
+void cmdSerial(char param[MAX_PAR][MAX_CHAR]) {
+  if (!strcmp(param[1], "stream") && !strcmp(param[2], "start")) {
+      telnetIF.serialStream = true;
+      telnet.println("serial stream active - to abort streaming, send \"x\"");
+  } else if (!strcmp(param[1], "stream") && !strcmp(param[2], "stop")) {
+      telnetIF.serialStream = false;
+      telnet.println("serial stream disabled");
+  }
+}
+
+/**
+ * *******************************************************************
+ * @brief   telnet command: km271 stream
+ * @param   params received parameters
+ * @return  none
+ * *******************************************************************/
+void cmdKm271(char param[MAX_PAR][MAX_CHAR]) {
+  if (!strcmp(param[1], "stream") && !strcmp(param[2], "start")) {
+      telnetIF.km271Stream = true;
+      telnet.printf("km271 stream active - %s\n", webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
+      telnet.println("=> to abort streaming, send \"x\"");
+  } else if (!strcmp(param[1], "stream") && !strcmp(param[2], "stop")) {
+      telnetIF.km271Stream = false;
+      telnet.println("km271 stream disabled");
+  }
+}
+
+/**
+ * *******************************************************************
+ * @brief   telnet command: get/set oil meter
+ * @param   params received parameters
+ * @return  none
+ * *******************************************************************/
+void cmdOilmeter(char param[MAX_PAR][MAX_CHAR]) {
+  // oilmeter: get
+  if (strlen(param[1])==0) {
+    telnet.println(getOilmeter());
+  // oilmeter: set
+  } else if (strlen(param[1])!=0) {
+    cmdSetOilmeter(atol(param[1]));
+    telnet.println(getOilmeter());
+  }
+}
+
+
+
+
+/**
+ * *******************************************************************
+ * @brief   telnet command: sub function to print help
+ * @param   params received parameters
+ * @return  none
+ * *******************************************************************/
+void printHelp(const char* command = nullptr) {
+  if (command == nullptr) {
+    // print help of all commands
+    for (int i = 0; i < commandsCount; ++i) {
+      telnet.printf("%-15s %-60s - %s\n", commands[i].name, commands[i].parameters, commands[i].description);
+    }
+  } else {
+    // print help of specific command
+    for (int i = 0; i < commandsCount; ++i) {
+      if (strcmp(command, commands[i].name) == 0) {
+        telnet.printf("%-15s %-60s - %s\n", commands[i].name, commands[i].parameters, commands[i].description);
+        return;
+      }
+    }
+    telnet.println("Unknown command. Use 'help' to see all commands.");
+  }
+}
+
+/**
+ * *******************************************************************
+ * @brief   telnet command: print help
+ * @param   params received parameters
+ * @return  none
+ * *******************************************************************/
+void cmdHelp(char param[MAX_PAR][MAX_CHAR]) {
+  if (strlen(param[1]) > 0) {
+      printHelp(param[1]);
+  } else {
+      printHelp();
+  }
+}
+
+/**
+ * *******************************************************************
  * @brief   function to read log buffer
  * @param   none
  * @return  none
  * *******************************************************************/
-void readLogger(){
+void readLogger() {
   int line = 0;
   while (line < MAX_LOG_LINES) {
     int lineIndex;
@@ -306,132 +470,16 @@ bool extractMessage(String str, char param[MAX_PAR][MAX_CHAR]){
 
 /**
  * *******************************************************************
- * @brief   receives telnet message and call sub-functions
+ * @brief   telnet command dispatcher
+ * @param   params received parameters
  * @return  none
  * *******************************************************************/
-void onTelnetInput(String str) {
-
-// check for valid commands
-if (!extractMessage(str, param))
-{
-  telnet.println("syntax error");
-  telnetShell();
+void dispatchCommand(char param[MAX_PAR][MAX_CHAR]) {
+  for (int i = 0; i < commandsCount; ++i) {
+    if (!strcmp(param[0], commands[i].name)) {
+      commands[i].function(param);
+      return;
+    }
   }
-
-  // empty command
-  if (strlen(param[0])==0){
-      telnetShell();
-  // CLS - clear screen
-  } else if (!strcmp(param[0], "cls")){
-    telnet.print(ansi.cls());
-    telnet.print(ansi.home());
-    telnetShell();  
-  // "x" to abort streaming
-  } else if (!strcmp(param[0], "x")){
-    telnetIF.km271Stream = false;
-    telnetIF.serialStream = false;
-    telnet.println("streaming aborted");
-    telnetShell();
-  // help: a list of commands
-  } else if (!strcmp(param[0], "help") && strlen(param[1])==0) {
-      telnet.println(HELP);
-      telnetShell();
-  // info
-  } else if (!strcmp(param[0], "info") && strlen(param[1])==0) {
-      getSysInfo();
-      telnetShell();
-    // restart: restart the ESP
-  } else if (!strcmp(param[0], "restart") && strlen(param[1])==0) {
-      telnet.println("ESP will restart - you have to reconnect");
-      ESP.restart();
-  // disconnect: disconnect from telnet server
-  } else if (!strcmp(param[0], "disconnect") && strlen(param[1])==0){
-      telnet.println("disconnect");
-      telnet.disconnectClient();
-  // simdata: generate simulation data 
-  } else if (!strcmp(param[0], "simdata") && strlen(param[1])==0) {
-      startSimData();
-      telnet.println("simdata started");
-      telnetShell();
-  // log commands
-  } else if (!strcmp(param[0], "log")) {
-      telCmdLog(param);
-  // debug commands
-  } else if (!strcmp(param[0], "debug")) {
-      telCmdDebug(param);   
-  // oilmeter: get
-  } else if (!strcmp(param[0], "oilmeter") && strlen(param[1])==0) {
-      telnet.println(getOilmeter());
-      telnetShell();
-  // oilmeter: set
-  } else if (!strcmp(param[0], "oilmeter") && strlen(param[1])!=0) {
-      cmdSetOilmeter(atol(param[1]));
-      telnet.println(getOilmeter());
-      telnetShell();
-  // serial start
-  } else if (!strcmp(param[0], "serial") && !strcmp(param[1], "stream") && !strcmp(param[2], "start")) {
-      telnetIF.serialStream = true;
-      telnet.println("serial stream active - to abort streaming, send \"x\"");
-      telnetShell();
-  // serial stop
-  } else if (!strcmp(param[0], "serial") && !strcmp(param[1], "stream") && !strcmp(param[2], "stop")) {
-      telnetIF.serialStream = false;
-      telnet.println("serial stream disabled");
-      telnetShell(); 
-   // km271 start
-  } else if (!strcmp(param[0], "km271") && !strcmp(param[1], "stream") && !strcmp(param[2], "start")) {
-      telnetIF.km271Stream = true;
-      telnet.printf("km271 stream active - %s\n", webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
-      telnet.println("=> to abort streaming, send \"x\"");
-      telnetShell();
-  // km271 stop
-  } else if (!strcmp(param[0], "km271") && !strcmp(param[1], "stream") && !strcmp(param[2], "stop")) {
-      telnetIF.km271Stream = false;
-      telnet.println("km271 stream disabled");
-      telnetShell(); 
- 
-  // test
-  } else if (!strcmp(param[0], "test") && !strcmp(param[1], "1") && strlen(param[2])==0){
-    webReadLogBuffer();
-
-
-  // unknown command
-  } else {
-      telnet.println("unknown command");
-      telnetShell();
-  }
-  
+  telnet.println("Unknown command");
 }
-
-/**
- * *******************************************************************
- * @brief   setup function for Telnet
- * @param   none
- * @return  none
- * *******************************************************************/
-void setupTelnet() {  
-  // passing on functions for various telnet events
-  telnet.onConnect(onTelnetConnect);
-  telnet.onConnectionAttempt(onTelnetConnectionAttempt);
-  telnet.onReconnect(onTelnetReconnect);
-  telnet.onDisconnect(onTelnetDisconnect);
-  telnet.onInputReceived(onTelnetInput);
-
-  msg("Telnet Server: ");
-  if (telnet.begin()) {
-    msgLn("running!");
-  } else {
-    msgLn("error!");
-  }
-}
-
-/**
- * *******************************************************************
- * @brief   cyclic function for Telnet
- * @param   none
- * @return  none
- * *******************************************************************/
-void cyclicTelnet() {
-  telnet.loop();
-}
-
