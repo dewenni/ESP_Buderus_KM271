@@ -1,33 +1,33 @@
 
-#include <config.h>
+#include <ArduinoOTA.h>
 #include <basics.h>
-#include <mqtt.h>
+#include <config.h>
 #include <km271.h>
-#include <webUI.h>
+#include <message.h>
+#include <mqtt.h>
 #include <oilmeter.h>
 #include <sensor.h>
-#include <message.h>
 #include <simulation.h>
 #include <telnet.h>
-#include <ArduinoOTA.h>
+#include <webUI.h>
 
 // Double-Reset-Detector
-#define ESP_DRD_USE_LITTLEFS          true
-#define DOUBLERESETDETECTOR_DEBUG     true
+#define ESP_DRD_USE_LITTLEFS true
+#define DOUBLERESETDETECTOR_DEBUG true
 #define DRD_TIMEOUT 2
-#define DRD_ADDRESS 0  // not used > LittleFS
+#define DRD_ADDRESS 0 // not used > LittleFS
 #include <ESP_DoubleResetDetector.h>
-DoubleResetDetector* drd;
+DoubleResetDetector *drd;
 
-/* D E C L A R A T I O N S ****************************************************/  
-muTimer mainTimer = muTimer();        // timer for cyclic info
-muTimer heartbeat = muTimer();        // timer for heartbeat signal
-muTimer setupModeTimer = muTimer();   // timer for heartbeat signal
-muTimer dstTimer = muTimer();         // timer to check daylight saving time change
+/* D E C L A R A T I O N S ****************************************************/
+muTimer mainTimer = muTimer();      // timer for cyclic info
+muTimer heartbeat = muTimer();      // timer for heartbeat signal
+muTimer setupModeTimer = muTimer(); // timer for heartbeat signal
+muTimer dstTimer = muTimer();       // timer to check daylight saving time change
 
-bool main_reboot = true;        // reboot flag
-int dst_old;                    // reminder for change of daylight saving time
-bool dst_ref;                   // init flag fpr dst reference
+bool main_reboot = true; // reboot flag
+int dst_old;             // reminder for change of daylight saving time
+bool dst_ref;            // init flag fpr dst reference
 
 /**
  * *******************************************************************
@@ -35,7 +35,7 @@ bool dst_ref;                   // init flag fpr dst reference
  * @param   none
  * @return  none
  * *******************************************************************/
-void storeData(){
+void storeData() {
   if (config.oilmeter.use_hardware_meter) {
     cmdStoreOilmeter();
   }
@@ -47,15 +47,13 @@ void storeData(){
  * @param   none
  * @return  none
  * *******************************************************************/
-void setup()
-{
-  //Enable serial port
+void setup() {
+  // Enable serial port
   Serial.begin(115200);
 
   // check for double reset
   drd = new DoubleResetDetector(DRD_TIMEOUT, DRD_ADDRESS);
-  if (drd->detectDoubleReset())
-  {
+  if (drd->detectDoubleReset()) {
     setupMode = true;
   }
 
@@ -66,12 +64,11 @@ void setup()
   basicSetup();
 
   // Setup OTA
-  ArduinoOTA
-    .onStart([]() {
-      // actions to do when OTA starts
-      storeData(); // store Data before update
-      delay(500);
-    });
+  ArduinoOTA.onStart([]() {
+    // actions to do when OTA starts
+    storeData(); // store Data before update
+    delay(500);
+  });
 
   ArduinoOTA.setHostname(config.wifi.hostname);
   ArduinoOTA.begin();
@@ -85,7 +82,7 @@ void setup()
   if (!setupMode) {
     sendWiFiInfo();
   }
-  
+
   // setup for km271
   if (!setupMode) {
     km271ProtInit(config.gpio.km271_RX, config.gpio.km271_TX);
@@ -97,9 +94,8 @@ void setup()
   }
 
   // webUI Setup
-  if (config.webUI.enable) { 
+  if (config.webUI.enable) {
     webUISetup();
-
   }
 
   // Sensor Setup
@@ -110,7 +106,7 @@ void setup()
 
   // telnet Setup
   setupTelnet();
-} 
+}
 
 /**
  * *******************************************************************
@@ -118,8 +114,7 @@ void setup()
  * @param   none
  * @return  none
  * *******************************************************************/
-void loop()
-{
+void loop() {
   // OTA Update
   ArduinoOTA.handle();
 
@@ -130,18 +125,17 @@ void loop()
   if (!setupMode) {
     checkWiFi();
   }
-  
+
   // check MQTT - automatic reconnect
   if (config.mqtt.enable && !setupMode) {
     checkMqtt();
   }
 
-  if (setupMode){
+  if (setupMode) {
     // LED to Signal Setup-Mode
-    digitalWrite(LED_BUILTIN, setupModeTimer.cycleOnOff(100,500));
-    digitalWrite(21, setupModeTimer.cycleOnOff(500,100));
-  }
-  else {
+    digitalWrite(LED_BUILTIN, setupModeTimer.cycleOnOff(100, 500));
+    digitalWrite(21, setupModeTimer.cycleOnOff(500, 100));
+  } else {
     // LED for WiFi connected
     if (config.gpio.led_wifi != -1)
       digitalWrite(config.gpio.led_wifi, WiFi.status() != WL_CONNECTED); // (true=LED off)
@@ -150,7 +144,7 @@ void loop()
       digitalWrite(config.gpio.led_logmode, !km271GetLogMode()); // (true=LED off)
     // LED for heartbeat
     if (config.gpio.led_heartbeat != -1)
-      digitalWrite(config.gpio.led_heartbeat, heartbeat.cycleOnOff(1000,1000));
+      digitalWrite(config.gpio.led_heartbeat, heartbeat.cycleOnOff(1000, 1000));
   }
 
   // cyclic call for KM271
@@ -164,8 +158,7 @@ void loop()
   }
 
   // send cyclic infos
-  if (mainTimer.cycleTrigger(10000) && !setupMode)
-  {
+  if (mainTimer.cycleTrigger(10000) && !setupMode) {
     sendWiFiInfo();
     sendKM271Info();
   }
@@ -176,22 +169,21 @@ void loop()
 
   // check every hour if DST has changed
   if (config.ntp.enable) {
-    if (dstTimer.cycleTrigger(3600000))
-    {
-      time_t now;                       
-      tm dti;                           
-      time(&now);                                   // read the current time
-      localtime_r(&now, &dti);                      // update the structure tm with the current time
+    if (dstTimer.cycleTrigger(3600000)) {
+      time_t now;
+      tm dti;
+      time(&now);              // read the current time
+      localtime_r(&now, &dti); // update the structure tm with the current time
 
-      if (!dst_ref){                                // save actual DST as reference after bootup
+      if (!dst_ref) { // save actual DST as reference after bootup
         dst_ref = true;
         dst_old = dti.tm_isdst;
       }
 
-      if (dst_old!=dti.tm_isdst && !main_reboot){   // check if DST has changed
-        km271SetDateTimeNTP();                      // change date and time on buderus
+      if (dst_old != dti.tm_isdst && !main_reboot) { // check if DST has changed
+        km271SetDateTimeNTP();                       // change date and time on buderus
       }
-      dst_old=dti.tm_isdst;    
+      dst_old = dti.tm_isdst;
     }
   }
 
@@ -203,7 +195,7 @@ void loop()
 
   // get simulation telegrams of KM271
   simDataCyclic();
-  
+
   // telnet communication
   cyclicTelnet();
 
@@ -212,4 +204,3 @@ void loop()
 
   main_reboot = false; // reset reboot flag
 }
-

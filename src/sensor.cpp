@@ -1,8 +1,8 @@
-#include <sensor.h>
 #include <message.h>
+#include <sensor.h>
 
-/* D E C L A R A T I O N S ****************************************************/  
-s_sensor sensor;  // global Sensor Informations
+/* D E C L A R A T I O N S ****************************************************/
+s_sensor sensor; // global Sensor Informations
 
 // Setup a OneWire instance to communicate with any OneWire devices
 OneWire oneWire1;
@@ -12,8 +12,8 @@ OneWire oneWire2;
 DallasTemperature sensor1(&oneWire1);
 DallasTemperature sensor2(&oneWire2);
 
-#define REFRESH_TIME 10000 
-muTimer readTimer = muTimer();         // timer to refresh values
+#define REFRESH_TIME 10000
+muTimer readTimer = muTimer(); // timer to refresh values
 float sens1_old = 0.0;
 float sens2_old = 0.0;
 
@@ -23,7 +23,7 @@ float sens2_old = 0.0;
  * @param   suffix that shoould be add to the static part of the topic
  * @return  pointer to result topic string
  * *******************************************************************/
-const char * addSensorTopic(const char *suffix){
+const char *addSensorTopic(const char *suffix) {
   static char sensTopic[256];
   snprintf(sensTopic, sizeof(sensTopic), "%s/sensor/%s", config.mqtt.topic, suffix);
   return sensTopic;
@@ -36,12 +36,12 @@ const char * addSensorTopic(const char *suffix){
  * @return  none
  * *******************************************************************/
 void setupSensor(void) {
-    if (config.sensor.ch1_enable){
-        oneWire1.begin(config.sensor.ch1_gpio);
-    }
-    if (config.sensor.ch2_enable){
-        oneWire2.begin(config.sensor.ch2_gpio);
-    }
+  if (config.sensor.ch1_enable) {
+    oneWire1.begin(config.sensor.ch1_gpio);
+  }
+  if (config.sensor.ch2_enable) {
+    oneWire2.begin(config.sensor.ch2_gpio);
+  }
 }
 
 /**
@@ -50,29 +50,26 @@ void setupSensor(void) {
  * @param   none
  * @return  none
  * *******************************************************************/
-void cyclicSensor(void)
-{
-    // check temperatures at intervals
-    if (readTimer.cycleTrigger(REFRESH_TIME)){
-        
-        if (config.sensor.ch1_enable){
-            sensor1.requestTemperatures();
-            sensor.ch1_temp = sensor1.getTempCByIndex(0);
-            if (sensor.ch1_temp!=sens1_old){
-                sens1_old = sensor.ch1_temp;
-                km271Msg(KM_TYP_SENSOR, config.sensor.ch1_name, floatToString(sensor.ch1_temp));
-            }
-        }
-        
-        if (config.sensor.ch2_enable){
-            sensor2.requestTemperatures();
-            sensor.ch2_temp = sensor2.getTempCByIndex(0);
-            if (sensor.ch2_temp!=sens2_old){
-                sens2_old = sensor.ch2_temp;
-                km271Msg(KM_TYP_SENSOR, config.sensor.ch2_name, floatToString(sensor.ch2_temp));
-            }
-        }
+void cyclicSensor(void) {
+  // check temperatures at intervals
+  if (readTimer.cycleTrigger(REFRESH_TIME)) {
+
+    if (config.sensor.ch1_enable) {
+      sensor1.requestTemperatures();
+      sensor.ch1_temp = sensor1.getTempCByIndex(0);
+      if (sensor.ch1_temp != sens1_old) {
+        sens1_old = sensor.ch1_temp;
+        km271Msg(KM_TYP_SENSOR, config.sensor.ch1_name, floatToString(sensor.ch1_temp));
+      }
     }
 
+    if (config.sensor.ch2_enable) {
+      sensor2.requestTemperatures();
+      sensor.ch2_temp = sensor2.getTempCByIndex(0);
+      if (sensor.ch2_temp != sens2_old) {
+        sens2_old = sensor.ch2_temp;
+        km271Msg(KM_TYP_SENSOR, config.sensor.ch2_name, floatToString(sensor.ch2_temp));
+      }
+    }
+  }
 }
-

@@ -1,14 +1,14 @@
-#include <telnet.h>
-#include <basics.h>
-#include <message.h>
-#include <config.h>
-#include <simulation.h>
-#include <language.h>
-#include <webUI.h>
-#include <oilmeter.h>
 #include "EscapeCodes.h"
+#include <basics.h>
+#include <config.h>
+#include <language.h>
+#include <message.h>
+#include <oilmeter.h>
+#include <simulation.h>
+#include <telnet.h>
+#include <webUI.h>
 
-/* D E C L A R A T I O N S ****************************************************/  
+/* D E C L A R A T I O N S ****************************************************/
 ESPTelnet telnet;
 s_telnetIF telnetIF;
 s_opt_arrays webOptArrays;
@@ -46,16 +46,14 @@ Command commands[] = {
 };
 const int commandsCount = sizeof(commands) / sizeof(commands[0]);
 
-
-// print telnet shell 
-void telnetShell(){
+// print telnet shell
+void telnetShell() {
   telnet.print(ansi.setFG(ANSI_BRIGHT_GREEN));
   telnet.print("$ >");
   telnet.print(ansi.reset());
 }
 
-void onTelnetConnect(String ip)
-{
+void onTelnetConnect(String ip) {
   msg("Telnet: ");
   msg(ip.c_str());
   msgLn(" connected");
@@ -89,9 +87,9 @@ void onTelnetConnectionAttempt(String ip) {
 
 void onTelnetInput(String str) {
   if (!extractMessage(str, param)) {
-      telnet.println("Syntax error");
+    telnet.println("Syntax error");
   } else {
-      dispatchCommand(param);
+    dispatchCommand(param);
   }
   telnetShell();
 }
@@ -102,7 +100,7 @@ void onTelnetInput(String str) {
  * @param   none
  * @return  none
  * *******************************************************************/
-void setupTelnet() {  
+void setupTelnet() {
   // passing on functions for various telnet events
   telnet.onConnect(onTelnetConnect);
   telnet.onConnectionAttempt(onTelnetConnectionAttempt);
@@ -124,9 +122,7 @@ void setupTelnet() {
  * @param   none
  * @return  none
  * *******************************************************************/
-void cyclicTelnet() {
-  telnet.loop();
-}
+void cyclicTelnet() { telnet.loop(); }
 
 /**
  * *******************************************************************
@@ -134,39 +130,38 @@ void cyclicTelnet() {
  * @param   params received parameters
  * @return  none
  * *******************************************************************/
-void cmdLog(char param[MAX_PAR][MAX_CHAR]){
- 
-  if (strlen(param[1])==0) {
-      if (config.log.enable)
-        telnet.println("enabled");
-      else
-        telnet.println("disabled");
-      telnetShell();
-  // log: disable
-  } else if (!strcmp(param[1], "disable") && strlen(param[2])==0) {
-      config.log.enable = false;
-      clearLogBuffer();
-      //updateSettingsValues();
-      telnet.println("disabled");
-  // log enable
-  } else if (!strcmp(param[1], "enable") && strlen(param[2])==0) {
-      config.log.enable = true;
-      clearLogBuffer();
+void cmdLog(char param[MAX_PAR][MAX_CHAR]) {
+
+  if (strlen(param[1]) == 0) {
+    if (config.log.enable)
       telnet.println("enabled");
-  // log: read buffer
-  } else if (!strcmp(param[1], "read") && strlen(param[2])==0) {
-      readLogger();
-  // log clear buffer
-  } else if (!strcmp(param[1], "clear") && strlen(param[2])==0) {
-      clearLogBuffer();
-  // log mode read
-  } else if (!strcmp(param[1], "mode") && strlen(param[2])==0) {
-      telnet.println(webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
-  // log mode set
-  } else if (!strcmp(param[1], "mode") && strlen(param[2])>0) {
+    else
+      telnet.println("disabled");
+    telnetShell();
+    // log: disable
+  } else if (!strcmp(param[1], "disable") && strlen(param[2]) == 0) {
+    config.log.enable = false;
+    clearLogBuffer();
+    // updateSettingsValues();
+    telnet.println("disabled");
+    // log enable
+  } else if (!strcmp(param[1], "enable") && strlen(param[2]) == 0) {
+    config.log.enable = true;
+    clearLogBuffer();
+    telnet.println("enabled");
+    // log: read buffer
+  } else if (!strcmp(param[1], "read") && strlen(param[2]) == 0) {
+    readLogger();
+    // log clear buffer
+  } else if (!strcmp(param[1], "clear") && strlen(param[2]) == 0) {
+    clearLogBuffer();
+    // log mode read
+  } else if (!strcmp(param[1], "mode") && strlen(param[2]) == 0) {
+    telnet.println(webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
+    // log mode set
+  } else if (!strcmp(param[1], "mode") && strlen(param[2]) > 0) {
     int mode = atoi(param[2]);
-    if (mode > 0 && mode < 6)
-    {
+    if (mode > 0 && mode < 6) {
       config.log.filter = mode - 1;
       clearLogBuffer();
       telnet.println(webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
@@ -174,7 +169,7 @@ void cmdLog(char param[MAX_PAR][MAX_CHAR]){
       telnet.println("invalid mode - mode must be between 1 and 5");
     }
   } else {
-      telnet.println("unknown parameter");
+    telnet.println("unknown parameter");
   }
 }
 
@@ -184,36 +179,36 @@ void cmdLog(char param[MAX_PAR][MAX_CHAR]){
  * @param   params received parameters
  * @return  none
  * *******************************************************************/
-void cmdDebug(char param[MAX_PAR][MAX_CHAR]){
-  if (strlen(param[1])==0 && strlen(param[2])==0) {
+void cmdDebug(char param[MAX_PAR][MAX_CHAR]) {
+  if (strlen(param[1]) == 0 && strlen(param[2]) == 0) {
     if (config.debug.enable) {
       telnet.println("enabled");
     } else {
       telnet.println("disabled");
     }
-  // debug: disable
-  } else if (!strcmp(param[1], "disable") && strlen(param[2])==0) {
-      config.debug.enable = false;
-      clearLogBuffer();
-      telnet.println("disabled");
-  // debug: enable
-  } else if (!strcmp(param[1], "enable") && strlen(param[2])==0) {
-      config.debug.enable = true;
-      clearLogBuffer();
-      telnet.println("enabled");
-  // debug: get filter
-  } else if (!strcmp(param[1], "filter") && strlen(param[2])==0) {
+    // debug: disable
+  } else if (!strcmp(param[1], "disable") && strlen(param[2]) == 0) {
+    config.debug.enable = false;
+    clearLogBuffer();
+    telnet.println("disabled");
+    // debug: enable
+  } else if (!strcmp(param[1], "enable") && strlen(param[2]) == 0) {
+    config.debug.enable = true;
+    clearLogBuffer();
+    telnet.println("enabled");
+    // debug: get filter
+  } else if (!strcmp(param[1], "filter") && strlen(param[2]) == 0) {
+    telnet.println(config.debug.filter);
+    // debug: set filter
+  } else if (!strcmp(param[1], "filter") && strlen(param[2]) != 0) {
+    char errMsg[256];
+    if (setDebugFilter(param[2], strlen(param[2]), errMsg, sizeof(errMsg))) {
       telnet.println(config.debug.filter);
-  // debug: set filter
-  } else if (!strcmp(param[1], "filter") && strlen(param[2])!=0) {
-      char errMsg[256];
-      if (setDebugFilter(param[2], strlen(param[2]), errMsg, sizeof(errMsg))){
-        telnet.println(config.debug.filter);
-      } else {
-        telnet.println(errMsg);
-      } 
+    } else {
+      telnet.println(errMsg);
+    }
   } else {
-      telnet.println("unknown parameter");
+    telnet.println("unknown parameter");
   }
 }
 
@@ -229,10 +224,10 @@ void cmdInfo(char param[MAX_PAR][MAX_CHAR]) {
   telnet.println("ESP-INFO");
   telnet.print(ansi.reset());
   telnet.printf("ESP Flash Usage: %s %%\n", floatToString((float)ESP.getSketchSize() * 100 / ESP.getFreeSketchSpace()));
-  telnet.printf("ESP Heap Usage: %s %%\n", floatToString((float)ESP.getFreeHeap()*100/ESP.getHeapSize()));
-  telnet.printf("ESP MAX Alloc Heap: %s KB\n", floatToString((float)ESP.getMaxAllocHeap()/1000.0));
-  telnet.printf("ESP MAX Alloc Heap: %s KB\n", floatToString((float)ESP.getMinFreeHeap()/1000.0));
-  
+  telnet.printf("ESP Heap Usage: %s %%\n", floatToString((float)ESP.getFreeHeap() * 100 / ESP.getHeapSize()));
+  telnet.printf("ESP MAX Alloc Heap: %s KB\n", floatToString((float)ESP.getMaxAllocHeap() / 1000.0));
+  telnet.printf("ESP MAX Alloc Heap: %s KB\n", floatToString((float)ESP.getMinFreeHeap() / 1000.0));
+
   telnet.print(ansi.setFG(ANSI_BRIGHT_WHITE));
   telnet.println("\nRESTART - UPTIME");
   telnet.print(ansi.reset());
@@ -256,7 +251,7 @@ void cmdInfo(char param[MAX_PAR][MAX_CHAR]) {
   telnet.printf("Log %s\n", webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
   telnet.printf("Debug: %s\n", config.debug.enable ? "enabled" : "disabled");
   telnet.printf("Debug Filter: %s\n", config.debug.filter);
-  
+
   telnet.println();
 }
 
@@ -280,7 +275,7 @@ void cmdCls(char param[MAX_PAR][MAX_CHAR]) {
 void cmdDisconnect(char param[MAX_PAR][MAX_CHAR]) {
   telnet.println("disconnect");
   telnet.disconnectClient();
- }  
+}
 
 /**
  * *******************************************************************
@@ -312,11 +307,11 @@ void cmdSimdata(char param[MAX_PAR][MAX_CHAR]) {
  * *******************************************************************/
 void cmdSerial(char param[MAX_PAR][MAX_CHAR]) {
   if (!strcmp(param[1], "stream") && !strcmp(param[2], "start")) {
-      telnetIF.serialStream = true;
-      telnet.println("serial stream active - to abort streaming, send \"x\"");
+    telnetIF.serialStream = true;
+    telnet.println("serial stream active - to abort streaming, send \"x\"");
   } else if (!strcmp(param[1], "stream") && !strcmp(param[2], "stop")) {
-      telnetIF.serialStream = false;
-      telnet.println("serial stream disabled");
+    telnetIF.serialStream = false;
+    telnet.println("serial stream disabled");
   }
 }
 
@@ -328,12 +323,12 @@ void cmdSerial(char param[MAX_PAR][MAX_CHAR]) {
  * *******************************************************************/
 void cmdKm271(char param[MAX_PAR][MAX_CHAR]) {
   if (!strcmp(param[1], "stream") && !strcmp(param[2], "start")) {
-      telnetIF.km271Stream = true;
-      telnet.printf("km271 stream active - %s\n", webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
-      telnet.println("=> to abort streaming, send \"x\"");
+    telnetIF.km271Stream = true;
+    telnet.printf("km271 stream active - %s\n", webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
+    telnet.println("=> to abort streaming, send \"x\"");
   } else if (!strcmp(param[1], "stream") && !strcmp(param[2], "stop")) {
-      telnetIF.km271Stream = false;
-      telnet.println("km271 stream disabled");
+    telnetIF.km271Stream = false;
+    telnet.println("km271 stream disabled");
   }
 }
 
@@ -345,17 +340,14 @@ void cmdKm271(char param[MAX_PAR][MAX_CHAR]) {
  * *******************************************************************/
 void cmdOilmeter(char param[MAX_PAR][MAX_CHAR]) {
   // oilmeter: get
-  if (strlen(param[1])==0) {
+  if (strlen(param[1]) == 0) {
     telnet.println(getOilmeter());
-  // oilmeter: set
-  } else if (strlen(param[1])!=0) {
+    // oilmeter: set
+  } else if (strlen(param[1]) != 0) {
     cmdSetOilmeter(atol(param[1]));
     telnet.println(getOilmeter());
   }
 }
-
-
-
 
 /**
  * *******************************************************************
@@ -363,7 +355,7 @@ void cmdOilmeter(char param[MAX_PAR][MAX_CHAR]) {
  * @param   params received parameters
  * @return  none
  * *******************************************************************/
-void printHelp(const char* command = nullptr) {
+void printHelp(const char *command = nullptr) {
   if (command == nullptr) {
     // print help of all commands
     for (int i = 0; i < commandsCount; ++i) {
@@ -389,9 +381,9 @@ void printHelp(const char* command = nullptr) {
  * *******************************************************************/
 void cmdHelp(char param[MAX_PAR][MAX_CHAR]) {
   if (strlen(param[1]) > 0) {
-      printHelp(param[1]);
+    printHelp(param[1]);
   } else {
-      printHelp();
+    printHelp();
   }
 }
 
@@ -405,22 +397,25 @@ void readLogger() {
   int line = 0;
   while (line < MAX_LOG_LINES) {
     int lineIndex;
-    if (line == 0 && logData.lastLine == 0){
+    if (line == 0 && logData.lastLine == 0) {
       telnet.println("log empty");
       break;
     } else if (logData.buffer[logData.lastLine][0] == '\0') {
       lineIndex = line % MAX_LOG_LINES; // buffer is not full - start reading at element index 0
     } else {
-      lineIndex = (logData.lastLine + line) % MAX_LOG_LINES;  // buffer is full - start reading at element index "logData.lastLine"
-    } if (lineIndex < 0) {
+      lineIndex = (logData.lastLine + line) % MAX_LOG_LINES; // buffer is full - start reading at element index "logData.lastLine"
+    }
+    if (lineIndex < 0) {
       lineIndex += MAX_LOG_LINES;
-    } if (lineIndex >= MAX_LOG_LINES){
+    }
+    if (lineIndex >= MAX_LOG_LINES) {
       lineIndex = 0;
-    } if (line == 0) {
-      telnet.printf("<LOG-Begin>\n%s\n", logData.buffer[lineIndex]);  // add header
+    }
+    if (line == 0) {
+      telnet.printf("<LOG-Begin>\n%s\n", logData.buffer[lineIndex]); // add header
       line++;
     } else if (line == MAX_LOG_LINES - 1) {
-      telnet.printf("%s\n<LOG-END>\n", logData.buffer[lineIndex]);  // add footer
+      telnet.printf("%s\n<LOG-END>\n", logData.buffer[lineIndex]); // add footer
       line++;
     } else {
       if (logData.buffer[lineIndex][0] != '\0') {
@@ -441,25 +436,25 @@ void readLogger() {
  * @param   param char array of parameters
  * @return  none
  * *******************************************************************/
-bool extractMessage(String str, char param[MAX_PAR][MAX_CHAR]){
+bool extractMessage(String str, char param[MAX_PAR][MAX_CHAR]) {
   const char *p = str.c_str();
-  int i=0, par=0;
+  int i = 0, par = 0;
   // initialize parameter strings
-  for (int j=0; j<MAX_PAR; j++){
-      memset(&param[j], 0, sizeof(param[0]));
+  for (int j = 0; j < MAX_PAR; j++) {
+    memset(&param[j], 0, sizeof(param[0]));
   }
   // extract answer into parameter
-  while (*p!='\0'){
-    if (i>=MAX_CHAR-1 ){
+  while (*p != '\0') {
+    if (i >= MAX_CHAR - 1) {
       param[par][i] = '\0';
       return false;
     }
-    if (*p==' ' || i==MAX_CHAR-1 ){
+    if (*p == ' ' || i == MAX_CHAR - 1) {
       param[par][i] = '\0';
       par++;
       p++;
-      i=0;
-      if (par>=MAX_PAR)
+      i = 0;
+      if (par >= MAX_PAR)
         return false;
     }
     param[par][i] = *p++;
