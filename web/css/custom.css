@@ -61,6 +61,19 @@ hr {
   padding: 20px;
 }
 
+#simModeBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 30px;
+  background-color: #9b8904;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
 /* Basis Flexbox-Layout */
 .grid {
   display: flex;

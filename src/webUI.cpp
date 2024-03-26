@@ -159,12 +159,6 @@ void sendWebUpdate(const char *message, const char * event) {
 
 const size_t BUFFER_SIZE = 512;
 
-void hideElementClass(const char* className, bool hide) {
-    char message[BUFFER_SIZE];
-    snprintf(message, BUFFER_SIZE, "{\"className\":\"%s\",\"hide\":%s}", className, hide ? "true" : "false");
-    sendWebUpdate(message, "hideElementClass");
-}
-
 void setLanguage(const char* language) {
     char message[BUFFER_SIZE];
     snprintf(message, BUFFER_SIZE, "{\"language\":\"%s\"}", language);
@@ -230,19 +224,25 @@ void updateWebValueFloat(const char* elementID, double value, int decimals) {
     sendWebUpdate(message, "updateValue");
 }
 
-void enableElement(const char* elementID, bool enable) {
+void hideElementClass(const char* className, bool hide) {
     char message[BUFFER_SIZE];
-    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"enable\":%s}", elementID, enable ? "true" : "false");
-    sendWebUpdate(message, "enableElement");
+    snprintf(message, BUFFER_SIZE, "{\"className\":\"%s\",\"hide\":%s}", className, hide ? "true" : "false");
+    sendWebUpdate(message, "hideElementClass");
 }
 
-void updateDialog(const char* elementID, const char* state) {
+void hideElementId(const char* elementID, bool hide) {
+    char message[BUFFER_SIZE];
+    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"hide\":%s}", elementID, hide ? "true" : "false");
+    sendWebUpdate(message, "hideElement");
+}
+
+void updateWebDialog(const char* elementID, const char* state) {
     char message[BUFFER_SIZE];
     snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"state\":\"%s\"}", elementID, state);
     sendWebUpdate(message, "updateDialog");
 }
 
-void updateSetIcon(const char* elementID, const char* icon) {
+void updateWebSetIcon(const char* elementID, const char* icon) {
     char message[BUFFER_SIZE];
     snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"icon\":\"%s\"}", elementID, icon);
     sendWebUpdate(message, "updateSetIcon");
@@ -262,14 +262,14 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String& filename, size
     if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) {
       Update.printError(Serial);
       updateWebText("p11_ota_update_error", Update.errorString(), false);
-      updateDialog("ota_update_failed_dialog", "open");
+      updateWebDialog("ota_update_failed_dialog", "open");
     }
   }
 
   if (Update.write(data, len) != len) {
     Update.printError(Serial);
     updateWebText("p11_ota_update_error", Update.errorString(), false);
-    updateDialog("ota_update_failed_dialog", "open");
+    updateWebDialog("ota_update_failed_dialog", "open");
   }
   else
   {
@@ -292,14 +292,14 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String& filename, size
     if (!Update.end(true)) {
       Update.printError(Serial);
       updateWebText("p11_ota_update_error", Update.errorString(), false);
-      updateDialog("ota_update_failed_dialog", "open");
+      updateWebDialog("ota_update_failed_dialog", "open");
     } else {
       char message[32];
       snprintf(message, 32, "Progress: %d%%", 100);
       events.send(message, "ota-progress", millis());
       Serial.println("Update complete");
       Serial.flush();
-      updateDialog("ota_update_done_dialog", "open");
+      updateWebDialog("ota_update_done_dialog", "open");
     }
   }
 }
@@ -386,7 +386,7 @@ void webUISetup(){
   events.onConnect([](AsyncEventSourceClient *client)
                    {
     if(client->lastId()){
-      Serial.printf("Client reconnected! Last message ID that it gots is: %u\n", client->lastId());
+      Serial.printf("Client reconnected!");
     }
     // Send a message to newly connected client
     client->send("ping", NULL, millis(), 5000);
@@ -794,7 +794,7 @@ void webCallback(const char *elementId, const char *value){
 
   // OTA-Confirm
   if(strcmp(elementId,"p11_ota_confirm_btn")==0) {
-    updateDialog("ota_update_done_dialog", "close");
+    updateWebDialog("ota_update_done_dialog", "close");
     storeData();
     ESP.restart();
   }
@@ -808,10 +808,18 @@ void webCallback(const char *elementId, const char *value){
  * @return  none
  * *******************************************************************/
 void updateAllElements(){
+
+  // set compare structures to a "random" value to force updates
   memset((void *)&kmStatusCpy, 111, sizeof(s_km271_status));
   memset((void *)&kmConfigCpy, 111, sizeof(s_km271_config_num));
-  updateSettingsElementsDone = false;
-  oilmeterInit = false;
+
+  updateSettingsElementsDone = false; // update all settings values
+  oilmeterInit = false;               // update oil-meter values
+
+  // Show SIM_MODE Header in Simulation-Mode
+  if (SIM_MODE){
+    hideElementId("p00_simModeBar", false);
+  }
 }
 
 /**
@@ -1320,16 +1328,16 @@ void updateKm271StatusElements(){
     // AUTOMATIC / MANUAL (Day/Night)
     if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) {              // AUTOMATIC
       snprintf(tmpMessage, sizeof(tmpMessage), "%s ", webText.AUTOMATIC[config.lang]);
-      updateSetIcon("p01_hc1_opmode_icon", "i_auto");
+      updateWebSetIcon("p01_hc1_opmode_icon", "i_auto");
     }
     else {                                                            // MANUAL
       if (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1)) {            // DAY
         snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.DAY[config.lang]);
-        updateSetIcon("p01_hc1_opmode_icon", "i_manual");
+        updateWebSetIcon("p01_hc1_opmode_icon", "i_manual");
       }
       else {                                                          // NIGHT
         snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.NIGHT[config.lang]);
-        updateSetIcon("p01_hc1_opmode_icon", "i_manual");
+        updateWebSetIcon("p01_hc1_opmode_icon", "i_manual");
       }
     }
     updateWebText("p01_hc1_opmode", tmpMessage, false);
@@ -1337,11 +1345,11 @@ void updateKm271StatusElements(){
     // Summer / Winter
     if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) {              // AUTOMATIC
       updateWebText("p01_hc1_summer_winter", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]), false);  
-      updateSetIcon("p01_hc1_summer_winter_icon", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
+      updateWebSetIcon("p01_hc1_summer_winter_icon", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
     }
     else { // generate status from actual temperature and summer threshold
       updateWebText("p01_hc1_summer_winter", (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc1_summer_mode_threshold ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]), false);
-      updateSetIcon("p01_hc1_summer_winter_icon", (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc1_summer_mode_threshold ? "i_summer" : "i_winter"));
+      updateWebSetIcon("p01_hc1_summer_winter_icon", (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc1_summer_mode_threshold ? "i_summer" : "i_winter"));
     }
 
     updateWebText("p03_hc1_ov1_off_time_optimization", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 0)), false); 
@@ -1357,7 +1365,7 @@ void updateKm271StatusElements(){
 
     // Day / Night
     updateWebText("p01_hc1_day_night", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? webText.DAY[config.lang] : webText.NIGHT[config.lang]), false);
-    updateSetIcon("p01_hc1_day_night_icon", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? "i_day" : "i_night"));
+    updateWebSetIcon("p01_hc1_day_night_icon", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? "i_day" : "i_night"));
 
     updateWebText("p03_hc1_ov2_summer",  onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 0)), false); 
     updateWebText("p03_hc1_ov2_day",  onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 1)), false); 
@@ -1421,15 +1429,15 @@ void updateKm271StatusElements(){
     // HC2-Operating State
     if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) {              // AUTOMATIC
       snprintf(tmpMessage, sizeof(tmpMessage), "%s", webText.AUTOMATIC[config.lang]);
-      updateSetIcon("p01_hc2_opmode_icon", "i_auto");
+      updateWebSetIcon("p01_hc2_opmode_icon", "i_auto");
     }
     else {                                                            // MANUAL
       if (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1)) {            // DAY
         snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.DAY[config.lang]);
-        updateSetIcon("p01_hc2_opmode_icon", "i_manual");
+        updateWebSetIcon("p01_hc2_opmode_icon", "i_manual");
       } else {                                                          // NIGHT
         snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.NIGHT[config.lang]);
-        updateSetIcon("p01_hc2_opmode_icon", "i_manual");
+        updateWebSetIcon("p01_hc2_opmode_icon", "i_manual");
       }
     }
     updateWebText("p01_hc2_opmode", tmpMessage, false);
@@ -1437,11 +1445,11 @@ void updateKm271StatusElements(){
     // Summer / Winter
     if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) {              // AUTOMATIC
       updateWebText("p01_hc2_summer_winter", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]), false);
-      updateSetIcon("p01_hc2_summer_winter_icon", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
+      updateWebSetIcon("p01_hc2_summer_winter_icon", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
     }
     else { // generate status from actual temperature and summer threshold
       updateWebText("p01_hc2_summer_winter", (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc2_summer_mode_threshold ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]), false);
-      updateSetIcon("p01_hc2_summer_winter_icon", (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc2_summer_mode_threshold ? "i_summer" : "i_winter"));
+      updateWebSetIcon("p01_hc2_summer_winter_icon", (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc2_summer_mode_threshold ? "i_summer" : "i_winter"));
     }
 
     updateWebText("p04_hc2_ov1_off_time_optimization", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 0)), false); 
@@ -1457,7 +1465,7 @@ void updateKm271StatusElements(){
     kmStatusCpy.HC2_OperatingStates_2 = pkmStatus->HC2_OperatingStates_2;
     // Day / Night
     updateWebText("p01_hc2_day_night", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? webText.DAY[config.lang] : webText.NIGHT[config.lang]), false);
-    updateSetIcon("p01_hc2_day_night_icon", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? "i_day" : "i_night"));
+    updateWebSetIcon("p01_hc2_day_night_icon", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? "i_day" : "i_night"));
 
     updateWebText("p04_hc2_ov2_summer",  onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 0)), false); 
     updateWebText("p04_hc2_ov2_day",  onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 1)), false); 
@@ -1520,15 +1528,15 @@ void updateKm271StatusElements(){
     // WW-Operating State
     if (bitRead(kmStatusCpy.HotWaterOperatingStates_1, 0)) {       // AUTOMATIC
       snprintf(tmpMessage, sizeof(tmpMessage), "%s", webText.AUTOMATIC[config.lang]);
-      updateSetIcon("p01_ww_opmode_icon", "i_auto");
+      updateWebSetIcon("p01_ww_opmode_icon", "i_auto");
     } else {                                                         // MANUAL
       if (bitRead(kmStatusCpy.HotWaterOperatingStates_2, 5)) {      // DAY
         snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.DAY[config.lang]);
-        updateSetIcon("p01_ww_opmode_icon", "i_manual");
+        updateWebSetIcon("p01_ww_opmode_icon", "i_manual");
       }
       else {                                                       // NIGHT
         snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.NIGHT[config.lang]);
-        updateSetIcon("p01_ww_opmode_icon", "i_manual");
+        updateWebSetIcon("p01_ww_opmode_icon", "i_manual");
       }
     }
     updateWebText("p01_ww_opmode", tmpMessage, false); 

@@ -262,11 +262,7 @@ evtSource.addEventListener(
     var data = JSON.parse(e.data);
     var element = document.getElementById(data.elementID);
     if (element) {
-      if (data.enable) {
-        element.style.display = "";
-      } else {
-        element.style.display = "none";
-      }
+      style.display = data.hide ? "" : "none";
     }
   },
   false
