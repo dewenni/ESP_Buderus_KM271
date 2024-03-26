@@ -846,6 +846,27 @@ void webReadLogBufferCyclic(){
     }
 }
 
+
+/**
+ * *******************************************************************
+ * @brief   update Sensor informations
+ * @param   none 
+ * @return  none
+ * *******************************************************************/
+void updateSensorElements(){
+
+  if (config.sensor.ch1_enable){
+    updateWebText("p01_sens1_name",config.sensor.ch1_name, false);
+    updateWebTextInt("p01_sens1_value",sensor.ch1_temp, false);
+  }
+  
+  if (config.sensor.ch2_enable){
+    updateWebText("p01_sens2_name",config.sensor.ch2_name, false);
+    updateWebTextInt("p01_sens2_value",sensor.ch2_temp, false);
+  }
+
+}
+
 /**
  * *******************************************************************
  * @brief   update System informations
@@ -1723,6 +1744,7 @@ void webUICylic(){
   {
     updateSystemInfoElements();
     updateOilmeterElements();
+    updateSensorElements();
   }
 
   // in simulation mode, load simdata and display simModeBar
