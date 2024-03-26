@@ -9,6 +9,7 @@
 #include <message.h>
 #include <simulation.h>
 #include <telnet.h>
+#include <ArduinoOTA.h>
 
 // Double-Reset-Detector
 #define ESP_DRD_USE_LITTLEFS          true
@@ -61,8 +62,19 @@ void setup()
   // initial configuration
   configSetup();
 
-  // basic setup function (WiFi, OTA)
+  // basic setup functions
   basicSetup();
+
+  // Setup OTA
+  ArduinoOTA
+    .onStart([]() {
+      // actions to do when OTA starts
+      storeData(); // store Data before update
+      delay(500);
+    });
+
+  ArduinoOTA.setHostname(config.wifi.hostname);
+  ArduinoOTA.begin();
 
   // MQTT
   if (config.mqtt.enable && !setupMode) {
@@ -108,6 +120,9 @@ void setup()
  * *******************************************************************/
 void loop()
 {
+  // OTA Update
+  ArduinoOTA.handle();
+
   // double reset detector
   drd->loop();
 
