@@ -1,0 +1,12 @@
+{
+  "name":"ESP Helpers",
+  "description":"helper functions for ESP-Projects",
+  "authors": 
+  {
+    "name": "Sven Tönsjost",
+    "maintainer": true
+  },
+  "version": "1.0.0",
+  "frameworks": "arduino",
+  "platforms": ["espressif8266", "espressif32"]
+}
