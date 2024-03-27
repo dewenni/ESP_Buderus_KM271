@@ -205,7 +205,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value) {
       mqttPublish(newCfgTopic, desc, false);
     }
     break;
-  
+
   case KM_TYP_KM_DEBUG: // additional debug message from Logamatic (only mqtt)
 
     // desc = description / value = NONE

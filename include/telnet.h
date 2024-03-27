@@ -3,15 +3,14 @@
 
 // data struct for Telnet interface
 typedef struct {
-      bool serialStream;
-      bool km271Stream;
-  } s_telnetIF;
+  bool serialStream;
+  bool km271Stream;
+} s_telnetIF;
 
 const int MAX_PAR = 3;
 const int MAX_CHAR = 64;
 
-struct Command
-{
+struct Command {
   const char *name;
   void (*function)(char param[MAX_PAR][MAX_CHAR]);
   const char *description;
