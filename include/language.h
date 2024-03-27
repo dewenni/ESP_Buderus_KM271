@@ -470,3 +470,18 @@ typedef struct {
                              "RESET",
                              "unknown error"}};
 } s_err_array;
+
+// ======================================================================================
+// status messages from KM271
+// ======================================================================================
+typedef struct {
+  const char *RESTARTED[MAX_LANG] = {"ESP hat neu gestartet!", "ESP has been restarted!"};
+  const char *HC1_SUMMER_MODE[MAX_LANG] = {"Heizung hat in Sommerbetrieb gewechselt ☀️", "Heating has changed to summer mode ☀️"};
+  const char *HC1_WINTER_MODE[MAX_LANG] = {"Heizung hat in Winterbetrieb gewechselt ❄️", "Heating has changed to winter mode ❄️"};
+  const char *HC2_SUMMER_MODE[MAX_LANG] = {"Heizkreis 2 hat in Sommerbetrieb gewechselt ☀️",
+                                           "Heating Circuit 2 has changed to summer mode ☀️"};
+  const char *HC2_WINTER_MODE[MAX_LANG] = {"Heizkreis 2 hat in Winterbetrieb gewechselt ❄️",
+                                           "Heating Circuit 2 has changed to winter mode ❄️"};
+  const char *HC1_FROST_MODE[MAX_LANG] = {"Heizung hat in Frostmodus gewechselt ❄️", "Heating has changed to frost mode ❄️"};
+  const char *HC2_FROST_MODE[MAX_LANG] = {"Heizkreis 2 hat in Frostmodus gewechselt ❄️", "Heating Circuit 2 has changed to frost mode ❄️"};
+} s_km271_msg;

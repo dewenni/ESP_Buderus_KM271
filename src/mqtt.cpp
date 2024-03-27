@@ -9,7 +9,8 @@
 /* D E C L A R A T I O N S ****************************************************/
 WiFiClient espClient;
 AsyncMqttClient mqtt_client;
-s_mqtt_cmds mqttCmd;                    // exts that are used as topics for KM271 commands
+s_mqtt_cmds mqttCmd; // exts that are used as topics for KM271 commands
+s_km271_msg infoMsg;
 muTimer mqttReconnectTimer = muTimer(); // timer for reconnect delay
 int mqtt_retry = 0;
 bool bootUpMsgDone = false;
@@ -316,7 +317,11 @@ void checkMqtt() {
   // send bootup message after restart and established mqtt connection
   if (!bootUpMsgDone && mqtt_client.connected()) {
     bootUpMsgDone = true;
-    km271Msg(KM_TYP_MESSAGE, "restarted!", "");
+    char restartReason[64];
+    char tempMessage[128];
+    getRestartReason(restartReason, sizeof(restartReason));
+    snprintf(tempMessage, sizeof(tempMessage), "%s\n(%s)", infoMsg.RESTARTED[config.lang], restartReason);
+    km271Msg(KM_TYP_MESSAGE, tempMessage, "");
   }
 }
 

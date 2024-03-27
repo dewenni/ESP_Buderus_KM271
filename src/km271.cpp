@@ -35,6 +35,7 @@ s_km271_status kmStatus;        // All Status values
 s_km271_config_str kmConfigStr; // All Config values (String)
 s_km271_config_num kmConfigNum; // All Config values (Number)
 s_km271_alarm_str kmAlarmMsg;   // Alarm Messages
+s_km271_msg kmMsg;              // Messages from KM271
 
 // Status machine handling
 e_rxBlockState KmRxBlockState = KM_TSK_START; // The RX block state
@@ -279,6 +280,13 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x8000: // 0x8000 : Bitfield
     if (config.km271.use_hc1) {
+
+      if (kmInitDone) {
+        if (bitRead(kmStatus.HC1_OperatingStates_1, 6) != bitRead(data[2], 6)) {
+          km271Msg(KM_TYP_MESSAGE, bitRead(data[2], 6) ? kmMsg.HC1_FROST_MODE[config.lang] : kmMsg.HC1_FROST_MODE[config.lang], "");
+        }
+      }
+
       kmStatus.HC1_OperatingStates_1 = data[2];
       km271Msg(KM_TYP_STATUS, statTopic.HC1_OV1_OFFTIME_OPT[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_1, 0)));
       km271Msg(KM_TYP_STATUS, statTopic.HC1_OV1_ONTIME_OPT[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_1, 1)));
@@ -293,6 +301,13 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x8001: // 0x8001 : Bitfield
     if (config.km271.use_hc1) {
+
+      if (kmInitDone) {
+        if (bitRead(kmStatus.HC1_OperatingStates_2, 0) != bitRead(data[2], 0)) {
+          km271Msg(KM_TYP_MESSAGE, bitRead(data[2], 0) ? kmMsg.HC1_SUMMER_MODE[config.lang] : kmMsg.HC1_WINTER_MODE[config.lang], "");
+        }
+      }
+
       kmStatus.HC1_OperatingStates_2 = data[2];
       km271Msg(KM_TYP_STATUS, statTopic.HC1_OV2_SUMMER[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_2, 0)));
       km271Msg(KM_TYP_STATUS, statTopic.HC1_OV2_DAY[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_2, 1)));
@@ -386,6 +401,13 @@ void parseInfo(uint8_t *data, int len) {
    ********************************************************/
   case 0x8112: // 0x8112 : Bitfield
     if (config.km271.use_hc2) {
+
+      if (kmInitDone) {
+        if (bitRead(kmStatus.HC2_OperatingStates_1, 6) != bitRead(data[2], 6)) {
+          km271Msg(KM_TYP_MESSAGE, bitRead(data[2], 6) ? kmMsg.HC2_FROST_MODE[config.lang] : kmMsg.HC2_FROST_MODE[config.lang], "");
+        }
+      }
+
       kmStatus.HC2_OperatingStates_1 = data[2];
       km271Msg(KM_TYP_STATUS, statTopic.HC2_OV1_OFFTIME_OPT[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_1, 0)));
       km271Msg(KM_TYP_STATUS, statTopic.HC2_OV1_ONTIME_OPT[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_1, 1)));
@@ -400,6 +422,13 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x8113: // 0x8113 : Bitfield
     if (config.km271.use_hc2) {
+
+      if (kmInitDone) {
+        if (bitRead(kmStatus.HC2_OperatingStates_2, 0) != bitRead(data[2], 0)) {
+          km271Msg(KM_TYP_MESSAGE, bitRead(data[2], 0) ? kmMsg.HC2_SUMMER_MODE[config.lang] : kmMsg.HC2_WINTER_MODE[config.lang], "");
+        }
+      }
+
       kmStatus.HC2_OperatingStates_2 = data[2];
       km271Msg(KM_TYP_STATUS, statTopic.HC2_OV2_SUMMER[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_2, 0)));
       km271Msg(KM_TYP_STATUS, statTopic.HC2_OV2_DAY[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_2, 1)));
@@ -649,6 +678,8 @@ void parseInfo(uint8_t *data, int len) {
   case 0x8940: // 0x8940 : Number
     kmStatus.Modul = data[2];
     km271Msg(KM_TYP_STATUS, statTopic.MODULE_ID[config.mqtt.lang], uint8ToString(kmStatus.Modul));
+    // this should be the last message => init done
+    kmInitDone = true;
     break;
 
   case 0xaa42: // 0xaa42 : Bitfeld
@@ -1343,9 +1374,6 @@ void parseInfo(uint8_t *data, int len) {
     snprintf(kmConfigStr.time_offset, sizeof(kmConfigStr.time_offset), "%0.1f %s", kmConfigNum.time_offset, mqttMsg.HOURS[config.mqtt.lang]);
     km271Msg(KM_TYP_CONFIG, cfgTopic.TIME_OFFSET[config.mqtt.lang],
              kmConfigStr.time_offset); // "CFG_Uhrzeit_Offset"    => "01e0:1,s"
-
-    // this should be the last message => init done
-    kmInitDone = true;
     break;
 
   case 0x0400:
