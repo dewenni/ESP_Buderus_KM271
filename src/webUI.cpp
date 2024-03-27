@@ -191,10 +191,10 @@ void updateWebValueFloat(const char *elementID, double value, int decimals) {
   sendWebUpdate(message, "updateValue");
 }
 
-void hideElementClass(const char *className, bool hide) {
+void showElementClass(const char *className, bool show) {
   char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"className\":\"%s\",\"hide\":%s}", className, hide ? "true" : "false");
-  sendWebUpdate(message, "hideElementClass");
+  snprintf(message, BUFFER_SIZE, "{\"className\":\"%s\",\"show\":%s}", className, show ? "true" : "false");
+  sendWebUpdate(message, "showElementClass");
 }
 
 void hideElementId(const char *elementID, bool hide) {
@@ -706,6 +706,9 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "p12_sens1_name") == 0) {
     snprintf(config.sensor.ch1_name, sizeof(config.sensor.ch1_name), value);
   }
+  if (strcmp(elementId, "p12_sens1_description") == 0) {
+    snprintf(config.sensor.ch1_description, sizeof(config.sensor.ch1_description), value);
+  }
   if (strcmp(elementId, "p12_sens1_gpio") == 0) {
     config.sensor.ch1_gpio = strtoul(value, NULL, 10);
   }
@@ -714,6 +717,9 @@ void webCallback(const char *elementId, const char *value) {
   }
   if (strcmp(elementId, "p12_sens2_name") == 0) {
     snprintf(config.sensor.ch2_name, sizeof(config.sensor.ch2_name), value);
+  }
+  if (strcmp(elementId, "p12_sens2_description") == 0) {
+    snprintf(config.sensor.ch2_description, sizeof(config.sensor.ch2_description), value);
   }
   if (strcmp(elementId, "p12_sens2_gpio") == 0) {
     config.sensor.ch2_gpio = strtoul(value, NULL, 10);
@@ -779,7 +785,7 @@ void updateAllElements() {
   oilmeterInit = false;               // update oil-meter values
 
   if (setupMode) {
-    hideElementId("setupModeBar", false);
+    showElementClass("setupModeBar", true);
   }
 }
 
@@ -852,11 +858,13 @@ void updateSensorElements() {
   if (config.sensor.ch1_enable) {
     updateWebText("p01_sens1_name", config.sensor.ch1_name, false);
     updateWebTextInt("p01_sens1_value", sensor.ch1_temp, false);
+    updateWebText("p01_sens1_description", config.sensor.ch1_description, false);
   }
 
   if (config.sensor.ch2_enable) {
     updateWebText("p01_sens2_name", config.sensor.ch2_name, false);
     updateWebTextInt("p01_sens2_value", sensor.ch2_temp, false);
+    updateWebText("p01_sens2_description", config.sensor.ch2_description, false);
   }
 }
 
@@ -1022,46 +1030,52 @@ void updateSettingsElements() {
     updateWebText("p12_sens1_name", config.sensor.ch1_name, true);
     break;
   case 39:
-    updateWebValueInt("p12_sens1_gpio", config.sensor.ch1_gpio);
+    updateWebText("p12_sens1_description", config.sensor.ch1_description, true);
     break;
   case 40:
-    updateWebState("p12_sens2_enable", config.sensor.ch2_enable);
+    updateWebValueInt("p12_sens1_gpio", config.sensor.ch1_gpio);
     break;
   case 41:
-    updateWebText("p12_sens2_name", config.sensor.ch2_name, true);
+    updateWebState("p12_sens2_enable", config.sensor.ch2_enable);
     break;
   case 42:
-    updateWebValueInt("p12_sens2_gpio", config.sensor.ch2_gpio);
+    updateWebText("p12_sens2_name", config.sensor.ch2_name, true);
     break;
   case 43:
-    updateWebValueInt("p12_language", config.lang);
+    updateWebText("p12_sens2_description", config.sensor.ch2_description, true);
     break;
   case 44:
-    updateWebState("p10_log_enable", config.log.enable);
+    updateWebValueInt("p12_sens2_gpio", config.sensor.ch2_gpio);
     break;
   case 45:
-    updateWebValueInt("p10_log_mode", config.log.filter);
+    updateWebValueInt("p12_language", config.lang);
     break;
   case 46:
-    updateWebValueInt("p10_log_order", config.log.order);
+    updateWebState("p10_log_enable", config.log.enable);
     break;
   case 47:
-    updateWebState("p12_ntp_enable", config.ntp.enable);
+    updateWebValueInt("p10_log_mode", config.log.filter);
     break;
   case 48:
-    updateWebText("p12_ntp_server", config.ntp.server, true);
+    updateWebValueInt("p10_log_order", config.log.order);
     break;
   case 49:
-    updateWebText("p12_ntp_tz", config.ntp.tz, true);
+    updateWebState("p12_ntp_enable", config.ntp.enable);
     break;
   case 50:
+    updateWebText("p12_ntp_server", config.ntp.server, true);
+    break;
+  case 51:
+    updateWebText("p12_ntp_tz", config.ntp.tz, true);
+    break;
+  case 52:
     updateSettingsElementsDone = true;
     break;
   default:
     webElementUpdateCnt = -1;
     break;
   }
-  webElementUpdateCnt = (webElementUpdateCnt + 1) % 51;
+  webElementUpdateCnt = (webElementUpdateCnt + 1) % 53;
 }
 
 /**
@@ -1570,11 +1584,13 @@ void updateKm271StatusElements() {
       updateWebText("p05_hw_ov2_priority", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 7)), false);
     } else if (kmStatusCpy.HotWaterTargetTemp != pkmStatus->HotWaterTargetTemp) {
       kmStatusCpy.HotWaterTargetTemp = pkmStatus->HotWaterTargetTemp;
-      updateWebTextInt("p05_hw_set_temp", kmStatusCpy.HotWaterTargetTemp, false);
+      snprintf(tmpMessage, sizeof(tmpMessage), "%hhu °C", kmStatusCpy.HotWaterTargetTemp);
+      updateWebText("p05_hw_set_temp", tmpMessage, false);
       updateWebTextInt("p01_ww_temp_set", kmStatusCpy.HotWaterTargetTemp, false);
     } else if (kmStatusCpy.HotWaterActualTemp != pkmStatus->HotWaterActualTemp) {
       kmStatusCpy.HotWaterActualTemp = pkmStatus->HotWaterActualTemp;
-      updateWebTextInt("p05_hw_act_temp", kmStatusCpy.HotWaterActualTemp, false);
+      snprintf(tmpMessage, sizeof(tmpMessage), "%hhu °C", kmStatusCpy.HotWaterActualTemp);
+      updateWebText("p05_hw_act_temp", tmpMessage, false);
       updateWebTextInt("p01_ww_temp_act", kmStatusCpy.HotWaterActualTemp, false);
     } else if (kmStatusCpy.HotWaterOptimizationTime != pkmStatus->HotWaterOptimizationTime) {
       kmStatusCpy.HotWaterOptimizationTime = pkmStatus->HotWaterOptimizationTime;
@@ -1736,7 +1752,7 @@ void webUICylic() {
   // in simulation mode, load simdata and display simModeBar
   if (simulationTimer.delayOn(SIM_MODE && clientConnected && !simulationInit && !setupMode, 2000)) {
     simulationInit = true;
-    hideElementId("simModeBar", false);
+    showElementClass("simModeBar", true);
     startSimData();
   }
 

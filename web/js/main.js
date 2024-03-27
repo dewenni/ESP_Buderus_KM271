@@ -286,11 +286,12 @@ evtSource.addEventListener(
 );
 
 // hide/show elements based on className
-evtSource.addEventListener("hideElementClass", (event) => {
+evtSource.addEventListener("showElementClass", (event) => {
   const data = JSON.parse(event.data);
-  const { className, hide } = data;
-  console.log("class: " + className + " visibility " + hide);
-  toggleElementVisibility(className, hide);
+  const elements = document.querySelectorAll(`.${data.className}`);
+  elements.forEach((element) => {
+    element.style.display = data.show ? "inline-flex" : "none";
+  });
 });
 
 // set language

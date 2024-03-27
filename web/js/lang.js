@@ -1251,4 +1251,8 @@ const translations = {
     de: "Import bereit!",
     en: "import ready!",
   },
+  description: {
+    de: "Beschreibung",
+    en: "description",
+  },
 };

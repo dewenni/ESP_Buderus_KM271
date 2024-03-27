@@ -1,13 +1,35 @@
-<!--SECTION-START-->
-  </main>  
-    <footer>
-      <div id="connectionLostBar" style="display: none;">
-        <div data-i18n="lost_connection"></div>
-        <button id="p99_reloadButton" class="svg i_reload" style="width: 100px;"></button>
-      </div>
-    </footer>
-  </section>
-
-</body>
+<!DOCTYPE html>
+<html data-theme="dark">
+  <head>
+    <title>ESP Async Web Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../css/pico.css" />
+    <link rel="stylesheet" type="text/css" href="../css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../css/icons.css" />
+    <script src="../js/main.js" defer></script>
+    <script src="../js/lang.js" defer></script>
+    <script>
+      function test() {
+        localizePage("de");
+      }
+      setInterval(test, 1000);
+    </script>
+  </head>
+  <body>
+    <section class="home-section">
+      <main class="container-fluid">
+        <!--SECTION-START-->
+      </main>
+      <footer>
+        <div id="connectionLostBar" style="display: none">
+          <div data-i18n="lost_connection"></div>
+          <button
+            id="p99_reloadButton"
+            class="svg i_auto"
+            style="width: 50px"></button>
+        </div>
+      </footer>
+    </section>
+  </body>
 </html>
 <!--SECTION-END-->

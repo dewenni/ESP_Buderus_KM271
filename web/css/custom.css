@@ -74,37 +74,32 @@ hr {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 130px;
+  height: 75px;
   background-color: #732e2e;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  padding: 20px;
-}
-#simModeBarWrapper {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 30px; /* Höhe der Info-Bar */
+  gap: 10px;
+  padding: 10px;
 }
 
-#simModeBar {
+.simModeBar {
+  display: none;
   background-color: #9b8904;
   font-weight: bold;
+  margin-top: 10px;
   margin-bottom: 10px;
-  margin-left: 5px;
   padding: 5px;
   text-align: center;
 }
 
-#setupModeBar {
+.setupModeBar {
+  display: none;
   background-color: #4650df;
   font-weight: bold;
+  margin-top: 10px;
   margin-bottom: 10px;
   text-align: center;
-  margin-left: 5px;
   padding: 5px;
 }
 
