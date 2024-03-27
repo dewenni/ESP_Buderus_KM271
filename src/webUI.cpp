@@ -18,6 +18,8 @@ bool oilmeterInit = false;
 bool simulationInit = false;
 long oilcounter, oilcounterOld;
 double oilcounterVirtOld = 0.0;
+int UpdateCnt50ms = 0;
+int UpdateCnt1s = 0;
 size_t content_len;
 
 s_km271_status *pkmStatus;
@@ -1687,22 +1689,48 @@ void webUICylic() {
 
   // refresh elemets not faster than 50ms
   if (refreshTimer1.cycleTrigger(50)) {
-    updateKm271AlarmElements();
-    updateKm271StatusElements();
-    updateKm271ConfigElements();
-    webReadLogBufferCyclic();
 
-    // Update Settings Elements once after startup or refresh
     if (!updateSettingsElementsDone) {
       updateSettingsElements();
+    } else {
+      switch (UpdateCnt50ms) {
+      case 0:
+        updateKm271AlarmElements();
+        break;
+      case 1:
+        updateKm271StatusElements();
+        break;
+      case 2:
+        updateKm271ConfigElements();
+        break;
+      case 3:
+        webReadLogBufferCyclic();
+        break;
+      default:
+        UpdateCnt50ms = -1;
+        break;
+      }
+      UpdateCnt50ms = (UpdateCnt50ms + 1) % 4;
     }
   }
 
-  // refresh elemets every 3 seconds
-  if (refreshTimer2.cycleTrigger(3000)) {
-    updateSystemInfoElements();
-    updateOilmeterElements();
-    updateSensorElements();
+  // refresh elemets every 1 seconds
+  if (refreshTimer2.cycleTrigger(1000)) {
+    switch (UpdateCnt1s) {
+    case 0:
+      updateSystemInfoElements();
+      break;
+    case 1:
+      updateOilmeterElements();
+      break;
+    case 2:
+      updateSensorElements();
+      break;
+    default:
+      UpdateCnt1s = -1;
+      break;
+    }
+    UpdateCnt1s = (UpdateCnt1s + 1) % 3;
   }
 
   // in simulation mode, load simdata and display simModeBar
