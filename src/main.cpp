@@ -161,6 +161,7 @@ void loop() {
   if (mainTimer.cycleTrigger(10000) && !setupMode) {
     sendWiFiInfo();
     sendKM271Info();
+    sendKM271Debug();
   }
 
   if (config.webUI.enable) {

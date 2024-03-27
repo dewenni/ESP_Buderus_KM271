@@ -194,6 +194,7 @@ void configSaveToFile() {
   doc["mqtt"]["topic"] = config.mqtt.topic;
   doc["mqtt"]["port"] = config.mqtt.port;
   doc["mqtt"]["config_retain"] = config.mqtt.config_retain;
+  doc["mqtt"]["language"] = config.mqtt.lang;
 
   doc["ntp"]["enable"] = config.ntp.enable;
   doc["ntp"]["server"] = config.ntp.server;
@@ -229,9 +230,11 @@ void configSaveToFile() {
 
   doc["sensor"]["ch1_enable"] = config.sensor.ch1_enable;
   doc["sensor"]["ch1_name"] = config.sensor.ch1_name;
+  doc["sensor"]["ch1_description"] = config.sensor.ch1_description;
   doc["sensor"]["ch1_gpio"] = config.sensor.ch1_gpio;
   doc["sensor"]["ch2_enable"] = config.sensor.ch2_enable;
   doc["sensor"]["ch2_name"] = config.sensor.ch2_name;
+  doc["sensor"]["ch2_description"] = config.sensor.ch2_description;
   doc["sensor"]["ch2_gpio"] = config.sensor.ch2_gpio;
 
   doc["pushover"]["enable"] = config.pushover.enable;
@@ -305,6 +308,7 @@ void configLoadFromFile() {
     readJSONstring(config.mqtt.topic, sizeof(config.mqtt.topic), doc["mqtt"]["topic"]);
     config.mqtt.port = doc["mqtt"]["port"];
     config.mqtt.config_retain = doc["mqtt"]["config_retain"];
+    config.mqtt.lang = doc["mqtt"]["language"];
 
     config.ntp.enable = doc["ntp"]["enable"];
     readJSONstring(config.ntp.server, sizeof(config.ntp.server), doc["ntp"]["server"]);
@@ -343,9 +347,11 @@ void configLoadFromFile() {
 
     config.sensor.ch1_enable = doc["sensor"]["ch1_enable"];
     readJSONstring(config.sensor.ch1_name, sizeof(config.sensor.ch1_name), doc["sensor"]["ch1_name"]);
+    readJSONstring(config.sensor.ch1_description, sizeof(config.sensor.ch1_description), doc["sensor"]["ch1_description"]);
     config.sensor.ch1_gpio = doc["sensor"]["ch1_gpio"];
     config.sensor.ch2_enable = doc["sensor"]["ch2_enable"];
     readJSONstring(config.sensor.ch2_name, sizeof(config.sensor.ch2_name), doc["sensor"]["ch2_name"]);
+    readJSONstring(config.sensor.ch2_description, sizeof(config.sensor.ch2_description), doc["sensor"]["ch2_description"]);
     config.sensor.ch2_gpio = doc["sensor"]["ch2_gpio"];
 
     config.pushover.enable = doc["pushover"]["enable"];
@@ -358,7 +364,6 @@ void configLoadFromFile() {
     config.log.order = doc["logger"]["order"];
   }
 
-  file.close();     // Close the file (Curiously, File's destructor doesn't close
-                    // the file)
+  file.close();     // Close the file (Curiously, File's destructor doesn't close the file)
   configHashInit(); // init hash value
 }

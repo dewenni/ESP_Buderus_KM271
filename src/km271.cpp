@@ -52,6 +52,7 @@ uint8_t kmRxBcc = 0;                 // BCC value for Rx Block
 KmRx_s kmRxBuf;                      // Rx block storag
 uint8_t send_cmd;
 uint8_t send_buf[8] = {};
+bool kmInitDone = false;
 bool km271LogModeActive = false;
 
 /**
@@ -1342,6 +1343,9 @@ void parseInfo(uint8_t *data, int len) {
     snprintf(kmConfigStr.time_offset, sizeof(kmConfigStr.time_offset), "%0.1f %s", kmConfigNum.time_offset, mqttMsg.HOURS[config.mqtt.lang]);
     km271Msg(KM_TYP_CONFIG, cfgTopic.TIME_OFFSET[config.mqtt.lang],
              kmConfigStr.time_offset); // "CFG_Uhrzeit_Offset"    => "01e0:1,s"
+
+    // this should be the last message => init done
+    kmInitDone = true;
     break;
 
   case 0x0400:
@@ -1480,20 +1484,38 @@ e_ret km271ProtInit(int rxPin, int txPin) {
 
 /**
  * *******************************************************************
- * @brief   build debug structure ans send it via mqtt
+ * @brief   build info structure ans send it via mqtt
  * @param   none
  * @return  none
  * *******************************************************************/
 void sendKM271Info() {
+  if (kmInitDone) {
+    JsonDocument infoJSON;
+    infoJSON["burner"] = kmStatus.BurnerStates;
+    infoJSON["pump"] = kmStatus.HC1_PumpPower;
+    infoJSON["ww_temp"] = kmStatus.HotWaterActualTemp;
+    infoJSON["boiler_temp"] = kmStatus.BoilerForwardActualTemp;
+    char sendInfoJSON[255] = {'\0'};
+    serializeJson(infoJSON, sendInfoJSON);
+    km271Msg(KM_TYP_INFO, sendInfoJSON, "");
+  }
+}
+
+/**
+ * *******************************************************************
+ * @brief   build debug structure ans send it via mqtt
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void sendKM271Debug() {
   JsonDocument infoJSON;
   infoJSON["logmode"] = km271LogModeActive;
   infoJSON["send_cmd_busy"] = (send_buf[0] != 0);
   infoJSON["sw_version"] = VERSION;
   infoJSON["date-time"] = getDateTimeString();
   char sendInfoJSON[255] = {'\0'};
-  ;
   serializeJson(infoJSON, sendInfoJSON);
-  km271Msg(KM_TYP_INFO, sendInfoJSON, "");
+  km271Msg(KM_TYP_KM_DEBUG, sendInfoJSON, "");
 }
 
 /**
