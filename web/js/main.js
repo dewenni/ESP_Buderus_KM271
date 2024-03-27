@@ -95,6 +95,23 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeVisibilityBasedOnSwitches();
   localizePage("de");
 
+  // Event-Listener for Tab-Menu
+  document.querySelectorAll(".nav-list a").forEach((tab) => {
+    tab.onclick = function (e) {
+      e.preventDefault();
+      document
+        .querySelectorAll(".nav-list a")
+        .forEach((t) => t.classList.remove("active"));
+      document
+        .querySelectorAll(".tab-content")
+        .forEach((content) => content.classList.remove("active"));
+
+      const activeTab = this.getAttribute("data-tab");
+      this.classList.add("active");
+      document.getElementById(activeTab).classList.add("active");
+    };
+  });
+
   // language selection
   document
     .getElementById("p12_language")

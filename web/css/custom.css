@@ -47,6 +47,28 @@ hr {
   margin-bottom: 4%;
 }
 
+.topMenu {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 50px;
+  background-color: #3d475c;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+  z-index: 999;
+}
+
+#topMenuDropdown {
+  width: 70px;
+  height: 35px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
 #connectionLostBar {
   position: fixed;
   left: 0;
@@ -72,6 +94,8 @@ hr {
   background-color: #9b8904;
   font-weight: bold;
   margin-bottom: 10px;
+  margin-left: 5px;
+  padding: 5px;
   text-align: center;
 }
 
@@ -80,6 +104,8 @@ hr {
   font-weight: bold;
   margin-bottom: 10px;
   text-align: center;
+  margin-left: 5px;
+  padding: 5px;
 }
 
 /* Basis Flexbox-Layout */
@@ -109,110 +135,44 @@ hr {
   }
 }
 
-.grid article table {
-  min-width: 420px;
-}
-
 .sidebar {
+  display: flex;
+  color: #fff;
   position: fixed;
   left: 0;
   top: 0;
   height: 100%;
-  width: 78px;
+  width: 250px;
   background: var(--pico-card-background-color);
   padding: 6px 14px;
   z-index: 99;
   transition: all 0.5s ease;
-}
-.sidebar.open {
-  width: 250px;
-  display: flex;
   flex-direction: column;
-  height: 100%;
 }
-.sidebar .logo-details {
-  height: 60px;
-  display: flex;
-  align-items: center;
-  position: relative;
-}
-.sidebar .logo-details .icon {
-  opacity: 0;
-  transition: all 0.5s ease;
-}
-.sidebar .logo-details .logo_name {
-  color: #fff;
-  font-size: 20px;
-  font-weight: 600;
-  opacity: 0;
-  transition: all 0.5s ease;
-}
-.sidebar.open .logo-details .icon,
-.sidebar.open .logo-details .logo_name {
-  opacity: 1;
-}
-.sidebar .logo-details #btn {
-  position: absolute;
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
-  font-size: 22px;
-  transition: all 0.4s ease;
-  font-size: 23px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.5s ease;
-}
-.sidebar.open .logo-details #btn {
-  text-align: right;
-}
+
 .sidebar i {
-  color: #fff;
   height: 60px;
   min-width: 50px;
   font-size: 28px;
   text-align: center;
   line-height: 60px;
 }
+
 .sidebar .nav-list {
   margin-top: 20px;
   height: 100%;
-  margin: 0;
   padding: 0;
   flex: 1;
 }
+
 .sidebar li {
   position: relative;
   margin: 6px 0;
   list-style: none;
 }
-.sidebar li .tooltip {
-  position: absolute;
-  top: -20px;
-  left: calc(100% + 15px);
-  z-index: 3;
-  background: #fff;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 15px;
-  font-weight: 400;
-  opacity: 0;
-  white-space: nowrap;
-  pointer-events: none;
-  transition: 0s;
-}
-.sidebar li:hover .tooltip {
-  opacity: 1;
-  pointer-events: auto;
-  transition: all 0.4s ease;
-  top: 50%;
-  transform: translateY(-50%);
-}
-.sidebar.open li .tooltip {
-  display: none;
-}
+
 .sidebar li a {
+  color: #fff;
   display: flex;
   height: 100%;
   width: 100%;
@@ -222,46 +182,25 @@ hr {
   transition: all 0.4s ease;
   background: var(--pico-card-sectioning-background-color);
 }
+
 .sidebar li a:hover {
   background: #fff;
 }
-.sidebar li a .links_name {
-  color: #fff;
-  font-size: 15px;
-  font-weight: 400;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: 0.4s;
-}
-.sidebar.open li a .links_name {
-  opacity: 1;
-  pointer-events: auto;
-}
+
 .sidebar li a:hover .links_name,
 .sidebar li a:hover i {
+  pointer-events: auto;
   transition: all 0.5s ease;
   filter: invert(1);
 }
+
 .sidebar li i {
   height: 50px;
   line-height: 50px;
   font-size: 18px;
   border-radius: 12px;
 }
-.home-section {
-  position: relative;
-  min-height: 100vh;
-  top: 20px;
-  left: 78px;
-  width: calc(100% - 78px);
-  transition: all 0.5s ease;
-  z-index: 2;
-}
-.sidebar.open ~ .home-section {
-  left: 250px;
-  width: calc(100% - 250px);
-}
+
 .sidebar .nav-list li .svg {
   width: 24px;
   height: 24px;
@@ -269,21 +208,27 @@ hr {
   margin-top: 6px;
   margin-bottom: 6px;
 }
-.sidebar .logo-details .svg {
-  width: 24px;
-  height: 24px;
-  transition: transform 0.3s ease;
+
+.home-section {
+  position: relative;
+  top: 15px;
+  left: 250px;
+  width: calc(100% - 250px);
+  transition: all 0.5s ease;
 }
-@media (max-width: 420px) {
-  .sidebar li .tooltip {
+
+/* Media Query für kleinere Bildschirme */
+@media (max-width: 768px) {
+  .topMenu {
+    display: flex;
+  }
+  .sidebar {
     display: none;
   }
-}
-@media (max-height: 530px) {
-  .sidebar {
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 5px;
+  .home-section {
+    top: 70px;
+    left: 10px;
+    width: calc(100% - 20px);
   }
 }
 
@@ -386,16 +331,15 @@ table td {
 }
 .radio-buttons {
   padding-bottom: 5px;
-  margin: 0px;
-  border-radius: 30px;
+  margin-top: 5px;
+  border-radius: 15px;
   border: #3d475c;
   border-style: solid;
   border-width: 1px;
 }
 
 .button-group {
-  display: inline-block; /* Erlaubt, dass die Elemente nebeneinander stehen */
-  margin-right: 0px; /* Fügt rechts einen kleinen Abstand hinzu */
+  display: inline-block;
 }
 
 /* Verstecke die originalen Radiobuttons */
@@ -406,7 +350,7 @@ table td {
 /* Style für die Labels, die wie Buttons aussehen */
 .button-like-label {
   display: inline-block;
-  padding: 10px 20px;
+  padding: 5px 10px;
   margin: 5px;
   background-color: transparent; /* Kein Hintergrundfarbe standardmäßig */
   cursor: pointer;
@@ -416,5 +360,5 @@ table td {
 .button-like:checked + .button-like-label {
   background-color: var(--pico-card-sectioning-background-color);
   color: #fff; /* Weiße Textfarbe */
-  border-radius: 30px;
+  border-radius: 10px;
 }

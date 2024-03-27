@@ -155,7 +155,6 @@ compress_css_to_gzip_c_array(input_html_file, output_c_file)
 # Definieren Sie die Pfade der Quelldateien
 source_files = [
     'web/js/main.js',
-    'web/js/sidebar.js',
     'web/js/lang.js',
     'web/js/tools.js',   
 ]
