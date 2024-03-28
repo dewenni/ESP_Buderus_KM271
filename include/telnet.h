@@ -1,6 +1,9 @@
 #pragma once
+
+/* I N C L U D E S ****************************************************/
 #include "ESPTelnet.h"
 
+/* D E C L A R A T I O N S ****************************************************/
 // data struct for Telnet interface
 typedef struct {
   bool serialStream;
@@ -20,6 +23,7 @@ struct Command {
 extern ESPTelnet telnet;
 extern s_telnetIF telnetIF;
 
+/* P R O T O T Y P E S ********************************************************/
 void setupTelnet();
 void cyclicTelnet();
 void telnetShell();

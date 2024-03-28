@@ -1,20 +1,17 @@
 #pragma once
 
-// ======================================================
-// includes
-// ======================================================
+/* I N C L U D E S ****************************************************/
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
 #include <config.h>
-
+#include <language.h>
 #include <gzip_c_css.h>
 #include <gzip_html.h>
 #include <gzip_js.h>
 #include <gzip_login_html.h>
 #include <gzip_m_css.h>
 
-extern AsyncWebServer server;
-
+/* D E C L A R A T I O N S ****************************************************/
 typedef enum {
   hc1_frost_protection_threshold,
   hc1_summer_mode_threshold,
@@ -94,9 +91,24 @@ typedef enum {
   kmConfig_Hash_SIZE,
 } s_kmConfig_Hash_enum;
 
-// ======================================================
-// Prototypes
-// ======================================================
+extern s_webui_texts webText;
+extern s_cfg_arrays cfgArrayTexts;
+
+/* P R O T O T Y P E S ********************************************************/
 void webUISetup();
 void webUICylic();
 void webReadLogBuffer();
+
+void sendWebUpdate(const char *message, const char *event);
+void setLanguage(const char *language);
+void updateWebText(const char *elementID, const char *text, bool isInput);
+void updateWebTextInt(const char *elementID, long value, bool isInput);
+void updateWebTextFloat(const char *elementID, double value, bool isInput, int decimals);
+void updateWebState(const char *elementID, bool state);
+void updateWebValueStr(const char *elementID, const char *value);
+void updateWebValueInt(const char *elementID, long value);
+void updateWebValueFloat(const char *elementID, double value, int decimals);
+void showElementClass(const char *className, bool show);
+void hideElementId(const char *elementID, bool hide);
+void updateWebDialog(const char *elementID, const char *state);
+void updateWebSetIcon(const char *elementID, const char *icon);
