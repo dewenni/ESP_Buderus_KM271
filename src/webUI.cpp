@@ -7,6 +7,7 @@
 #include <simulation.h>
 #include <stringHelper.h>
 #include <webUI.h>
+#include <favicon.h>
 
 AsyncWebServer server(80);
 AsyncEventSource events("/events");
@@ -299,6 +300,8 @@ void webUISetup() {
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   });
+
+  server.on("/favicon.svg", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(200, "image/svg+xml", faviconSvg); });
 
   // config.json download
   server.on("/config-download", HTTP_GET,
