@@ -1,13 +1,13 @@
 #include <LittleFS.h>
 #include <Update.h>
 #include <basics.h>
+#include <favicon.h>
 #include <km271.h>
 #include <oilmeter.h>
 #include <sensor.h>
 #include <simulation.h>
 #include <stringHelper.h>
 #include <webUI.h>
-#include <favicon.h>
 
 AsyncWebServer server(80);
 AsyncEventSource events("/events");
@@ -39,6 +39,8 @@ tm dti;
 uint8_t webElementUpdateCnt = 0;
 unsigned int KmCfgHash[kmConfig_Hash_SIZE] = {0};
 unsigned int KmAlarmHash[4] = {0};
+
+bool authenticated = false;
 
 /* P R O T O T Y P E S ********************************************************/
 void webCallback(const char *elementId, const char *value);
@@ -269,6 +271,26 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
   }
 }
 
+bool isAuthenticated(AsyncWebServerRequest *request) {
+  String cookieHeader = request->header("Cookie");
+  if (cookieHeader.length() > 0) {
+    String cookieName = "esp_buderus_km271_auth=";
+    int cookiePos = cookieHeader.indexOf(cookieName);
+    if (cookiePos != -1) {
+      int valueStart = cookiePos + cookieName.length();
+      int valueEnd = cookieHeader.indexOf(';', valueStart);
+      if (valueEnd == -1) {
+        valueEnd = cookieHeader.length();
+      }
+      String cookieValue = cookieHeader.substring(valueStart, valueEnd);
+      if (cookieValue == "1") {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 /**
  * *******************************************************************
  * @brief   cyclic call for webUI - creates all webUI elements
@@ -277,10 +299,45 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
  * *******************************************************************/
 void webUISetup() {
 
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", gzip_html, gzip_html_size);
+  server.on("/login", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", gzip_login_html, gzip_login_html_size);
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
+  });
+
+  server.on("/login", HTTP_POST, [](AsyncWebServerRequest *request) {
+    if (request->hasParam("username", true) && request->hasParam("password", true)) {
+      if (request->getParam("username", true)->value() == String(config.auth.user) &&
+          request->getParam("password", true)->value() == String(config.auth.password)) {
+        // Erfolgreicher Login, Cookie setzen
+        AsyncWebServerResponse *response = request->beginResponse(303); // 303 See Other
+        response->addHeader("Location", "/");
+        response->addHeader("Set-Cookie", "esp_buderus_km271_auth=1; Path=/; HttpOnly");
+        request->send(response);
+      } else {
+        request->redirect("/login?error");
+      }
+    } else {
+      request->redirect("/login?error");
+    }
+  });
+
+  server.on("/logout", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse *response = request->beginResponse(303); // 303 See Other
+    response->addHeader("Location", "/login");
+    // sets the expiration date of the cookie to a time in the past to delete it
+    response->addHeader("Set-Cookie", "esp_buderus_km271_auth=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT");
+    request->send(response);
+  });
+
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", gzip_html, gzip_html_size);
+    if (!isAuthenticated(request)) {
+      request->redirect("/login");
+    } else {
+      response->addHeader("Content-Encoding", "gzip");
+      request->send(response);
+    }
   });
 
   server.on("/gzip_c.css", HTTP_GET, [](AsyncWebServerRequest *request) {

@@ -10,6 +10,7 @@
 #include <gzip_c_css.h>
 #include <gzip_html.h>
 #include <gzip_js.h>
+#include <gzip_login_html.h>
 #include <gzip_m_css.h>
 
 extern AsyncWebServer server;

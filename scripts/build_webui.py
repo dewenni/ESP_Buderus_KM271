@@ -69,6 +69,32 @@ output_c_file = output_file_gzip_html
 
 compress_html_to_gzip_c_array(input_html_file, output_c_file)
 
+#================================================================
+# HTML - only gzip
+#================================================================
+
+# Pfad zur HTML-Datei und zum Ausgabe-C-Datei
+input_html_file = 'web/html/login.html'
+output_c_file = 'include/gzip_login_html.h'
+
+def compress_css_to_gzip_c_array(input_file_path, output_file_path):
+    # HTML-Datei einlesen
+    with open(input_file_path, 'rb') as file:
+        content = file.read()
+    
+    # Inhalt mit GZIP komprimieren
+    compressed_content = gzip.compress(content)
+    
+    # Komprimierten Inhalt in ein C-Array umwandeln
+    c_array_content = ', '.join(['0x{:02x}'.format(byte) for byte in compressed_content])
+    
+    # C-Array in eine neue Datei schreiben
+    with open(output_file_path, 'w') as file:
+        file.write('const uint8_t PROGMEM gzip_login_html[] = {' + c_array_content + '};\n')
+        file.write(f'const unsigned int gzip_login_html_size = {len(compressed_content)};')
+
+compress_css_to_gzip_c_array(input_html_file, output_c_file)
+
 
 #================================================================
 # CSS - Merge and gzip
@@ -120,11 +146,6 @@ compress_css_to_gzip_c_array(input_html_file, output_c_file)
 #================================================================
 # CSS - only gzip
 #================================================================
-
-# Definieren Sie die Pfade der Quelldateien
-source_files = [
-    'web/css/pico.css',
-]
 
 # Pfad zur HTML-Datei und zum Ausgabe-C-Datei
 input_html_file = 'web/css/pico.css'
