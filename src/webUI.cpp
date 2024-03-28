@@ -272,6 +272,9 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
 }
 
 bool isAuthenticated(AsyncWebServerRequest *request) {
+  if (!config.auth.enable){
+    return true; // if authentication is disabled send true
+  }
   String cookieHeader = request->header("Cookie");
   if (cookieHeader.length() > 0) {
     String cookieName = "esp_buderus_km271_auth=";
@@ -590,7 +593,7 @@ void webCallback(const char *elementId, const char *value) {
 
   // Authentication
   if (strcmp(elementId, "p12_access_enable") == 0) {
-    config.ip.enable = stringToBool(value);
+    config.auth.enable = stringToBool(value);
   }
   if (strcmp(elementId, "p12_access_user") == 0) {
     snprintf(config.auth.user, sizeof(config.auth.user), value);
