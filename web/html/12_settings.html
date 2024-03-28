@@ -227,13 +227,14 @@
                 type="password"
                 id="p12_pushover_user_key"
                 name="pushover_user_key" />
-              <label for="appid" data-i18n="test_msg"></label>
+              <label for="pushover_filter" data-i18n="filter"></label>
               <select id="p12_pushover_filter" name="pushover_filter">
                 <option value="0" data-i18n="alarm"></option>
                 <option value="1" data-i18n="alarm_info"></option>
               </select>
+              <label for="pushover_test_msg" data-i18n="test_msg"></label>
               <div>
-                <div role="group">
+                <div role="group" name="pushover_test_msg">
                   <input id="p12_pushover_test_msg" name="text" type="text" />
                   <button id="p12_pushover_test_btn" data-i18n="send"></button>
                 </div>
