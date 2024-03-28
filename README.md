@@ -28,7 +28,22 @@ In combination with influxDB and Grafana you can also create useful and impressi
 
 But there is also a build in WebUI to view and control your Logamatic without any other Software.
 
+
 ![weubui_dash](Doc/weubui_dash.png)
+(Desktop Version)
+
+The WebUI is responsive and also offers a mobile layout.
+
+<img style="display: inline;
+  margin-right: 50px;
+  width: 200px;" src="./Doc/webui_mobile_1.png"> 
+<img style="display: inline;
+  margin-right: 50px;
+  width: 200px;" src="./Doc/webui_mobile_2.png"> 
+<img style="display: inline;
+  margin-left: auto;
+  width: 200px;" src="./Doc/webui_mobile_3.png">   
+(Mobile Version)
 
 -----
 
