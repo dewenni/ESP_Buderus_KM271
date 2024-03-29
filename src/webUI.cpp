@@ -14,7 +14,6 @@
 /* P R O T O T Y P E S ********************************************************/
 void webCallback(const char *elementId, const char *value);
 
-
 /* D E C L A R A T I O N S ****************************************************/
 muTimer connectionTimer = muTimer(); // timer to refresh other values
 muTimer simulationTimer = muTimer(); // timer to refresh other values
@@ -30,8 +29,11 @@ s_cfg_arrays cfgArrayTexts;
 bool clientConnected = false;
 bool webInitDone = false;
 bool simulationInit = false;
+char otaMessage[128];
 size_t content_len;
+const size_t BUFFER_SIZE = 512;
 
+void sendWebUpdate(const char *message, const char *event) { events.send(message, event, millis()); }
 
 void handleWebClientData(AsyncWebServerRequest *request) {
   if (request->hasParam("elementId") && request->hasParam("value")) {
@@ -43,10 +45,6 @@ void handleWebClientData(AsyncWebServerRequest *request) {
     request->send(400, "text/plain", "Invalid Request");
   }
 }
-
-void sendWebUpdate(const char *message, const char *event) { events.send(message, event, millis()); }
-
-const size_t BUFFER_SIZE = 512;
 
 void setLanguage(const char *language) {
   char message[BUFFER_SIZE];
@@ -147,20 +145,26 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
   if (!index) {
     Serial.println("Update");
     storeData(); // store data before updating
+    snprintf(otaMessage, sizeof(otaMessage), "Start OTA Update: %s", filename.c_str());
+    km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
     content_len = request->contentLength();
     if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) {
       Update.printError(Serial);
+      snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
+      km271Msg(KM_TYP_MESSAGE, "otaMessage", NULL);
       updateWebText("p11_ota_update_error", Update.errorString(), false);
       updateWebDialog("ota_update_failed_dialog", "open");
     }
   }
-
+  // update in progress
   if (Update.write(data, len) != len) {
     Update.printError(Serial);
+    snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
+    km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
     updateWebText("p11_ota_update_error", Update.errorString(), false);
     updateWebDialog("ota_update_failed_dialog", "open");
   } else {
-    // Sende den Fortschritt über SSE
+    // calculate progress
     int progress = (Update.progress() * 100) / content_len;
     Serial.printf("Progress: %d%%\n", progress);
     char message[32];
@@ -169,7 +173,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
       events.send(message, "ota-progress", millis());
     }
   }
-
+  // update done
   if (final) {
     AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Ok");
     response->addHeader("Refresh", "30");
@@ -177,6 +181,8 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
     request->send(response);
     if (!Update.end(true)) {
       Update.printError(Serial);
+      snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
+      km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
       updateWebText("p11_ota_update_error", Update.errorString(), false);
       updateWebDialog("ota_update_failed_dialog", "open");
     } else {
@@ -186,6 +192,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
       Serial.println("Update complete");
       Serial.flush();
       updateWebDialog("ota_update_done_dialog", "open");
+      km271Msg(KM_TYP_MESSAGE, "OTA Update finished!", NULL);
     }
   }
 }
@@ -212,6 +219,14 @@ bool isAuthenticated(AsyncWebServerRequest *request) {
   }
   return false;
 }
+
+/**
+ * *******************************************************************
+ * @brief   on connect or refresh - force update of all webUI elements
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void onLoadRequest() { updateAllElements(); }
 
 /**
  * *******************************************************************
@@ -259,6 +274,7 @@ void webUISetup() {
     } else {
       response->addHeader("Content-Encoding", "gzip");
       request->send(response);
+      onLoadRequest();
     }
   });
 
@@ -290,13 +306,12 @@ void webUISetup() {
   server.on(
       "/config-upload", HTTP_POST,
       [](AsyncWebServerRequest *request) {
-        // Keine Aktion erforderlich, wenn alles erfolgreich war
         request->send(200, "text/plain", "upload done!");
       },
       [](AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final) {
         static File uploadFile;
 
-        if (!index) { // Erster Aufruf für neuen Upload
+        if (!index) { // firs call for upload
           updateWebText("upload_status_txt", "uploading...", false);
           Serial.printf("UploadStart: %s\n", filename.c_str());
           uploadFile = LittleFS.open("/" + filename, "w");
@@ -304,17 +319,16 @@ void webUISetup() {
           if (!uploadFile) {
             Serial.println("Fehler: Datei konnte nicht geöffnet werden.");
             updateWebText("upload_status_txt", "error on file close!", false);
-            return; // Früher Rückkehr, um weitere Verarbeitung zu verhindern
+            return;
           }
         }
 
-        if (len) { // Wenn Daten vorhanden sind, schreibe sie
+        if (len) { // if there are still data to send...
           uploadFile.write(data, len);
         }
 
-        if (final) {        // Abschluss des Uploads
-          if (uploadFile) { // Überprüfe, ob die Datei ordnungsgemäß geöffnet
-            // wurde
+        if (final) {        
+          if (uploadFile) {
             uploadFile.close();
             Serial.printf("UploadEnd: %s, %u B\n", filename.c_str(), index + len);
             updateWebText("upload_status_txt", "upload done!", false);
@@ -333,12 +347,16 @@ void webUISetup() {
 
   // SSE Endpoint
   events.onConnect([](AsyncEventSourceClient *client) {
+    // check if it´s a new client or reconnect
     if (client->lastId()) {
-      Serial.printf("Client reconnected!");
+      Serial.printf("Client reconnected with lastId %u\n", client->lastId());
+    } else {
+      Serial.println("New Client connected");
     }
-    // Send a message to newly connected client
+
+    // send ping as welcome and force web elements update
     client->send("ping", NULL, millis(), 5000);
-    updateAllElements();
+    onLoadRequest();
     clientConnected = true;
   });
 
