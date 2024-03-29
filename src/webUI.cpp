@@ -32,14 +32,17 @@ bool simulationInit = false;
 char otaMessage[128];
 size_t content_len;
 const size_t BUFFER_SIZE = 512;
+char webCallbackElementID[32];
+char webCallbackValue[256];
+bool webCallbackAvailable = false;
 
 void sendWebUpdate(const char *message, const char *event) { events.send(message, event, millis()); }
 
 void handleWebClientData(AsyncWebServerRequest *request) {
   if (request->hasParam("elementId") && request->hasParam("value")) {
-    String elementId = request->getParam("elementId")->value();
-    String value = request->getParam("value")->value();
-    webCallback(elementId.c_str(), value.c_str());
+    snprintf(webCallbackElementID, sizeof(webCallbackElementID), "%s", request->getParam("elementId")->value().c_str());
+    snprintf(webCallbackValue, sizeof(webCallbackValue), "%s", request->getParam("value")->value().c_str());
+    webCallbackAvailable = true;
     request->send(200, "text/plain", "OK");
   } else {
     request->send(400, "text/plain", "Invalid Request");
@@ -304,10 +307,7 @@ void webUISetup() {
 
   // config.json upload
   server.on(
-      "/config-upload", HTTP_POST,
-      [](AsyncWebServerRequest *request) {
-        request->send(200, "text/plain", "upload done!");
-      },
+      "/config-upload", HTTP_POST, [](AsyncWebServerRequest *request) { request->send(200, "text/plain", "upload done!"); },
       [](AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final) {
         static File uploadFile;
 
@@ -327,7 +327,7 @@ void webUISetup() {
           uploadFile.write(data, len);
         }
 
-        if (final) {        
+        if (final) {
           if (uploadFile) {
             uploadFile.close();
             Serial.printf("UploadEnd: %s, %u B\n", filename.c_str(), index + len);
@@ -380,6 +380,12 @@ void webUICylic() {
 
   // handling of update webUI elements
   webUIupdates();
+
+  // handling of callback infomation
+  if (webCallbackAvailable) {
+    webCallback(webCallbackElementID, webCallbackValue);
+    webCallbackAvailable = false;
+  }
 
   // in simulation mode, load simdata and display simModeBar
   if (simulationTimer.delayOn(SIM_MODE && clientConnected && !simulationInit && !setupMode, 2000)) {
