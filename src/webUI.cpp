@@ -55,6 +55,8 @@ void setLanguage(const char *language) {
   sendWebUpdate(message, "setLanguage");
 }
 
+void updateWebJSON(const char *JSON) { events.send(JSON, "updateJSON", millis()); }
+
 void updateWebText(const char *elementID, const char *text, bool isInput) {
   char message[BUFFER_SIZE];
   snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"text\":\"%s\",\"isInput\":%s}", elementID, text, isInput ? "true" : "false");

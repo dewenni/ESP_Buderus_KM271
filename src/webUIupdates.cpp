@@ -106,6 +106,34 @@ void updateOilmeterElements() {
   oilmeterInit = true;
 }
 
+void addJsonValueTxt(JsonArray &array, const char *elementID, const char *value) {
+  JsonObject obj = array.add<JsonObject>();
+  obj["elementID"] = elementID;
+  obj["typ"] = "value";
+  obj["value"] = value;
+};
+
+void addJsonValueInt(JsonArray &array, const char *elementID, uint16_t value) {
+  JsonObject obj = array.add<JsonObject>();
+  obj["elementID"] = elementID;
+  obj["typ"] = "value";
+  obj["value"] = value;
+};
+
+void addJsonValueFlt(JsonArray &array, const char *elementID, float value) {
+  JsonObject obj = array.add<JsonObject>();
+  obj["elementID"] = elementID;
+  obj["typ"] = "value";
+  obj["value"] = value;
+};
+
+void addJsonState(JsonArray &array, const char *elementID, bool value) {
+  JsonObject obj = array.add<JsonObject>();
+  obj["elementID"] = elementID;
+  obj["typ"] = "checked";
+  obj["value"] = value;
+};
+
 /**
  * *******************************************************************
  * @brief   update System informations
@@ -114,172 +142,70 @@ void updateOilmeterElements() {
  * *******************************************************************/
 void updateSettingsElements() {
 
-  switch (webElementUpdateCnt) {
-  case 0:
-    updateWebText("p12_wifi_hostname", config.wifi.hostname, true);
-    break;
-  case 1:
-    updateWebText("p12_wifi_ssid", config.wifi.ssid, true);
-    break;
-  case 2:
-    updateWebText("p12_wifi_password", config.wifi.password, true);
-    break;
-  case 3:
-    updateWebState("p12_ip_enable", config.ip.enable);
-    break;
-  case 4:
-    updateWebText("p12_ip_adr", config.ip.ipaddress, true);
-    break;
-  case 5:
-    updateWebText("p12_ip_subnet", config.ip.subnet, true);
-    break;
-  case 6:
-    updateWebText("p12_ip_gateway", config.ip.gateway, true);
-    break;
-  case 7:
-    updateWebText("p12_ip_dns", config.ip.dns, true);
-    break;
-  case 8:
-    updateWebState("p12_access_enable", config.auth.enable);
-    break;
-  case 9:
-    updateWebText("p12_access_user", config.auth.user, true);
-    break;
-  case 10:
-    updateWebText("p12_access_password", config.auth.password, true);
-    break;
-  case 11:
-    updateWebState("p12_mqtt_enable", config.mqtt.enable);
-    break;
-  case 12:
-    updateWebText("p12_mqtt_server", config.mqtt.server, true);
-    break;
-  case 13:
-    updateWebValueInt("p12_mqtt_port", config.mqtt.port);
-    break;
-  case 14:
-    updateWebText("p12_mqtt_user", config.mqtt.user, true);
-    break;
-  case 15:
-    updateWebText("p12_mqtt_password", config.mqtt.password, true);
-    break;
-  case 16:
-    updateWebText("p12_mqtt_topic", config.mqtt.topic, true);
-    break;
-  case 17:
-    updateWebValueInt("p12_mqtt_language", config.mqtt.lang);
-    break;
-  case 18:
-    updateWebState("p12_pushover_enable", config.pushover.enable);
-    break;
-  case 19:
-    updateWebText("p12_pushover_api_token", config.pushover.token, true);
-    break;
-  case 20:
-    updateWebText("p12_pushover_user_key", config.pushover.user_key, true);
-    break;
-  case 21:
-    updateWebValueInt("p12_pushover_filter", config.pushover.filter);
-    break;
-  case 22:
-    updateWebState("p12_hc1_enable", config.km271.use_hc1);
-    break;
-  case 23:
-    updateWebState("p12_hc2_enable", config.km271.use_hc2);
-    break;
-  case 24:
-    updateWebState("p12_hw_enable", config.km271.use_ww);
-    break;
-  case 25:
-    updateWebState("p12_alarm_enable", config.km271.use_alarmMsg);
-    break;
-  case 26:
-    updateWebValueInt("p12_gpio_km271_rx", config.gpio.km271_RX);
-    break;
-  case 27:
-    updateWebValueInt("p12_gpio_km271_tx", config.gpio.km271_TX);
-    break;
-  case 28:
-    updateWebValueInt("p12_gpio_led_heartbeat", config.gpio.led_heartbeat);
-    break;
-  case 29:
-    updateWebValueInt("p12_gpio_led_logmode", config.gpio.led_logmode);
-    break;
-  case 30:
-    updateWebValueInt("p12_gpio_led_wifi", config.gpio.led_wifi);
-    break;
-  case 31:
-    updateWebValueInt("p12_gpio_led_oilcounter", config.gpio.led_oilcounter);
-    break;
-  case 32:
-    updateWebValueInt("p12_gpio_trig_oilcounter", config.gpio.trigger_oilcounter);
-    break;
-  case 33:
-    updateWebState("p12_oil_hardware_enable", config.oilmeter.use_hardware_meter);
-    break;
-  case 34:
-    updateWebState("p12_oil_virtual_enable", config.oilmeter.use_virtual_meter);
-    break;
-  case 35:
-    updateWebValueFloat("p12_oil_par1_kg_h", config.oilmeter.consumption_kg_h, 3);
-    break;
-  case 36:
-    updateWebValueFloat("p12_oil_par2_kg_l", config.oilmeter.oil_density_kg_l, 3);
-    break;
-  case 37:
-    updateWebState("p12_sens1_enable", config.sensor.ch1_enable);
-    break;
-  case 38:
-    updateWebText("p12_sens1_name", config.sensor.ch1_name, true);
-    break;
-  case 39:
-    updateWebText("p12_sens1_description", config.sensor.ch1_description, true);
-    break;
-  case 40:
-    updateWebValueInt("p12_sens1_gpio", config.sensor.ch1_gpio);
-    break;
-  case 41:
-    updateWebState("p12_sens2_enable", config.sensor.ch2_enable);
-    break;
-  case 42:
-    updateWebText("p12_sens2_name", config.sensor.ch2_name, true);
-    break;
-  case 43:
-    updateWebText("p12_sens2_description", config.sensor.ch2_description, true);
-    break;
-  case 44:
-    updateWebValueInt("p12_sens2_gpio", config.sensor.ch2_gpio);
-    break;
-  case 45:
-    updateWebValueInt("p12_language", config.lang);
-    setLanguage(LANG.CODE[config.lang]); // set language for webUI based on config
-    break;
-  case 46:
-    updateWebState("p10_log_enable", config.log.enable);
-    break;
-  case 47:
-    updateWebValueInt("p10_log_mode", config.log.filter);
-    break;
-  case 48:
-    updateWebValueInt("p10_log_order", config.log.order);
-    break;
-  case 49:
-    updateWebState("p12_ntp_enable", config.ntp.enable);
-    break;
-  case 50:
-    updateWebText("p12_ntp_server", config.ntp.server, true);
-    break;
-  case 51:
-    updateWebText("p12_ntp_tz", config.ntp.tz, true);
-    break;
-  case 52:
-    updSettingsElementsDone = true;
-    break;
-  default:
-    webElementUpdateCnt = -1;
-    break;
-  }
-  webElementUpdateCnt = (webElementUpdateCnt + 1) % 53;
+  JsonDocument doc;
+  JsonArray array = doc.to<JsonArray>();
+
+  addJsonValueTxt(array, "p12_wifi_hostname", config.wifi.hostname);
+  addJsonValueTxt(array, "p12_wifi_ssid", config.wifi.ssid);
+  addJsonValueTxt(array, "p12_wifi_password", config.wifi.password);
+  addJsonState(array, "p12_ip_enable", config.ip.enable);
+  addJsonValueTxt(array, "p12_ip_adr", config.ip.ipaddress);
+  addJsonValueTxt(array, "p12_ip_subnet", config.ip.subnet);
+  addJsonValueTxt(array, "p12_ip_gateway", config.ip.gateway);
+  addJsonValueTxt(array, "p12_ip_dns", config.ip.dns);
+  addJsonState(array, "p12_access_enable", config.auth.enable);
+  addJsonValueTxt(array, "p12_access_user", config.auth.user);
+  addJsonValueTxt(array, "p12_access_password", config.auth.password);
+  addJsonState(array, "p12_mqtt_enable", config.mqtt.enable);
+  addJsonValueTxt(array, "p12_mqtt_server", config.mqtt.server);
+  addJsonValueInt(array, "p12_mqtt_port", (config.mqtt.port));
+  addJsonValueTxt(array, "p12_mqtt_user", config.mqtt.user);
+  addJsonValueTxt(array, "p12_mqtt_password", config.mqtt.password);
+  addJsonValueTxt(array, "p12_mqtt_topic", config.mqtt.topic);
+  addJsonValueInt(array, "p12_mqtt_language", config.mqtt.lang);
+  addJsonState(array, "p12_pushover_enable", config.pushover.enable);
+  addJsonValueTxt(array, "p12_pushover_api_token", config.pushover.token);
+  addJsonValueTxt(array, "p12_pushover_user_key", config.pushover.user_key);
+  addJsonValueInt(array, "p12_pushover_filter", config.pushover.filter);
+  addJsonState(array, "p12_hc1_enable", config.km271.use_hc1);
+  addJsonState(array, "p12_hc2_enable", config.km271.use_hc2);
+  addJsonState(array, "p12_hw_enable", config.km271.use_ww);
+  addJsonState(array, "p12_alarm_enable", config.km271.use_alarmMsg);
+  addJsonValueInt(array, "p12_gpio_km271_rx", config.gpio.km271_RX);
+  addJsonValueInt(array, "p12_gpio_km271_tx", config.gpio.km271_TX);
+  addJsonValueInt(array, "p12_gpio_led_heartbeat", config.gpio.led_heartbeat);
+  addJsonValueInt(array, "p12_gpio_led_logmode", config.gpio.led_logmode);
+  addJsonValueInt(array, "p12_gpio_led_wifi", config.gpio.led_wifi);
+  addJsonValueInt(array, "p12_gpio_led_oilcounter", config.gpio.led_oilcounter);
+  addJsonValueInt(array, "p12_gpio_trig_oilcounter", config.gpio.trigger_oilcounter);
+  addJsonState(array, "p12_oil_hardware_enable", config.oilmeter.use_hardware_meter);
+  addJsonState(array, "p12_oil_virtual_enable", config.oilmeter.use_virtual_meter);
+  addJsonValueFlt(array, "p12_oil_par1_kg_h", config.oilmeter.consumption_kg_h);
+  addJsonValueFlt(array, "p12_oil_par2_kg_l", config.oilmeter.oil_density_kg_l);
+  addJsonState(array, "p12_sens1_enable", config.sensor.ch1_enable);
+  addJsonValueTxt(array, "p12_sens1_name", config.sensor.ch1_name);
+  addJsonValueTxt(array, "p12_sens1_description", config.sensor.ch1_description);
+  addJsonValueInt(array, "p12_sens1_gpio", config.sensor.ch1_gpio);
+  addJsonState(array, "p12_sens2_enable", config.sensor.ch2_enable);
+  addJsonValueTxt(array, "p12_sens2_name", config.sensor.ch2_name);
+  addJsonValueTxt(array, "p12_sens2_description", config.sensor.ch2_description);
+  addJsonValueInt(array, "p12_sens2_gpio", config.sensor.ch2_gpio);
+  addJsonValueInt(array, "p12_language", config.lang);
+  addJsonState(array, "p10_log_enable", config.log.enable);
+  addJsonValueInt(array, "p10_log_mode", config.log.filter);
+  addJsonValueInt(array, "p10_log_order", config.log.order);
+  addJsonState(array, "p12_ntp_enable", config.ntp.enable);
+  addJsonValueTxt(array, "p12_ntp_server", config.ntp.server);
+  addJsonValueTxt(array, "p12_ntp_tz", config.ntp.tz);
+
+  String jsonString;
+  serializeJson(doc, jsonString);
+  updateWebJSON(jsonString.c_str());
+
+  setLanguage(LANG.CODE[config.lang]); // set language for webUI based on config
+
+  updSettingsElementsDone = true;
+
 }
 
 /**

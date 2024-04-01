@@ -323,3 +323,41 @@ evtSource.addEventListener(
   },
   false
 );
+
+// JSON message for grouped messages
+evtSource.addEventListener(
+  "updateJSON",
+  function (event) {
+    // Das empfangene JSON-Array parsen
+    var updates = JSON.parse(event.data);
+
+    updates.forEach(function (update) {
+      // Das DOM-Element basierend auf seiner ID finden
+      var element = document.getElementById(update.elementID);
+
+      if (element) {
+        // Den 'typ' überprüfen und entsprechende Aktion durchführen
+        switch (update.typ) {
+          case "value":
+            element.value = update.value;
+            break;
+          case "checked":
+            element.checked = update.value;
+            toggleElementVisibility(
+              element.getAttribute("hideOpt"),
+              element.checked
+            );
+            break;
+          case "innerHTML":
+            element.innerHTML = update.value;
+            break;
+          default:
+            console.error("Unbekannter Typ:", update.typ);
+        }
+      } else {
+        console.error("Element nicht gefunden:", update.elementID);
+      }
+    });
+  },
+  false
+);
