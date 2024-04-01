@@ -1,5 +1,23 @@
 
+// Library Settings
+#define SSE_MAX_QUEUED_MESSAGES 256      // ESPAsyncWebServer: max number of queued SSE messages
+#define CONFIG_ASYNC_TCP_QUEUE 256       // AsyncTCP: max number of queued messages
+#define CONFIG_ASYNC_TCP_STACK_SIZE 5120 // AsyncTCP: stack size
+#define ESP_DRD_USE_LITTLEFS true        // DRD: use LittleFS
+#define DOUBLERESETDETECTOR_DEBUG true   // DRD: debug serial outputs
+#define DRD_TIMEOUT 2                    // DRD: timeout for double reset detection
+#define DRD_ADDRESS 0                    // DRD: FLASH offset not used > LittleFS
+
+
+#define EMC_RX_BUFFER_SIZE 1024
+#define EMC_TX_BUFFER_SIZE 5120
+#define EMC_MAX_TOPIC_LENGTH 128
+#define EMC_PAYLOAD_BUFFER_SIZE 256
+
+
+// includes
 #include <ArduinoOTA.h>
+#include <ESP_DoubleResetDetector.h>
 #include <basics.h>
 #include <config.h>
 #include <km271.h>
@@ -11,23 +29,16 @@
 #include <telnet.h>
 #include <webUI.h>
 
-// Double-Reset-Detector
-#define ESP_DRD_USE_LITTLEFS true
-#define DOUBLERESETDETECTOR_DEBUG true
-#define DRD_TIMEOUT 2
-#define DRD_ADDRESS 0 // not used > LittleFS
-#include <ESP_DoubleResetDetector.h>
-DoubleResetDetector *drd;
-
 /* D E C L A R A T I O N S ****************************************************/
 muTimer mainTimer = muTimer();      // timer for cyclic info
 muTimer heartbeat = muTimer();      // timer for heartbeat signal
 muTimer setupModeTimer = muTimer(); // timer for heartbeat signal
 muTimer dstTimer = muTimer();       // timer to check daylight saving time change
 
-bool main_reboot = true; // reboot flag
-int dst_old;             // reminder for change of daylight saving time
-bool dst_ref;            // init flag fpr dst reference
+DoubleResetDetector *drd; // Double-Reset-Detector
+bool main_reboot = true;  // reboot flag
+int dst_old;              // reminder for change of daylight saving time
+bool dst_ref;             // init flag fpr dst reference
 
 /**
  * *******************************************************************

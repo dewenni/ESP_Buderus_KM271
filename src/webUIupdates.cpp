@@ -1,6 +1,10 @@
 #include <webUI.h>
 #include <webUIupdates.h>
 
+/* S E T T I N G S ****************************************************/
+#define WEBUI_FAST_REFRESH_TIME_MS 10
+#define WEBUI_SLOW_REFRESH_TIME_MS 1000
+
 /* D E C L A R A T I O N S ****************************************************/
 muTimer refreshTimer1 = muTimer(); // timer to refresh other values
 muTimer refreshTimer2 = muTimer(); // timer to refresh other values
@@ -12,7 +16,6 @@ s_km271_config_num *pkmConfigNum = km271GetConfigValueAdr();
 s_km271_alarm_str *pkmAlarmStr = km271GetAlarmMsgAdr();
 
 char tmpMessage[300] = {'\0'};
-
 uint8_t webElementUpdateCnt = 0;
 unsigned int KmCfgHash[kmConfig_Hash_SIZE] = {0};
 unsigned int KmAlarmHash[4] = {0};
@@ -20,8 +23,9 @@ bool updSettingsElementsDone = false;
 bool oilmeterInit = false;
 long oilcounter, oilcounterOld;
 double oilcounterVirtOld = 0.0;
-int UpdateCnt50ms = 0;
-int UpdateCnt1s = 0;
+int UpdateCntFast = 0;
+int UpdateCntSlow = 0;
+s_lang LANG;
 
 /**
  * *******************************************************************
@@ -248,6 +252,7 @@ void updateSettingsElements() {
     break;
   case 45:
     updateWebValueInt("p12_language", config.lang);
+    setLanguage(LANG.CODE[config.lang]); // set language for webUI based on config
     break;
   case 46:
     updateWebState("p10_log_enable", config.log.enable);
@@ -891,15 +896,15 @@ void updateKm271StatusElements() {
 
 void webUIupdates() {
 
-  // refresh elemets not faster than 50ms
-  if (refreshTimer1.cycleTrigger(50)) {
+  // refresh elemets not faster than XXms
+  if (refreshTimer1.cycleTrigger(WEBUI_FAST_REFRESH_TIME_MS)) {
 
     if (!updSettingsElementsDone) {
       updateSettingsElements();
     } else if (webLogRefreshActive()) {
       webReadLogBufferCyclic();
     } else {
-      switch (UpdateCnt50ms) {
+      switch (UpdateCntFast) {
       case 0:
         updateKm271AlarmElements();
         break;
@@ -910,16 +915,16 @@ void webUIupdates() {
         updateKm271ConfigElements();
         break;
       default:
-        UpdateCnt50ms = -1;
+        UpdateCntFast = -1;
         break;
       }
-      UpdateCnt50ms = (UpdateCnt50ms + 1) % 3;
+      UpdateCntFast = (UpdateCntFast + 1) % 3;
     }
   }
 
   // refresh elemets every 1 seconds
-  if (refreshTimer2.cycleTrigger(1000)) {
-    switch (UpdateCnt1s) {
+  if (refreshTimer2.cycleTrigger(WEBUI_SLOW_REFRESH_TIME_MS)) {
+    switch (UpdateCntSlow) {
     case 0:
       updateSystemInfoElements();
       break;
@@ -930,9 +935,9 @@ void webUIupdates() {
       updateSensorElements();
       break;
     default:
-      UpdateCnt1s = -1;
+      UpdateCntSlow = -1;
       break;
     }
-    UpdateCnt1s = (UpdateCnt1s + 1) % 3;
+    UpdateCntSlow = (UpdateCntSlow + 1) % 3;
   }
 }

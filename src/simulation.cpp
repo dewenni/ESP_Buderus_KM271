@@ -92,7 +92,7 @@ void startSimData() {
 
 void simDataCyclic() {
 #if SIM_MODE
-  if (simTimer.cycleTrigger(100) && simDataEnable) {
+  if (simTimer.cycleTrigger(10) && simDataEnable) {
     if (msgCnt < MAX_MSG_CNT) {
       parseInfo(simData[msgCnt], sizeof(simData[0]));
       msg(uint8ToString(msgCnt + 1));

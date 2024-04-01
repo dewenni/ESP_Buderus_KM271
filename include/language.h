@@ -3,6 +3,10 @@
 
 #define MAX_LANG 2 // increase if you add more languages
 
+typedef struct {
+  const char *CODE[MAX_LANG] = {"de", "en"};
+} s_lang;
+
 // ======================================================================================
 // mqtt messages : texts that are used for mqtt messages from KM271
 // ======================================================================================

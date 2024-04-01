@@ -4,6 +4,7 @@
 #include <message.h>
 #include <oilmeter.h>
 #include <webUI.h>
+#include <webUIupdates.h>
 
 char pushoverMessage[300] = {'\0'};
 long oilmeterSetValue;
@@ -367,6 +368,7 @@ void webCallback(const char *elementId, const char *value) {
   // Language
   if (strcmp(elementId, "p12_language") == 0) {
     config.lang = strtoul(value, NULL, 10);
+    updateAllElements();
   }
 
   // Buttons

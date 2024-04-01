@@ -6,7 +6,7 @@
 #include <config.h>
 #include <language.h>
 #include <gzip_c_css.h>
-#include <gzip_html.h>
+#include <gzip_main_html.h>
 #include <gzip_js.h>
 #include <gzip_login_html.h>
 #include <gzip_m_css.h>

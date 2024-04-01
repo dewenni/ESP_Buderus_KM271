@@ -2,6 +2,22 @@ import os
 import re
 import gzip
 
+def compress_to_gzip_c_array(input_file_path, output_file_path, var_name):
+    # HTML-Datei einlesen
+    with open(input_file_path, 'rb') as file:
+        content = file.read()
+    
+    # Inhalt mit Brotli komprimieren
+    compressed_content = gzip.compress(content)
+    
+    # Komprimierten Inhalt in ein C-Array umwandeln
+    c_array_content = ', '.join(['0x{:02x}'.format(byte) for byte in compressed_content])
+    
+    # C-Array in eine neue Datei schreiben
+    with open(output_file_path, 'w') as file:
+        file.write('const uint8_t PROGMEM ' + var_name + '[] = {' + c_array_content + '};\n')
+        file.write(f'const unsigned int {var_name}_size = {len(compressed_content)};\n')
+
 #================================================================
 # HTML
 #================================================================
@@ -25,7 +41,7 @@ source_files = [
 
 # Zielpfad der generierten Datei
 output_file_html = 'web/temp/index.html'
-output_file_gzip_html = 'include/gzip_html.h'
+output_file_br = 'include/gzip_main_html.h'
 
 combined_html = ''
 
@@ -47,27 +63,7 @@ for file_path in source_files:
 with open(output_file_html, 'w') as file:
     file.write(combined_html)
 
-def compress_html_to_gzip_c_array(input_file_path, output_file_path):
-    # HTML-Datei einlesen
-    with open(input_file_path, 'rb') as file:
-        content = file.read()
-    
-    # Inhalt mit GZIP komprimieren
-    compressed_content = gzip.compress(content)
-    
-    # Komprimierten Inhalt in ein C-Array umwandeln
-    c_array_content = ', '.join(['0x{:02x}'.format(byte) for byte in compressed_content])
-    
-    # C-Array in eine neue Datei schreiben
-    with open(output_file_path, 'w') as file:
-        file.write('const uint8_t PROGMEM gzip_html[] = {' + c_array_content + '};\n')
-        file.write(f'const unsigned int gzip_html_size = {len(compressed_content)};')
-
-# Pfad zur HTML-Datei und zum Ausgabe-C-Datei
-input_html_file = output_file_html
-output_c_file = output_file_gzip_html
-
-compress_html_to_gzip_c_array(input_html_file, output_c_file)
+compress_to_gzip_c_array(output_file_html, output_file_br, 'main_html')
 
 #================================================================
 # HTML - only gzip
@@ -77,23 +73,7 @@ compress_html_to_gzip_c_array(input_html_file, output_c_file)
 input_html_file = 'web/html/login.html'
 output_c_file = 'include/gzip_login_html.h'
 
-def compress_css_to_gzip_c_array(input_file_path, output_file_path):
-    # HTML-Datei einlesen
-    with open(input_file_path, 'rb') as file:
-        content = file.read()
-    
-    # Inhalt mit GZIP komprimieren
-    compressed_content = gzip.compress(content)
-    
-    # Komprimierten Inhalt in ein C-Array umwandeln
-    c_array_content = ', '.join(['0x{:02x}'.format(byte) for byte in compressed_content])
-    
-    # C-Array in eine neue Datei schreiben
-    with open(output_file_path, 'w') as file:
-        file.write('const uint8_t PROGMEM gzip_login_html[] = {' + c_array_content + '};\n')
-        file.write(f'const unsigned int gzip_login_html_size = {len(compressed_content)};')
-
-compress_css_to_gzip_c_array(input_html_file, output_c_file)
+compress_to_gzip_c_array(input_html_file, output_c_file, 'login_html')
 
 
 #================================================================
@@ -107,7 +87,7 @@ source_files = [
 
 # Zielpfad der generierten Datei
 output_file_css = 'web/temp/custom.css'
-output_file_gzip_css = 'include/gzip_c_css.h'
+output_c_file = 'include/gzip_c_css.h'
 
 combined_content = ''
 
@@ -120,54 +100,18 @@ for file_path in source_files:
 with open(output_file_css, 'w') as file:
     file.write(combined_content)
 
+compress_to_gzip_c_array(output_file_css, output_c_file, 'c_css')
 
-def compress_css_to_gzip_c_array(input_file_path, output_file_path):
-    # HTML-Datei einlesen
-    with open(input_file_path, 'rb') as file:
-        content = file.read()
-    
-    # Inhalt mit GZIP komprimieren
-    compressed_content = gzip.compress(content)
-    
-    # Komprimierten Inhalt in ein C-Array umwandeln
-    c_array_content = ', '.join(['0x{:02x}'.format(byte) for byte in compressed_content])
-    
-    # C-Array in eine neue Datei schreiben
-    with open(output_file_path, 'w') as file:
-        file.write('const uint8_t PROGMEM c_gzip_css[] = {' + c_array_content + '};\n')
-        file.write(f'const unsigned int c_gzip_css_size = {len(compressed_content)};')
-
-# Pfad zur HTML-Datei und zum Ausgabe-C-Datei
-input_html_file = output_file_css
-output_c_file = output_file_gzip_css
-
-compress_css_to_gzip_c_array(input_html_file, output_c_file)
 
 #================================================================
 # CSS - only gzip
 #================================================================
 
 # Pfad zur HTML-Datei und zum Ausgabe-C-Datei
-input_html_file = 'web/css/pico.css'
+input_file = 'web/css/pico.css'
 output_c_file = 'include/gzip_m_css.h'
 
-def compress_css_to_gzip_c_array(input_file_path, output_file_path):
-    # HTML-Datei einlesen
-    with open(input_file_path, 'rb') as file:
-        content = file.read()
-    
-    # Inhalt mit GZIP komprimieren
-    compressed_content = gzip.compress(content)
-    
-    # Komprimierten Inhalt in ein C-Array umwandeln
-    c_array_content = ', '.join(['0x{:02x}'.format(byte) for byte in compressed_content])
-    
-    # C-Array in eine neue Datei schreiben
-    with open(output_file_path, 'w') as file:
-        file.write('const uint8_t PROGMEM m_gzip_css[] = {' + c_array_content + '};\n')
-        file.write(f'const unsigned int m_gzip_css_size = {len(compressed_content)};')
-
-compress_css_to_gzip_c_array(input_html_file, output_c_file)
+compress_to_gzip_c_array(input_file, output_c_file, 'm_css')
 
 
 #================================================================
@@ -182,7 +126,7 @@ source_files = [
 
 # Zielpfad der generierten Datei
 output_file_js = 'web/temp/main.js'
-output_file_gzip_js = 'include/gzip_js.h'
+output_file_br_js = 'include/gzip_js.h'
 
 combined_content = ''
 
@@ -195,24 +139,4 @@ for file_path in source_files:
 with open(output_file_js, 'w') as file:
     file.write(combined_content)
 
-def compress_css_to_gzip_c_array(input_file_path, output_file_path):
-    # HTML-Datei einlesen
-    with open(input_file_path, 'rb') as file:
-        content = file.read()
-    
-    # Inhalt mit GZIP komprimieren
-    compressed_content = gzip.compress(content)
-    
-    # Komprimierten Inhalt in ein C-Array umwandeln
-    c_array_content = ', '.join(['0x{:02x}'.format(byte) for byte in compressed_content])
-    
-    # C-Array in eine neue Datei schreiben
-    with open(output_file_path, 'w') as file:
-        file.write('const uint8_t PROGMEM gzip_js[] = {' + c_array_content + '};\n')
-        file.write(f'const unsigned int gzip_js_size = {len(compressed_content)};')
-
-# Pfad zur HTML-Datei und zum Ausgabe-C-Datei
-input_html_file = output_file_js
-output_c_file = output_file_gzip_js
-
-compress_css_to_gzip_c_array(input_html_file, output_c_file)
+compress_to_gzip_c_array(output_file_js, output_file_br_js, 'm_js')

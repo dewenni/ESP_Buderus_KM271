@@ -240,8 +240,8 @@ void onLoadRequest() { updateAllElements(); }
 void webUISetup() {
 
   server.on("/login", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", gzip_login_html, gzip_login_html_size);
-    response->addHeader("Content-Encoding", "gzip");
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", login_html, login_html_size);
+    response->addHeader("Content-Encoding", "br");
     request->send(response);
   });
 
@@ -271,30 +271,29 @@ void webUISetup() {
   });
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", gzip_html, gzip_html_size);
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", main_html, main_html_size);
     if (!isAuthenticated(request)) {
       request->redirect("/login");
     } else {
       response->addHeader("Content-Encoding", "gzip");
       request->send(response);
-      onLoadRequest();
     }
   });
 
   server.on("/gzip_c.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/css", c_gzip_css, c_gzip_css_size);
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/css", c_css, c_css_size);
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   });
 
   server.on("/gzip_m.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/css", m_gzip_css, m_gzip_css_size);
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/css", m_css, m_css_size);
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   });
 
-  server.on("/gzip.js", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/js", gzip_js, gzip_js_size);
+  server.on("/gzip_m.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/js", m_js, m_js_size);
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   });

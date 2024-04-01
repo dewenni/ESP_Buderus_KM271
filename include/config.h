@@ -4,8 +4,8 @@
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION "v4.0.9001" // internal program version
-#define SIM_MODE false
+#define VERSION "v4.0.9003" // internal program version
+#define SIM_MODE true
 
 #define WIFI_RECONNECT 10000 // Delay between wifi reconnection tries
 #define MQTT_RECONNECT 10000 // Delay between mqtt reconnection tries
