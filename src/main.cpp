@@ -8,13 +8,6 @@
 #define DRD_TIMEOUT 2                    // DRD: timeout for double reset detection
 #define DRD_ADDRESS 0                    // DRD: FLASH offset not used > LittleFS
 
-
-#define EMC_RX_BUFFER_SIZE 1024
-#define EMC_TX_BUFFER_SIZE 5120
-#define EMC_MAX_TOPIC_LENGTH 128
-#define EMC_PAYLOAD_BUFFER_SIZE 256
-
-
 // includes
 #include <ArduinoOTA.h>
 #include <ESP_DoubleResetDetector.h>

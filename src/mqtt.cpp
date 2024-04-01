@@ -8,7 +8,7 @@
 
 /* D E C L A R A T I O N S ****************************************************/
 WiFiClient espClient;
-espMqttClientAsync mqtt_client;
+AsyncMqttClient mqtt_client;
 s_mqtt_cmds mqttCmd; // exts that are used as topics for KM271 commands
 s_km271_msg infoMsg;
 muTimer mqttReconnectTimer = muTimer(); // timer for reconnect delay
@@ -49,7 +49,7 @@ void onMqttConnect(bool sessionPresent) {
  * @param   none
  * @return  none
  * *******************************************************************/
-void onMqttDisconnect(espMqttClientTypes::DisconnectReason reason) { Serial.printf("Disconnected from MQTT: %u.\n", static_cast<uint8_t>(reason)); }
+void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) { msgLn("MQTT disconnected"); }
 
 /**
  * *******************************************************************
@@ -57,11 +57,10 @@ void onMqttDisconnect(espMqttClientTypes::DisconnectReason reason) { Serial.prin
  * @param   none
  * @return  none
  * *******************************************************************/
-void onMqttMessage(const espMqttClientTypes::MessageProperties &properties, const char *topic, const uint8_t *payload, size_t len, size_t index,
-                   size_t total) {
+void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
 
-  // local copy of payload as string with NULL termination
-  #define PAYLOAD_LEN 128
+// local copy of payload as string with NULL termination
+#define PAYLOAD_LEN 128
   char payloadCopy[PAYLOAD_LEN] = {'\0'};
   if (len > 0 && len < PAYLOAD_LEN) {
     memcpy(payloadCopy, payload, len);
@@ -96,7 +95,7 @@ void onMqttMessage(const espMqttClientTypes::MessageProperties &properties, cons
     if (len == 23) { // 23 characters: 8 Hex-values + 7 separators "_"
       uint8_t hexArray[8];
       // Iteration thru payload
-      char *token = strtok(payloadCopy, "_");
+      char *token = strtok(payload, "_");
       size_t i = 0;
       while (token != NULL && i < 8) {
         // check, if the substring contains valid hex values
