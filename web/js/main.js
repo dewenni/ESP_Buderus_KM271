@@ -328,34 +328,33 @@ evtSource.addEventListener(
 evtSource.addEventListener(
   "updateJSON",
   function (event) {
-    // Das empfangene JSON-Array parsen
     var updates = JSON.parse(event.data);
-
     updates.forEach(function (update) {
-      // Das DOM-Element basierend auf seiner ID finden
-      var element = document.getElementById(update.elementID);
+      var element = document.getElementById(update.id);
 
       if (element) {
-        // Den 'typ' überprüfen und entsprechende Aktion durchführen
         switch (update.typ) {
-          case "value":
-            element.value = update.value;
+          case "v":
+            element.value = update.val;
             break;
-          case "checked":
-            element.checked = update.value;
+          case "c":
+            element.checked = update.val;
             toggleElementVisibility(
               element.getAttribute("hideOpt"),
               element.checked
             );
             break;
-          case "innerHTML":
-            element.innerHTML = update.value;
+          case "l":
+            element.innerHTML = update.val;
+            break;
+          case "i":
+            element.className = "svg " + update.val;
             break;
           default:
-            console.error("Unbekannter Typ:", update.typ);
+            console.error("unknown typ:", update.typ);
         }
       } else {
-        console.error("Element nicht gefunden:", update.elementID);
+        console.error("element not found:", update.id);
       }
     });
   },

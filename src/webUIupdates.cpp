@@ -4,10 +4,16 @@
 /* S E T T I N G S ****************************************************/
 #define WEBUI_FAST_REFRESH_TIME_MS 10
 #define WEBUI_SLOW_REFRESH_TIME_MS 1000
+#define WEBUI_JSON_REFRESH_TIME_MS 20
+
+/* P R O T O T Y P E S ********************************************************/
+void updateKm271ConfigElementsAll();
+void updateKm271StatusElementsAll();
 
 /* D E C L A R A T I O N S ****************************************************/
 muTimer refreshTimer1 = muTimer(); // timer to refresh other values
 muTimer refreshTimer2 = muTimer(); // timer to refresh other values
+muTimer refreshTimer3 = muTimer(); // timer to refresh other values
 
 s_km271_status kmStatusCpy;
 s_km271_status *pkmStatus = km271GetStatusValueAdr();
@@ -19,12 +25,16 @@ char tmpMessage[300] = {'\0'};
 uint8_t webElementUpdateCnt = 0;
 unsigned int KmCfgHash[kmConfig_Hash_SIZE] = {0};
 unsigned int KmAlarmHash[4] = {0};
-bool updSettingsElementsDone = false;
+bool refreshRequest = false;
 bool oilmeterInit = false;
 long oilcounter, oilcounterOld;
 double oilcounterVirtOld = 0.0;
 int UpdateCntFast = 0;
 int UpdateCntSlow = 0;
+int UpdateCntRefresh = 0;
+char jsonConfigBuffer[8192];
+char jsonStatusBuffer[8192];
+char jsonSettingsBuffer[8192];
 s_lang LANG;
 
 /**
@@ -35,15 +45,12 @@ s_lang LANG;
  * *******************************************************************/
 void updateAllElements() {
 
-  // set compare structures to a "random" value to force updates
-  memset((void *)&kmStatusCpy, 111, sizeof(s_km271_status));
+  refreshRequest = true;
 
   // reset hash values to force updates
-  memset((void *)KmCfgHash, 0, sizeof(KmCfgHash));
   memset((void *)KmAlarmHash, 0, sizeof(KmAlarmHash));
 
-  updSettingsElementsDone = false; // update all settings values
-  oilmeterInit = false;            // update oil-meter values
+  oilmeterInit = false; // update oil-meter values
 
   if (setupMode) {
     showElementClass("setupModeBar", true);
@@ -106,32 +113,53 @@ void updateOilmeterElements() {
   oilmeterInit = true;
 }
 
-void addJsonValueTxt(JsonArray &array, const char *elementID, const char *value) {
+void addJsonLabelInt(JsonArray &array, const char *elementID, intmax_t value) {
   JsonObject obj = array.add<JsonObject>();
-  obj["elementID"] = elementID;
-  obj["typ"] = "value";
-  obj["value"] = value;
+  obj["id"] = elementID;
+  obj["typ"] = "l";
+  obj["val"] = value;
 };
 
-void addJsonValueInt(JsonArray &array, const char *elementID, uint16_t value) {
+void addJsonLabelTxt(JsonArray &array, const char *elementID, const char *value) {
   JsonObject obj = array.add<JsonObject>();
-  obj["elementID"] = elementID;
-  obj["typ"] = "value";
-  obj["value"] = value;
+  obj["id"] = elementID;
+  obj["typ"] = "l";
+  obj["val"] = value;
+};
+
+void addJsonValueTxt(JsonArray &array, const char *elementID, const char *value) {
+  JsonObject obj = array.add<JsonObject>();
+  obj["id"] = elementID;
+  obj["typ"] = "v";
+  obj["val"] = value;
+};
+
+void addJsonValueInt(JsonArray &array, const char *elementID, intmax_t value) {
+  JsonObject obj = array.add<JsonObject>();
+  obj["id"] = elementID;
+  obj["typ"] = "v";
+  obj["val"] = value;
 };
 
 void addJsonValueFlt(JsonArray &array, const char *elementID, float value) {
   JsonObject obj = array.add<JsonObject>();
-  obj["elementID"] = elementID;
-  obj["typ"] = "value";
-  obj["value"] = value;
+  obj["id"] = elementID;
+  obj["typ"] = "v";
+  obj["val"] = value;
 };
 
 void addJsonState(JsonArray &array, const char *elementID, bool value) {
   JsonObject obj = array.add<JsonObject>();
-  obj["elementID"] = elementID;
-  obj["typ"] = "checked";
-  obj["value"] = value;
+  obj["id"] = elementID;
+  obj["typ"] = "c";
+  obj["val"] = value;
+};
+
+void addJsonIcon(JsonArray &array, const char *elementID, const char *value) {
+  JsonObject obj = array.add<JsonObject>();
+  obj["id"] = elementID;
+  obj["typ"] = "i";
+  obj["val"] = value;
 };
 
 /**
@@ -200,12 +228,10 @@ void updateSettingsElements() {
 
   String jsonString;
   serializeJson(doc, jsonString);
+  Serial.printf("settings string size: %d\n", jsonString.length());
   updateWebJSON(jsonString.c_str());
 
   setLanguage(LANG.CODE[config.lang]); // set language for webUI based on config
-
-  updSettingsElementsDone = true;
-
 }
 
 /**
@@ -267,6 +293,143 @@ void updateKm271AlarmElements() {
   if (strDiff(&KmAlarmHash[3], pkmAlarmStr->alarm4)) {
     updateWebText("p08_err_msg4", pkmAlarmStr->alarm4, false);
   }
+}
+
+/**
+ * *******************************************************************
+ * @brief   update status values of KM271
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void updateKm271ConfigElementsAll() {
+
+  JsonDocument doc;
+  JsonArray array = doc.to<JsonArray>();
+
+  // heating circuit 1 configuration
+  if (config.km271.use_hc1) {
+    addJsonValueInt(array, "p02_hc1_frost_protection_threshold", pkmConfigNum->hc1_frost_protection_threshold);
+    addJsonLabelInt(array, "p02_hc1_frost_protection_threshold_txt", pkmConfigNum->hc1_frost_protection_threshold);
+    addJsonLabelTxt(array, "p03_hc1_frost_protection_threshold", pkmConfigStr->hc1_frost_protection_threshold);
+    addJsonValueInt(array, "p02_hc1_summer_mode_threshold", pkmConfigNum->hc1_summer_mode_threshold);
+    addJsonLabelInt(array, "p02_hc1_summer_mode_threshold_txt", pkmConfigNum->hc1_summer_mode_threshold);
+    addJsonLabelTxt(array, "p03_hc1_summer_mode_threshold", pkmConfigStr->hc1_summer_mode_threshold);
+    addJsonLabelTxt(array, "p03_hc1_night_temp", pkmConfigStr->hc1_night_temp);
+    addJsonLabelTxt(array, "p03_hc1_day_temp", pkmConfigStr->hc1_day_temp);
+    addJsonState(array, "p02_hc1_opmode_night", pkmConfigNum->hc1_operation_mode == 0 ? true : false);
+    addJsonState(array, "p02_hc1_opmode_day", pkmConfigNum->hc1_operation_mode == 1 ? true : false);
+    addJsonState(array, "p02_hc1_opmode_auto", pkmConfigNum->hc1_operation_mode == 2 ? true : false);
+    addJsonLabelTxt(array, "p03_hc1_operation_mode", pkmConfigStr->hc1_operation_mode);
+    addJsonLabelTxt(array, "p03_hc1_holiday_temp", pkmConfigStr->hc1_holiday_temp);
+    addJsonLabelTxt(array, "p03_hc1_max_temp", pkmConfigStr->hc1_max_temp);
+    addJsonValueInt(array, "p02_hc1_interpretation", pkmConfigNum->hc1_interpretation);
+    addJsonLabelInt(array, "p02_hc1_interpretation_txt", pkmConfigNum->hc1_interpretation);
+    addJsonLabelTxt(array, "p03_hc1_interpretation", pkmConfigStr->hc1_interpretation);
+    addJsonLabelTxt(array, "p03_hc1_switch_on_temperature", pkmConfigStr->hc1_switch_on_temperature);
+    addJsonValueInt(array, "p02_hc1_switch_off_threshold", pkmConfigNum->hc1_switch_off_threshold);
+    addJsonLabelInt(array, "p02_hc1_switch_off_threshold_txt", pkmConfigNum->hc1_switch_off_threshold);
+    addJsonLabelTxt(array, "p03_hc1_switch_off_threshold", pkmConfigStr->hc1_switch_off_threshold);
+    addJsonLabelTxt(array, "p03_hc1_reduction_mode", pkmConfigStr->hc1_reduction_mode);
+    addJsonValueInt(array, "p02_hc1_reduct_mode", pkmConfigNum->hc1_reduction_mode);
+    addJsonLabelTxt(array, "p03_hc1_heating_system", pkmConfigStr->hc1_heating_system);
+    addJsonLabelTxt(array, "p03_hc1_temp_offset", pkmConfigStr->hc1_temp_offset);
+    addJsonLabelTxt(array, "p03_hc1_remotecontrol", pkmConfigStr->hc1_remotecontrol);
+    addJsonValueInt(array, "p02_hc1_prg", pkmConfigNum->hc1_program);
+    addJsonValueInt(array, "p02_hc1_holiday_days", pkmConfigNum->hc1_holiday_days);
+    addJsonLabelTxt(array, "p03_hc1_timer01", pkmConfigStr->hc1_timer01);
+    addJsonLabelTxt(array, "p03_hc1_timer02", pkmConfigStr->hc1_timer02);
+    addJsonLabelTxt(array, "p03_hc1_timer03", pkmConfigStr->hc1_timer03);
+    addJsonLabelTxt(array, "p03_hc1_timer04", pkmConfigStr->hc1_timer04);
+    addJsonLabelTxt(array, "p03_hc1_timer05", pkmConfigStr->hc1_timer05);
+    addJsonLabelTxt(array, "p03_hc1_timer06", pkmConfigStr->hc1_timer06);
+    addJsonLabelTxt(array, "p03_hc1_timer07", pkmConfigStr->hc1_timer07);
+    addJsonLabelTxt(array, "p03_hc1_timer08", pkmConfigStr->hc1_timer08);
+    addJsonLabelTxt(array, "p03_hc1_timer09", pkmConfigStr->hc1_timer09);
+    addJsonLabelTxt(array, "p03_hc1_timer10", pkmConfigStr->hc1_timer10);
+    addJsonLabelTxt(array, "p03_hc1_timer11", pkmConfigStr->hc1_timer11);
+    addJsonLabelTxt(array, "p03_hc1_timer12", pkmConfigStr->hc1_timer12);
+    addJsonLabelTxt(array, "p03_hc1_timer13", pkmConfigStr->hc1_timer13);
+    addJsonLabelTxt(array, "p03_hc1_timer14", pkmConfigStr->hc1_timer14);
+  }
+
+  // heating circuit 2 configuration
+  if (config.km271.use_hc2) {
+    addJsonValueInt(array, "p02_hc2_frost_protection_threshold", pkmConfigNum->hc2_frost_protection_threshold);
+    addJsonLabelInt(array, "p02_hc2_frost_protection_threshold_txt", pkmConfigNum->hc2_frost_protection_threshold);
+    addJsonLabelTxt(array, "p04_hc2_frost_protection_threshold", pkmConfigStr->hc2_frost_protection_threshold);
+    addJsonValueInt(array, "p02_hc2_summer_mode_threshold", pkmConfigNum->hc2_summer_mode_threshold);
+    addJsonLabelInt(array, "p02_hc2_summer_mode_threshold_txt", pkmConfigNum->hc2_summer_mode_threshold);
+    addJsonLabelTxt(array, "p04_hc2_summer_mode_threshold", pkmConfigStr->hc2_summer_mode_threshold);
+    addJsonLabelTxt(array, "p04_hc2_night_temp", pkmConfigStr->hc2_night_temp);
+    addJsonLabelTxt(array, "p04_hc2_day_temp", pkmConfigStr->hc2_day_temp);
+    addJsonState(array, "p02_hc2_opmode_night", pkmConfigNum->hc2_operation_mode == 0 ? true : false);
+    addJsonState(array, "p02_hc2_opmode_day", pkmConfigNum->hc2_operation_mode == 1 ? true : false);
+    addJsonState(array, "p02_hc2_opmode_auto", pkmConfigNum->hc2_operation_mode == 2 ? true : false);
+    addJsonLabelTxt(array, "p04_hc2_operation_mode", pkmConfigStr->hc2_operation_mode);
+    addJsonLabelTxt(array, "p04_hc2_holiday_temp", pkmConfigStr->hc2_holiday_temp);
+    addJsonLabelTxt(array, "p04_hc2_max_temp", pkmConfigStr->hc2_max_temp);
+    addJsonValueInt(array, "p02_hc2_interpretation", pkmConfigNum->hc2_interpretation);
+    addJsonLabelInt(array, "p02_hc2_interpretation_txt", pkmConfigNum->hc2_interpretation);
+    addJsonLabelTxt(array, "p04_hc2_interpretation", pkmConfigStr->hc2_interpretation);
+    addJsonLabelTxt(array, "p04_hc2_switch_on_temperature", pkmConfigStr->hc2_switch_on_temperature);
+    addJsonValueInt(array, "p02_hc2_switch_off_threshold", pkmConfigNum->hc2_switch_off_threshold);
+    addJsonLabelInt(array, "p02_hc2_switch_off_threshold_txt", pkmConfigNum->hc2_switch_off_threshold);
+    addJsonLabelTxt(array, "p04_hc2_switch_off_threshold", pkmConfigStr->hc2_switch_off_threshold);
+    addJsonLabelTxt(array, "p04_hc2_reduction_mode", pkmConfigStr->hc2_reduction_mode);
+    addJsonValueInt(array, "p02_hc2_reduct_mode", pkmConfigNum->hc2_reduction_mode);
+    addJsonLabelTxt(array, "p04_hc2_heating_system", pkmConfigStr->hc2_heating_system);
+    addJsonLabelTxt(array, "p04_hc2_temp_offset", pkmConfigStr->hc2_temp_offset);
+    addJsonLabelTxt(array, "p04_hc2_remotecontrol", pkmConfigStr->hc2_remotecontrol);
+    addJsonValueInt(array, "p02_hc2_prg", pkmConfigNum->hc2_program);
+    addJsonValueInt(array, "p02_hc2_holiday_days", pkmConfigNum->hc2_holiday_days);
+    addJsonLabelTxt(array, "p04_hc2_timer01", pkmConfigStr->hc2_timer01);
+    addJsonLabelTxt(array, "p04_hc2_timer02", pkmConfigStr->hc2_timer02);
+    addJsonLabelTxt(array, "p04_hc2_timer03", pkmConfigStr->hc2_timer03);
+    addJsonLabelTxt(array, "p04_hc2_timer04", pkmConfigStr->hc2_timer04);
+    addJsonLabelTxt(array, "p04_hc2_timer05", pkmConfigStr->hc2_timer05);
+    addJsonLabelTxt(array, "p04_hc2_timer06", pkmConfigStr->hc2_timer06);
+    addJsonLabelTxt(array, "p04_hc2_timer07", pkmConfigStr->hc2_timer07);
+    addJsonLabelTxt(array, "p04_hc2_timer08", pkmConfigStr->hc2_timer08);
+    addJsonLabelTxt(array, "p04_hc2_timer09", pkmConfigStr->hc2_timer09);
+    addJsonLabelTxt(array, "p04_hc2_timer10", pkmConfigStr->hc2_timer10);
+    addJsonLabelTxt(array, "p04_hc2_timer11", pkmConfigStr->hc2_timer11);
+    addJsonLabelTxt(array, "p04_hc2_timer12", pkmConfigStr->hc2_timer12);
+    addJsonLabelTxt(array, "p04_hc2_timer13", pkmConfigStr->hc2_timer13);
+    addJsonLabelTxt(array, "p04_hc2_timer14", pkmConfigStr->hc2_timer14);
+  }
+
+  // hot-water config values
+  if (config.km271.use_ww) {
+    addJsonLabelTxt(array, "p05_hw_priority", pkmConfigStr->ww_priority);
+    addJsonValueInt(array, "p02_ww_temp", pkmConfigNum->ww_temp);
+    addJsonLabelInt(array, "p02_ww_temp_txt", pkmConfigNum->ww_temp);
+    addJsonLabelTxt(array, "p05_hw_temp", pkmConfigStr->ww_temp);
+    addJsonState(array, "p02_ww_opmode_night", pkmConfigNum->ww_operation_mode == 0 ? true : false);
+    addJsonState(array, "p02_ww_opmode_day", pkmConfigNum->ww_operation_mode == 1 ? true : false);
+    addJsonState(array, "p02_ww_opmode_auto", pkmConfigNum->ww_operation_mode == 2 ? true : false);
+    addJsonLabelTxt(array, "p05_hw_operation_mode", pkmConfigStr->ww_operation_mode);
+    addJsonLabelTxt(array, "p05_hw_processing", pkmConfigStr->ww_processing);
+    addJsonValueInt(array, "p02_ww_circulation", pkmConfigNum->ww_circulation);
+    addJsonLabelInt(array, "p02_ww_circulation_txt", pkmConfigNum->ww_circulation);
+    addJsonLabelTxt(array, "p05_hw_circulation", pkmConfigStr->ww_circulation);
+  }
+
+  // general config values
+  addJsonLabelTxt(array, "p07_language", pkmConfigStr->language);
+  addJsonLabelTxt(array, "p07_display", pkmConfigStr->display);
+  addJsonLabelTxt(array, "p07_burner_type", pkmConfigStr->burner_type);
+  addJsonLabelTxt(array, "p06_max_boiler_temperature", pkmConfigStr->max_boiler_temperature);
+  addJsonLabelTxt(array, "p07_pump_logic_temp", pkmConfigStr->pump_logic_temp);
+  addJsonLabelTxt(array, "p07_exhaust_gas_temperature_threshold", pkmConfigStr->exhaust_gas_temperature_threshold);
+  addJsonLabelTxt(array, "p07_burner_min_modulation", pkmConfigStr->burner_min_modulation);
+  addJsonLabelTxt(array, "p07_burner_modulation_runtime", pkmConfigStr->burner_modulation_runtime);
+  addJsonLabelTxt(array, "p07_building_type", pkmConfigStr->building_type);
+  addJsonLabelTxt(array, "p07_time_offset", pkmConfigStr->time_offset);
+
+  String jsonCfgString;
+  serializeJson(doc, jsonCfgString);
+  Serial.printf("config string size: %d\n", jsonCfgString.length());
+  updateWebJSON(jsonCfgString.c_str());
 }
 
 /**
@@ -358,11 +521,11 @@ void updateKm271ConfigElements() {
   if (config.km271.use_hc2) {
     if (strDiff(&KmCfgHash[hc2_frost_protection_threshold], pkmConfigStr->hc2_frost_protection_threshold)) {
       updateWebValueInt("p02_hc2_frost_protection_threshold", pkmConfigNum->hc2_frost_protection_threshold);
-      updateWebTextInt("p04_hc2_frost_protection_threshold_txt", pkmConfigNum->hc2_frost_protection_threshold, false);
+      updateWebTextInt("p02_hc2_frost_protection_threshold_txt", pkmConfigNum->hc2_frost_protection_threshold, false);
       updateWebText("p04_hc2_frost_protection_threshold", pkmConfigStr->hc2_frost_protection_threshold, false);
     } else if (strDiff(&KmCfgHash[hc2_summer_mode_threshold], pkmConfigStr->hc2_summer_mode_threshold)) {
       updateWebValueInt("p02_hc2_summer_mode_threshold", pkmConfigNum->hc2_summer_mode_threshold);
-      updateWebTextInt("p04_hc2_summer_mode_threshold_txt", pkmConfigNum->hc2_summer_mode_threshold, false);
+      updateWebTextInt("p02_hc2_summer_mode_threshold_txt", pkmConfigNum->hc2_summer_mode_threshold, false);
       updateWebText("p04_hc2_summer_mode_threshold", pkmConfigStr->hc2_summer_mode_threshold, false);
     }
 
@@ -401,7 +564,7 @@ void updateKm271ConfigElements() {
     } else if (strDiff(&KmCfgHash[hc2_program], pkmConfigStr->hc2_program)) {
       updateWebValueInt("p02_hc2_prg", pkmConfigNum->hc2_program);
     } else if (strDiff(&KmCfgHash[hc2_holiday_days], pkmConfigStr->hc2_holiday_days)) {
-      updateWebValueInt("p04_hc2_holiday_days", pkmConfigNum->hc2_holiday_days);
+      updateWebValueInt("p02_hc2_holiday_days", pkmConfigNum->hc2_holiday_days);
     } else if (strDiff(&KmCfgHash[hc2_timer01], pkmConfigStr->hc2_timer01)) {
       updateWebText("p04_hc2_timer01", pkmConfigStr->hc2_timer01, false);
     } else if (strDiff(&KmCfgHash[hc2_timer02], pkmConfigStr->hc2_timer02)) {
@@ -820,14 +983,249 @@ void updateKm271StatusElements() {
   }
 }
 
+/**
+ * *******************************************************************
+ * @brief   update status values of KM271
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void updateKm271StatusElementsAll() {
+
+  km271GetStatusValueCopy(&kmStatusCpy);
+
+  JsonDocument doc;
+  JsonArray array = doc.to<JsonArray>();
+
+  // heating circuit 1 values
+  if (config.km271.use_hc1) {
+    // AUTOMATIC / MANUAL (Day/Night)
+    if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) { // AUTOMATIC
+      addJsonLabelTxt(array, "p01_hc1_opmode", webText.AUTOMATIC[config.lang]);
+      addJsonIcon(array, "p01_hc1_opmode_icon", "i_auto");
+    } else {                                               // MANUAL
+      if (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1)) { // DAY
+        addJsonLabelTxt(array, "p01_hc1_opmode", webText.MAN_DAY[config.lang]);
+        addJsonIcon(array, "p01_hc1_opmode_icon", "i_manual");
+      } else { // NIGHT
+        addJsonLabelTxt(array, "p01_hc1_opmode", webText.MAN_NIGHT[config.lang]);
+        addJsonIcon(array, "p01_hc1_opmode_icon", "i_manual");
+      }
+    }
+
+    // Summer / Winter
+    if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) { // AUTOMATIC
+      addJsonLabelTxt(array, "p01_hc1_summer_winter",
+                      (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]));
+      addJsonIcon(array, "p01_hc1_summer_winter_icon", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
+    } else { // generate status from actual temperature and summer threshold
+      addJsonLabelTxt(
+          array, "p01_hc1_summer_winter",
+          (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc1_summer_mode_threshold ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]));
+      addJsonIcon(array, "p01_hc1_summer_winter_icon",
+                  (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc1_summer_mode_threshold ? "i_summer" : "i_winter"));
+    }
+
+    addJsonLabelTxt(array, "p03_hc1_ov1_off_time_optimization", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 0)));
+    addJsonLabelTxt(array, "p03_hc1_ov1_on_time_optimization", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 1)));
+    addJsonLabelTxt(array, "p03_hc1_ov1_automatic", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)));
+    addJsonLabelTxt(array, "p03_hc1_ov1_ww_priority", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 3)));
+    addJsonLabelTxt(array, "p03_hc1_ov1_screed_drying", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 4)));
+    addJsonLabelTxt(array, "p03_hc1_ov1_holiday", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 5)));
+    addJsonLabelTxt(array, "p03_hc1_ov1_frost_protection", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 6)));
+
+    // Day / Night
+    addJsonLabelTxt(array, "p01_hc1_day_night",
+                    (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? webText.DAY[config.lang] : webText.NIGHT[config.lang]));
+    addJsonIcon(array, "p01_hc1_day_night_icon", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? "i_day" : "i_night"));
+
+    addJsonLabelTxt(array, "p03_hc1_ov2_summer", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 0)));
+    addJsonLabelTxt(array, "p03_hc1_ov2_day", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 1)));
+    addJsonLabelTxt(array, "p03_hc1_ov2_no_conn_to_remotectrl", errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 2)));
+    addJsonLabelTxt(array, "p03_hc1_ov2_remotectrl_error", errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 3)));
+    addJsonLabelTxt(array, "p03_hc1_ov2_failure_flow_sensor", errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 4)));
+    addJsonLabelTxt(array, "p03_hc1_ov2_flow_at_maximum", errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 5)));
+    addJsonLabelTxt(array, "p03_hc1_ov2_external_signal_input", errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 6)));
+    addJsonLabelInt(array, "p01_hc1_flow_set", kmStatusCpy.HC1_HeatingForwardTargetTemp);
+    addJsonLabelInt(array, "p03_hc1_flow_set", kmStatusCpy.HC1_HeatingForwardTargetTemp);
+    addJsonLabelInt(array, "p01_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardTargetTemp);
+    addJsonLabelInt(array, "p03_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardTargetTemp);
+    addJsonLabelInt(array, "p03_hc1_room_setpoint", kmStatusCpy.HC1_RoomTargetTemp);
+    addJsonLabelInt(array, "p03_hc1_room_temp", kmStatusCpy.HC1_RoomActualTemp);
+    addJsonLabelInt(array, "p03_hc1_on_time_opt_duration", kmStatusCpy.HC1_SwitchOnOptimizationTime);
+    addJsonLabelInt(array, "p03_hc1_off_time_opt_duration", kmStatusCpy.HC1_SwitchOffOptimizationTime);
+    addJsonLabelTxt(array, "p01_hc1_pump", (kmStatusCpy.HC1_PumpPower == 0 ? webText.OFF[config.lang] : webText.ON[config.lang]));
+    addJsonLabelInt(array, "p03_hc1_pump", kmStatusCpy.HC1_PumpPower);
+    addJsonLabelInt(array, "p03_hc1_mixer", kmStatusCpy.HC1_MixingValue);
+    addJsonLabelInt(array, "p03_hc1_heat_curve_10C", kmStatusCpy.HC1_HeatingCurvePlus10);
+    addJsonLabelInt(array, "p03_hc1_heat_curve_0C", kmStatusCpy.HC1_HeatingCurve0);
+    addJsonLabelInt(array, "p03_hc1_heat_curve_-10C", kmStatusCpy.HC1_HeatingCurveMinus10);
+  } // END HC1
+
+  // heating circuit 2 values
+  if (config.km271.use_hc2) {
+    // HC2-Operating State
+    if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) { // AUTOMATIC
+      addJsonLabelTxt(array, "p01_hc2_opmode", webText.AUTOMATIC[config.lang]);
+      addJsonIcon(array, "p01_hc2_opmode_icon", "i_auto");
+    } else {                                               // MANUAL
+      if (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1)) { // DAY
+        addJsonLabelTxt(array, "p01_hc2_opmode", webText.MAN_DAY[config.lang]);
+        addJsonIcon(array, "p01_hc2_opmode_icon", "i_manual");
+      } else { // NIGHT
+        addJsonLabelTxt(array, "p01_hc2_opmode", webText.MAN_NIGHT[config.lang]);
+        addJsonIcon(array, "p01_hc2_opmode_icon", "i_manual");
+      }
+    }
+    addJsonLabelTxt(array, "p01_hc2_opmode", tmpMessage);
+
+    // Summer / Winter
+    if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) { // AUTOMATIC
+      addJsonLabelTxt(array, "p01_hc2_summer_winter",
+                      (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]));
+      addJsonIcon(array, "p01_hc2_summer_winter_icon", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
+    } else { // generate status from actual temperature and summer threshold
+      addJsonLabelTxt(
+          array, "p01_hc2_summer_winter",
+          (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc2_summer_mode_threshold ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]));
+      addJsonIcon(array, "p01_hc2_summer_winter_icon",
+                  (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc2_summer_mode_threshold ? "i_summer" : "i_winter"));
+    }
+
+    addJsonLabelTxt(array, "p04_hc2_ov1_off_time_optimization", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 0)));
+    addJsonLabelTxt(array, "p04_hc2_ov1_on_time_optimization", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 1)));
+    addJsonLabelTxt(array, "p04_hc2_ov1_automatic", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)));
+    addJsonLabelTxt(array, "p04_hc2_ov1_ww_priority", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 3)));
+    addJsonLabelTxt(array, "p04_hc2_ov1_screed_drying", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 4)));
+    addJsonLabelTxt(array, "p04_hc2_ov1_holiday", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 5)));
+    addJsonLabelTxt(array, "p04_hc2_ov1_frost_protection", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 6)));
+    // Day / Night
+    addJsonLabelTxt(array, "p01_hc2_day_night",
+                    (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? webText.DAY[config.lang] : webText.NIGHT[config.lang]));
+    addJsonIcon(array, "p01_hc2_day_night_icon", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? "i_day" : "i_night"));
+
+    addJsonLabelTxt(array, "p04_hc2_ov2_summer", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 0)));
+    addJsonLabelTxt(array, "p04_hc2_ov2_day", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 1)));
+    addJsonLabelTxt(array, "p04_hc2_ov2_no_conn_to_remotectrl", errOkString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 2)));
+    addJsonLabelTxt(array, "p04_hc2_ov2_remotectrl_error", errOkString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 3)));
+    addJsonLabelTxt(array, "p04_hc2_ov2_failure_flow_sensor", errOkString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 4)));
+    addJsonLabelTxt(array, "p04_hc2_ov2_flow_at_maximum", errOkString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 5)));
+    addJsonLabelTxt(array, "p04_hc2_ov2_external_signal_input", errOkString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 6)));
+    addJsonLabelInt(array, "p01_hc2_flow_set", kmStatusCpy.HC2_HeatingForwardTargetTemp);
+    addJsonLabelInt(array, "p04_hc2_flow_set", kmStatusCpy.HC2_HeatingForwardTargetTemp);
+    addJsonLabelInt(array, "p01_hc2_flow_act", kmStatusCpy.HC2_HeatingForwardActualTemp);
+    addJsonLabelInt(array, "p04_hc2_flow_act", kmStatusCpy.HC2_HeatingForwardActualTemp);
+    addJsonLabelInt(array, "p04_hc2_room_setpoint", kmStatusCpy.HC2_RoomTargetTemp);
+    addJsonLabelInt(array, "p04_hc2_room_temp", kmStatusCpy.HC2_RoomActualTemp);
+    addJsonLabelInt(array, "p04_hc2_on_time_opt_duration", kmStatusCpy.HC2_SwitchOnOptimizationTime);
+    addJsonLabelInt(array, "p04_hc2_off_time_opt_duration", kmStatusCpy.HC2_SwitchOffOptimizationTime);
+    addJsonLabelTxt(array, "p01_hc2_pump", (kmStatusCpy.HC2_PumpPower == 0 ? webText.OFF[config.lang] : webText.ON[config.lang]));
+    addJsonLabelInt(array, "p04_hc2_pump", kmStatusCpy.HC2_PumpPower);
+    addJsonLabelInt(array, "p04_hc2_mixer", kmStatusCpy.HC2_MixingValue);
+    addJsonLabelInt(array, "p04_hc2_heat_curve_10C", kmStatusCpy.HC2_HeatingCurvePlus10);
+    addJsonLabelInt(array, "p04_hc2_heat_curve_0C", kmStatusCpy.HC2_HeatingCurve0);
+    addJsonLabelInt(array, "p04_hc2_heat_curve_-10C", kmStatusCpy.HC2_HeatingCurveMinus10);
+
+  } // END HC2
+
+  // hot-water values
+  if (config.km271.use_ww) {
+    // WW-Operating State
+    if (bitRead(kmStatusCpy.HotWaterOperatingStates_1, 0)) { // AUTOMATIC
+      addJsonLabelTxt(array, "p01_ww_opmode", webText.AUTOMATIC[config.lang]);
+      addJsonIcon(array, "p01_ww_opmode_icon", "i_auto");
+    } else {                                                   // MANUAL
+      if (bitRead(kmStatusCpy.HotWaterOperatingStates_2, 5)) { // DAY
+        addJsonLabelTxt(array, "p01_ww_opmode", webText.MAN_DAY[config.lang]);
+        addJsonIcon(array, "p01_ww_opmode_icon", "i_manual");
+      } else { // NIGHT
+        addJsonLabelTxt(array, "p01_ww_opmode", webText.MAN_NIGHT[config.lang]);
+        addJsonIcon(array, "p01_ww_opmode_icon", "i_manual");
+      }
+    }
+
+    addJsonLabelTxt(array, "p05_hw_ov1_auto", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 0)));
+    addJsonLabelTxt(array, "p05_hw_ov1_disinfection", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 1)));
+    addJsonLabelTxt(array, "p05_hw_ov1_reload", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 2)));
+    addJsonLabelTxt(array, "p05_hw_ov1_holiday", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 3)));
+    addJsonLabelTxt(array, "p05_hw_ov1_err_disinfection", errOkString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 4)));
+    addJsonLabelTxt(array, "p05_hw_ov1_err_sensor", errOkString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 5)));
+    addJsonLabelTxt(array, "p05_hw_ov1_stays_cold", errOkString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 6)));
+    addJsonLabelTxt(array, "p05_hw_ov1_err_anode", errOkString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 7)));
+    addJsonLabelTxt(array, "p05_hw_ov2_load", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 0)));
+    addJsonLabelTxt(array, "p05_hw_ov2_manual", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 1)));
+    addJsonLabelTxt(array, "p05_hw_ov2_reload", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 2)));
+    addJsonLabelTxt(array, "p05_hw_ov2_off_time_opt_duration", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 3)));
+    addJsonLabelTxt(array, "p05_hw_ov2_on_time_opt_duration", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 4)));
+    addJsonLabelTxt(array, "p05_hw_ov2_day", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 5)));
+    addJsonLabelTxt(array, "p05_hw_ov2_hot", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 6)));
+    addJsonLabelTxt(array, "p05_hw_ov2_priority", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 7)));
+    static char HotWaterTargetTemp[32];
+    snprintf(HotWaterTargetTemp, sizeof(HotWaterTargetTemp), "%hhu °C", kmStatusCpy.HotWaterTargetTemp);
+    addJsonLabelTxt(array, "p05_hw_set_temp", HotWaterTargetTemp);
+    addJsonLabelInt(array, "p01_ww_temp_set", kmStatusCpy.HotWaterTargetTemp);
+    static char HotWaterActualTemp[32];
+    snprintf(HotWaterActualTemp, sizeof(HotWaterActualTemp), "%hhu °C", kmStatusCpy.HotWaterActualTemp);
+    addJsonLabelTxt(array, "p05_hw_act_temp", HotWaterActualTemp);
+    addJsonLabelInt(array, "p01_ww_temp_act", kmStatusCpy.HotWaterActualTemp);
+    addJsonLabelTxt(array, "p05_hw_on_time_opt_duration", onOffString(kmStatusCpy.HotWaterOptimizationTime));
+    addJsonLabelTxt(array, "p05_hw_pump_type_charge", onOffString(bitRead(kmStatusCpy.HotWaterPumpStates, 0)));
+    addJsonLabelTxt(array, "p05_hw_pump_type_circulation", onOffString(bitRead(kmStatusCpy.HotWaterPumpStates, 1)));
+    addJsonLabelTxt(array, "p05_hw_pump_type_groundwater_solar", onOffString(bitRead(kmStatusCpy.HotWaterPumpStates, 2)));
+  } // END HotWater
+
+  // general values
+  addJsonLabelInt(array, "p06_boiler_setpoint", kmStatusCpy.BoilerForwardTargetTemp);
+  addJsonLabelInt(array, "p01_burner_temp_set", kmStatusCpy.BoilerForwardTargetTemp);
+  addJsonLabelInt(array, "p06_boiler_temp", kmStatusCpy.BoilerForwardActualTemp);
+  addJsonLabelInt(array, "p01_burner_temp_act", kmStatusCpy.BoilerForwardActualTemp);
+  addJsonLabelInt(array, "p06_boiler_switch_on_temp", kmStatusCpy.BurnerSwitchOnTemp);
+  addJsonLabelInt(array, "p06_boiler_switch_off_temp", kmStatusCpy.BurnerSwitchOffTemp);
+
+  addJsonLabelTxt(array, "p06_boiler_failure_burner", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 0)));
+  addJsonLabelTxt(array, "p06_boiler_failure_boiler_sensor", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 1)));
+  addJsonLabelTxt(array, "p06_boiler_failure_aux_sensor", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 2)));
+  addJsonLabelTxt(array, "p06_boiler_failure_boiler_stays_cold", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 3)));
+  addJsonLabelTxt(array, "p06_boiler_failure_exhaust_gas_sensor", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 4)));
+  addJsonLabelTxt(array, "p06_boiler_failure_exhaust_gas_over_limit", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 5)));
+  addJsonLabelTxt(array, "p06_boiler_failure_safety_chain", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 6)));
+  addJsonLabelTxt(array, "p06_boiler_failure_external", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 7)));
+
+  addJsonLabelTxt(array, "p06_boiler_state_exhaust_gas_test", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 0)));
+  addJsonLabelTxt(array, "p06_boiler_state_stage1", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 1)));
+  addJsonLabelTxt(array, "p06_boiler_state_boiler_protection", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 2)));
+  addJsonLabelTxt(array, "p06_boiler_state_active", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 3)));
+  addJsonLabelTxt(array, "p06_boiler_state_performance_free", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 4)));
+  addJsonLabelTxt(array, "p06_boiler_state_performance_high", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 5)));
+  addJsonLabelTxt(array, "p06_boiler_state_stage2", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 6)));
+  addJsonLabelTxt(array, "p01_burner", (kmStatusCpy.BurnerStates == 0) ? webText.OFF[config.lang] : webText.ON[config.lang]);
+  addJsonLabelTxt(array, "p06_burner_control", cfgArrayTexts.BURNER_STATE[config.lang][kmStatusCpy.BurnerStates]);
+  addJsonLabelInt(array, "p07_exhaust_gas_temp", kmStatusCpy.ExhaustTemp);
+  addJsonLabelInt(array, "p06_burner_runtime_minutes65536", kmStatusCpy.BurnerOperatingDuration_2);
+  addJsonLabelInt(array, "p06_burner_runtime_minutes256", kmStatusCpy.BurnerOperatingDuration_1);
+  addJsonLabelInt(array, "p06_burner_runtime_minutes", kmStatusCpy.BurnerOperatingDuration_0);
+  addJsonLabelInt(array, "p06_burner_runtime_overall", kmStatusCpy.BurnerOperatingDuration_Sum);
+  addJsonLabelInt(array, "p07_outside_temp", kmStatusCpy.OutsideTemp);
+  addJsonLabelInt(array, "p01_temp_out_act", kmStatusCpy.OutsideTemp);
+  addJsonLabelInt(array, "p07_outside_temp_damped", kmStatusCpy.OutsideDampedTemp);
+  addJsonLabelInt(array, "p01_temp_out_dmp", kmStatusCpy.OutsideDampedTemp);
+  static char ControllerVersion[32];
+  snprintf(ControllerVersion, sizeof(ControllerVersion), "%i.%i", kmStatusCpy.ControllerVersionMain, kmStatusCpy.ControllerVersionSub);
+  addJsonLabelTxt(array, "p09_logamatic_version", ControllerVersion);
+  addJsonLabelInt(array, "p09_logamatic_modul", kmStatusCpy.Modul);
+  // TODO: check
+
+  String jsonStatString;
+  serializeJson(doc, jsonStatString);
+  Serial.printf("status string size: %d\n", jsonStatString.length());
+  updateWebJSON(jsonStatString.c_str());
+}
+
 void webUIupdates() {
 
   // refresh elemets not faster than XXms
   if (refreshTimer1.cycleTrigger(WEBUI_FAST_REFRESH_TIME_MS)) {
 
-    if (!updSettingsElementsDone) {
-      updateSettingsElements();
-    } else if (webLogRefreshActive()) {
+    if (webLogRefreshActive()) {
       webReadLogBufferCyclic();
     } else {
       switch (UpdateCntFast) {
@@ -865,5 +1263,25 @@ void webUIupdates() {
       break;
     }
     UpdateCntSlow = (UpdateCntSlow + 1) % 3;
+  }
+
+  // refresh all elements on browser refresh
+  if (refreshTimer3.cycleTrigger(WEBUI_JSON_REFRESH_TIME_MS) && refreshRequest) {
+    switch (UpdateCntRefresh) {
+    case 0:
+      updateSettingsElements();
+      break;
+    case 1:
+      updateKm271ConfigElementsAll();
+      break;
+    case 2:
+      updateKm271StatusElementsAll();
+      refreshRequest = false;
+      break;
+    default:
+      UpdateCntRefresh = -1;
+      break;
+    }
+    UpdateCntRefresh = (UpdateCntRefresh + 1) % 3;
   }
 }

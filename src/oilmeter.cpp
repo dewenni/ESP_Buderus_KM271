@@ -69,8 +69,6 @@ void cmdSetOilmeter(long setvalue) {
 void cmdStoreOilmeter() {
   EEPROM.put(addr, data);
   EEPROM.commit();
-  km271Msg(KM_TYP_MESSAGE, "oilcounter stored!", "");
-  msgLn("oilcounter stored!");
 }
 
 /**
