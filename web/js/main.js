@@ -330,31 +330,31 @@ evtSource.addEventListener(
   function (event) {
     var updates = JSON.parse(event.data);
     updates.forEach(function (update) {
-      var element = document.getElementById(update.id);
+      var element = document.getElementById(update.i);
 
       if (element) {
-        switch (update.typ) {
+        switch (update.t) {
           case "v":
-            element.value = update.val;
+            element.value = update.v;
             break;
           case "c":
-            element.checked = update.val;
+            element.checked = update.v;
             toggleElementVisibility(
               element.getAttribute("hideOpt"),
               element.checked
             );
             break;
           case "l":
-            element.innerHTML = update.val;
+            element.innerHTML = update.v;
             break;
           case "i":
-            element.className = "svg " + update.val;
+            element.className = "svg " + update.v;
             break;
           default:
-            console.error("unknown typ:", update.typ);
+            console.error("unknown typ:", update.t);
         }
       } else {
-        console.error("element not found:", update.id);
+        console.error("element not found:", update.i);
       }
     });
   },

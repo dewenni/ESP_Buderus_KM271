@@ -157,7 +157,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
       Update.printError(Serial);
       snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
       km271Msg(KM_TYP_MESSAGE, "otaMessage", NULL);
-      updateWebText("p11_ota_update_error", Update.errorString(), false);
+      updateWebText("p11_ota_upd_err", Update.errorString(), false);
       updateWebDialog("ota_update_failed_dialog", "open");
     }
   }
@@ -166,7 +166,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
     Update.printError(Serial);
     snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
     km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
-    updateWebText("p11_ota_update_error", Update.errorString(), false);
+    updateWebText("p11_ota_upd_err", Update.errorString(), false);
     updateWebDialog("ota_update_failed_dialog", "open");
   } else {
     // calculate progress
@@ -188,7 +188,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
       Update.printError(Serial);
       snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
       km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
-      updateWebText("p11_ota_update_error", Update.errorString(), false);
+      updateWebText("p11_ota_upd_err", Update.errorString(), false);
       updateWebDialog("ota_update_failed_dialog", "open");
     } else {
       char message[32];

@@ -39,10 +39,7 @@
               <label for="wifi_ssid" data-i18n="ssid"></label>
               <input type="text" id="p12_wifi_ssid" name="wifi_ssid" />
               <label for="wifi_password">Passwort</label>
-              <input
-                type="password"
-                id="p12_wifi_password"
-                name="wifi_password" />
+              <input type="password" id="p12_wifi_passw" name="wifi_password" />
             </details>
             <hr />
             <!-- IP-Settings -->
@@ -73,24 +70,21 @@
             <details>
               <summary data-i18n="access"></summary>
               <div class="section-header">
-                <label for="access_enable" data-i18n="activate"></label>
+                <label for="auth_enable" data-i18n="activate"></label>
                 <div class="switch-container">
                   <input
-                    name="access_enable"
+                    name="auth_enable"
                     type="checkbox"
                     role="switch"
                     hideOpt="OPT_AUTH"
-                    id="p12_access_enable" />
+                    id="p12_auth_enable" />
                 </div>
               </div>
               <br />
-              <label for="access_user" data-i18n="user"></label>
-              <input type="text" id="p12_access_user" name="access_user" />
-              <label for="access_password" data-i18n="password"></label>
-              <input
-                type="password"
-                id="p12_access_password"
-                name="access_password" />
+              <label for="auth_user" data-i18n="user"></label>
+              <input type="text" id="p12_auth_user" name="auth_user" />
+              <label for="auth_passw" data-i18n="password"></label>
+              <input type="password" id="p12_auth_passw" name="auth_passw" />
             </details>
             <hr />
             <!-- NTP-Server -->
@@ -192,12 +186,9 @@
               <label for="mqtt_user" data-i18n="user"></label>
               <input type="text" id="p12_mqtt_user" name="mqtt_user" />
               <label for="mqtt_password" data-i18n="password"></label>
-              <input
-                type="password"
-                id="p12_mqtt_password"
-                name="mqtt_password" />
+              <input type="password" id="p12_mqtt_passw" name="mqtt_password" />
               <label for="mqtt_language" data-i18n="topic$ $language"></label>
-              <select id="p12_mqtt_language" name="mqtt_language">
+              <select id="p12_mqtt_lang" name="mqtt_language">
                 <option value="0" data-i18n="german"></option>
                 <option value="1" data-i18n="english"></option>
               </select>
@@ -336,14 +327,14 @@
                 class="num-input"
                 name="led_oilcounter"
                 type="number"
-                id="p12_gpio_led_oilcounter"
+                id="p12_gpio_led_oil"
                 placeholder="-1 to disable" />
               <label for="trig_oilcounter" data-i18n="trig_oilcounter"></label>
               <input
                 class="num-input"
                 name="trig_oilcounter"
                 type="number"
-                id="p12_gpio_trig_oilcounter"
+                id="p12_gpio_trig_oil"
                 placeholder="-1 to disable" />
             </details>
             <hr />
@@ -357,7 +348,7 @@
                   type="checkbox"
                   role="switch"
                   hideOpt="OPT_HW_OIL"
-                  id="p12_oil_hardware_enable" />
+                  id="p12_oil_hw_enable" />
               </div>
               <div class="section-header">
                 <h6 for="oil_virtual" data-i18n="oil_virtual"></h6>
@@ -366,7 +357,7 @@
                   type="checkbox"
                   role="switch"
                   hideOpt="OPT_V_OIL"
-                  id="p12_oil_virtual_enable" />
+                  id="p12_oil_virt_enable" />
               </div>
               <br />
               <label
@@ -444,7 +435,7 @@
                     type="checkbox"
                     role="switch"
                     hideOpt="OPT_SIM"
-                    id="p12_simulation_enable" />
+                    id="p12_sim_enable" />
                 </div>
               </div>
               <br />

@@ -2,7 +2,7 @@
 // Library Settings
 #define SSE_MAX_QUEUED_MESSAGES 256      // ESPAsyncWebServer: max number of queued SSE messages
 #define CONFIG_ASYNC_TCP_QUEUE 256       // AsyncTCP: max number of queued messages
-#define CONFIG_ASYNC_TCP_STACK_SIZE 5120 // AsyncTCP: stack size
+#define CONFIG_ASYNC_TCP_STACK_SIZE 6144 // AsyncTCP: stack size
 #define ESP_DRD_USE_LITTLEFS true        // DRD: use LittleFS
 #define DOUBLERESETDETECTOR_DEBUG true   // DRD: debug serial outputs
 #define DRD_TIMEOUT 2                    // DRD: timeout for double reset detection
