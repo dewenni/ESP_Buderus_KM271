@@ -178,6 +178,8 @@ void configSaveToFile() {
 
   doc["lang"] = (config.lang);
 
+  doc["sim"]["enable"] = config.sim.enable;
+
   doc["oilmeter"]["use_hardware_meter"] = config.oilmeter.use_hardware_meter;
   doc["oilmeter"]["use_virtual_meter"] = config.oilmeter.use_virtual_meter;
   doc["oilmeter"]["consumption_kg_h"] = config.oilmeter.consumption_kg_h;
@@ -296,6 +298,8 @@ void configLoadFromFile() {
     config.oilmeter.oil_density_kg_l = doc["oilmeter"]["oil_density_kg_l"];
 
     config.lang = doc["lang"];
+
+    config.sim.enable = doc["sim"]["enable"];
 
     readJSONstring(config.wifi.ssid, sizeof(config.wifi.ssid), doc["wifi"]["ssid"]);
     readJSONstring(config.wifi.password, sizeof(config.wifi.password), doc["wifi"]["password"]);

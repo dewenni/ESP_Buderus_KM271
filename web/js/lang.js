@@ -1255,4 +1255,12 @@ const translations = {
     de: "Beschreibung",
     en: "description",
   },
+  simulation: {
+    de: "Simulation",
+    en: "Simulation",
+  },
+  generate_simdata: {
+    de: "generiere Simulationsdaten",
+    en: "generate simulation data",
+  },
 };

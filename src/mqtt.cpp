@@ -83,12 +83,12 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
   }
   // send sim data
   else if (strcmp(topic, addTopic(mqttCmd.SIMDATA[config.lang])) == 0) {
-#if SIM_MODE
-    km271Msg(KM_TYP_MESSAGE, "start sending sim data", "");
-    startSimData();
-#else
-    km271Msg(KM_TYP_MESSAGE, "SIM_MODE not active", "");
-#endif
+    if (config.sim.enable) {
+      km271Msg(KM_TYP_MESSAGE, "start sending sim data", "");
+      startSimData();
+    } else {
+      km271Msg(KM_TYP_MESSAGE, "simulation mode not active", "");
+    }
   }
   // Service command
   else if (strcmp(topic, addTopic(mqttCmd.SERVICE[config.lang])) == 0) {

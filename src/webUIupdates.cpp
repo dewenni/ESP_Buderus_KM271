@@ -9,6 +9,8 @@
 /* P R O T O T Y P E S ********************************************************/
 void updateKm271ConfigElementsAll();
 void updateKm271StatusElementsAll();
+void updateOilmeterElements(bool init);
+void updateSensorElements();
 
 /* D E C L A R A T I O N S ****************************************************/
 muTimer refreshTimer1 = muTimer(); // timer to refresh other values
@@ -22,19 +24,12 @@ s_km271_config_num *pkmConfigNum = km271GetConfigValueAdr();
 s_km271_alarm_str *pkmAlarmStr = km271GetAlarmMsgAdr();
 
 char tmpMessage[300] = {'\0'};
-uint8_t webElementUpdateCnt = 0;
 unsigned int KmCfgHash[kmConfig_Hash_SIZE] = {0};
 unsigned int KmAlarmHash[4] = {0};
 bool refreshRequest = false;
-bool oilmeterInit = false;
-long oilcounter, oilcounterOld;
-double oilcounterVirtOld = 0.0;
 int UpdateCntFast = 0;
 int UpdateCntSlow = 0;
 int UpdateCntRefresh = 0;
-char jsonConfigBuffer[8192];
-char jsonStatusBuffer[8192];
-char jsonSettingsBuffer[8192];
 s_lang LANG;
 
 /**
@@ -45,12 +40,14 @@ s_lang LANG;
  * *******************************************************************/
 void updateAllElements() {
 
-  refreshRequest = true;
+  refreshRequest = true; // start combined json refresh
 
   // reset hash values to force updates
   memset((void *)KmAlarmHash, 0, sizeof(KmAlarmHash));
 
-  oilmeterInit = false; // update oil-meter values
+  updateOilmeterElements(true);
+
+  updateSensorElements();
 
   if (setupMode) {
     showElementClass("setupModeBar", true);
@@ -84,11 +81,14 @@ void updateSensorElements() {
  * @param   none
  * @return  none
  * *******************************************************************/
-void updateOilmeterElements() {
+void updateOilmeterElements(bool init) {
+
+  static long oilcounter, oilcounterOld;
+  static double oilcounterVirtOld = 0.0;
 
   if (config.oilmeter.use_hardware_meter) {
     oilcounter = getOilmeter();
-    if (!oilmeterInit || oilcounter != oilcounterOld) {
+    if (init || oilcounter != oilcounterOld) {
       oilcounterOld = oilcounter;
 
       // Oilmeter value in controlTab
@@ -102,7 +102,7 @@ void updateOilmeterElements() {
       updateWebText("p01_hw_oilmeter", tmpMessage, false);
     }
   } else if (config.oilmeter.use_virtual_meter) {
-    if (!oilmeterInit || kmStatusCpy.BurnerCalcOilConsumption != oilcounterVirtOld) {
+    if (init || kmStatusCpy.BurnerCalcOilConsumption != oilcounterVirtOld) {
       oilcounterVirtOld = kmStatusCpy.BurnerCalcOilConsumption;
 
       // Oilmeter value in dashboardTab
@@ -110,7 +110,6 @@ void updateOilmeterElements() {
       updateWebText("p01_v_oilmeter", tmpMessage, false);
     }
   }
-  oilmeterInit = true;
 }
 
 void addJsonLabelInt(JsonArray &array, const char *elementID, intmax_t value) {
@@ -170,6 +169,9 @@ void addJsonIcon(JsonArray &array, const char *elementID, const char *value) {
  * *******************************************************************/
 void updateSettingsElements() {
 
+  setLanguage(LANG.CODE[config.lang]);               // set language for webUI based on config
+  showElementClass("simModeBar", config.sim.enable); // show SIMULATION_MODE in webUI based on config
+
   JsonDocument doc;
   JsonArray array = doc.to<JsonArray>();
 
@@ -225,13 +227,12 @@ void updateSettingsElements() {
   addJsonState(array, "p12_ntp_enable", config.ntp.enable);
   addJsonValueTxt(array, "p12_ntp_server", config.ntp.server);
   addJsonValueTxt(array, "p12_ntp_tz", config.ntp.tz);
+  addJsonState(array, "p12_simulation_enable", config.sim.enable);
 
   String jsonString;
   serializeJson(doc, jsonString);
   Serial.printf("settings string size: %d\n", jsonString.length());
   updateWebJSON(jsonString.c_str());
-
-  setLanguage(LANG.CODE[config.lang]); // set language for webUI based on config
 }
 
 /**
@@ -1076,7 +1077,6 @@ void updateKm271StatusElementsAll() {
         addJsonIcon(array, "p01_hc2_opmode_icon", "i_manual");
       }
     }
-    addJsonLabelTxt(array, "p01_hc2_opmode", tmpMessage);
 
     // Summer / Winter
     if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) { // AUTOMATIC
@@ -1253,7 +1253,7 @@ void webUIupdates() {
       updateSystemInfoElements();
       break;
     case 1:
-      updateOilmeterElements();
+      updateOilmeterElements(false);
       break;
     case 2:
       updateSensorElements();

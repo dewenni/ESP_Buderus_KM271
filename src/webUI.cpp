@@ -389,7 +389,7 @@ void webUICylic() {
   }
 
   // in simulation mode, load simdata and display simModeBar
-  if (simulationTimer.delayOn(SIM_MODE && clientConnected && !simulationInit && !setupMode, 2000)) {
+  if (simulationTimer.delayOn(config.sim.enable && !simulationInit && !setupMode, 2000)) {
     simulationInit = true;
     showElementClass("simModeBar", true);
     startSimData();

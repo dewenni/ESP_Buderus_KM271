@@ -2,7 +2,6 @@
 #include <km271.h>
 #include <simulation.h>
 
-#if SIM_MODE
 /* D E C L A R A T I O N S ****************************************************/
 uint8_t simData[144][11] = {
     {0x00, 0x00, 0x65, 0x0d, 0x22, 0x28, 0x02, 0x22, 0xff, 0x00, 0x00}, {0x00, 0x07, 0x65, 0x00, 0x05, 0x05, 0x2d, 0x01, 0xff, 0x00, 0x00},
@@ -78,7 +77,6 @@ uint8_t simData[144][11] = {
     {0x84, 0x27, 0x36, 0x01, 0x81, 0x8e, 0x00, 0xc1, 0xff, 0x00, 0x00}, {0x88, 0x2b, 0x46, 0x01, 0x81, 0x8e, 0x00, 0xc1, 0xff, 0x00, 0x00},
     {0x88, 0x33, 0x01, 0x01, 0x81, 0x8e, 0x00, 0xc1, 0xff, 0x00, 0x00}, {0x88, 0x33, 0xff, 0x01, 0x81, 0x8e, 0x00, 0xc1, 0xff, 0x00, 0x00}};
 uint8_t MAX_MSG_CNT = (sizeof(simData) / sizeof(simData[0]));
-#endif
 
 muTimer simTimer = muTimer(); // timer for sending simulation data
 uint8_t msgCnt = 0;
@@ -91,18 +89,18 @@ void startSimData() {
 }
 
 void simDataCyclic() {
-#if SIM_MODE
-  if (simTimer.cycleTrigger(10) && simDataEnable) {
-    if (msgCnt < MAX_MSG_CNT) {
-      parseInfo(simData[msgCnt], sizeof(simData[0]));
-      msg(uint8ToString(msgCnt + 1));
-      msg("/");
-      msgLn(uint8ToString(MAX_MSG_CNT));
-      msgCnt++;
-    } else {
-      simDataEnable = false;
-      msgLn("=== >>> finished sim data");
+  if (config.sim.enable) {
+    if (simTimer.cycleTrigger(10) && simDataEnable) {
+      if (msgCnt < MAX_MSG_CNT) {
+        parseInfo(simData[msgCnt], sizeof(simData[0]));
+        msg(uint8ToString(msgCnt + 1));
+        msg("/");
+        msgLn(uint8ToString(MAX_MSG_CNT));
+        msgCnt++;
+      } else {
+        simDataEnable = false;
+        msgLn("=== >>> finished sim data");
+      }
     }
   }
-#endif
 }

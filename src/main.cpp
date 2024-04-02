@@ -152,7 +152,7 @@ void loop() {
   }
 
   // cyclic call for KM271
-  if (!setupMode && !SIM_MODE) {
+  if (!setupMode && !config.sim.enable) {
     cyclicKM271();
   }
 

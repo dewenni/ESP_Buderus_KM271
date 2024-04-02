@@ -3,6 +3,7 @@
 #include <km271.h>
 #include <message.h>
 #include <oilmeter.h>
+#include <simulation.h>
 #include <webUI.h>
 #include <webUIupdates.h>
 
@@ -398,7 +399,14 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "p10_log_refresh_btn") == 0) {
     webReadLogBuffer();
   }
-
+  // Simulation
+  if (strcmp(elementId, "p12_simulation_enable") == 0) {
+    config.sim.enable = stringToBool(value);
+    showElementClass("simModeBar", config.sim.enable);
+  }
+  if (strcmp(elementId, "p12_btn_simdata") == 0) {
+    startSimData();
+  }
   // OTA-Confirm
   if (strcmp(elementId, "p11_ota_confirm_btn") == 0) {
     updateWebDialog("ota_update_done_dialog", "close");
