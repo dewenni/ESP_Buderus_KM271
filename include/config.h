@@ -144,3 +144,4 @@ void configSetup();
 void configCyclic();
 void configSaveToFile();
 void configLoadFromFile();
+void configInitValue();

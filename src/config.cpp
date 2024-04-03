@@ -368,6 +368,11 @@ void configLoadFromFile() {
     config.log.order = doc["logger"]["order"];
   }
 
+  if (strlen(config.wifi.ssid) == 0) {
+    // no valid wifi setting => start AP-Mode
+    setupMode = true;
+  }
+
   file.close();     // Close the file (Curiously, File's destructor doesn't close the file)
   configHashInit(); // init hash value
 }

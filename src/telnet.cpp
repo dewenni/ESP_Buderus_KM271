@@ -21,6 +21,7 @@ void dispatchCommand(char param[MAX_PAR][MAX_CHAR]);
 bool extractMessage(String str, char param[MAX_PAR][MAX_CHAR]);
 void cmdHelp(char param[MAX_PAR][MAX_CHAR]);
 void cmdCls(char param[MAX_PAR][MAX_CHAR]);
+void cmdConfig(char param[MAX_PAR][MAX_CHAR]);
 void cmdInfo(char param[MAX_PAR][MAX_CHAR]);
 void cmdDisconnect(char param[MAX_PAR][MAX_CHAR]);
 void cmdRestart(char param[MAX_PAR][MAX_CHAR]);
@@ -32,17 +33,18 @@ void cmdSerial(char param[MAX_PAR][MAX_CHAR]);
 void cmdKm271(char param[MAX_PAR][MAX_CHAR]);
 
 Command commands[] = {
-    {"help", cmdHelp, "Displays this help message", "[command]"},
     {"cls", cmdCls, "Clear screen", ""},
-    {"info", cmdInfo, "Print system information", ""},
-    {"disconnect", cmdDisconnect, "disconnect telnet", ""},
-    {"restart", cmdRestart, "Restart the ESP", ""},
-    {"simdata", cmdSimdata, "generate simulated KM271 values", ""},
-    {"oilmeter", cmdOilmeter, "Get or set oil-meter value", "[value]"},
-    {"log", cmdLog, "logger commands", "[enable], [disable], [read], [clear], [mode], [mode <1..5>]"},
+    {"config", cmdConfig, "config commands", "<reset>"},
     {"debug", cmdDebug, "configure debug options", "[enable], [disable], [filter], [filter <XX_XX_...>]"},
-    {"serial", cmdSerial, "serial stream output", "<stream> <[start], [stop]>"},
+    {"disconnect", cmdDisconnect, "disconnect telnet", ""},
+    {"help", cmdHelp, "Displays this help message", "[command]"},
+    {"info", cmdInfo, "Print system information", ""},
     {"km271", cmdKm271, "km271 stream output", "<stream> <[start], [stop]>"},
+    {"log", cmdLog, "logger commands", "[enable], [disable], [read], [clear], [mode], [mode <1..5>]"},
+    {"oilmeter", cmdOilmeter, "Get or set oil-meter value", "[value]"},
+    {"restart", cmdRestart, "Restart the ESP", ""},
+    {"serial", cmdSerial, "serial stream output", "<stream> <[start], [stop]>"},
+    {"simdata", cmdSimdata, "generate simulated KM271 values", ""},
 };
 const int commandsCount = sizeof(commands) / sizeof(commands[0]);
 
@@ -214,6 +216,21 @@ void cmdDebug(char param[MAX_PAR][MAX_CHAR]) {
 
 /**
  * *******************************************************************
+ * @brief   telnet command: config structure
+ * @param   params received parameters
+ * @return  none
+ * *******************************************************************/
+void cmdConfig(char param[MAX_PAR][MAX_CHAR]) {
+
+  if (!strcmp(param[1], "reset") && !strcmp(param[2], "")) {
+    configInitValue();
+    configSaveToFile();
+    telnet.println("config was set to defaults");
+  }
+}
+
+/**
+ * *******************************************************************
  * @brief   telnet command: print system information
  * @param   params received parameters
  * @return  none
@@ -362,13 +379,13 @@ void printHelp(const char *command = nullptr) {
   if (command == nullptr) {
     // print help of all commands
     for (int i = 0; i < commandsCount; ++i) {
-      telnet.printf("%-15s %-60s - %s\n", commands[i].name, commands[i].parameters, commands[i].description);
+      telnet.printf("%-15s %-60s\n", commands[i].name, commands[i].parameters);
     }
   } else {
     // print help of specific command
     for (int i = 0; i < commandsCount; ++i) {
       if (strcmp(command, commands[i].name) == 0) {
-        telnet.printf("%-15s %-60s - %s\n", commands[i].name, commands[i].parameters, commands[i].description);
+        telnet.printf("%-15s %-60s\n%s\n", commands[i].name, commands[i].parameters, commands[i].description);
         return;
       }
     }
