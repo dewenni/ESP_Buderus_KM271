@@ -1226,6 +1226,10 @@ const translations = {
     de: "export (config.json)",
     en: "export (config.json)",
   },
+  open: {
+    de: "öffne (config.json)",
+    en: "open (config.json)",
+  },
   update_done: {
     de: "Update erfolgreich!",
     en: "Update sucessfull!",

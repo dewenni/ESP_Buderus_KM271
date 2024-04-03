@@ -318,6 +318,9 @@ void webUISetup() {
   server.on("/config-download", HTTP_GET,
             [](AsyncWebServerRequest *request) { request->send(LittleFS, "/config.json", "application/octet-stream"); });
 
+  // Route, um die config.json-Datei zu senden
+  server.on("/config.json", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/config.json", "application/json"); });
+
   // config.json upload
   server.on(
       "/config-upload", HTTP_POST, [](AsyncWebServerRequest *request) { request->send(200, "text/plain", "upload done!"); },

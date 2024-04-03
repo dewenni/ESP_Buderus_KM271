@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
       xhr.send(formData);
     });
 
-  // send form data for config file upload
+  // CONFIG: send form data for config file upload
   document
     .getElementById("file_upload_form")
     .addEventListener("submit", function (event) {
@@ -50,6 +50,31 @@ document.addEventListener("DOMContentLoaded", function () {
       var xhr = new XMLHttpRequest();
       xhr.open("POST", "/config-upload", true);
       xhr.send(formData);
+    });
+
+  // CONFIG: open dialog to show config.json
+  document
+    .getElementById("p11_file_show_btn")
+    .addEventListener("click", function () {
+      const dialog = document.getElementById("open_config_dialog");
+      dialog.showModal();
+      fetch("/config.json")
+        .then((response) => response.json())
+        .then((data) => {
+          document.getElementById("config_output").textContent = JSON.stringify(
+            data,
+            null,
+            2
+          );
+        })
+        .catch((error) => console.error("error loading data:", error));
+    });
+
+  // CONFIG: close dialog to show config.json
+  document
+    .getElementById("p11_config_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("open_config_dialog").close();
     });
 
   // control for Tab-Menu
