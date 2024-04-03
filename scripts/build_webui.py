@@ -119,9 +119,10 @@ compress_to_gzip_c_array(input_file, output_c_file, 'm_css')
 #================================================================
 # Definieren Sie die Pfade der Quelldateien
 source_files = [
-    'web/js/main.js',
     'web/js/lang.js',
-    'web/js/tools.js',   
+    'web/js/fun.js',
+    'web/js/doc.js',
+    'web/js/events.js',
 ]
 
 # Zielpfad der generierten Datei

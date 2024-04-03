@@ -1,0 +1,151 @@
+// <<<< Fetch API (Clinet -> ESP) >>>>>>
+document.addEventListener("DOMContentLoaded", function () {
+  // call functions on refresh
+  resetPingTimeout();
+  initializeVisibilityBasedOnSwitches();
+  localizePage("de");
+
+  // VERSION: is called when version dialog is opened
+  document.getElementById("p00_version").addEventListener("click", function () {
+    document.getElementById("version_dialog").showModal();
+    sendData("check_git_version", "");
+  });
+
+  // VERSION: close version dialog on button click
+  document
+    .getElementById("close_version_Dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("version_dialog").close();
+    });
+
+  // OTA: close ota-failed dialog on button click
+  document
+    .getElementById("p11_ota_failed_btn")
+    .addEventListener("click", function () {
+      document.getElementById("ota_update_failed_dialog").close();
+    });
+
+  // OTA: send form data to server
+  document
+    .getElementById("ota_upload_form")
+    .addEventListener("submit", function (event) {
+      event.preventDefault();
+      document.getElementById("ota_status_txt").textContent = "Uploading...";
+      var form = document.getElementById("ota_upload_form");
+      var formData = new FormData(form);
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/update", true);
+      xhr.send(formData);
+    });
+
+  // send form data for config file upload
+  document
+    .getElementById("file_upload_form")
+    .addEventListener("submit", function (event) {
+      event.preventDefault();
+      var form = document.getElementById("file_upload_form");
+      var formData = new FormData(form);
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/config-upload", true);
+      xhr.send(formData);
+    });
+
+  // control for Tab-Menu
+  document.querySelectorAll(".nav-list a").forEach((tab) => {
+    tab.onclick = function (e) {
+      e.preventDefault();
+      document
+        .querySelectorAll(".nav-list a")
+        .forEach((t) => t.classList.remove("active"));
+      document
+        .querySelectorAll(".tab-content")
+        .forEach((content) => content.classList.remove("active"));
+
+      const activeTab = this.getAttribute("data-tab");
+      this.classList.add("active");
+      document.getElementById(activeTab).classList.add("active");
+    };
+  });
+
+  // language selection
+  document
+    .getElementById("p12_language")
+    .addEventListener("change", function () {
+      var languageValue = this.value;
+      if (languageValue === "1") {
+        localizePage("en");
+      } else if (languageValue === "0") {
+        localizePage("de");
+      }
+    });
+
+  // event listener for all input fields that call sendData on "blur"
+  document
+    .querySelectorAll(
+      'input[type="text"], input[type="number"], input[type="password"], input[type="date"], input[type="time"]'
+    )
+    .forEach(function (input) {
+      input.addEventListener("blur", function () {
+        sendData(input.id, input.value);
+      });
+      input.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+          input.blur(); // Triggers "blur" event and sends data
+        }
+      });
+    });
+
+  // Event-Listener for Range Inputs (Slider)
+  document.querySelectorAll('input[type="range"]').forEach(function (slider) {
+    slider.addEventListener("change", function () {
+      sendData(slider.id, slider.value);
+    });
+  });
+
+  // Event-Listener for Slider labels
+  document.querySelectorAll(".rangeSlider").forEach((slider) => {
+    const valueId = slider.getAttribute("data-value-id");
+    const valueDisplay = document.getElementById(valueId);
+    slider.oninput = () => {
+      valueDisplay.textContent = slider.value;
+    };
+    // set initial value
+    valueDisplay.textContent = slider.value;
+  });
+
+  // Event-Listener for Buttons
+  document.querySelectorAll("button").forEach(function (button) {
+    button.addEventListener("click", function () {
+      sendData(button.id, true);
+    });
+  });
+
+  // Event-Listener for Switches
+  document
+    .querySelectorAll('input[type="checkbox"][role="switch"]')
+    .forEach(function (switchElement) {
+      switchElement.addEventListener("change", function () {
+        sendData(switchElement.id, switchElement.checked);
+        toggleElementVisibility(
+          switchElement.getAttribute("hideOpt"),
+          switchElement.checked
+        );
+      });
+    });
+
+  // Event-Listener for Radio
+  document
+    .querySelectorAll('input[type="radio"]')
+    .forEach(function (switchElement) {
+      switchElement.addEventListener("change", function () {
+        sendData(switchElement.id, switchElement.checked);
+      });
+    });
+
+  // Event-Listener for Select Elements
+  document.querySelectorAll("select").forEach(function (selectElement) {
+    selectElement.addEventListener("change", function () {
+      sendData(selectElement.id, selectElement.value);
+    });
+  });
+});
