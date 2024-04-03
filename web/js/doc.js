@@ -1,4 +1,6 @@
-// <<<< Fetch API (Clinet -> ESP) >>>>>>
+// --------------------------------------
+// Fetch API (Clinet -> ESP)
+// --------------------------------------
 document.addEventListener("DOMContentLoaded", function () {
   // call functions on refresh
   resetPingTimeout();

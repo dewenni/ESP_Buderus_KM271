@@ -1,4 +1,6 @@
-// <<<< Server-Side-Events (Client <- ESP) >>>>>>
+// --------------------------------------
+// Server-Side-Events (Client <- ESP)
+// --------------------------------------
 var evtSource = new EventSource("/events");
 
 // Event Listener for Reload-Button

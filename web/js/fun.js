@@ -1,4 +1,6 @@
-// <<<< functions >>>>>>
+// --------------------------------------
+// js functions
+// --------------------------------------
 
 // Function for switching the visibility of elements
 function toggleElementVisibility(className, isVisible) {

@@ -1,3 +1,6 @@
+// --------------------------------------
+// localization texts
+// --------------------------------------
 const translations = {
   system: {
     de: "System",
