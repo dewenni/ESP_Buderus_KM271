@@ -106,6 +106,12 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("version_dialog").close();
     });
 
+  document
+    .getElementById("p11_ota_failed_btn")
+    .addEventListener("click", function () {
+      document.getElementById("ota_update_failed_dialog").close();
+    }); 
+  
   // Event-Listener for Tab-Menu
   document.querySelectorAll(".nav-list a").forEach((tab) => {
     tab.onclick = function (e) {
@@ -394,6 +400,32 @@ evtSource.addEventListener(
         console.error("element not found:", update.i);
       }
     });
+  },
+  false
+);
+
+evtSource.addEventListener(
+  "ota-progress",
+  function (e) {
+    var progress = parseInt(e.data.replace("Progress: ", ""), 10);
+    document.getElementById("ota_progress_bar").value = progress;
+    document.getElementById(
+      "ota_status_txt"
+    ).textContent = `Update Progress: ${progress}%`;
+  },
+  false
+);
+
+evtSource.addEventListener(
+  "updateDialog",
+  function (e) {
+    var data = JSON.parse(e.data);
+    var dialog = document.getElementById(data.elementID);
+    if (data.state == "open") {
+      dialog.showModal();
+    } else if (data.state == "close") {
+      dialog.close();
+    }
   },
   false
 );
