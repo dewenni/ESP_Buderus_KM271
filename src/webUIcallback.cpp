@@ -4,12 +4,16 @@
 #include <message.h>
 #include <oilmeter.h>
 #include <simulation.h>
+#include <version.h>
 #include <webUI.h>
 #include <webUIupdates.h>
 
 char pushoverMessage[300] = {'\0'};
 long oilmeterSetValue;
 tm dti;
+char gitVersion[16];
+char gitUrl[256];
+char errorMsg[32];
 
 /**
  * *******************************************************************
@@ -23,6 +27,20 @@ void webCallback(const char *elementId, const char *value) {
   msg(elementId);
   msg(", Value: ");
   msgLn(value);
+
+  // check for new version on github
+  if (strcmp(elementId, "check_git_version") == 0) {
+    int result = checkGithubUpdates("dewenni", "ESP_Buderus_KM271", gitVersion, sizeof(gitVersion), gitUrl, sizeof(gitUrl));
+    if (result == HTTP_CODE_OK) {
+      updateWebBusy("p00_dialog_git_version", false);
+      updateWebText("p00_dialog_git_version", gitVersion, false);
+      updateWebHref("p00_dialog_git_version", gitUrl);
+    } else {
+      sniprintf(errorMsg, sizeof(errorMsg), "error (%i)", result);
+      updateWebBusy("p00_dialog_git_version", false);
+      updateWebText("p00_dialog_git_version", errorMsg, false);
+    }
+  }
 
   // HC1-OPMODE
   if (strcmp(elementId, "p02_hc1_opmode_night") == 0) {
@@ -375,6 +393,9 @@ void webCallback(const char *elementId, const char *value) {
   // Buttons
   if (strcmp(elementId, "p12_btn_restart") == 0) {
     storeData();
+    yield();
+    delay(1000);
+    yield();
     ESP.restart();
   }
 
@@ -411,6 +432,9 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "p11_ota_confirm_btn") == 0) {
     updateWebDialog("ota_update_done_dialog", "close");
     storeData();
+    yield();
+    delay(1000);
+    yield();
     ESP.restart();
   }
 }

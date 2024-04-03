@@ -1,3 +1,4 @@
+
 #include <webUI.h>
 #include <webUIupdates.h>
 
@@ -11,11 +12,14 @@ void updateKm271ConfigElementsAll();
 void updateKm271StatusElementsAll();
 void updateOilmeterElements(bool init);
 void updateSensorElements();
+void updateSystemInfoElements();
 
 /* D E C L A R A T I O N S ****************************************************/
-muTimer refreshTimer1 = muTimer(); // timer to refresh other values
-muTimer refreshTimer2 = muTimer(); // timer to refresh other values
-muTimer refreshTimer3 = muTimer(); // timer to refresh other values
+muTimer refreshTimer1 = muTimer();    // timer to refresh other values
+muTimer refreshTimer2 = muTimer();    // timer to refresh other values
+muTimer refreshTimer3 = muTimer();    // timer to refresh other values
+muTimer gitVersionTimer1 = muTimer(); // timer to refresh other values
+muTimer gitVersionTimer2 = muTimer(); // timer to refresh other values
 
 s_km271_status kmStatusCpy;
 s_km271_status *pkmStatus = km271GetStatusValueAdr();
@@ -32,6 +36,57 @@ int UpdateCntSlow = 0;
 int UpdateCntRefresh = 0;
 s_lang LANG;
 
+
+void addJsonLabelInt(JsonArray &array, const char *elementID, intmax_t value) {
+  JsonObject obj = array.add<JsonObject>();
+  obj["i"] = elementID;
+  obj["t"] = "l"; // Label (innerHTML)
+  obj["v"] = value;
+};
+
+void addJsonLabelTxt(JsonArray &array, const char *elementID, const char *value) {
+  JsonObject obj = array.add<JsonObject>();
+  obj["i"] = elementID;
+  obj["t"] = "l"; // Label (innerHTML)
+  obj["v"] = value;
+};
+
+void addJsonValueTxt(JsonArray &array, const char *elementID, const char *value) {
+  JsonObject obj = array.add<JsonObject>();
+  obj["i"] = elementID;
+  obj["t"] = "v"; // value
+  obj["v"] = value;
+};
+
+void addJsonValueInt(JsonArray &array, const char *elementID, intmax_t value) {
+  JsonObject obj = array.add<JsonObject>();
+  obj["i"] = elementID;
+  obj["t"] = "v"; // value
+  obj["v"] = value;
+};
+
+void addJsonValueFlt(JsonArray &array, const char *elementID, float value) {
+  JsonObject obj = array.add<JsonObject>();
+  obj["i"] = elementID;
+  obj["t"] = "v"; // value
+  obj["v"] = value;
+};
+
+void addJsonState(JsonArray &array, const char *elementID, bool value) {
+  JsonObject obj = array.add<JsonObject>();
+  obj["i"] = elementID;
+  obj["t"] = "c"; // checked
+  obj["v"] = value;
+};
+
+void addJsonIcon(JsonArray &array, const char *elementID, const char *value) {
+  JsonObject obj = array.add<JsonObject>();
+  obj["i"] = elementID;
+  obj["t"] = "i"; // icon
+  obj["v"] = value;
+};
+
+
 /**
  * *******************************************************************
  * @brief   update all values (only call once)
@@ -46,8 +101,11 @@ void updateAllElements() {
   memset((void *)KmAlarmHash, 0, sizeof(KmAlarmHash));
 
   updateOilmeterElements(true);
-
   updateSensorElements();
+  updateSystemInfoElements();
+
+  setLanguage(LANG.CODE[config.lang]);               // set language for webUI based on config
+  showElementClass("simModeBar", config.sim.enable); // show SIMULATION_MODE in webUI based on config
 
   if (setupMode) {
     showElementClass("setupModeBar", true);
@@ -112,54 +170,6 @@ void updateOilmeterElements(bool init) {
   }
 }
 
-void addJsonLabelInt(JsonArray &array, const char *elementID, intmax_t value) {
-  JsonObject obj = array.add<JsonObject>();
-  obj["i"] = elementID;
-  obj["t"] = "l"; // Label (innerHTML)
-  obj["v"] = value;
-};
-
-void addJsonLabelTxt(JsonArray &array, const char *elementID, const char *value) {
-  JsonObject obj = array.add<JsonObject>();
-  obj["i"] = elementID;
-  obj["t"] = "l"; // Label (innerHTML)
-  obj["v"] = value;
-};
-
-void addJsonValueTxt(JsonArray &array, const char *elementID, const char *value) {
-  JsonObject obj = array.add<JsonObject>();
-  obj["i"] = elementID;
-  obj["t"] = "v"; // value
-  obj["v"] = value;
-};
-
-void addJsonValueInt(JsonArray &array, const char *elementID, intmax_t value) {
-  JsonObject obj = array.add<JsonObject>();
-  obj["i"] = elementID;
-  obj["t"] = "v"; // value
-  obj["v"] = value;
-};
-
-void addJsonValueFlt(JsonArray &array, const char *elementID, float value) {
-  JsonObject obj = array.add<JsonObject>();
-  obj["i"] = elementID;
-  obj["t"] = "v"; // value
-  obj["v"] = value;
-};
-
-void addJsonState(JsonArray &array, const char *elementID, bool value) {
-  JsonObject obj = array.add<JsonObject>();
-  obj["i"] = elementID;
-  obj["t"] = "c"; // checked
-  obj["v"] = value;
-};
-
-void addJsonIcon(JsonArray &array, const char *elementID, const char *value) {
-  JsonObject obj = array.add<JsonObject>();
-  obj["i"] = elementID;
-  obj["t"] = "i"; // icon
-  obj["v"] = value;
-};
 
 /**
  * *******************************************************************
@@ -168,9 +178,6 @@ void addJsonIcon(JsonArray &array, const char *elementID, const char *value) {
  * @return  none
  * *******************************************************************/
 void updateSettingsElements() {
-
-  setLanguage(LANG.CODE[config.lang]);               // set language for webUI based on config
-  showElementClass("simModeBar", config.sim.enable); // show SIMULATION_MODE in webUI based on config
 
   JsonDocument doc;
   JsonArray array = doc.to<JsonArray>();
@@ -251,6 +258,7 @@ void updateSystemInfoElements() {
   // Version informations
   updateWebText("p00_version", VERSION, false);
   updateWebText("p09_sw_version", VERSION, false);
+  updateWebText("p00_dialog_version", VERSION, false);
 
   getBuildDateTime(tmpMessage);
   updateWebText("p09_sw_date", tmpMessage, false);

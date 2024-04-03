@@ -1263,4 +1263,16 @@ const translations = {
     de: "generiere Simulationsdaten",
     en: "generate simulation data",
   },
+  close: {
+    de: "schließen",
+    en: "close",
+  },
+  act_version: {
+    de: "aktuelle Version",
+    en: "actual version",
+  },
+  github_version: {
+    de: "neustes Release",
+    en: "newest release",
+  },
 };

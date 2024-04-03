@@ -285,6 +285,9 @@ void cmdDisconnect(char param[MAX_PAR][MAX_CHAR]) {
  * *******************************************************************/
 void cmdRestart(char param[MAX_PAR][MAX_CHAR]) {
   telnet.println("ESP will restart - you have to reconnect");
+  yield();
+  delay(1000);
+  yield();
   ESP.restart();
 }
 

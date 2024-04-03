@@ -140,6 +140,18 @@ void updateWebSetIcon(const char *elementID, const char *icon) {
   sendWebUpdate(message, "updateSetIcon");
 }
 
+void updateWebHref(const char *elementID, const char *href) {
+  char message[BUFFER_SIZE];
+  snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"href\":\"%s\"}", elementID, href);
+  sendWebUpdate(message, "updateHref");
+}
+
+void updateWebBusy(const char *elementID, bool busy) {
+  char message[BUFFER_SIZE];
+  snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"busy\":%s}", elementID, busy ? "true" : "false");
+  sendWebUpdate(message, "updateBusy");
+}
+
 /**
  * *******************************************************************
  * @brief   function to process the firmware update
@@ -159,6 +171,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
       km271Msg(KM_TYP_MESSAGE, "otaMessage", NULL);
       updateWebText("p11_ota_upd_err", Update.errorString(), false);
       updateWebDialog("ota_update_failed_dialog", "open");
+      return request->send(400, "text/plain", "OTA could not begin");
     }
   }
   // update in progress
@@ -168,6 +181,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
     km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
     updateWebText("p11_ota_upd_err", Update.errorString(), false);
     updateWebDialog("ota_update_failed_dialog", "open");
+    return request->send(400, "text/plain", "OTA could not begin");
   } else {
     // calculate progress
     int progress = (Update.progress() * 100) / content_len;
@@ -180,16 +194,13 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
   }
   // update done
   if (final) {
-    AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Ok");
-    response->addHeader("Refresh", "30");
-    response->addHeader("Location", "/");
-    request->send(response);
     if (!Update.end(true)) {
       Update.printError(Serial);
       snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
       km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
       updateWebText("p11_ota_upd_err", Update.errorString(), false);
       updateWebDialog("ota_update_failed_dialog", "open");
+      return request->send(400, "text/plain", "Could not end OTA");
     } else {
       char message[32];
       snprintf(message, 32, "Progress: %d%%", 100);
@@ -198,6 +209,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
       Serial.flush();
       updateWebDialog("ota_update_done_dialog", "open");
       km271Msg(KM_TYP_MESSAGE, "OTA Update finished!", NULL);
+      return request->send(200, "text/plain", "OTA Update finished!");
     }
   }
 }

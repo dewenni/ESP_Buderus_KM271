@@ -95,6 +95,17 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeVisibilityBasedOnSwitches();
   localizePage("de");
 
+  document.getElementById("p00_version").addEventListener("click", function () {
+    document.getElementById("version_dialog").showModal();
+    sendData("check_git_version", "");
+  });
+
+  document
+    .getElementById("close_version_Dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("version_dialog").close();
+    });
+
   // Event-Listener for Tab-Menu
   document.querySelectorAll(".nav-list a").forEach((tab) => {
     tab.onclick = function (e) {
@@ -280,6 +291,32 @@ evtSource.addEventListener(
     var element = document.getElementById(data.elementID);
     if (element) {
       element.style.display = data.hide ? "none" : "";
+    }
+  },
+  false
+);
+
+// update href
+evtSource.addEventListener(
+  "updateHref",
+  function (e) {
+    var data = JSON.parse(e.data);
+    var element = document.getElementById(data.elementID);
+    if (element) {
+      element.href = data.href;
+    }
+  },
+  false
+);
+
+// update Busy
+evtSource.addEventListener(
+  "updateBusy",
+  function (e) {
+    var data = JSON.parse(e.data);
+    var element = document.getElementById(data.elementID);
+    if (element) {
+      element.setAttribute("aria-busy", data.busy);
     }
   },
   false

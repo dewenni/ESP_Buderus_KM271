@@ -113,3 +113,5 @@ void hideElementId(const char *elementID, bool hide);
 void updateWebDialog(const char *elementID, const char *state);
 void updateWebSetIcon(const char *elementID, const char *icon);
 void updateWebJSON(const char *JSON);
+void updateWebHref(const char *elementID, const char *href);
+void updateWebBusy(const char *elementID, bool busy);

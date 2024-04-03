@@ -130,6 +130,14 @@ hr {
   }
 }
 
+.leftright {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 5px;
+}
+
 .sidebar {
   display: flex;
   color: #fff;
