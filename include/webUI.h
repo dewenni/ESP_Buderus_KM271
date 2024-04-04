@@ -4,12 +4,12 @@
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
 #include <config.h>
-#include <language.h>
 #include <gzip_c_css.h>
-#include <gzip_html.h>
 #include <gzip_js.h>
 #include <gzip_login_html.h>
 #include <gzip_m_css.h>
+#include <gzip_main_html.h>
+#include <language.h>
 
 /* D E C L A R A T I O N S ****************************************************/
 typedef enum {
@@ -112,3 +112,6 @@ void showElementClass(const char *className, bool show);
 void hideElementId(const char *elementID, bool hide);
 void updateWebDialog(const char *elementID, const char *state);
 void updateWebSetIcon(const char *elementID, const char *icon);
+void updateWebJSON(const char *JSON);
+void updateWebHref(const char *elementID, const char *href);
+void updateWebBusy(const char *elementID, bool busy);

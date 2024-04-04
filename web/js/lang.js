@@ -1,3 +1,6 @@
+// --------------------------------------
+// localization texts
+// --------------------------------------
 const translations = {
   system: {
     de: "System",
@@ -1223,6 +1226,10 @@ const translations = {
     de: "export (config.json)",
     en: "export (config.json)",
   },
+  open: {
+    de: "öffne (config.json)",
+    en: "open (config.json)",
+  },
   update_done: {
     de: "Update erfolgreich!",
     en: "Update sucessfull!",
@@ -1254,5 +1261,25 @@ const translations = {
   description: {
     de: "Beschreibung",
     en: "description",
+  },
+  simulation: {
+    de: "Simulation",
+    en: "Simulation",
+  },
+  generate_simdata: {
+    de: "generiere Simulationsdaten",
+    en: "generate simulation data",
+  },
+  close: {
+    de: "schließen",
+    en: "close",
+  },
+  act_version: {
+    de: "aktuelle Version",
+    en: "actual version",
+  },
+  github_version: {
+    de: "neustes Release",
+    en: "newest release",
   },
 };

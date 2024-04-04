@@ -43,37 +43,38 @@ public:
 class AsyncWebLock
 {
 private:
-  SemaphoreHandle_t _lock;
-  mutable void *_lockedBy;
+    SemaphoreHandle_t _lock;
+    mutable TaskHandle_t _lockedBy{};
 
 public:
-  AsyncWebLock() {
-    _lock = xSemaphoreCreateBinary();
-    // In this fails, the system is likely that much out of memory that
-    // we should abort anyways. If assertions are disabled, nothing is lost..
-    assert(_lock);
-    _lockedBy = NULL;
-    xSemaphoreGive(_lock);
-  }
-
-  ~AsyncWebLock() {
-    vSemaphoreDelete(_lock);
-  }
-
-  bool lock() const {
-    extern void *pxCurrentTCB;
-    if (_lockedBy != pxCurrentTCB) {
-      xSemaphoreTake(_lock, portMAX_DELAY);
-      _lockedBy = pxCurrentTCB;
-      return true;
+    AsyncWebLock()
+    {
+        _lock = xSemaphoreCreateBinary();
+        // In this fails, the system is likely that much out of memory that
+        // we should abort anyways. If assertions are disabled, nothing is lost..
+        assert(_lock);
+        _lockedBy = NULL;
+        xSemaphoreGive(_lock);
     }
-    return false;
-  }
 
-  void unlock() const {
-    _lockedBy = NULL;
-    xSemaphoreGive(_lock);
-  }
+    ~AsyncWebLock() {
+        vSemaphoreDelete(_lock);
+    }
+
+    bool lock() const {
+        const auto currentTask = xTaskGetCurrentTaskHandle();
+        if (_lockedBy != currentTask) {
+            xSemaphoreTake(_lock, portMAX_DELAY);
+            _lockedBy = currentTask;
+            return true;
+        }
+        return false;
+    }
+
+    void unlock() const {
+        _lockedBy = NULL;
+        xSemaphoreGive(_lock);
+    }
 };
 
 #else
@@ -119,6 +120,13 @@ public:
   ~AsyncWebLockGuard() {
     if (_lock) {
       _lock->unlock();
+    }
+  }
+
+  void unlock() {
+    if (_lock) {
+      _lock->unlock();
+      _lock = NULL;
     }
   }
 };

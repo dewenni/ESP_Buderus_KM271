@@ -3,6 +3,10 @@
 
 #define MAX_LANG 2 // increase if you add more languages
 
+typedef struct {
+  const char *CODE[MAX_LANG] = {"de", "en"};
+} s_lang;
+
 // ======================================================================================
 // mqtt messages : texts that are used for mqtt messages from KM271
 // ======================================================================================
@@ -17,6 +21,8 @@ typedef struct {
   const char *OFF[MAX_LANG] = {"AUS", "OFF"};
   const char *OK[MAX_LANG] = {"OK", "OK"};
   const char *ERROR[MAX_LANG] = {"FEHLER", "ERROR"};
+  const char *MAN_DAY[MAX_LANG] = {"Handbetrieb - Tag", "Manual - Day"};
+  const char *MAN_NIGHT[MAX_LANG] = {"Handbetrieb - Nacht", "Manual - Nacht"};
 } s_webui_texts;
 
 // ======================================================================================

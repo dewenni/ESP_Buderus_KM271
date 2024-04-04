@@ -178,6 +178,8 @@ void configSaveToFile() {
 
   doc["lang"] = (config.lang);
 
+  doc["sim"]["enable"] = config.sim.enable;
+
   doc["oilmeter"]["use_hardware_meter"] = config.oilmeter.use_hardware_meter;
   doc["oilmeter"]["use_virtual_meter"] = config.oilmeter.use_virtual_meter;
   doc["oilmeter"]["consumption_kg_h"] = config.oilmeter.consumption_kg_h;
@@ -297,6 +299,8 @@ void configLoadFromFile() {
 
     config.lang = doc["lang"];
 
+    config.sim.enable = doc["sim"]["enable"];
+
     readJSONstring(config.wifi.ssid, sizeof(config.wifi.ssid), doc["wifi"]["ssid"]);
     readJSONstring(config.wifi.password, sizeof(config.wifi.password), doc["wifi"]["password"]);
     readJSONstring(config.wifi.hostname, sizeof(config.wifi.hostname), doc["wifi"]["hostname"]);
@@ -362,6 +366,11 @@ void configLoadFromFile() {
     config.log.enable = doc["logger"]["enable"];
     config.log.filter = doc["logger"]["filter"];
     config.log.order = doc["logger"]["order"];
+  }
+
+  if (strlen(config.wifi.ssid) == 0) {
+    // no valid wifi setting => start AP-Mode
+    setupMode = true;
   }
 
   file.close();     // Close the file (Curiously, File's destructor doesn't close the file)

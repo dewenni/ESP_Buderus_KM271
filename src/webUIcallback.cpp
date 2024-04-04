@@ -3,11 +3,17 @@
 #include <km271.h>
 #include <message.h>
 #include <oilmeter.h>
+#include <simulation.h>
+#include <version.h>
 #include <webUI.h>
+#include <webUIupdates.h>
 
 char pushoverMessage[300] = {'\0'};
 long oilmeterSetValue;
 tm dti;
+char gitVersion[16];
+char gitUrl[256];
+char errorMsg[32];
 
 /**
  * *******************************************************************
@@ -21,6 +27,20 @@ void webCallback(const char *elementId, const char *value) {
   msg(elementId);
   msg(", Value: ");
   msgLn(value);
+
+  // check for new version on github
+  if (strcmp(elementId, "check_git_version") == 0) {
+    int result = checkGithubUpdates("dewenni", "ESP_Buderus_KM271", gitVersion, sizeof(gitVersion), gitUrl, sizeof(gitUrl));
+    if (result == HTTP_CODE_OK) {
+      updateWebBusy("p00_dialog_git_version", false);
+      updateWebText("p00_dialog_git_version", gitVersion, false);
+      updateWebHref("p00_dialog_git_version", gitUrl);
+    } else {
+      sniprintf(errorMsg, sizeof(errorMsg), "error (%i)", result);
+      updateWebBusy("p00_dialog_git_version", false);
+      updateWebText("p00_dialog_git_version", errorMsg, false);
+    }
+  }
 
   // HC1-OPMODE
   if (strcmp(elementId, "p02_hc1_opmode_night") == 0) {
@@ -70,42 +90,42 @@ void webCallback(const char *elementId, const char *value) {
   }
 
   // HC1-Frost Threshold
-  if (strcmp(elementId, "p02_hc1_frost_protection_threshold") == 0) {
+  if (strcmp(elementId, "p02_hc1_frost_prot_th") == 0) {
     km271sendCmd(KM271_SENDCMD_HC1_FROST, atoi(value));
   }
 
   // HC1-Summer Threshold
-  if (strcmp(elementId, "p02_hc1_summer_mode_threshold") == 0) {
+  if (strcmp(elementId, "p02_hc1_summer_th") == 0) {
     km271sendCmd(KM271_SENDCMD_HC1_SUMMER, atoi(value));
   }
 
   // HC2-Frost Threshold
-  if (strcmp(elementId, "p02_hc2_frost_protection_threshold") == 0) {
+  if (strcmp(elementId, "p02_hc2_frost_prot_th") == 0) {
     km271sendCmd(KM271_SENDCMD_HC2_FROST, atoi(value));
   }
 
   // HC2-Summer Threshold
-  if (strcmp(elementId, "p02_hc2_summer_mode_threshold") == 0) {
+  if (strcmp(elementId, "p02_hc2_summer_th") == 0) {
     km271sendCmd(KM271_SENDCMD_HC2_SUMMER, atoi(value));
   }
 
   // HC1-DesignTemp
-  if (strcmp(elementId, "p02_hc1_interpretation") == 0) {
+  if (strcmp(elementId, "p02_hc1_interp") == 0) {
     km271sendCmd(KM271_SENDCMD_HC1_DESIGN_TEMP, atoi(value));
   }
 
   // HC2-DesignTemp
-  if (strcmp(elementId, "p02_hc2_interpretation") == 0) {
+  if (strcmp(elementId, "p02_hc2_interp") == 0) {
     km271sendCmd(KM271_SENDCMD_HC2_DESIGN_TEMP, atoi(value));
   }
 
   // HC1-SwitchOffTemp
-  if (strcmp(elementId, "p02_hc1_switch_off_threshold") == 0) {
+  if (strcmp(elementId, "p02_hc1_sw_off_th") == 0) {
     km271sendCmd(KM271_SENDCMD_HC1_SWITCH_OFF_THRESHOLD, atoi(value));
   }
 
   // HC2-SwitchOffTemp
-  if (strcmp(elementId, "p02_hc2_switch_off_threshold") == 0) {
+  if (strcmp(elementId, "p02_hc2_sw_off_th") == 0) {
     km271sendCmd(KM271_SENDCMD_HC2_SWITCH_OFF_THRESHOLD, atoi(value));
   }
 
@@ -125,7 +145,7 @@ void webCallback(const char *elementId, const char *value) {
   }
 
   // WW-Pump Cycles
-  if (strcmp(elementId, "p02_ww_circulation") == 0) {
+  if (strcmp(elementId, "p02_ww_circ") == 0) {
     km271sendCmd(KM271_SENDCMD_WW_PUMP_CYCLES, atoi(value));
   }
 
@@ -146,7 +166,7 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "p12_wifi_ssid") == 0) {
     snprintf(config.wifi.ssid, sizeof(config.wifi.ssid), value);
   }
-  if (strcmp(elementId, "p12_wifi_password") == 0) {
+  if (strcmp(elementId, "p12_wifi_passw") == 0) {
     snprintf(config.wifi.password, sizeof(config.wifi.password), value);
   }
 
@@ -168,13 +188,13 @@ void webCallback(const char *elementId, const char *value) {
   }
 
   // Authentication
-  if (strcmp(elementId, "p12_access_enable") == 0) {
+  if (strcmp(elementId, "p12_auth_enable") == 0) {
     config.auth.enable = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_access_user") == 0) {
+  if (strcmp(elementId, "p12_auth_user") == 0) {
     snprintf(config.auth.user, sizeof(config.auth.user), value);
   }
-  if (strcmp(elementId, "p12_access_password") == 0) {
+  if (strcmp(elementId, "p12_auth_passw") == 0) {
     snprintf(config.auth.password, sizeof(config.auth.password), value);
   }
 
@@ -263,10 +283,10 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "p12_mqtt_user") == 0) {
     snprintf(config.mqtt.user, sizeof(config.mqtt.user), value);
   }
-  if (strcmp(elementId, "p12_mqtt_password") == 0) {
+  if (strcmp(elementId, "p12_mqtt_passw") == 0) {
     snprintf(config.mqtt.password, sizeof(config.mqtt.password), value);
   }
-  if (strcmp(elementId, "p12_mqtt_language") == 0) {
+  if (strcmp(elementId, "p12_mqtt_lang") == 0) {
     config.mqtt.lang = strtoul(value, NULL, 10);
   }
 
@@ -320,15 +340,15 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "p12_gpio_led_wifi") == 0) {
     config.gpio.led_oilcounter = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_gpio_trig_oilcounter") == 0) {
+  if (strcmp(elementId, "p12_gpio_trig_oil") == 0) {
     config.gpio.trigger_oilcounter = strtoul(value, NULL, 10);
   }
 
   // Oil-Meter
-  if (strcmp(elementId, "p12_oil_hardware_enable") == 0) {
+  if (strcmp(elementId, "p12_oil_hw_enable") == 0) {
     config.oilmeter.use_hardware_meter = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_oil_virtual_enable") == 0) {
+  if (strcmp(elementId, "p12_oil_virt_enable") == 0) {
     config.oilmeter.use_virtual_meter = stringToBool(value);
   }
   if (strcmp(elementId, "p12_oil_par1_kg_h") == 0) {
@@ -367,11 +387,15 @@ void webCallback(const char *elementId, const char *value) {
   // Language
   if (strcmp(elementId, "p12_language") == 0) {
     config.lang = strtoul(value, NULL, 10);
+    updateAllElements();
   }
 
   // Buttons
   if (strcmp(elementId, "p12_btn_restart") == 0) {
     storeData();
+    yield();
+    delay(1000);
+    yield();
     ESP.restart();
   }
 
@@ -396,11 +420,21 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "p10_log_refresh_btn") == 0) {
     webReadLogBuffer();
   }
-
+  // Simulation
+  if (strcmp(elementId, "p12_sim_enable") == 0) {
+    config.sim.enable = stringToBool(value);
+    showElementClass("simModeBar", config.sim.enable);
+  }
+  if (strcmp(elementId, "p12_btn_simdata") == 0) {
+    startSimData();
+  }
   // OTA-Confirm
   if (strcmp(elementId, "p11_ota_confirm_btn") == 0) {
     updateWebDialog("ota_update_done_dialog", "close");
     storeData();
+    yield();
+    delay(1000);
+    yield();
     ESP.restart();
   }
 }

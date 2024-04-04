@@ -6,9 +6,10 @@
     <link rel="stylesheet" type="text/css" href="../css/pico.css" />
     <link rel="stylesheet" type="text/css" href="../css/custom.css" />
     <link rel="stylesheet" type="text/css" href="../css/icons.css" />
-    <script src="../js/main.js" defer></script>
+    <script src="../js/doc.js" defer></script>
     <script src="../js/lang.js" defer></script>
-    <script src="../js/tools.js" defer></script>
+    <script src="../js/fun.js" defer></script>
+    <script src="../js/events.js" defer></script>
     <style></style>
     <script>
       function test() {
@@ -58,7 +59,7 @@
               <div class="dash-header" data-i18n="update_failed"></div>
               <div style="text-align: center">
                 <span data-i18n="error_text"></span>
-                <span id="p11_ota_update_error"></span>
+                <span id="p11_ota_upd_err"></span>
               </div>
               <div class="dash-content">
                 <p data-i18n="update_error_info"></p>
@@ -113,6 +114,19 @@
               </div>
             </div>
           </article>
+          <!-- Dialog OPEN-CONFIG -->
+          <dialog id="open_config_dialog">
+            <article>
+              <header><strong>config.json</strong></header>
+              <pre id="config_output"></pre>
+              <div class="dash-footer">
+                <button
+                  id="p11_config_dialog_btn"
+                  data-i18n="close"
+                  style="width: 75%"></button>
+              </div>
+            </article>
+          </dialog>
           <!-- config import/export -->
           <article class="tools">
             <div class="dash-main">
@@ -120,7 +134,7 @@
               <div class="dash-content">
                 <form
                   method="POST"
-                  action="/config-upload"
+                  action="#"
                   enctype="multipart/form-data"
                   id="file_upload_form">
                   <input
@@ -146,6 +160,10 @@
                     id="p11_export_btn"
                     data-i18n="export"
                     onclick="exportConfig()"></button>
+                  <button
+                    style="width: 100%; margin-top: 17px"
+                    id="p11_file_show_btn"
+                    data-i18n="open"></button>
                 </form>
               </div>
             </div>

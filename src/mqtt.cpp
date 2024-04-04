@@ -78,17 +78,19 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
   // restart ESP command
   if (strcmp(topic, addTopic(mqttCmd.RESTART[config.lang])) == 0) {
     km271Msg(KM_TYP_MESSAGE, "restart requested!", "");
+    yield();
     delay(1000);
+    yield();
     ESP.restart();
   }
   // send sim data
   else if (strcmp(topic, addTopic(mqttCmd.SIMDATA[config.lang])) == 0) {
-#if SIM_MODE
-    km271Msg(KM_TYP_MESSAGE, "start sending sim data", "");
-    startSimData();
-#else
-    km271Msg(KM_TYP_MESSAGE, "SIM_MODE not active", "");
-#endif
+    if (config.sim.enable) {
+      km271Msg(KM_TYP_MESSAGE, "start sending sim data", "");
+      startSimData();
+    } else {
+      km271Msg(KM_TYP_MESSAGE, "simulation mode not active", "");
+    }
   }
   // Service command
   else if (strcmp(topic, addTopic(mqttCmd.SERVICE[config.lang])) == 0) {
@@ -309,7 +311,9 @@ void checkMqtt() {
         msgLn("MQTT connection not possible, esp rebooting...");
         msgLn("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
         storeData(); // store Data before reboot
-        delay(500);
+        yield();
+        delay(1000);
+        yield();
         ESP.restart();
       }
     }

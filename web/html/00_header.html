@@ -8,10 +8,37 @@
     <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
     <link rel="stylesheet" type="text/css" href="gzip_m.css" />
     <link rel="stylesheet" type="text/css" href="gzip_c.css" />
-    <script defer src="gzip.js" defer></script>
+    <script defer src="gzip_m.js" defer></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
   <body>
+    <!-- Dialog Version -->
+    <dialog id="version_dialog">
+      <article class="dash">
+        <div class="dash-main">
+          <div class="dash-header" data-i18n="version_info"></div>
+          <br />
+          <div class="leftright">
+            <span data-i18n="act_version"></span>
+            <span id="p00_dialog_version"></span>
+          </div>
+          <div class="leftright">
+            <span data-i18n="github_version"></span>
+            <a id="p00_dialog_git_version" aria-busy="true"></a>
+          </div>
+          <br />
+          <div class="dash-footer">
+            <button
+              id="close_version_Dialog_btn"
+              data-i18n="close"
+              style="width: 75%"></button>
+          </div>
+        </div>
+        <div class="dash-icon">
+          <div class="svg i_github"></div>
+        </div>
+      </article>
+    </dialog>
     <!--TOP-MENU-->
     <nav>
       <div class="topMenu">
@@ -150,9 +177,7 @@
         </li>
       </ul>
       <div style="display: inline-flex; margin-top: auto; margin-bottom: 5px">
-        <div
-          id="p00_version"
-          style="margin-right: auto; margin-top: auto"></div>
+        <a id="p00_version" style="margin-right: auto; margin-top: auto"></a>
         <a
           href="/logout"
           class="svg i_logout OPT_AUTH"

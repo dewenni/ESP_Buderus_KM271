@@ -55,6 +55,8 @@ void setLanguage(const char *language) {
   sendWebUpdate(message, "setLanguage");
 }
 
+void updateWebJSON(const char *JSON) { events.send(JSON, "updateJSON", millis()); }
+
 void updateWebText(const char *elementID, const char *text, bool isInput) {
   char message[BUFFER_SIZE];
   snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"text\":\"%s\",\"isInput\":%s}", elementID, text, isInput ? "true" : "false");
@@ -138,6 +140,18 @@ void updateWebSetIcon(const char *elementID, const char *icon) {
   sendWebUpdate(message, "updateSetIcon");
 }
 
+void updateWebHref(const char *elementID, const char *href) {
+  char message[BUFFER_SIZE];
+  snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"href\":\"%s\"}", elementID, href);
+  sendWebUpdate(message, "updateHref");
+}
+
+void updateWebBusy(const char *elementID, bool busy) {
+  char message[BUFFER_SIZE];
+  snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"busy\":%s}", elementID, busy ? "true" : "false");
+  sendWebUpdate(message, "updateBusy");
+}
+
 /**
  * *******************************************************************
  * @brief   function to process the firmware update
@@ -155,8 +169,9 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
       Update.printError(Serial);
       snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
       km271Msg(KM_TYP_MESSAGE, "otaMessage", NULL);
-      updateWebText("p11_ota_update_error", Update.errorString(), false);
+      updateWebText("p11_ota_upd_err", Update.errorString(), false);
       updateWebDialog("ota_update_failed_dialog", "open");
+      return request->send(400, "text/plain", "OTA could not begin");
     }
   }
   // update in progress
@@ -164,8 +179,9 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
     Update.printError(Serial);
     snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
     km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
-    updateWebText("p11_ota_update_error", Update.errorString(), false);
+    updateWebText("p11_ota_upd_err", Update.errorString(), false);
     updateWebDialog("ota_update_failed_dialog", "open");
+    return request->send(400, "text/plain", "OTA could not begin");
   } else {
     // calculate progress
     int progress = (Update.progress() * 100) / content_len;
@@ -178,16 +194,13 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
   }
   // update done
   if (final) {
-    AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Ok");
-    response->addHeader("Refresh", "30");
-    response->addHeader("Location", "/");
-    request->send(response);
     if (!Update.end(true)) {
       Update.printError(Serial);
       snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
       km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
-      updateWebText("p11_ota_update_error", Update.errorString(), false);
+      updateWebText("p11_ota_upd_err", Update.errorString(), false);
       updateWebDialog("ota_update_failed_dialog", "open");
+      return request->send(400, "text/plain", "Could not end OTA");
     } else {
       char message[32];
       snprintf(message, 32, "Progress: %d%%", 100);
@@ -196,6 +209,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
       Serial.flush();
       updateWebDialog("ota_update_done_dialog", "open");
       km271Msg(KM_TYP_MESSAGE, "OTA Update finished!", NULL);
+      return request->send(200, "text/plain", "OTA Update finished!");
     }
   }
 }
@@ -240,8 +254,8 @@ void onLoadRequest() { updateAllElements(); }
 void webUISetup() {
 
   server.on("/login", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", gzip_login_html, gzip_login_html_size);
-    response->addHeader("Content-Encoding", "gzip");
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", login_html, login_html_size);
+    response->addHeader("Content-Encoding", "br");
     request->send(response);
   });
 
@@ -271,30 +285,29 @@ void webUISetup() {
   });
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", gzip_html, gzip_html_size);
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", main_html, main_html_size);
     if (!isAuthenticated(request)) {
       request->redirect("/login");
     } else {
       response->addHeader("Content-Encoding", "gzip");
       request->send(response);
-      onLoadRequest();
     }
   });
 
   server.on("/gzip_c.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/css", c_gzip_css, c_gzip_css_size);
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/css", c_css, c_css_size);
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   });
 
   server.on("/gzip_m.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/css", m_gzip_css, m_gzip_css_size);
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/css", m_css, m_css_size);
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   });
 
-  server.on("/gzip.js", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/js", gzip_js, gzip_js_size);
+  server.on("/gzip_m.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/js", m_js, m_js_size);
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   });
@@ -304,6 +317,9 @@ void webUISetup() {
   // config.json download
   server.on("/config-download", HTTP_GET,
             [](AsyncWebServerRequest *request) { request->send(LittleFS, "/config.json", "application/octet-stream"); });
+
+  // Route, um die config.json-Datei zu senden
+  server.on("/config.json", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/config.json", "application/json"); });
 
   // config.json upload
   server.on(
@@ -388,7 +404,7 @@ void webUICylic() {
   }
 
   // in simulation mode, load simdata and display simModeBar
-  if (simulationTimer.delayOn(SIM_MODE && clientConnected && !simulationInit && !setupMode, 2000)) {
+  if (simulationTimer.delayOn(config.sim.enable && !simulationInit && !setupMode, 2000)) {
     simulationInit = true;
     showElementClass("simModeBar", true);
     startSimData();

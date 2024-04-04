@@ -4,8 +4,7 @@
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION "v4.0.9001" // internal program version
-#define SIM_MODE false
+#define VERSION "v4.0.9003" // internal program version
 
 #define WIFI_RECONNECT 10000 // Delay between wifi reconnection tries
 #define MQTT_RECONNECT 10000 // Delay between mqtt reconnection tries
@@ -118,7 +117,12 @@ typedef struct {
 } s_cfg_pushover;
 
 typedef struct {
+  bool enable;
+} s_cfg_sim;
+
+typedef struct {
   int lang;
+  s_cfg_sim sim;
   s_cfg_oilmeter oilmeter;
   s_cfg_wifi wifi;
   s_cfg_mqtt mqtt;
@@ -140,3 +144,4 @@ void configSetup();
 void configCyclic();
 void configSaveToFile();
 void configLoadFromFile();
+void configInitValue();

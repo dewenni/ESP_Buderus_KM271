@@ -79,7 +79,9 @@ void checkWiFi() {
       msgLn("Wifi connection not possible, esp rebooting...");
       msgLn("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
       storeData(); // store Data before reboot
-      delay(500);
+      yield();
+      delay(1000);
+      yield();
       ESP.restart();
     }
   }
