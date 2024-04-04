@@ -14,7 +14,7 @@ document
 evtSource.addEventListener(
   "ping",
   function (e) {
-    console.log("Ping-Nachricht empfangen");
+    console.log("Ping received");
     resetPingTimeout();
   },
   false
@@ -25,12 +25,12 @@ evtSource.addEventListener(
   "updateText",
   function (e) {
     var data = JSON.parse(e.data);
-    var element = document.getElementById(data.elementID);
+    var element = document.getElementById(data.id);
     if (element) {
       if (data.isInput) {
-        element.value = data.text; // Aktualisiert den `value` für Eingabeelemente
+        element.value = data.text;
       } else {
-        element.innerHTML = data.text; // Aktualisiert den `innerHTML` für andere Elemente
+        element.innerHTML = data.text;
       }
     }
   },
@@ -42,7 +42,7 @@ evtSource.addEventListener(
   "updateState",
   function (e) {
     var data = JSON.parse(e.data);
-    var element = document.getElementById(data.elementID); // Direkter Zugriff über getElementById
+    var element = document.getElementById(data.id);
     if (element && (element.type === "checkbox" || element.type === "radio")) {
       element.checked = data.state;
       toggleElementVisibility(element.getAttribute("hideOpt"), element.checked);
@@ -56,7 +56,7 @@ evtSource.addEventListener(
   "updateValue",
   function (e) {
     var data = JSON.parse(e.data);
-    var selectElement = document.getElementById(data.elementID);
+    var selectElement = document.getElementById(data.id);
     if (selectElement) {
       selectElement.value = data.value;
     }
@@ -69,7 +69,7 @@ evtSource.addEventListener(
   "updateSetIcon",
   function (e) {
     var data = JSON.parse(e.data);
-    var element = document.getElementById(data.elementID);
+    var element = document.getElementById(data.id);
     if (element) {
       element.className = "svg " + data.icon;
     }
@@ -82,7 +82,7 @@ evtSource.addEventListener(
   "hideElement",
   function (e) {
     var data = JSON.parse(e.data);
-    var element = document.getElementById(data.elementID);
+    var element = document.getElementById(data.id);
     if (element) {
       element.style.display = data.hide ? "none" : "";
     }
@@ -95,7 +95,7 @@ evtSource.addEventListener(
   "updateHref",
   function (e) {
     var data = JSON.parse(e.data);
-    var element = document.getElementById(data.elementID);
+    var element = document.getElementById(data.id);
     if (element) {
       element.href = data.href;
     }
@@ -108,7 +108,7 @@ evtSource.addEventListener(
   "updateBusy",
   function (e) {
     var data = JSON.parse(e.data);
-    var element = document.getElementById(data.elementID);
+    var element = document.getElementById(data.id);
     if (element) {
       element.setAttribute("aria-busy", data.busy);
     }
@@ -159,33 +159,34 @@ evtSource.addEventListener(
 evtSource.addEventListener(
   "updateJSON",
   function (event) {
-    var updates = JSON.parse(event.data);
-    updates.forEach(function (update) {
-      var element = document.getElementById(update.i);
-
-      if (element) {
-        switch (update.t) {
-          case "v":
-            element.value = update.v;
-            break;
-          case "c":
-            element.checked = update.v;
-            toggleElementVisibility(
-              element.getAttribute("hideOpt"),
-              element.checked
-            );
-            break;
-          case "l":
-            element.innerHTML = update.v;
-            break;
-          case "i":
-            element.className = "svg " + update.v;
-            break;
-          default:
-            console.error("unknown typ:", update.t);
-        }
-      } else {
-        console.error("element not found:", update.i);
+    var data = JSON.parse(event.data);
+    Object.keys(data).forEach(function (key) {
+      let [elementID, typSuffix] = key.split("#");
+      let element = document.getElementById(elementID);
+      if (!element) {
+        console.error("unknown element:", element);
+        return;
+      }
+      let value = data[key];
+      switch (typSuffix) {
+        case "v": // value
+          element.value = value;
+          break;
+        case "c": // checked
+          element.checked = value === "true";
+          toggleElementVisibility(
+            element.getAttribute("hideOpt"),
+            element.checked
+          );
+          break;
+        case "l": // Label = innerHTML
+          element.innerHTML = value;
+          break;
+        case "i": // icon
+          element.className = "svg " + value;
+          break;
+        default:
+          console.error("unknown typ:", typSuffix);
       }
     });
   },
@@ -210,7 +211,7 @@ evtSource.addEventListener(
   "updateDialog",
   function (e) {
     var data = JSON.parse(e.data);
-    var dialog = document.getElementById(data.elementID);
+    var dialog = document.getElementById(data.id);
     if (data.state == "open") {
       dialog.showModal();
     } else if (data.state == "close") {

@@ -57,61 +57,61 @@ void setLanguage(const char *language) {
 
 void updateWebJSON(const char *JSON) { events.send(JSON, "updateJSON", millis()); }
 
-void updateWebText(const char *elementID, const char *text, bool isInput) {
+void updateWebText(const char *id, const char *text, bool isInput) {
   char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"text\":\"%s\",\"isInput\":%s}", elementID, text, isInput ? "true" : "false");
+  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"text\":\"%s\",\"isInput\":%s}", id, text, isInput ? "true" : "false");
   sendWebUpdate(message, "updateText");
 }
 
-void updateWebTextInt(const char *elementID, long value, bool isInput) {
+void updateWebTextInt(const char *id, long value, bool isInput) {
   char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"text\":\"%ld\",\"isInput\":%s}", elementID, value, isInput ? "true" : "false");
+  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"text\":\"%ld\",\"isInput\":%s}", id, value, isInput ? "true" : "false");
   sendWebUpdate(message, "updateText");
 }
 
-void updateWebTextFloat(const char *elementID, double value, bool isInput, int decimals) {
+void updateWebTextFloat(const char *id, double value, bool isInput, int decimals) {
   char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"text\":\"%.1f\",\"isInput\":%s}", elementID, value, isInput ? "true" : "false");
+  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"text\":\"%.1f\",\"isInput\":%s}", id, value, isInput ? "true" : "false");
   if (decimals == 0)
-    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"text\":\"%.0f\",\"isInput\":%s}", elementID, value, isInput ? "true" : "false");
+    snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"text\":\"%.0f\",\"isInput\":%s}", id, value, isInput ? "true" : "false");
   else if (decimals == 2)
-    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"text\":\"%.2f\",\"isInput\":%s}", elementID, value, isInput ? "true" : "false");
+    snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"text\":\"%.2f\",\"isInput\":%s}", id, value, isInput ? "true" : "false");
   else if (decimals == 3)
-    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"text\":\"%.3f\",\"isInput\":%s}", elementID, value, isInput ? "true" : "false");
+    snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"text\":\"%.3f\",\"isInput\":%s}", id, value, isInput ? "true" : "false");
   else
-    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"text\":\"%.1f\",\"isInput\":%s}", elementID, value, isInput ? "true" : "false");
+    snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"text\":\"%.1f\",\"isInput\":%s}", id, value, isInput ? "true" : "false");
 
   sendWebUpdate(message, "updateText");
 }
 
-void updateWebState(const char *elementID, bool state) {
+void updateWebState(const char *id, bool state) {
   char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"state\":%s}", elementID, state ? "true" : "false");
+  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"state\":%s}", id, state ? "true" : "false");
   sendWebUpdate(message, "updateState");
 }
 
-void updateWebValueStr(const char *elementID, const char *value) {
+void updateWebValueStr(const char *id, const char *value) {
   char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"value\":\"%s\"}", elementID, value);
+  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"value\":\"%s\"}", id, value);
   sendWebUpdate(message, "updateValue");
 }
 
-void updateWebValueInt(const char *elementID, long value) {
+void updateWebValueInt(const char *id, long value) {
   char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"value\":\"%ld\"}", elementID, value);
+  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"value\":\"%ld\"}", id, value);
   sendWebUpdate(message, "updateValue");
 }
 
-void updateWebValueFloat(const char *elementID, double value, int decimals) {
+void updateWebValueFloat(const char *id, double value, int decimals) {
   char message[BUFFER_SIZE];
   if (decimals == 0)
-    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"value\":\"%.0f\"}", elementID, value);
+    snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"value\":\"%.0f\"}", id, value);
   else if (decimals == 2)
-    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"value\":\"%.2f\"}", elementID, value);
+    snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"value\":\"%.2f\"}", id, value);
   else if (decimals == 3)
-    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"value\":\"%.3f\"}", elementID, value);
+    snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"value\":\"%.3f\"}", id, value);
   else
-    snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"value\":\"%.1f\"}", elementID, value);
+    snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"value\":\"%.1f\"}", id, value);
 
   sendWebUpdate(message, "updateValue");
 }
@@ -122,33 +122,33 @@ void showElementClass(const char *className, bool show) {
   sendWebUpdate(message, "showElementClass");
 }
 
-void hideElementId(const char *elementID, bool hide) {
+void hideid(const char *id, bool hide) {
   char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"hide\":%s}", elementID, hide ? "true" : "false");
+  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"hide\":%s}", id, hide ? "true" : "false");
   sendWebUpdate(message, "hideElement");
 }
 
-void updateWebDialog(const char *elementID, const char *state) {
+void updateWebDialog(const char *id, const char *state) {
   char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"state\":\"%s\"}", elementID, state);
+  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"state\":\"%s\"}", id, state);
   sendWebUpdate(message, "updateDialog");
 }
 
-void updateWebSetIcon(const char *elementID, const char *icon) {
+void updateWebSetIcon(const char *id, const char *icon) {
   char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"icon\":\"%s\"}", elementID, icon);
+  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"icon\":\"%s\"}", id, icon);
   sendWebUpdate(message, "updateSetIcon");
 }
 
-void updateWebHref(const char *elementID, const char *href) {
+void updateWebHref(const char *id, const char *href) {
   char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"href\":\"%s\"}", elementID, href);
+  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"href\":\"%s\"}", id, href);
   sendWebUpdate(message, "updateHref");
 }
 
-void updateWebBusy(const char *elementID, bool busy) {
+void updateWebBusy(const char *id, bool busy) {
   char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"elementID\":\"%s\",\"busy\":%s}", elementID, busy ? "true" : "false");
+  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"busy\":%s}", id, busy ? "true" : "false");
   sendWebUpdate(message, "updateBusy");
 }
 

@@ -98,9 +98,9 @@ var pingTimeout;
 function resetPingTimeout() {
   clearTimeout(pingTimeout);
   pingTimeout = setTimeout(function () {
-    console.log("Ping Timeout - Keine Ping-Nachricht empfangen.");
+    console.log("Ping Timeout - no ping received");
     showReloadBar();
-  }, 5000); // 5 seconds waiting time for the ping
+  }, 6000); // 6 seconds waiting time for the ping
 }
 
 // to show reload bar if connection is lost
