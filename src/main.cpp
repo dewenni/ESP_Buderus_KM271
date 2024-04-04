@@ -5,7 +5,7 @@
 #define CONFIG_ASYNC_TCP_STACK_SIZE 6144 // AsyncTCP: stack size
 #define ESP_DRD_USE_LITTLEFS true        // DRD: use LittleFS
 #define DOUBLERESETDETECTOR_DEBUG true   // DRD: debug serial outputs
-#define DRD_TIMEOUT 2                    // DRD: timeout for double reset detection
+#define DRD_TIMEOUT 3                    // DRD: timeout for double reset detection
 #define DRD_ADDRESS 0                    // DRD: FLASH offset not used > LittleFS
 
 // includes

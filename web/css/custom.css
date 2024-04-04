@@ -4,6 +4,8 @@
   --pico-range-border-color: #3d475c;
   --pico-range-active-border-color: #cfd5e2;
   --pico-table-row-stripped-background-color: #2a3140;
+  --pico-switch-background-color: #3d475c;
+  --pico-switch-checked-background-color: #687899;
 }
 
 @media (min-width: 576px) {
@@ -39,6 +41,11 @@ details > summary {
 details[open] > summary {
   font-size: 1.25rem;
   font-weight: bold;
+}
+
+details[open] {
+  background-color: #202632;
+  padding: 20px;
 }
 
 hr {
