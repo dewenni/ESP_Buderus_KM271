@@ -35,57 +35,74 @@ int UpdateCntFast = 0;
 int UpdateCntSlow = 0;
 int UpdateCntRefresh = 0;
 s_lang LANG;
+char jsonSet[2048];
+char jsonCfg[5120];
+char jsonStat[4096];
 
+// initialize JSON-Buffer
+void initJsonBuffer(char *buffer, size_t bufferSize) {
+  if (bufferSize > 0) {
+    buffer[0] = '{';
+    buffer[1] = '\0';
+  }
+}
 
-void addJsonLabelInt(JsonArray &array, const char *elementID, intmax_t value) {
-  JsonObject obj = array.add<JsonObject>();
-  obj["i"] = elementID;
-  obj["t"] = "l"; // Label (innerHTML)
-  obj["v"] = value;
+// add JSON Element to JSON-Buffer
+bool addJsonElement(char *buffer, size_t bufferSize, const char *elementID, const char *typSuffix, const char *value) {
+  size_t currentLength = strlen(buffer);
+  size_t additionalLength = strlen(elementID) + strlen(typSuffix) + strlen(value) + 7; //+7 because of (":#,)
+  if (currentLength + additionalLength < bufferSize - 2) { // -2 for buffer termination
+    strcat(buffer, "\"");
+    strcat(buffer, elementID);
+    strcat(buffer, "#");
+    strcat(buffer, typSuffix);
+    strcat(buffer, "\":\"");
+    strcat(buffer, value);
+    strcat(buffer, "\","); 
+    return true;
+  }
+  return false;
+  Serial.println(">>>>>>> JSON-Buffer to small!!! <<<<<<<");
+}
+
+// Terminate JSON-Buffer
+void finalizeJsonBuffer(char *buffer, size_t bufferSize) {
+  size_t length = strlen(buffer);
+  if (length > 0 && buffer[length - 1] == ',') {
+    buffer[length - 1] = '\0'; // remove trailing comma
+  }
+  if (length + 1 < bufferSize) {
+    strcat(buffer, "}");
+  }
+}
+
+void addJsonLabelInt(char *buffer, size_t bufferSize, const char *elementID, intmax_t value) {
+  addJsonElement(buffer, bufferSize, elementID, "l", intmaxToString(value));
 };
 
-void addJsonLabelTxt(JsonArray &array, const char *elementID, const char *value) {
-  JsonObject obj = array.add<JsonObject>();
-  obj["i"] = elementID;
-  obj["t"] = "l"; // Label (innerHTML)
-  obj["v"] = value;
+void addJsonLabelTxt(char *buffer, size_t bufferSize, const char *elementID, const char *value) {
+  addJsonElement(buffer, bufferSize, elementID, "l", value);
 };
 
-void addJsonValueTxt(JsonArray &array, const char *elementID, const char *value) {
-  JsonObject obj = array.add<JsonObject>();
-  obj["i"] = elementID;
-  obj["t"] = "v"; // value
-  obj["v"] = value;
+void addJsonValueTxt(char *buffer, size_t bufferSize, const char *elementID, const char *value) {
+  addJsonElement(buffer, bufferSize, elementID, "v", value);
 };
 
-void addJsonValueInt(JsonArray &array, const char *elementID, intmax_t value) {
-  JsonObject obj = array.add<JsonObject>();
-  obj["i"] = elementID;
-  obj["t"] = "v"; // value
-  obj["v"] = value;
+void addJsonValueInt(char *buffer, size_t bufferSize, const char *elementID, intmax_t value) {
+  addJsonElement(buffer, bufferSize, elementID, "v", intmaxToString(value));
 };
 
-void addJsonValueFlt(JsonArray &array, const char *elementID, float value) {
-  JsonObject obj = array.add<JsonObject>();
-  obj["i"] = elementID;
-  obj["t"] = "v"; // value
-  obj["v"] = value;
+void addJsonValueFlt(char *buffer, size_t bufferSize, const char *elementID, float value) {
+  addJsonElement(buffer, bufferSize, elementID, "v", floatToString(value));
 };
 
-void addJsonState(JsonArray &array, const char *elementID, bool value) {
-  JsonObject obj = array.add<JsonObject>();
-  obj["i"] = elementID;
-  obj["t"] = "c"; // checked
-  obj["v"] = value;
+void addJsonState(char *buffer, size_t bufferSize, const char *elementID, bool value) {
+  addJsonElement(buffer, bufferSize, elementID, "c", (value ? "true" : "false"));
 };
 
-void addJsonIcon(JsonArray &array, const char *elementID, const char *value) {
-  JsonObject obj = array.add<JsonObject>();
-  obj["i"] = elementID;
-  obj["t"] = "i"; // icon
-  obj["v"] = value;
+void addJsonIcon(char *buffer, size_t bufferSize, const char *elementID, const char *value) {
+  addJsonElement(buffer, bufferSize, elementID, "i", value);
 };
-
 
 /**
  * *******************************************************************
@@ -170,7 +187,6 @@ void updateOilmeterElements(bool init) {
   }
 }
 
-
 /**
  * *******************************************************************
  * @brief   update System informations
@@ -179,67 +195,65 @@ void updateOilmeterElements(bool init) {
  * *******************************************************************/
 void updateSettingsElements() {
 
-  JsonDocument doc;
-  JsonArray array = doc.to<JsonArray>();
+  initJsonBuffer(jsonSet, sizeof(jsonSet));
 
-  addJsonValueTxt(array, "p12_wifi_hostname", config.wifi.hostname);
-  addJsonValueTxt(array, "p12_wifi_ssid", config.wifi.ssid);
-  addJsonValueTxt(array, "p12_wifi_passw", config.wifi.password);
-  addJsonState(array, "p12_ip_enable", config.ip.enable);
-  addJsonValueTxt(array, "p12_ip_adr", config.ip.ipaddress);
-  addJsonValueTxt(array, "p12_ip_subnet", config.ip.subnet);
-  addJsonValueTxt(array, "p12_ip_gateway", config.ip.gateway);
-  addJsonValueTxt(array, "p12_ip_dns", config.ip.dns);
-  addJsonState(array, "p12_auth_enable", config.auth.enable);
-  addJsonValueTxt(array, "p12_auth_user", config.auth.user);
-  addJsonValueTxt(array, "p12_auth_passw", config.auth.password);
-  addJsonState(array, "p12_mqtt_enable", config.mqtt.enable);
-  addJsonValueTxt(array, "p12_mqtt_server", config.mqtt.server);
-  addJsonValueInt(array, "p12_mqtt_port", (config.mqtt.port));
-  addJsonValueTxt(array, "p12_mqtt_user", config.mqtt.user);
-  addJsonValueTxt(array, "p12_mqtt_passw", config.mqtt.password);
-  addJsonValueTxt(array, "p12_mqtt_topic", config.mqtt.topic);
-  addJsonValueInt(array, "p12_mqtt_lang", config.mqtt.lang);
-  addJsonState(array, "p12_pushover_enable", config.pushover.enable);
-  addJsonValueTxt(array, "p12_pushover_api_token", config.pushover.token);
-  addJsonValueTxt(array, "p12_pushover_user_key", config.pushover.user_key);
-  addJsonValueInt(array, "p12_pushover_filter", config.pushover.filter);
-  addJsonState(array, "p12_hc1_enable", config.km271.use_hc1);
-  addJsonState(array, "p12_hc2_enable", config.km271.use_hc2);
-  addJsonState(array, "p12_hw_enable", config.km271.use_ww);
-  addJsonState(array, "p12_alarm_enable", config.km271.use_alarmMsg);
-  addJsonValueInt(array, "p12_gpio_km271_rx", config.gpio.km271_RX);
-  addJsonValueInt(array, "p12_gpio_km271_tx", config.gpio.km271_TX);
-  addJsonValueInt(array, "p12_gpio_led_heartbeat", config.gpio.led_heartbeat);
-  addJsonValueInt(array, "p12_gpio_led_logmode", config.gpio.led_logmode);
-  addJsonValueInt(array, "p12_gpio_led_wifi", config.gpio.led_wifi);
-  addJsonValueInt(array, "p12_gpio_led_oil", config.gpio.led_oilcounter);
-  addJsonValueInt(array, "p12_gpio_trig_oil", config.gpio.trigger_oilcounter);
-  addJsonState(array, "p12_oil_hw_enable", config.oilmeter.use_hardware_meter);
-  addJsonState(array, "p12_oil_virt_enable", config.oilmeter.use_virtual_meter);
-  addJsonValueFlt(array, "p12_oil_par1_kg_h", config.oilmeter.consumption_kg_h);
-  addJsonValueFlt(array, "p12_oil_par2_kg_l", config.oilmeter.oil_density_kg_l);
-  addJsonState(array, "p12_sens1_enable", config.sensor.ch1_enable);
-  addJsonValueTxt(array, "p12_sens1_name", config.sensor.ch1_name);
-  addJsonValueTxt(array, "p12_sens1_description", config.sensor.ch1_description);
-  addJsonValueInt(array, "p12_sens1_gpio", config.sensor.ch1_gpio);
-  addJsonState(array, "p12_sens2_enable", config.sensor.ch2_enable);
-  addJsonValueTxt(array, "p12_sens2_name", config.sensor.ch2_name);
-  addJsonValueTxt(array, "p12_sens2_description", config.sensor.ch2_description);
-  addJsonValueInt(array, "p12_sens2_gpio", config.sensor.ch2_gpio);
-  addJsonValueInt(array, "p12_language", config.lang);
-  addJsonState(array, "p10_log_enable", config.log.enable);
-  addJsonValueInt(array, "p10_log_mode", config.log.filter);
-  addJsonValueInt(array, "p10_log_order", config.log.order);
-  addJsonState(array, "p12_ntp_enable", config.ntp.enable);
-  addJsonValueTxt(array, "p12_ntp_server", config.ntp.server);
-  addJsonValueTxt(array, "p12_ntp_tz", config.ntp.tz);
-  addJsonState(array, "p12_sim_enable", config.sim.enable);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_wifi_hostname", config.wifi.hostname);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_wifi_ssid", config.wifi.ssid);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_wifi_passw", config.wifi.password);
+  addJsonState(jsonSet, sizeof(jsonSet), "p12_ip_enable", config.ip.enable);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_ip_adr", config.ip.ipaddress);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_ip_subnet", config.ip.subnet);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_ip_gateway", config.ip.gateway);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_ip_dns", config.ip.dns);
+  addJsonState(jsonSet, sizeof(jsonSet), "p12_auth_enable", config.auth.enable);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_auth_user", config.auth.user);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_auth_passw", config.auth.password);
+  addJsonState(jsonSet, sizeof(jsonSet), "p12_mqtt_enable", config.mqtt.enable);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_mqtt_server", config.mqtt.server);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_mqtt_port", (config.mqtt.port));
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_mqtt_user", config.mqtt.user);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_mqtt_passw", config.mqtt.password);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_mqtt_topic", config.mqtt.topic);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_mqtt_lang", config.mqtt.lang);
+  addJsonState(jsonSet, sizeof(jsonSet), "p12_pushover_enable", config.pushover.enable);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_pushover_api_token", config.pushover.token);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_pushover_user_key", config.pushover.user_key);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_pushover_filter", config.pushover.filter);
+  addJsonState(jsonSet, sizeof(jsonSet), "p12_hc1_enable", config.km271.use_hc1);
+  addJsonState(jsonSet, sizeof(jsonSet), "p12_hc2_enable", config.km271.use_hc2);
+  addJsonState(jsonSet, sizeof(jsonSet), "p12_hw_enable", config.km271.use_ww);
+  addJsonState(jsonSet, sizeof(jsonSet), "p12_alarm_enable", config.km271.use_alarmMsg);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_gpio_km271_rx", config.gpio.km271_RX);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_gpio_km271_tx", config.gpio.km271_TX);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_gpio_led_heartbeat", config.gpio.led_heartbeat);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_gpio_led_logmode", config.gpio.led_logmode);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_gpio_led_wifi", config.gpio.led_wifi);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_gpio_led_oil", config.gpio.led_oilcounter);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_gpio_trig_oil", config.gpio.trigger_oilcounter);
+  addJsonState(jsonSet, sizeof(jsonSet), "p12_oil_hw_enable", config.oilmeter.use_hardware_meter);
+  addJsonState(jsonSet, sizeof(jsonSet), "p12_oil_virt_enable", config.oilmeter.use_virtual_meter);
+  addJsonValueFlt(jsonSet, sizeof(jsonSet), "p12_oil_par1_kg_h", config.oilmeter.consumption_kg_h);
+  addJsonValueFlt(jsonSet, sizeof(jsonSet), "p12_oil_par2_kg_l", config.oilmeter.oil_density_kg_l);
+  addJsonState(jsonSet, sizeof(jsonSet), "p12_sens1_enable", config.sensor.ch1_enable);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_sens1_name", config.sensor.ch1_name);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_sens1_description", config.sensor.ch1_description);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_sens1_gpio", config.sensor.ch1_gpio);
+  addJsonState(jsonSet, sizeof(jsonSet), "p12_sens2_enable", config.sensor.ch2_enable);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_sens2_name", config.sensor.ch2_name);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_sens2_description", config.sensor.ch2_description);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_sens2_gpio", config.sensor.ch2_gpio);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_language", config.lang);
+  addJsonState(jsonSet, sizeof(jsonSet), "p10_log_enable", config.log.enable);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p10_log_mode", config.log.filter);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p10_log_order", config.log.order);
+  addJsonState(jsonSet, sizeof(jsonSet), "p12_ntp_enable", config.ntp.enable);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_ntp_server", config.ntp.server);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_ntp_tz", config.ntp.tz);
+  addJsonState(jsonSet, sizeof(jsonSet), "p12_sim_enable", config.sim.enable);
 
-  String jsonString;
-  serializeJson(doc, jsonString);
-  Serial.printf("settings string size: %d\n", jsonString.length());
-  updateWebJSON(jsonString.c_str());
+  finalizeJsonBuffer(jsonSet, sizeof(jsonSet));
+  //Serial.printf("settings string size: %d\n", strlen(jsonSet));
+  updateWebJSON(jsonSet);
 }
 
 /**
@@ -312,133 +326,131 @@ void updateKm271AlarmElements() {
  * *******************************************************************/
 void updateKm271ConfigElementsAll() {
 
-  JsonDocument doc;
-  JsonArray array = doc.to<JsonArray>();
+  initJsonBuffer(jsonCfg, sizeof(jsonCfg));
 
   // heating circuit 1 configuration
   if (config.km271.use_hc1) {
-    addJsonValueInt(array, "p02_hc1_frost_prot_th", pkmConfigNum->hc1_frost_protection_threshold);
-    addJsonLabelInt(array, "p02_hc1_frost_prot_th_txt", pkmConfigNum->hc1_frost_protection_threshold);
-    addJsonLabelTxt(array, "p03_hc1_frost_th", pkmConfigStr->hc1_frost_protection_threshold);
-    addJsonValueInt(array, "p02_hc1_summer_th", pkmConfigNum->hc1_summer_mode_threshold);
-    addJsonLabelInt(array, "p02_hc1_summer_th_txt", pkmConfigNum->hc1_summer_mode_threshold);
-    addJsonLabelTxt(array, "p03_hc1_summer_th", pkmConfigStr->hc1_summer_mode_threshold);
-    addJsonLabelTxt(array, "p03_hc1_night_temp", pkmConfigStr->hc1_night_temp);
-    addJsonLabelTxt(array, "p03_hc1_day_temp", pkmConfigStr->hc1_day_temp);
-    addJsonState(array, "p02_hc1_opmode_night", pkmConfigNum->hc1_operation_mode == 0 ? true : false);
-    addJsonState(array, "p02_hc1_opmode_day", pkmConfigNum->hc1_operation_mode == 1 ? true : false);
-    addJsonState(array, "p02_hc1_opmode_auto", pkmConfigNum->hc1_operation_mode == 2 ? true : false);
-    addJsonLabelTxt(array, "p03_hc1_op_mode", pkmConfigStr->hc1_operation_mode);
-    addJsonLabelTxt(array, "p03_hc1_hday_temp", pkmConfigStr->hc1_holiday_temp);
-    addJsonLabelTxt(array, "p03_hc1_max_temp", pkmConfigStr->hc1_max_temp);
-    addJsonValueInt(array, "p02_hc1_interp", pkmConfigNum->hc1_interpretation);
-    addJsonLabelInt(array, "p02_hc1_interp_txt", pkmConfigNum->hc1_interpretation);
-    addJsonLabelTxt(array, "p03_hc1_interp", pkmConfigStr->hc1_interpretation);
-    addJsonLabelTxt(array, "p03_hc1_sw_on_temp", pkmConfigStr->hc1_switch_on_temperature);
-    addJsonValueInt(array, "p02_hc1_sw_off_th", pkmConfigNum->hc1_switch_off_threshold);
-    addJsonLabelInt(array, "p02_hc1_sw_off_th_txt", pkmConfigNum->hc1_switch_off_threshold);
-    addJsonLabelTxt(array, "p03_hc1_sw_off_th", pkmConfigStr->hc1_switch_off_threshold);
-    addJsonLabelTxt(array, "p03_hc1_red_mode", pkmConfigStr->hc1_reduction_mode);
-    addJsonValueInt(array, "p02_hc1_reduct_mode", pkmConfigNum->hc1_reduction_mode);
-    addJsonLabelTxt(array, "p03_hc1_heatsys", pkmConfigStr->hc1_heating_system);
-    addJsonLabelTxt(array, "p03_hc1_temp_offset", pkmConfigStr->hc1_temp_offset);
-    addJsonLabelTxt(array, "p03_hc1_remotecontrol", pkmConfigStr->hc1_remotecontrol);
-    addJsonValueInt(array, "p02_hc1_prg", pkmConfigNum->hc1_program);
-    addJsonValueInt(array, "p02_hc1_holiday_days", pkmConfigNum->hc1_holiday_days);
-    addJsonLabelTxt(array, "p03_hc1_t01", pkmConfigStr->hc1_timer01);
-    addJsonLabelTxt(array, "p03_hc1_t02", pkmConfigStr->hc1_timer02);
-    addJsonLabelTxt(array, "p03_hc1_t03", pkmConfigStr->hc1_timer03);
-    addJsonLabelTxt(array, "p03_hc1_t04", pkmConfigStr->hc1_timer04);
-    addJsonLabelTxt(array, "p03_hc1_t05", pkmConfigStr->hc1_timer05);
-    addJsonLabelTxt(array, "p03_hc1_t06", pkmConfigStr->hc1_timer06);
-    addJsonLabelTxt(array, "p03_hc1_t07", pkmConfigStr->hc1_timer07);
-    addJsonLabelTxt(array, "p03_hc1_t08", pkmConfigStr->hc1_timer08);
-    addJsonLabelTxt(array, "p03_hc1_t09", pkmConfigStr->hc1_timer09);
-    addJsonLabelTxt(array, "p03_hc1_t10", pkmConfigStr->hc1_timer10);
-    addJsonLabelTxt(array, "p03_hc1_t11", pkmConfigStr->hc1_timer11);
-    addJsonLabelTxt(array, "p03_hc1_t12", pkmConfigStr->hc1_timer12);
-    addJsonLabelTxt(array, "p03_hc1_t13", pkmConfigStr->hc1_timer13);
-    addJsonLabelTxt(array, "p03_hc1_t14", pkmConfigStr->hc1_timer14);
+    addJsonValueInt(jsonCfg, sizeof(jsonCfg), "p02_hc1_frost_prot_th", pkmConfigNum->hc1_frost_protection_threshold);
+    addJsonLabelInt(jsonCfg, sizeof(jsonCfg), "p02_hc1_frost_prot_th_txt", pkmConfigNum->hc1_frost_protection_threshold);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_frost_th", pkmConfigStr->hc1_frost_protection_threshold);
+    addJsonValueInt(jsonCfg, sizeof(jsonCfg), "p02_hc1_summer_th", pkmConfigNum->hc1_summer_mode_threshold);
+    addJsonLabelInt(jsonCfg, sizeof(jsonCfg), "p02_hc1_summer_th_txt", pkmConfigNum->hc1_summer_mode_threshold);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_summer_th", pkmConfigStr->hc1_summer_mode_threshold);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_night_temp", pkmConfigStr->hc1_night_temp);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_day_temp", pkmConfigStr->hc1_day_temp);
+    addJsonState(jsonCfg, sizeof(jsonCfg), "p02_hc1_opmode_night", pkmConfigNum->hc1_operation_mode == 0 ? true : false);
+    addJsonState(jsonCfg, sizeof(jsonCfg), "p02_hc1_opmode_day", pkmConfigNum->hc1_operation_mode == 1 ? true : false);
+    addJsonState(jsonCfg, sizeof(jsonCfg), "p02_hc1_opmode_auto", pkmConfigNum->hc1_operation_mode == 2 ? true : false);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_op_mode", pkmConfigStr->hc1_operation_mode);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_hday_temp", pkmConfigStr->hc1_holiday_temp);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_max_temp", pkmConfigStr->hc1_max_temp);
+    addJsonValueInt(jsonCfg, sizeof(jsonCfg), "p02_hc1_interp", pkmConfigNum->hc1_interpretation);
+    addJsonLabelInt(jsonCfg, sizeof(jsonCfg), "p02_hc1_interp_txt", pkmConfigNum->hc1_interpretation);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_interp", pkmConfigStr->hc1_interpretation);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_sw_on_temp", pkmConfigStr->hc1_switch_on_temperature);
+    addJsonValueInt(jsonCfg, sizeof(jsonCfg), "p02_hc1_sw_off_th", pkmConfigNum->hc1_switch_off_threshold);
+    addJsonLabelInt(jsonCfg, sizeof(jsonCfg), "p02_hc1_sw_off_th_txt", pkmConfigNum->hc1_switch_off_threshold);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_sw_off_th", pkmConfigStr->hc1_switch_off_threshold);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_red_mode", pkmConfigStr->hc1_reduction_mode);
+    addJsonValueInt(jsonCfg, sizeof(jsonCfg), "p02_hc1_reduct_mode", pkmConfigNum->hc1_reduction_mode);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_heatsys", pkmConfigStr->hc1_heating_system);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_temp_offset", pkmConfigStr->hc1_temp_offset);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_remotecontrol", pkmConfigStr->hc1_remotecontrol);
+    addJsonValueInt(jsonCfg, sizeof(jsonCfg), "p02_hc1_prg", pkmConfigNum->hc1_program);
+    addJsonValueInt(jsonCfg, sizeof(jsonCfg), "p02_hc1_holiday_days", pkmConfigNum->hc1_holiday_days);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_t01", pkmConfigStr->hc1_timer01);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_t02", pkmConfigStr->hc1_timer02);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_t03", pkmConfigStr->hc1_timer03);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_t04", pkmConfigStr->hc1_timer04);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_t05", pkmConfigStr->hc1_timer05);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_t06", pkmConfigStr->hc1_timer06);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_t07", pkmConfigStr->hc1_timer07);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_t08", pkmConfigStr->hc1_timer08);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_t09", pkmConfigStr->hc1_timer09);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_t10", pkmConfigStr->hc1_timer10);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_t11", pkmConfigStr->hc1_timer11);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_t12", pkmConfigStr->hc1_timer12);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_t13", pkmConfigStr->hc1_timer13);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p03_hc1_t14", pkmConfigStr->hc1_timer14);
   }
 
   // heating circuit 2 configuration
   if (config.km271.use_hc2) {
-    addJsonValueInt(array, "p02_hc2_frost_prot_th", pkmConfigNum->hc2_frost_protection_threshold);
-    addJsonLabelInt(array, "p02_hc2_frost_prot_th_txt", pkmConfigNum->hc2_frost_protection_threshold);
-    addJsonLabelTxt(array, "p04_hc2_frost_th", pkmConfigStr->hc2_frost_protection_threshold);
-    addJsonValueInt(array, "p02_hc2_summer_th", pkmConfigNum->hc2_summer_mode_threshold);
-    addJsonLabelInt(array, "p02_hc2_summer_th_txt", pkmConfigNum->hc2_summer_mode_threshold);
-    addJsonLabelTxt(array, "p04_hc2_summer_th", pkmConfigStr->hc2_summer_mode_threshold);
-    addJsonLabelTxt(array, "p04_hc2_night_temp", pkmConfigStr->hc2_night_temp);
-    addJsonLabelTxt(array, "p04_hc2_day_temp", pkmConfigStr->hc2_day_temp);
-    addJsonState(array, "p02_hc2_opmode_night", pkmConfigNum->hc2_operation_mode == 0 ? true : false);
-    addJsonState(array, "p02_hc2_opmode_day", pkmConfigNum->hc2_operation_mode == 1 ? true : false);
-    addJsonState(array, "p02_hc2_opmode_auto", pkmConfigNum->hc2_operation_mode == 2 ? true : false);
-    addJsonLabelTxt(array, "p04_hc2_op_mode", pkmConfigStr->hc2_operation_mode);
-    addJsonLabelTxt(array, "p04_hc2_hday_temp", pkmConfigStr->hc2_holiday_temp);
-    addJsonLabelTxt(array, "p04_hc2_max_temp", pkmConfigStr->hc2_max_temp);
-    addJsonValueInt(array, "p02_hc2_interp", pkmConfigNum->hc2_interpretation);
-    addJsonLabelInt(array, "p02_hc2_interp_txt", pkmConfigNum->hc2_interpretation);
-    addJsonLabelTxt(array, "p04_hc2_interp", pkmConfigStr->hc2_interpretation);
-    addJsonLabelTxt(array, "p04_hc2_sw_on_temp", pkmConfigStr->hc2_switch_on_temperature);
-    addJsonValueInt(array, "p02_hc2_sw_off_th", pkmConfigNum->hc2_switch_off_threshold);
-    addJsonLabelInt(array, "p02_hc2_sw_off_th_txt", pkmConfigNum->hc2_switch_off_threshold);
-    addJsonLabelTxt(array, "p04_hc2_sw_off_th", pkmConfigStr->hc2_switch_off_threshold);
-    addJsonLabelTxt(array, "p04_hc2_red_mode", pkmConfigStr->hc2_reduction_mode);
-    addJsonValueInt(array, "p02_hc2_reduct_mode", pkmConfigNum->hc2_reduction_mode);
-    addJsonLabelTxt(array, "p04_hc2_heatsys", pkmConfigStr->hc2_heating_system);
-    addJsonLabelTxt(array, "p04_hc2_temp_offset", pkmConfigStr->hc2_temp_offset);
-    addJsonLabelTxt(array, "p04_hc2_remotecontrol", pkmConfigStr->hc2_remotecontrol);
-    addJsonValueInt(array, "p02_hc2_prg", pkmConfigNum->hc2_program);
-    addJsonValueInt(array, "p02_hc2_holiday_days", pkmConfigNum->hc2_holiday_days);
-    addJsonLabelTxt(array, "p04_hc2_t01", pkmConfigStr->hc2_timer01);
-    addJsonLabelTxt(array, "p04_hc2_t02", pkmConfigStr->hc2_timer02);
-    addJsonLabelTxt(array, "p04_hc2_t03", pkmConfigStr->hc2_timer03);
-    addJsonLabelTxt(array, "p04_hc2_t04", pkmConfigStr->hc2_timer04);
-    addJsonLabelTxt(array, "p04_hc2_t05", pkmConfigStr->hc2_timer05);
-    addJsonLabelTxt(array, "p04_hc2_t06", pkmConfigStr->hc2_timer06);
-    addJsonLabelTxt(array, "p04_hc2_t07", pkmConfigStr->hc2_timer07);
-    addJsonLabelTxt(array, "p04_hc2_t08", pkmConfigStr->hc2_timer08);
-    addJsonLabelTxt(array, "p04_hc2_t09", pkmConfigStr->hc2_timer09);
-    addJsonLabelTxt(array, "p04_hc2_t10", pkmConfigStr->hc2_timer10);
-    addJsonLabelTxt(array, "p04_hc2_t11", pkmConfigStr->hc2_timer11);
-    addJsonLabelTxt(array, "p04_hc2_t12", pkmConfigStr->hc2_timer12);
-    addJsonLabelTxt(array, "p04_hc2_t13", pkmConfigStr->hc2_timer13);
-    addJsonLabelTxt(array, "p04_hc2_t14", pkmConfigStr->hc2_timer14);
+    addJsonValueInt(jsonCfg, sizeof(jsonCfg), "p02_hc2_frost_prot_th", pkmConfigNum->hc2_frost_protection_threshold);
+    addJsonLabelInt(jsonCfg, sizeof(jsonCfg), "p02_hc2_frost_prot_th_txt", pkmConfigNum->hc2_frost_protection_threshold);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_frost_th", pkmConfigStr->hc2_frost_protection_threshold);
+    addJsonValueInt(jsonCfg, sizeof(jsonCfg), "p02_hc2_summer_th", pkmConfigNum->hc2_summer_mode_threshold);
+    addJsonLabelInt(jsonCfg, sizeof(jsonCfg), "p02_hc2_summer_th_txt", pkmConfigNum->hc2_summer_mode_threshold);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_summer_th", pkmConfigStr->hc2_summer_mode_threshold);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_night_temp", pkmConfigStr->hc2_night_temp);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_day_temp", pkmConfigStr->hc2_day_temp);
+    addJsonState(jsonCfg, sizeof(jsonCfg), "p02_hc2_opmode_night", pkmConfigNum->hc2_operation_mode == 0 ? true : false);
+    addJsonState(jsonCfg, sizeof(jsonCfg), "p02_hc2_opmode_day", pkmConfigNum->hc2_operation_mode == 1 ? true : false);
+    addJsonState(jsonCfg, sizeof(jsonCfg), "p02_hc2_opmode_auto", pkmConfigNum->hc2_operation_mode == 2 ? true : false);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_op_mode", pkmConfigStr->hc2_operation_mode);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_hday_temp", pkmConfigStr->hc2_holiday_temp);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_max_temp", pkmConfigStr->hc2_max_temp);
+    addJsonValueInt(jsonCfg, sizeof(jsonCfg), "p02_hc2_interp", pkmConfigNum->hc2_interpretation);
+    addJsonLabelInt(jsonCfg, sizeof(jsonCfg), "p02_hc2_interp_txt", pkmConfigNum->hc2_interpretation);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_interp", pkmConfigStr->hc2_interpretation);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_sw_on_temp", pkmConfigStr->hc2_switch_on_temperature);
+    addJsonValueInt(jsonCfg, sizeof(jsonCfg), "p02_hc2_sw_off_th", pkmConfigNum->hc2_switch_off_threshold);
+    addJsonLabelInt(jsonCfg, sizeof(jsonCfg), "p02_hc2_sw_off_th_txt", pkmConfigNum->hc2_switch_off_threshold);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_sw_off_th", pkmConfigStr->hc2_switch_off_threshold);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_red_mode", pkmConfigStr->hc2_reduction_mode);
+    addJsonValueInt(jsonCfg, sizeof(jsonCfg), "p02_hc2_reduct_mode", pkmConfigNum->hc2_reduction_mode);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_heatsys", pkmConfigStr->hc2_heating_system);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_temp_offset", pkmConfigStr->hc2_temp_offset);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_remotecontrol", pkmConfigStr->hc2_remotecontrol);
+    addJsonValueInt(jsonCfg, sizeof(jsonCfg), "p02_hc2_prg", pkmConfigNum->hc2_program);
+    addJsonValueInt(jsonCfg, sizeof(jsonCfg), "p02_hc2_holiday_days", pkmConfigNum->hc2_holiday_days);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_t01", pkmConfigStr->hc2_timer01);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_t02", pkmConfigStr->hc2_timer02);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_t03", pkmConfigStr->hc2_timer03);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_t04", pkmConfigStr->hc2_timer04);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_t05", pkmConfigStr->hc2_timer05);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_t06", pkmConfigStr->hc2_timer06);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_t07", pkmConfigStr->hc2_timer07);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_t08", pkmConfigStr->hc2_timer08);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_t09", pkmConfigStr->hc2_timer09);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_t10", pkmConfigStr->hc2_timer10);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_t11", pkmConfigStr->hc2_timer11);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_t12", pkmConfigStr->hc2_timer12);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_t13", pkmConfigStr->hc2_timer13);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p04_hc2_t14", pkmConfigStr->hc2_timer14);
   }
 
   // hot-water config values
   if (config.km271.use_ww) {
-    addJsonLabelTxt(array, "p05_hw_prio", pkmConfigStr->ww_priority);
-    addJsonValueInt(array, "p02_ww_temp", pkmConfigNum->ww_temp);
-    addJsonLabelInt(array, "p02_ww_temp_txt", pkmConfigNum->ww_temp);
-    addJsonLabelTxt(array, "p05_hw_temp", pkmConfigStr->ww_temp);
-    addJsonState(array, "p02_ww_opmode_night", pkmConfigNum->ww_operation_mode == 0 ? true : false);
-    addJsonState(array, "p02_ww_opmode_day", pkmConfigNum->ww_operation_mode == 1 ? true : false);
-    addJsonState(array, "p02_ww_opmode_auto", pkmConfigNum->ww_operation_mode == 2 ? true : false);
-    addJsonLabelTxt(array, "p05_hw_op_mode", pkmConfigStr->ww_operation_mode);
-    addJsonLabelTxt(array, "p05_hw_proccess", pkmConfigStr->ww_processing);
-    addJsonValueInt(array, "p02_ww_circ", pkmConfigNum->ww_circulation);
-    addJsonLabelInt(array, "p02_ww_circ_txt", pkmConfigNum->ww_circulation);
-    addJsonLabelTxt(array, "p05_hw_circ", pkmConfigStr->ww_circulation);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p05_hw_prio", pkmConfigStr->ww_priority);
+    addJsonValueInt(jsonCfg, sizeof(jsonCfg), "p02_ww_temp", pkmConfigNum->ww_temp);
+    addJsonLabelInt(jsonCfg, sizeof(jsonCfg), "p02_ww_temp_txt", pkmConfigNum->ww_temp);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p05_hw_temp", pkmConfigStr->ww_temp);
+    addJsonState(jsonCfg, sizeof(jsonCfg), "p02_ww_opmode_night", pkmConfigNum->ww_operation_mode == 0 ? true : false);
+    addJsonState(jsonCfg, sizeof(jsonCfg), "p02_ww_opmode_day", pkmConfigNum->ww_operation_mode == 1 ? true : false);
+    addJsonState(jsonCfg, sizeof(jsonCfg), "p02_ww_opmode_auto", pkmConfigNum->ww_operation_mode == 2 ? true : false);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p05_hw_op_mode", pkmConfigStr->ww_operation_mode);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p05_hw_proccess", pkmConfigStr->ww_processing);
+    addJsonValueInt(jsonCfg, sizeof(jsonCfg), "p02_ww_circ", pkmConfigNum->ww_circulation);
+    addJsonLabelInt(jsonCfg, sizeof(jsonCfg), "p02_ww_circ_txt", pkmConfigNum->ww_circulation);
+    addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p05_hw_circ", pkmConfigStr->ww_circulation);
   }
 
   // general config values
-  addJsonLabelTxt(array, "p07_language", pkmConfigStr->language);
-  addJsonLabelTxt(array, "p07_display", pkmConfigStr->display);
-  addJsonLabelTxt(array, "p07_burner_type", pkmConfigStr->burner_type);
-  addJsonLabelTxt(array, "p06_max_boil_temp", pkmConfigStr->max_boiler_temperature);
-  addJsonLabelTxt(array, "p07_pump_logic_temp", pkmConfigStr->pump_logic_temp);
-  addJsonLabelTxt(array, "p07_exh_gas_temp_th", pkmConfigStr->exhaust_gas_temperature_threshold);
-  addJsonLabelTxt(array, "p07_burner_min_mod", pkmConfigStr->burner_min_modulation);
-  addJsonLabelTxt(array, "p07_burner_mod_run", pkmConfigStr->burner_modulation_runtime);
-  addJsonLabelTxt(array, "p07_building_type", pkmConfigStr->building_type);
-  addJsonLabelTxt(array, "p07_time_offset", pkmConfigStr->time_offset);
+  addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p07_language", pkmConfigStr->language);
+  addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p07_display", pkmConfigStr->display);
+  addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p07_burner_type", pkmConfigStr->burner_type);
+  addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p06_max_boil_temp", pkmConfigStr->max_boiler_temperature);
+  addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p07_pump_logic_temp", pkmConfigStr->pump_logic_temp);
+  addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p07_exh_gas_temp_th", pkmConfigStr->exhaust_gas_temperature_threshold);
+  addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p07_burner_min_mod", pkmConfigStr->burner_min_modulation);
+  addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p07_burner_mod_run", pkmConfigStr->burner_modulation_runtime);
+  addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p07_building_type", pkmConfigStr->building_type);
+  addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p07_time_offset", pkmConfigStr->time_offset);
 
-  String jsonCfgString;
-  serializeJson(doc, jsonCfgString);
-  Serial.printf("config string size: %d\n", jsonCfgString.length());
-  updateWebJSON(jsonCfgString.c_str());
+  finalizeJsonBuffer(jsonCfg, sizeof(jsonCfg));
+  //Serial.printf("config string size: %d\n", strlen(jsonCfg));
+  updateWebJSON(jsonCfg);
 }
 
 /**
@@ -1002,136 +1014,135 @@ void updateKm271StatusElementsAll() {
 
   km271GetStatusValueCopy(&kmStatusCpy);
 
-  JsonDocument doc;
-  JsonArray array = doc.to<JsonArray>();
+  initJsonBuffer(jsonStat, sizeof(jsonStat));
 
   // heating circuit 1 values
   if (config.km271.use_hc1) {
     // AUTOMATIC / MANUAL (Day/Night)
     if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) { // AUTOMATIC
-      addJsonLabelTxt(array, "p01_hc1_opmode", webText.AUTOMATIC[config.lang]);
-      addJsonIcon(array, "p01_hc1_opmode_icon", "i_auto");
+      addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc1_opmode", webText.AUTOMATIC[config.lang]);
+      addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc1_opmode_icon", "i_auto");
     } else {                                               // MANUAL
       if (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1)) { // DAY
-        addJsonLabelTxt(array, "p01_hc1_opmode", webText.MAN_DAY[config.lang]);
-        addJsonIcon(array, "p01_hc1_opmode_icon", "i_manual");
+        addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc1_opmode", webText.MAN_DAY[config.lang]);
+        addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc1_opmode_icon", "i_manual");
       } else { // NIGHT
-        addJsonLabelTxt(array, "p01_hc1_opmode", webText.MAN_NIGHT[config.lang]);
-        addJsonIcon(array, "p01_hc1_opmode_icon", "i_manual");
+        addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc1_opmode", webText.MAN_NIGHT[config.lang]);
+        addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc1_opmode_icon", "i_manual");
       }
     }
 
     // Summer / Winter
     if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) { // AUTOMATIC
-      addJsonLabelTxt(array, "p01_hc1_summer_winter",
+      addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc1_summer_winter",
                       (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]));
-      addJsonIcon(array, "p01_hc1_summer_winter_icon", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
+      addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc1_summer_winter_icon", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
     } else { // generate status from actual temperature and summer threshold
       addJsonLabelTxt(
-          array, "p01_hc1_summer_winter",
+          jsonStat, sizeof(jsonStat), "p01_hc1_summer_winter",
           (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc1_summer_mode_threshold ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]));
-      addJsonIcon(array, "p01_hc1_summer_winter_icon",
+      addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc1_summer_winter_icon",
                   (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc1_summer_mode_threshold ? "i_summer" : "i_winter"));
     }
 
-    addJsonLabelTxt(array, "p03_hc1_ov1_off_time_opt", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 0)));
-    addJsonLabelTxt(array, "p03_hc1_ov1_on_time_opt", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 1)));
-    addJsonLabelTxt(array, "p03_hc1_ov1_auto", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)));
-    addJsonLabelTxt(array, "p03_hc1_ov1_ww_priority", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 3)));
-    addJsonLabelTxt(array, "p03_hc1_ov1_screed_drying", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 4)));
-    addJsonLabelTxt(array, "p03_hc1_ov1_holiday", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 5)));
-    addJsonLabelTxt(array, "p03_hc1_ov1_frost", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 6)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p03_hc1_ov1_off_time_opt", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 0)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p03_hc1_ov1_on_time_opt", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 1)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p03_hc1_ov1_auto", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p03_hc1_ov1_ww_priority", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 3)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p03_hc1_ov1_screed_drying", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 4)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p03_hc1_ov1_holiday", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 5)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p03_hc1_ov1_frost", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 6)));
 
     // Day / Night
-    addJsonLabelTxt(array, "p01_hc1_day_night",
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc1_day_night",
                     (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? webText.DAY[config.lang] : webText.NIGHT[config.lang]));
-    addJsonIcon(array, "p01_hc1_day_night_icon", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? "i_day" : "i_night"));
+    addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc1_day_night_icon", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? "i_day" : "i_night"));
 
-    addJsonLabelTxt(array, "p03_hc1_ov2_summer", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 0)));
-    addJsonLabelTxt(array, "p03_hc1_ov2_day", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 1)));
-    addJsonLabelTxt(array, "p03_hc1_ov2_no_con_remote", errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 2)));
-    addJsonLabelTxt(array, "p03_hc1_ov2_remote_err", errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 3)));
-    addJsonLabelTxt(array, "p03_hc1_ov2_fail_flow_sens", errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 4)));
-    addJsonLabelTxt(array, "p03_hc1_ov2_flow_at_max", errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 5)));
-    addJsonLabelTxt(array, "p03_hc1_ov2_ext_sign_in", errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 6)));
-    addJsonLabelInt(array, "p01_hc1_flow_set", kmStatusCpy.HC1_HeatingForwardTargetTemp);
-    addJsonLabelInt(array, "p03_hc1_flow_set", kmStatusCpy.HC1_HeatingForwardTargetTemp);
-    addJsonLabelInt(array, "p01_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardTargetTemp);
-    addJsonLabelInt(array, "p03_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardTargetTemp);
-    addJsonLabelInt(array, "p03_hc1_room_set", kmStatusCpy.HC1_RoomTargetTemp);
-    addJsonLabelInt(array, "p03_hc1_room_temp", kmStatusCpy.HC1_RoomActualTemp);
-    addJsonLabelInt(array, "p03_hc1_on_time_opt_dur", kmStatusCpy.HC1_SwitchOnOptimizationTime);
-    addJsonLabelInt(array, "p03_hc1_off_time_opt_dur", kmStatusCpy.HC1_SwitchOffOptimizationTime);
-    addJsonLabelTxt(array, "p01_hc1_pump", (kmStatusCpy.HC1_PumpPower == 0 ? webText.OFF[config.lang] : webText.ON[config.lang]));
-    addJsonLabelInt(array, "p03_hc1_pump", kmStatusCpy.HC1_PumpPower);
-    addJsonLabelInt(array, "p03_hc1_mixer", kmStatusCpy.HC1_MixingValue);
-    addJsonLabelInt(array, "p03_hc1_heat_curve_10C", kmStatusCpy.HC1_HeatingCurvePlus10);
-    addJsonLabelInt(array, "p03_hc1_heat_curve_0C", kmStatusCpy.HC1_HeatingCurve0);
-    addJsonLabelInt(array, "p03_hc1_heat_curve_-10C", kmStatusCpy.HC1_HeatingCurveMinus10);
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p03_hc1_ov2_summer", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 0)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p03_hc1_ov2_day", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 1)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p03_hc1_ov2_no_con_remote", errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 2)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p03_hc1_ov2_remote_err", errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 3)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p03_hc1_ov2_fail_flow_sens", errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 4)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p03_hc1_ov2_flow_at_max", errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 5)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p03_hc1_ov2_ext_sign_in", errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 6)));
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p01_hc1_flow_set", kmStatusCpy.HC1_HeatingForwardTargetTemp);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p03_hc1_flow_set", kmStatusCpy.HC1_HeatingForwardTargetTemp);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p01_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardTargetTemp);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p03_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardTargetTemp);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p03_hc1_room_set", kmStatusCpy.HC1_RoomTargetTemp);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p03_hc1_room_temp", kmStatusCpy.HC1_RoomActualTemp);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p03_hc1_on_time_opt_dur", kmStatusCpy.HC1_SwitchOnOptimizationTime);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p03_hc1_off_time_opt_dur", kmStatusCpy.HC1_SwitchOffOptimizationTime);
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc1_pump", (kmStatusCpy.HC1_PumpPower == 0 ? webText.OFF[config.lang] : webText.ON[config.lang]));
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p03_hc1_pump", kmStatusCpy.HC1_PumpPower);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p03_hc1_mixer", kmStatusCpy.HC1_MixingValue);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p03_hc1_heat_curve_10C", kmStatusCpy.HC1_HeatingCurvePlus10);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p03_hc1_heat_curve_0C", kmStatusCpy.HC1_HeatingCurve0);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p03_hc1_heat_curve_-10C", kmStatusCpy.HC1_HeatingCurveMinus10);
   } // END HC1
 
   // heating circuit 2 values
   if (config.km271.use_hc2) {
     // HC2-Operating State
     if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) { // AUTOMATIC
-      addJsonLabelTxt(array, "p01_hc2_opmode", webText.AUTOMATIC[config.lang]);
-      addJsonIcon(array, "p01_hc2_opmode_icon", "i_auto");
+      addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc2_opmode", webText.AUTOMATIC[config.lang]);
+      addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc2_opmode_icon", "i_auto");
     } else {                                               // MANUAL
       if (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1)) { // DAY
-        addJsonLabelTxt(array, "p01_hc2_opmode", webText.MAN_DAY[config.lang]);
-        addJsonIcon(array, "p01_hc2_opmode_icon", "i_manual");
+        addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc2_opmode", webText.MAN_DAY[config.lang]);
+        addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc2_opmode_icon", "i_manual");
       } else { // NIGHT
-        addJsonLabelTxt(array, "p01_hc2_opmode", webText.MAN_NIGHT[config.lang]);
-        addJsonIcon(array, "p01_hc2_opmode_icon", "i_manual");
+        addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc2_opmode", webText.MAN_NIGHT[config.lang]);
+        addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc2_opmode_icon", "i_manual");
       }
     }
 
     // Summer / Winter
     if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) { // AUTOMATIC
-      addJsonLabelTxt(array, "p01_hc2_summer_winter",
+      addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc2_summer_winter",
                       (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]));
-      addJsonIcon(array, "p01_hc2_summer_winter_icon", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
+      addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc2_summer_winter_icon", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
     } else { // generate status from actual temperature and summer threshold
       addJsonLabelTxt(
-          array, "p01_hc2_summer_winter",
+          jsonStat, sizeof(jsonStat), "p01_hc2_summer_winter",
           (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc2_summer_mode_threshold ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]));
-      addJsonIcon(array, "p01_hc2_summer_winter_icon",
+      addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc2_summer_winter_icon",
                   (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc2_summer_mode_threshold ? "i_summer" : "i_winter"));
     }
 
-    addJsonLabelTxt(array, "p04_hc2_ov1_off_time_opt", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 0)));
-    addJsonLabelTxt(array, "p04_hc2_ov1_on_time_opt", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 1)));
-    addJsonLabelTxt(array, "p04_hc2_ov1_auto", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)));
-    addJsonLabelTxt(array, "p04_hc2_ov1_ww_priority", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 3)));
-    addJsonLabelTxt(array, "p04_hc2_ov1_screed_drying", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 4)));
-    addJsonLabelTxt(array, "p04_hc2_ov1_holiday", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 5)));
-    addJsonLabelTxt(array, "p04_hc2_ov1_frost", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 6)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p04_hc2_ov1_off_time_opt", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 0)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p04_hc2_ov1_on_time_opt", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 1)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p04_hc2_ov1_auto", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p04_hc2_ov1_ww_priority", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 3)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p04_hc2_ov1_screed_drying", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 4)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p04_hc2_ov1_holiday", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 5)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p04_hc2_ov1_frost", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 6)));
     // Day / Night
-    addJsonLabelTxt(array, "p01_hc2_day_night",
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc2_day_night",
                     (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? webText.DAY[config.lang] : webText.NIGHT[config.lang]));
-    addJsonIcon(array, "p01_hc2_day_night_icon", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? "i_day" : "i_night"));
+    addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc2_day_night_icon", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? "i_day" : "i_night"));
 
-    addJsonLabelTxt(array, "p04_hc2_ov2_summer", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 0)));
-    addJsonLabelTxt(array, "p04_hc2_ov2_day", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 1)));
-    addJsonLabelTxt(array, "p04_hc2_ov2_no_con_remote", errOkString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 2)));
-    addJsonLabelTxt(array, "p04_hc2_ov2_remote_err", errOkString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 3)));
-    addJsonLabelTxt(array, "p04_hc2_ov2_fail_flow_sens", errOkString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 4)));
-    addJsonLabelTxt(array, "p04_hc2_ov2_flow_at_max", errOkString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 5)));
-    addJsonLabelTxt(array, "p04_hc2_ov2_ext_sign_in", errOkString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 6)));
-    addJsonLabelInt(array, "p01_hc2_flow_set", kmStatusCpy.HC2_HeatingForwardTargetTemp);
-    addJsonLabelInt(array, "p04_hc2_flow_set", kmStatusCpy.HC2_HeatingForwardTargetTemp);
-    addJsonLabelInt(array, "p01_hc2_flow_act", kmStatusCpy.HC2_HeatingForwardActualTemp);
-    addJsonLabelInt(array, "p04_hc2_flow_act", kmStatusCpy.HC2_HeatingForwardActualTemp);
-    addJsonLabelInt(array, "p04_hc2_room_set", kmStatusCpy.HC2_RoomTargetTemp);
-    addJsonLabelInt(array, "p04_hc2_room_temp", kmStatusCpy.HC2_RoomActualTemp);
-    addJsonLabelInt(array, "p04_hc2_on_time_opt_dur", kmStatusCpy.HC2_SwitchOnOptimizationTime);
-    addJsonLabelInt(array, "p04_hc2_off_time_opt_dur", kmStatusCpy.HC2_SwitchOffOptimizationTime);
-    addJsonLabelTxt(array, "p01_hc2_pump", (kmStatusCpy.HC2_PumpPower == 0 ? webText.OFF[config.lang] : webText.ON[config.lang]));
-    addJsonLabelInt(array, "p04_hc2_pump", kmStatusCpy.HC2_PumpPower);
-    addJsonLabelInt(array, "p04_hc2_mixer", kmStatusCpy.HC2_MixingValue);
-    addJsonLabelInt(array, "p04_hc2_heat_curve_10C", kmStatusCpy.HC2_HeatingCurvePlus10);
-    addJsonLabelInt(array, "p04_hc2_heat_curve_0C", kmStatusCpy.HC2_HeatingCurve0);
-    addJsonLabelInt(array, "p04_hc2_heat_curve_-10C", kmStatusCpy.HC2_HeatingCurveMinus10);
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p04_hc2_ov2_summer", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 0)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p04_hc2_ov2_day", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 1)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p04_hc2_ov2_no_con_remote", errOkString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 2)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p04_hc2_ov2_remote_err", errOkString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 3)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p04_hc2_ov2_fail_flow_sens", errOkString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 4)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p04_hc2_ov2_flow_at_max", errOkString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 5)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p04_hc2_ov2_ext_sign_in", errOkString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 6)));
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p01_hc2_flow_set", kmStatusCpy.HC2_HeatingForwardTargetTemp);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p04_hc2_flow_set", kmStatusCpy.HC2_HeatingForwardTargetTemp);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p01_hc2_flow_act", kmStatusCpy.HC2_HeatingForwardActualTemp);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p04_hc2_flow_act", kmStatusCpy.HC2_HeatingForwardActualTemp);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p04_hc2_room_set", kmStatusCpy.HC2_RoomTargetTemp);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p04_hc2_room_temp", kmStatusCpy.HC2_RoomActualTemp);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p04_hc2_on_time_opt_dur", kmStatusCpy.HC2_SwitchOnOptimizationTime);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p04_hc2_off_time_opt_dur", kmStatusCpy.HC2_SwitchOffOptimizationTime);
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc2_pump", (kmStatusCpy.HC2_PumpPower == 0 ? webText.OFF[config.lang] : webText.ON[config.lang]));
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p04_hc2_pump", kmStatusCpy.HC2_PumpPower);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p04_hc2_mixer", kmStatusCpy.HC2_MixingValue);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p04_hc2_heat_curve_10C", kmStatusCpy.HC2_HeatingCurvePlus10);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p04_hc2_heat_curve_0C", kmStatusCpy.HC2_HeatingCurve0);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p04_hc2_heat_curve_-10C", kmStatusCpy.HC2_HeatingCurveMinus10);
 
   } // END HC2
 
@@ -1139,93 +1150,90 @@ void updateKm271StatusElementsAll() {
   if (config.km271.use_ww) {
     // WW-Operating State
     if (bitRead(kmStatusCpy.HotWaterOperatingStates_1, 0)) { // AUTOMATIC
-      addJsonLabelTxt(array, "p01_ww_opmode", webText.AUTOMATIC[config.lang]);
-      addJsonIcon(array, "p01_ww_opmode_icon", "i_auto");
+      addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_ww_opmode", webText.AUTOMATIC[config.lang]);
+      addJsonIcon(jsonStat, sizeof(jsonStat), "p01_ww_opmode_icon", "i_auto");
     } else {                                                   // MANUAL
       if (bitRead(kmStatusCpy.HotWaterOperatingStates_2, 5)) { // DAY
-        addJsonLabelTxt(array, "p01_ww_opmode", webText.MAN_DAY[config.lang]);
-        addJsonIcon(array, "p01_ww_opmode_icon", "i_manual");
+        addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_ww_opmode", webText.MAN_DAY[config.lang]);
+        addJsonIcon(jsonStat, sizeof(jsonStat), "p01_ww_opmode_icon", "i_manual");
       } else { // NIGHT
-        addJsonLabelTxt(array, "p01_ww_opmode", webText.MAN_NIGHT[config.lang]);
-        addJsonIcon(array, "p01_ww_opmode_icon", "i_manual");
+        addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_ww_opmode", webText.MAN_NIGHT[config.lang]);
+        addJsonIcon(jsonStat, sizeof(jsonStat), "p01_ww_opmode_icon", "i_manual");
       }
     }
 
-    addJsonLabelTxt(array, "p05_hw_ov1_auto", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 0)));
-    addJsonLabelTxt(array, "p05_hw_ov1_disinfect", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 1)));
-    addJsonLabelTxt(array, "p05_hw_ov1_reload", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 2)));
-    addJsonLabelTxt(array, "p05_hw_ov1_holiday", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 3)));
-    addJsonLabelTxt(array, "p05_hw_ov1_err_disinfect", errOkString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 4)));
-    addJsonLabelTxt(array, "p05_hw_ov1_err_sensor", errOkString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 5)));
-    addJsonLabelTxt(array, "p05_hw_ov1_stays_cold", errOkString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 6)));
-    addJsonLabelTxt(array, "p05_hw_ov1_err_anode", errOkString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 7)));
-    addJsonLabelTxt(array, "p05_hw_ov2_load", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 0)));
-    addJsonLabelTxt(array, "p05_hw_ov2_manual", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 1)));
-    addJsonLabelTxt(array, "p05_hw_ov2_reload", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 2)));
-    addJsonLabelTxt(array, "p05_hw_ov2_off_time_opt_dur", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 3)));
-    addJsonLabelTxt(array, "p05_hw_ov2_on_time_opt_dur", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 4)));
-    addJsonLabelTxt(array, "p05_hw_ov2_day", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 5)));
-    addJsonLabelTxt(array, "p05_hw_ov2_hot", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 6)));
-    addJsonLabelTxt(array, "p05_hw_ov2_prio", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 7)));
-    static char HotWaterTargetTemp[32];
-    snprintf(HotWaterTargetTemp, sizeof(HotWaterTargetTemp), "%hhu °C", kmStatusCpy.HotWaterTargetTemp);
-    addJsonLabelTxt(array, "p05_hw_set_temp", HotWaterTargetTemp);
-    addJsonLabelInt(array, "p01_ww_temp_set", kmStatusCpy.HotWaterTargetTemp);
-    static char HotWaterActualTemp[32];
-    snprintf(HotWaterActualTemp, sizeof(HotWaterActualTemp), "%hhu °C", kmStatusCpy.HotWaterActualTemp);
-    addJsonLabelTxt(array, "p05_hw_act_temp", HotWaterActualTemp);
-    addJsonLabelInt(array, "p01_ww_temp_act", kmStatusCpy.HotWaterActualTemp);
-    addJsonLabelTxt(array, "p05_hw_on_time_opt_dur", onOffString(kmStatusCpy.HotWaterOptimizationTime));
-    addJsonLabelTxt(array, "p05_hw_pump_type_charge", onOffString(bitRead(kmStatusCpy.HotWaterPumpStates, 0)));
-    addJsonLabelTxt(array, "p05_hw_pump_type_circ", onOffString(bitRead(kmStatusCpy.HotWaterPumpStates, 1)));
-    addJsonLabelTxt(array, "p05_hw_pump_type_gwater_solar", onOffString(bitRead(kmStatusCpy.HotWaterPumpStates, 2)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_ov1_auto", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 0)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_ov1_disinfect", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 1)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_ov1_reload", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 2)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_ov1_holiday", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 3)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_ov1_err_disinfect", errOkString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 4)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_ov1_err_sensor", errOkString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 5)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_ov1_stays_cold", errOkString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 6)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_ov1_err_anode", errOkString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 7)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_ov2_load", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 0)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_ov2_manual", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 1)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_ov2_reload", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 2)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_ov2_off_time_opt_dur", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 3)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_ov2_on_time_opt_dur", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 4)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_ov2_day", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 5)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_ov2_hot", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 6)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_ov2_prio", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 7)));
+    snprintf(tmpMessage, sizeof(tmpMessage), "%hhu °C", kmStatusCpy.HotWaterTargetTemp);
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_set_temp", tmpMessage);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p01_ww_temp_set", kmStatusCpy.HotWaterTargetTemp);
+    snprintf(tmpMessage, sizeof(tmpMessage), "%hhu °C", kmStatusCpy.HotWaterActualTemp);
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_act_temp", tmpMessage);
+    addJsonLabelInt(jsonStat, sizeof(jsonStat), "p01_ww_temp_act", kmStatusCpy.HotWaterActualTemp);
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_on_time_opt_dur", onOffString(kmStatusCpy.HotWaterOptimizationTime));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_pump_type_charge", onOffString(bitRead(kmStatusCpy.HotWaterPumpStates, 0)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_pump_type_circ", onOffString(bitRead(kmStatusCpy.HotWaterPumpStates, 1)));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p05_hw_pump_type_gwater_solar", onOffString(bitRead(kmStatusCpy.HotWaterPumpStates, 2)));
   } // END HotWater
 
   // general values
-  addJsonLabelInt(array, "p06_boil_set", kmStatusCpy.BoilerForwardTargetTemp);
-  addJsonLabelInt(array, "p01_burner_temp_set", kmStatusCpy.BoilerForwardTargetTemp);
-  addJsonLabelInt(array, "p06_boil_temp", kmStatusCpy.BoilerForwardActualTemp);
-  addJsonLabelInt(array, "p01_burner_temp_act", kmStatusCpy.BoilerForwardActualTemp);
-  addJsonLabelInt(array, "p06_boil_sw_on_temp", kmStatusCpy.BurnerSwitchOnTemp);
-  addJsonLabelInt(array, "p06_boil_sw_off_temp", kmStatusCpy.BurnerSwitchOffTemp);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p06_boil_set", kmStatusCpy.BoilerForwardTargetTemp);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p01_burner_temp_set", kmStatusCpy.BoilerForwardTargetTemp);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p06_boil_temp", kmStatusCpy.BoilerForwardActualTemp);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p01_burner_temp_act", kmStatusCpy.BoilerForwardActualTemp);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p06_boil_sw_on_temp", kmStatusCpy.BurnerSwitchOnTemp);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p06_boil_sw_off_temp", kmStatusCpy.BurnerSwitchOffTemp);
 
-  addJsonLabelTxt(array, "p06_boil_fail_burner", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 0)));
-  addJsonLabelTxt(array, "p06_boil_fail_boiler_sens", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 1)));
-  addJsonLabelTxt(array, "p06_boil_fail_aux_sens", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 2)));
-  addJsonLabelTxt(array, "p06_boil_fail_boiler_cold", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 3)));
-  addJsonLabelTxt(array, "p06_boil_fail_exh_gas_sens", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 4)));
-  addJsonLabelTxt(array, "p06_boil_fail_exh_gas_over_limit", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 5)));
-  addJsonLabelTxt(array, "p06_boil_fail_safety_chain", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 6)));
-  addJsonLabelTxt(array, "p06_boil_fail_ext", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 7)));
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p06_boil_fail_burner", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 0)));
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p06_boil_fail_boiler_sens", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 1)));
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p06_boil_fail_aux_sens", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 2)));
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p06_boil_fail_boiler_cold", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 3)));
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p06_boil_fail_exh_gas_sens", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 4)));
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p06_boil_fail_exh_gas_over_limit", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 5)));
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p06_boil_fail_safety_chain", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 6)));
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p06_boil_fail_ext", errOkString(bitRead(kmStatusCpy.BoilerErrorStates, 7)));
 
-  addJsonLabelTxt(array, "p06_boil_state_exh_gas_test", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 0)));
-  addJsonLabelTxt(array, "p06_boil_s_stage1", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 1)));
-  addJsonLabelTxt(array, "p06_boil_st_boiler_prot", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 2)));
-  addJsonLabelTxt(array, "p06_boil_s_active", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 3)));
-  addJsonLabelTxt(array, "p06_boil_s_perf_free", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 4)));
-  addJsonLabelTxt(array, "p06_boil_s_perf_high", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 5)));
-  addJsonLabelTxt(array, "p06_boil_s_stage2", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 6)));
-  addJsonLabelTxt(array, "p01_burner", (kmStatusCpy.BurnerStates == 0) ? webText.OFF[config.lang] : webText.ON[config.lang]);
-  addJsonLabelTxt(array, "p06_burn_ctrl", cfgArrayTexts.BURNER_STATE[config.lang][kmStatusCpy.BurnerStates]);
-  addJsonLabelInt(array, "p07_exh_gas_temp", kmStatusCpy.ExhaustTemp);
-  addJsonLabelInt(array, "p06_burn_run_min65536", kmStatusCpy.BurnerOperatingDuration_2);
-  addJsonLabelInt(array, "p06_burn_run_min256", kmStatusCpy.BurnerOperatingDuration_1);
-  addJsonLabelInt(array, "p06_burn_run_min", kmStatusCpy.BurnerOperatingDuration_0);
-  addJsonLabelInt(array, "p06_burn_run_all", kmStatusCpy.BurnerOperatingDuration_Sum);
-  addJsonLabelInt(array, "p07_out_temp", kmStatusCpy.OutsideTemp);
-  addJsonLabelInt(array, "p01_temp_out_act", kmStatusCpy.OutsideTemp);
-  addJsonLabelInt(array, "p07_out_temp_damped", kmStatusCpy.OutsideDampedTemp);
-  addJsonLabelInt(array, "p01_temp_out_dmp", kmStatusCpy.OutsideDampedTemp);
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p06_boil_state_exh_gas_test", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 0)));
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p06_boil_s_stage1", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 1)));
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p06_boil_st_boiler_prot", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 2)));
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p06_boil_s_active", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 3)));
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p06_boil_s_perf_free", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 4)));
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p06_boil_s_perf_high", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 5)));
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p06_boil_s_stage2", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 6)));
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_burner", (kmStatusCpy.BurnerStates == 0) ? webText.OFF[config.lang] : webText.ON[config.lang]);
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p06_burn_ctrl", cfgArrayTexts.BURNER_STATE[config.lang][kmStatusCpy.BurnerStates]);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p07_exh_gas_temp", kmStatusCpy.ExhaustTemp);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p06_burn_run_min65536", kmStatusCpy.BurnerOperatingDuration_2);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p06_burn_run_min256", kmStatusCpy.BurnerOperatingDuration_1);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p06_burn_run_min", kmStatusCpy.BurnerOperatingDuration_0);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p06_burn_run_all", kmStatusCpy.BurnerOperatingDuration_Sum);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p07_out_temp", kmStatusCpy.OutsideTemp);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p01_temp_out_act", kmStatusCpy.OutsideTemp);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p07_out_temp_damped", kmStatusCpy.OutsideDampedTemp);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p01_temp_out_dmp", kmStatusCpy.OutsideDampedTemp);
   static char ControllerVersion[32];
   snprintf(ControllerVersion, sizeof(ControllerVersion), "%i.%i", kmStatusCpy.ControllerVersionMain, kmStatusCpy.ControllerVersionSub);
-  addJsonLabelTxt(array, "p09_logamatic_version", ControllerVersion);
-  addJsonLabelInt(array, "p09_logamatic_modul", kmStatusCpy.Modul);
+  addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p09_logamatic_version", ControllerVersion);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p09_logamatic_modul", kmStatusCpy.Modul);
   // TODO: check
 
-  String jsonStatString;
-  serializeJson(doc, jsonStatString);
-  Serial.printf("status string size: %d\n", jsonStatString.length());
-  updateWebJSON(jsonStatString.c_str());
+  finalizeJsonBuffer(jsonStat, sizeof(jsonStat));
+  //Serial.printf("status string size: %d\n", strlen(jsonStat));
+  updateWebJSON(jsonStat);
 }
 
 void webUIupdates() {
