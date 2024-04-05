@@ -57,6 +57,7 @@ Example:
 
 ## changelog
 
+- update to espressif32 6.6.0
 - complete new web UI.
 - OTA and Config import/export was redesigned
 - login authentication was redesigned
@@ -72,7 +73,7 @@ Example:
 - local copy of ESPAsyncWebServer and AsyncTCP with bugfixes of known issues
 - add "Simulation-Mode" for testing purposes. Can be activated in config settings and will provide sample Data of a Logamatic 2107.
 - add Telnet Server as an additional operator interface with different command options
-- add Version information from github. if you click on the version info on the bottom left, a dialog with the version information of the latest github release is shown.
+- add Version information from github. If you click on the version info on the bottom left, a dialog with the version information of the latest github release is shown.
 
 
 > [!IMPORTANT]   

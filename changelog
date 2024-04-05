@@ -578,3 +578,85 @@ There is also a new log function with which you can record various messages depe
 
 ---
 
+# v4.0.0
+
+## what's new
+
+This major Update brings a completely new web frontend 🎉
+Instead of previous that was based on ESPUI-Library, the new one is build on basic html, css and javascript.
+Also the communication between server and client has changed from websocket to SSE (Server-Sent Events) and Fetch-API. 
+
+The new webUI Desktop style:
+![weubui_dash](Doc/weubui_dash.png)
+(Desktop Version)
+
+and in fact that the new WebUI has responsive design, it offers also a mobile layout:
+
+<img style="display: inline;
+  margin-right: 50px;
+  width: 200px;" src="./Doc/webui_mobile_1.png"> 
+<img style="display: inline;
+  margin-right: 50px;
+  width: 200px;" src="./Doc/webui_mobile_2.png"> 
+<img style="display: inline;
+  margin-left: auto;
+  width: 200px;" src="./Doc/webui_mobile_3.png">   
+(Mobile Version)
+
+### Messaging option - Pushover
+
+There is now the possibility to get messages via Pushover. 
+Depending on the parameter "Filter", you can define what kind of messages you want to receive.
+In the settings you can find all necessary parameters to setup the client.
+
+Each application, service, or utility that sends notifications through Pushover's API needs to have its own API token which uniquely identifies all of the API requests that it makes.
+API tokens are free and can be registered through [Pushover website](https://pushover.net/apps/build).
+
+<img src="./Doc/pushover.png" width="75%">
+
+### WebUI-Logger
+
+There is also a new log function with which you can record various messages depending on the filter and display them via the WebUI. This can be useful for your own debugging and also for the further development of the software.
+
+<img src="./Doc/logger.png" width="75%">
+
+### Telnet
+
+In addition to the WebUI and MQTT, there is also a new Telnet interface to communicate with the ESP.
+The interface offers several commands to read out information and send commands.
+An overview of the commands can be called up using the "help" command.
+To connect, a simple Telnet connection can be started via the corresponding IP address of the ESP.
+
+Example: 
+```
+> telnet 192.168.178.135
+```
+
+<img src="./Doc/telnet.png" width="75%">
+
+## changelog
+
+- update to espressif32 6.6.0
+- complete new web UI.
+- OTA and Config import/export was redesigned
+- login authentication was redesigned
+- rework messaging function. mqtt publish function was replaced with a generic messaging function for further options.
+- add messaging option for "Pushover" #31
+- separate mqtt language option independent of webUI language
+- add WebUI-Logger #70
+- upgrade to ArduinoJSON 7 #71
+- bugfix for updating OneWire sensor values if not enabled
+- Prevent zero values from being sent at startup for "info = {"burner":0,"pump":100,"ww_temp":57,"boiler_temp":38}"
+- improve behavior for incoming mqtt messages without payload (this could lead to problems in the past)
+- change DoubleResetDetection time from 10s to 3s
+- local copy of ESPAsyncWebServer and AsyncTCP with bugfixes of known issues
+- add "Simulation-Mode" for testing purposes. Can be activated in config settings and will provide sample Data of a Logamatic 2107.
+- add Telnet Server as an additional operator interface with different command options
+- add Version information from github. If you click on the version info on the bottom left, a dialog with the version information of the latest github release is shown.
+
+
+> [!IMPORTANT]   
+> With this version, the dependency of the WebUI language and the MQTT messages has been removed. There is now a separate language setting in the MQTT settings that is used for the MQTT topics!
+
+## Assets
+

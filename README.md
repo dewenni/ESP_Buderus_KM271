@@ -83,7 +83,7 @@ It has been extended with the possibility not only to read values, but also to w
 
 The software has multi language support and there is already german, and english texts available. It is also possible to add more languages.
 
-Feel free to add more languages. The texts are located in: **[language.h](include/language.h)**
+Feel free to add more languages. The texts are located in: **[language.h](include/language.h)** and **[lang.js](web/js/lang.js)**
 
 ## additional and optional Oilcounter / Oil Meter
 
@@ -201,8 +201,7 @@ You only have to change the `upload_port` settings in `platformio.ini`
 There are 3 predefined Options:
 
 - OPTION 1: direct cable upload
-- OPTION 2: wireless OTA Update AsyncElegantOTA (use this from 3.0 to 3.2.3)
-- OPTION 3: wireless OTA Update embedded (use this from 3.2.4)
+- OPTION 2: wireless OTA Update
 
 ## Setup Mode
 
@@ -256,6 +255,9 @@ If you want to calculate the consumption based on the runtime, you have to confi
 
 - **optional sensors**  
 Activation and configuration of optional DS18B20
+
+- **Simulation**  
+Activate Simulation-Mode to generate Logamatic values for testing purposes
 
 - **Language**  
 There are two languages available. Choose what you prefer.
