@@ -96,6 +96,10 @@ void addJsonValueFlt(char *buffer, size_t bufferSize, const char *elementID, flo
   addJsonElement(buffer, bufferSize, elementID, "v", floatToString(value));
 };
 
+void addJsonValueFlt8(char *buffer, size_t bufferSize, const char *elementID, float value) {
+  addJsonElement(buffer, bufferSize, elementID, "v", floatToString8(value));
+};
+
 void addJsonState(char *buffer, size_t bufferSize, const char *elementID, bool value) {
   addJsonElement(buffer, bufferSize, elementID, "c", (value ? "true" : "false"));
 };
@@ -176,12 +180,13 @@ void updateOilmeterElements(bool init) {
       snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f  L", float(oilcounter) / 100);
       updateWebText("p01_hw_oilmeter", tmpMessage, false);
     }
-  } else if (config.oilmeter.use_virtual_meter) {
-    if (init || kmStatusCpy.BurnerCalcOilConsumption != oilcounterVirtOld) {
-      oilcounterVirtOld = kmStatusCpy.BurnerCalcOilConsumption;
+  }
+  if (config.oilmeter.use_virtual_meter) {
+    if (init || pkmStatus->BurnerCalcOilConsumption != oilcounterVirtOld) {
+      oilcounterVirtOld = pkmStatus->BurnerCalcOilConsumption;
 
       // Oilmeter value in dashboardTab
-      snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f  L", float(oilcounter) / 100);
+      snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f  L", float(pkmStatus->BurnerCalcOilConsumption) / 100);
       updateWebText("p01_v_oilmeter", tmpMessage, false);
     }
   }
@@ -232,8 +237,8 @@ void updateSettingsElements() {
   addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_gpio_trig_oil", config.gpio.trigger_oilcounter);
   addJsonState(jsonSet, sizeof(jsonSet), "p12_oil_hw_enable", config.oilmeter.use_hardware_meter);
   addJsonState(jsonSet, sizeof(jsonSet), "p12_oil_virt_enable", config.oilmeter.use_virtual_meter);
-  addJsonValueFlt(jsonSet, sizeof(jsonSet), "p12_oil_par1_kg_h", config.oilmeter.consumption_kg_h);
-  addJsonValueFlt(jsonSet, sizeof(jsonSet), "p12_oil_par2_kg_l", config.oilmeter.oil_density_kg_l);
+  addJsonValueFlt8(jsonSet, sizeof(jsonSet), "p12_oil_par1_kg_h", config.oilmeter.consumption_kg_h);
+  addJsonValueFlt8(jsonSet, sizeof(jsonSet), "p12_oil_par2_kg_l", config.oilmeter.oil_density_kg_l);
   addJsonState(jsonSet, sizeof(jsonSet), "p12_sens1_enable", config.sensor.ch1_enable);
   addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_sens1_name", config.sensor.ch1_name);
   addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_sens1_description", config.sensor.ch1_description);
