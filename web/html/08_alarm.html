@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ESP Async Web Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../css/pico.css" />
+    <link rel="stylesheet" type="text/css" href="../css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../css/icons.css" />
+    <script src="../js/main.js" defer></script>
+    <script src="../js/lang.js" defer></script>
+    <style></style>
+    <script>
+      function test() {
+        document.getElementById("tab8").classList.add("active");
+      }
+      setInterval(test, 1000);
+    </script>
+  </head>
+  <body>
+    <!-- Layout -->
+    <header
+      style="
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "></header>
+    <!-- Tab-Content -->
+    <main class="container">
+      <!--SECTION-START-->
+      <div id="tab8" class="tab-content">
+        <div class="grid">
+          <!-- Grid 1 -->
+          <article class="card">
+            <p class="table-header" data-i18n="alarminfo"></p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="message++ 1"></td>
+                  <td id="p08_err_msg1" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="message++ 2"></td>
+                  <td id="p08_err_msg2" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="message++ 3"></td>
+                  <td id="p08_err_msg3" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="message++ 4"></td>
+                  <td id="p08_err_msg4" class="table-value"></td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+      </div>
+      <!--SECTION-END-->
+    </main>
+    <!-- Footer -->
+    <footer
+      style="
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      ">
+      <div id="status">STATUS</div>
+    </footer>
+  </body>
+</html>

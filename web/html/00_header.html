@@ -1,0 +1,194 @@
+<!--SECTION-START-->
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>ESP-Buderus-KM271</title>
+    <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
+    <link rel="stylesheet" type="text/css" href="gzip_m.css" />
+    <link rel="stylesheet" type="text/css" href="gzip_c.css" />
+    <script defer src="gzip_m.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <!-- Dialog Version -->
+    <dialog id="version_dialog">
+      <article class="dash">
+        <div class="dash-main">
+          <div class="dash-header" data-i18n="version_info"></div>
+          <br />
+          <div class="leftright">
+            <span data-i18n="act_version"></span>
+            <span id="p00_dialog_version"></span>
+          </div>
+          <div class="leftright">
+            <span data-i18n="github_version"></span>
+            <a id="p00_dialog_git_version" aria-busy="true"></a>
+          </div>
+          <br />
+          <div class="dash-footer">
+            <button
+              id="close_version_Dialog_btn"
+              data-i18n="close"
+              style="width: 75%"></button>
+          </div>
+        </div>
+        <div class="dash-icon">
+          <div class="svg i_github"></div>
+        </div>
+      </article>
+    </dialog>
+    <!--TOP-MENU-->
+    <nav>
+      <div class="topMenu">
+        <ul>
+          <li>
+            <strong style="margin-right: 10px">ESP-Buderus-KM271</strong>
+            <span class="simModeBar">SIM</span>
+            <span class="setupModeBar">SETUP</span>
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <details class="dropdown">
+              <summary id="topMenuDropdown" class="i_menu"></summary>
+              <ul class="nav-list" dir="rtl">
+                <li><a data-tab="tab1" href="#" data-i18n="dashboard"></a></li>
+                <li><a data-tab="tab2" href="#" data-i18n="control"></a></li>
+                <li class="OPT_HC1">
+                  <a data-tab="tab3" href="#" data-i18n="heating_circuit_1"></a>
+                </li>
+                <li class="OPT_HC2">
+                  <a data-tab="tab4" href="#" data-i18n="heating_circuit_2"></a>
+                </li>
+                <li class="OPT_HW">
+                  <a data-tab="tab5" href="#" data-i18n="hot_water"></a>
+                </li>
+                <li>
+                  <a data-tab="tab6" href="#" data-i18n="burner"></a>
+                </li>
+                <li>
+                  <a data-tab="tab7" href="#" data-i18n="general"></a>
+                </li>
+                <li class="OPT_ALARM">
+                  <a data-tab="tab8" href="#" data-i18n="alarm"></a>
+                </li>
+                <li>
+                  <a data-tab="tab9" href="#" data-i18n="system"></a>
+                </li>
+                <li>
+                  <a data-tab="tab10" href="#" data-i18n="logger"></a>
+                </li>
+                <li>
+                  <a data-tab="tab11" href="#" data-i18n="tools"></a>
+                </li>
+                <li>
+                  <a data-tab="tab12" href="#" data-i18n="settings"></a>
+                </li>
+              </ul>
+            </details>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <!--TOP-MENU-END-->
+    <!--SIDEBAR-->
+    <div class="sidebar">
+      <div>
+        <div>ESP-Buderus-KM271</div>
+      </div>
+      <div class="simModeBar">SIMULATION-MODE</div>
+      <div class="setupModeBar">SETUP-MODE</div>
+      <ul class="nav-list">
+        <li>
+          <a href="#" data-tab="tab1">
+            <i class="svg i_dashboard"></i>
+            <span class="links_name" data-i18n="dashboard"></span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tab="tab2">
+            <i class="svg i_control"></i>
+            <span class="links_name" data-i18n="control"></span>
+          </a>
+        </li>
+        <li class="OPT_HC1">
+          <a href="#" data-tab="tab3">
+            <i class="svg svg i_table"></i>
+            <span class="links_name" data-i18n="heating_circuit_1"></span>
+          </a>
+        </li>
+        <li class="OPT_HC2">
+          <a href="#" data-tab="tab4">
+            <i class="svg svg i_table"></i>
+            <span class="links_name" data-i18n="heating_circuit_2"></span>
+          </a>
+        </li>
+        <li class="OPT_HW">
+          <a href="#" data-tab="tab5">
+            <i class="svg i_water"></i>
+            <span class="links_name" data-i18n="hot_water"></span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tab="tab6">
+            <i class="svg i_flame"></i>
+            <span class="links_name" data-i18n="burner"></span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tab="tab7">
+            <i class="svg i_table"></i>
+            <span class="links_name" data-i18n="general"></span>
+          </a>
+        </li>
+        <li></li>
+        <li class="OPT_ALARM">
+          <a href="#" data-tab="tab8">
+            <i class="svg i_alarm"></i>
+            <span class="links_name" data-i18n="alarm"></span>
+          </a>
+        </li>
+        <li></li>
+        <li>
+          <a href="#" data-tab="tab9">
+            <i class="svg i_info"></i>
+            <span class="links_name" data-i18n="system"></span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tab="tab10">
+            <i class="svg i_log"></i>
+            <span class="links_name" data-i18n="logger"></span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tab="tab11">
+            <i class="svg i_upload"></i>
+            <span class="links_name" data-i18n="tools"></span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tab="tab12">
+            <i class="svg i_settings"></i>
+            <span class="links_name" data-i18n="settings"></span>
+          </a>
+        </li>
+      </ul>
+      <div style="display: inline-flex; margin-top: auto; margin-bottom: 5px">
+        <a id="p00_version" style="margin-right: auto; margin-top: auto"></a>
+        <a
+          href="/logout"
+          class="svg i_logout OPT_AUTH"
+          style="width: 32px; height: 32px"></a>
+      </div>
+    </div>
+    <!--Sidebar-END-->
+    <section class="home-section">
+      <main class="container-fluid">
+        <!--SECTION-END-->
+      </main>
+    </section>
+  </body>
+</html>

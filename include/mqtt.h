@@ -1,14 +1,13 @@
 #pragma once
 
-/* I N C L U D E S ****************************************************/ 
-#include <config.h>
+/* I N C L U D E S ****************************************************/
 #include <Arduino.h>
-#include <language.h>
 #include <AsyncMqttClient.h>
+#include <config.h>
+#include <language.h>
 
-
-/* P R O T O T Y P E S ********************************************************/ 
-const char * addTopic(const char *suffix);
+/* P R O T O T Y P E S ********************************************************/
+const char *addTopic(const char *suffix);
 void mqttSetup();
 void checkMqtt();
-void mqttPublish(const char* sendtopic, const char* payload, boolean retained);
+void mqttPublish(const char *sendtopic, const char *payload, boolean retained);

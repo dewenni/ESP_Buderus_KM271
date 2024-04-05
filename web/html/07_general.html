@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ESP Async Web Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../css/pico.css" />
+    <link rel="stylesheet" type="text/css" href="../css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../css/icons.css" />
+    <script src="../js/main.js" defer></script>
+    <script src="../js/lang.js" defer></script>
+    <style></style>
+    <script>
+      function test() {
+        document.getElementById("tab7").classList.add("active");
+      }
+      setInterval(test, 1000);
+    </script>
+  </head>
+  <body>
+    <!-- Layout -->
+    <header
+      style="
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "></header>
+    <!-- Tab-Content -->
+    <main class="container">
+      <!--SECTION-START-->
+      <div id="tab7" class="tab-content">
+        <div class="grid">
+          <!-- Grid 1 -->
+          <article class="card">
+            <p class="table-header" data-i18n="config"></p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="building_type"></td>
+                  <td id="p07_building_type" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="language"></td>
+                  <td id="p07_language" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="display"></td>
+                  <td id="p07_display" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="time_offset"></td>
+                  <td id="p07_time_offset" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="burner_type"></td>
+                  <td id="p07_burner_type" class="table-value"></td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+
+          <article class="card">
+            <p class="table-header" data-i18n="limits"></p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="pump_logic_temp"></td>
+                  <td id="p07_pump_logic_temp" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="burner_min_modulation"></td>
+                  <td id="p07_burner_min_mod" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="burner_modulation_runtime"></td>
+                  <td id="p07_burner_mod_run" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="exhaust_gas_temperature_threshold"></td>
+                  <td id="p07_exh_gas_temp_th" class="table-value">--</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 1 -->
+
+        <div class="grid">
+          <!-- Grid 2 -->
+          <article class="card">
+            <p class="table-header" data-i18n="temperatures"></p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="outside_temp"></td>
+                  <td id="p07_out_temp" class="table-value"></td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="outside_temp_damped"></td>
+                  <td id="p07_out_temp_damped" class="table-value"></td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="exhaust_gas_temp"></td>
+                  <td id="p07_exh_gas_temp" class="table-value"></td>
+                  <td>°C</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 2 -->
+      </div>
+      <!--SECTION-END-->
+    </main>
+    <!-- Footer -->
+    <footer
+      style="
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      ">
+      <div id="status">STATUS</div>
+    </footer>
+  </body>
+</html>

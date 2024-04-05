@@ -1,4 +1,9 @@
-![esp_buderus_km271](Doc/esp_buderus_km271.png)
+<img style="display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100px;" src="./Doc/ESP-Buderus-KM271-Logo.svg"> 
+
+<h3 style="text-align: center;">ESP-Buderus-KM271</h3>
 
 -----
 
@@ -23,7 +28,22 @@ In combination with influxDB and Grafana you can also create useful and impressi
 
 But there is also a build in WebUI to view and control your Logamatic without any other Software.
 
+
 ![weubui_dash](Doc/weubui_dash.png)
+(Desktop Version)
+
+The WebUI is responsive and also offers a mobile layout.
+
+<img style="display: inline;
+  margin-right: 50px;
+  width: 200px;" src="./Doc/webui_mobile_1.png"> 
+<img style="display: inline;
+  margin-right: 50px;
+  width: 200px;" src="./Doc/webui_mobile_2.png"> 
+<img style="display: inline;
+  margin-left: auto;
+  width: 200px;" src="./Doc/webui_mobile_3.png">   
+(Mobile Version)
 
 -----
 
@@ -47,7 +67,8 @@ But there is also a build in WebUI to view and control your Logamatic without an
   - [Commands](#commands)
 - [Optional Messaging](#optional-messaging)
   - [Pushover](#pushover)
-  - [WebUI-Logger](#webui-logger) 
+  - [WebUI-Logger](#webui-logger)
+  - [Telnet](#telnet)
 - [Optional Components](#optional-components)
   - [node-red](#node-red)
   - [grafana](#grafana)
@@ -62,7 +83,7 @@ It has been extended with the possibility not only to read values, but also to w
 
 The software has multi language support and there is already german, and english texts available. It is also possible to add more languages.
 
-Feel free to add more languages. The texts are located in: **[language.h](include/language.h)**
+Feel free to add more languages. The texts are located in: **[language.h](include/language.h)** and **[lang.js](web/js/lang.js)**
 
 ## additional and optional Oilcounter / Oil Meter
 
@@ -124,15 +145,12 @@ If you only configure one sensor, it will be shown as a single control. If you e
 Depending on the hardware used, an additional resistor may need to be installed. Classically, the OneWire sensors are connected with a resistor of 4.7kOhm between VCC and the sensor cable and operated with 3.3V - 5V.
 Only the GPIO to which the sensor cable is connected is specified in the configuration. The rest is hardware-dependent wiring.
 
-<img src="Doc/opt_sensor_dash2.png" alt="opt-sensor-dash2" width="40%">
 
-(single control)
+<img src="Doc/opt_sensor_dash.png" alt="opt-sensor-dash1" width="75%">
 
-<img src="Doc/opt_sensor_dash1.png" alt="opt-sensor-dash1" width="40%">
+(dashboard controls)
 
-(combined control)
-
-<img src="Doc/opt_sensor_cfg.png" alt="opt-sensor-config" width="50%">
+<img src="Doc/opt_sensor_cfg.png" alt="opt-sensor-config" width="75%">
 
 (settings)
 
@@ -175,7 +193,7 @@ You can find the update function in the "Tools" Tab of the WebUI.
 
 here you can choose "Firmware" and select the `buderus_km271_ota_update_vx.x.x.bin` file from the release section
 
-![ota-1](Doc/ota-update.gif)
+![ota-1](Doc/tools.png)
 
 But it is also possible to download the software wireless with platformio. Therefore there is a new file `platformio_upload.py` that you dont have to change.  
 You only have to change the `upload_port` settings in `platformio.ini`
@@ -183,8 +201,7 @@ You only have to change the `upload_port` settings in `platformio.ini`
 There are 3 predefined Options:
 
 - OPTION 1: direct cable upload
-- OPTION 2: wireless OTA Update AsyncElegantOTA (use this from 3.0 to 3.2.3)
-- OPTION 3: wireless OTA Update embedded (use this from 3.2.4)
+- OPTION 2: wireless OTA Update
 
 ## Setup Mode
 
@@ -203,31 +220,51 @@ Here you can setup all the configuration that fits to your heating system and yo
 - **WiFi**  
 enter your WiFi credentials to connect the ESP to your network
 
-- **MQTT**  
-here you can activate the MQTT communication and enter mandatory parameters
-All the parameters are mandatory!
+- **IP Settings**  
+instead of DHCP, you can configure a static IP address, Subnet, Gateway and DNS
+
+- **Authentication**  
+you can activate the authentication feature and configure user and password.
 
 - **NTP Server**  
 the ESP can connect to a NTP server to get the right Time information.
 The default Time-Zone should fit if you are located in germany. Otherwise you can change it manually
 
+- **Date and Time**  
+Here you can write a new Date and Time to the Logamatic heating system. (manual or actual NTP-Server time)
+
+- **MQTT**  
+here you can activate the MQTT communication and enter mandatory parameters
+All the parameters are mandatory!
+
+- **Pushover**  
+Parameters for Pushover notifications.  
+(API-Token and User-Key)   
+You can also send a test message here. 
+
 - **Logamatic**  
 here you can select, which components of your Logamatic should be used.
+
+- **GPIO**  
+Here you can configure the GPIO of your ESP-Board. You can use the options in the dropdown to get default values depending of the selected type of board.
 
 - **Oil Meter**  
 here you can enable the optional hardware or virtual Oil Meter.
 If you use a hardware based Oil Meter, you have to configure also to regarding gpio´s.
 If you want to calculate the consumption based on the runtime, you have to configure the additional calculation parameters.
 
-- **GPIO**  
-Here you can configure the GPIO of your ESP-Board. You can use the options in the dropdown to get default values depending of the selected type of board.
+- **optional sensors**  
+Activation and configuration of optional DS18B20
+
+- **Simulation**  
+Activate Simulation-Mode to generate Logamatic values for testing purposes
 
 - **Language**  
 There are two languages available. Choose what you prefer.
 The language take effect on the webUI and also on the mqtt messages!
 
-- **Safe and Restart**  
-All settings are only applied after a restart
+> [!NOTE]
+> All settings are automatically saved when changes are made
 
 ![weubui-settings](Doc/weubui_setting.png)
 
@@ -238,11 +275,14 @@ The configuration is stored in the ```config.json``` file. To backup and restore
 
 The drd.dat is an internal file to store information for the "double-reset-detection". Do not delete this one.
 
-![filemanager](/Doc/filemgn.gif)
+![filemanager](/Doc/tools.png)
 
 -----
 
 # MQTT
+
+> [!NOTE]
+> You can set a separate language for the mqtt topics in the mqtt settings that is independent of the webUI language.
 
 ## Config and Status values
 
@@ -473,6 +513,20 @@ API tokens are free and can be registered through [Pushover website](https://pus
 There is also a log function with which you can record various messages depending on the filter and display them via the WebUI. This can be useful for your own debugging and also for the further development of the software.
 
 <img src="./Doc/logger.png" width="75%">
+
+## Telnet
+
+In addition to the WebUI and MQTT, there is also a Telnet interface to communicate with the ESP.
+The interface offers several commands to read out information and send commands.
+An overview of the commands can be called up using the "help" command.
+To connect, a simple Telnet connection can be started via the corresponding IP address of the ESP.
+
+Example: 
+```
+> telnet 192.168.178.135
+```
+
+<img src="./Doc/telnet.png" width="75%">
 
 -----
 

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ESP Async Web Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../css/pico.css" />
+    <link rel="stylesheet" type="text/css" href="../css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../css/icons.css" />
+    <script src="../js/doc.js" defer></script>
+    <script src="../js/lang.js" defer></script>
+    <script src="../js/fun.js" defer></script>
+    <script src="../js/events.js" defer></script>
+    <style></style>
+    <script>
+      function test() {
+        document.getElementById("tab11").classList.add("active");
+        localizePage("de");
+      }
+      setInterval(test, 1000);
+    </script>
+  </head>
+  <body>
+    <!-- Layout -->
+    <header
+      style="
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "></header>
+    <!-- Tab-Content -->
+    <main class="container">
+      <!--SECTION-START-->
+      <div id="tab11" class="tab-content">
+        <!-- Dialog OTA-Done -->
+        <dialog id="ota_update_done_dialog">
+          <article class="dash">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="update_done"></div>
+              <div class="dash-content">
+                <p data-i18n="update_info"></p>
+              </div>
+              <div class="dash-footer">
+                <button
+                  id="p11_ota_confirm_btn"
+                  data-i18n="restart"
+                  style="width: 75%"></button>
+              </div>
+            </div>
+            <div class="dash-icon">
+              <div class="svg i_update_done"></div>
+            </div>
+          </article>
+        </dialog>
+        <!-- Dialog OTA-FAILED -->
+        <dialog id="ota_update_failed_dialog">
+          <article class="dash">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="update_failed"></div>
+              <div style="text-align: center">
+                <span data-i18n="error_text"></span>
+                <span id="p11_ota_upd_err"></span>
+              </div>
+              <div class="dash-content">
+                <p data-i18n="update_error_info"></p>
+              </div>
+              <div class="dash-footer">
+                <button
+                  id="p11_ota_failed_btn"
+                  data-i18n="ok"
+                  style="width: 75%"></button>
+              </div>
+            </div>
+            <div class="dash-icon">
+              <div class="svg i_alarm"></div>
+            </div>
+          </article>
+        </dialog>
+        <!-- OTA-update -->
+        <div class="grid">
+          <article class="tools">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="ota"></div>
+              <div class="dash-content">
+                <form
+                  method="POST"
+                  action="#"
+                  enctype="multipart/form-data"
+                  id="ota_upload_form">
+                  <input
+                    type="file"
+                    name="ota_update"
+                    id="ota_file_input"
+                    onchange="ota_sub_fun(this)"
+                    accept=".bin" />
+                  <input
+                    type="submit"
+                    id="ota_update_btn"
+                    disabled="disabled"
+                    value="Update" />
+                  <br />
+                  <div
+                    id="ota_status_txt"
+                    style="display: none; text-align: left"
+                    data-i18n="update_ready">
+                    --
+                  </div>
+                  <br /><progress
+                    id="ota_progress_bar"
+                    style="display: none"
+                    max="100"
+                    value="0"></progress>
+                </form>
+              </div>
+            </div>
+          </article>
+          <!-- Dialog OPEN-CONFIG -->
+          <dialog id="open_config_dialog">
+            <article>
+              <header><strong>config.json</strong></header>
+              <pre id="config_output"></pre>
+              <div class="dash-footer">
+                <button
+                  id="p11_config_dialog_btn"
+                  data-i18n="close"
+                  style="width: 75%"></button>
+              </div>
+            </article>
+          </dialog>
+          <!-- config import/export -->
+          <article class="tools">
+            <div class="dash-main">
+              <div class="dash-header" data-i18n="config_mgn"></div>
+              <div class="dash-content">
+                <form
+                  method="POST"
+                  action="#"
+                  enctype="multipart/form-data"
+                  id="file_upload_form">
+                  <input
+                    type="file"
+                    name="file_update"
+                    id="file_input"
+                    accept=".json"
+                    onchange="file_sub_fun(this)" />
+                  <div
+                    id="upload_status_txt"
+                    style="display: none; text-align: left"
+                    data-i18n="import_ready">
+                    --
+                  </div>
+                  <button
+                    style="width: 100%"
+                    type="submit"
+                    id="file_upload_btn"
+                    data-i18n="import"
+                    disabled="true"></button>
+                  <button
+                    style="width: 100%"
+                    id="p11_export_btn"
+                    data-i18n="export"
+                    onclick="exportConfig()"></button>
+                  <button
+                    style="width: 100%; margin-top: 17px"
+                    id="p11_file_show_btn"
+                    data-i18n="open"></button>
+                </form>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+      <!--SECTION-END-->
+    </main>
+    <!-- Footer -->
+    <footer>
+      <div id="connectionLostBar" style="display: none">
+        <div data-i18n="lost_connection"></div>
+        <button
+          id="p99_reloadButton"
+          class="svg i_reload"
+          style="width: 100px"></button>
+      </div>
+    </footer>
+  </body>
+</html>

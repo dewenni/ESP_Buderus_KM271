@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ESP Async Web Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../css/pico.css" />
+    <link rel="stylesheet" type="text/css" href="../css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../css/icons.css" />
+    <script src="../js/main.js" defer></script>
+    <script src="../js/lang.js" defer></script>
+    <style></style>
+    <script>
+      function test() {
+        document.getElementById("tab5").classList.add("active");
+      }
+      setInterval(test, 1000);
+    </script>
+  </head>
+  <body>
+    <!-- Layout -->
+    <header
+      style="
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "></header>
+    <!-- Tab-Content -->
+    <main class="container">
+      <!--SECTION-START-->
+      <div id="tab5" class="tab-content">
+        <div class="grid">
+          <!-- Grid 1 -->
+          <article class="card">
+            <p class="table-header" data-i18n="config"></p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hw$ $priority"></td>
+                  <td id="p05_hw_prio" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $temp"></td>
+                  <td id="p05_hw_temp" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $operation_mode"></td>
+                  <td id="p05_hw_op_mode" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $processing"></td>
+                  <td id="p05_hw_proccess" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $circulation"></td>
+                  <td id="p05_hw_circ" class="table-value"></td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+
+          <article class="card">
+            <p class="table-header" data-i18n="status"></p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hw$ $act_temp"></td>
+                  <td id="p05_hw_act_temp" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $set_temp"></td>
+                  <td id="p05_hw_set_temp" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $on_time_opt_duration"></td>
+                  <td id="p05_hw_on_time_opt_dur" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $pump_type_charge"></td>
+                  <td id="p05_hw_pump_type_charge" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $pump_type_circulation"></td>
+                  <td id="p05_hw_pump_type_circ" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $pump_type_groundwater_solar"></td>
+                  <td id="p05_hw_pump_type_gwater_solar" class="table-value">
+                    --
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 1 -->
+        <div class="grid">
+          <!-- Grid 2 -->
+
+          <article class="card">
+            <p class="table-header" data-i18n="op_values"></p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hw$ $ov1_auto"></td>
+                  <td id="p05_hw_ov1_auto" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov1_disinfection"></td>
+                  <td id="p05_hw_ov1_disinfect" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov1_reload"></td>
+                  <td id="p05_hw_ov1_reload" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov1_holiday"></td>
+                  <td id="p05_hw_ov1_holiday" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov1_err_disinfection"></td>
+                  <td id="p05_hw_ov1_err_disinfect" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov1_err_sensor"></td>
+                  <td id="p05_hw_ov1_err_sensor" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov1_stays_cold"></td>
+                  <td id="p05_hw_ov1_stays_cold" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov1_err_anode"></td>
+                  <td id="p05_hw_ov1_err_anode" class="table-value"></td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+
+          <article class="card">
+            <p class="table-header" data-i18n="op_values"></p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="hw$ $ov2_load"></td>
+                  <td id="p05_hw_ov2_load" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov2_manual"></td>
+                  <td id="p05_hw_ov2_manual" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov2_reload"></td>
+                  <td id="p05_hw_ov2_reload" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov2_off_time_opt_duration"></td>
+                  <td id="p05_hw_ov2_off_time_opt_dur" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov2_on_time_opt_duration"></td>
+                  <td id="p05_hw_ov2_on_time_opt_dur" class="table-value">
+                    --
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov2_day"></td>
+                  <td id="p05_hw_ov2_day" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov2_hot"></td>
+                  <td id="p05_hw_ov2_hot" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="hw$ $ov2_priority"></td>
+                  <td id="p05_hw_ov2_prio" class="table-value"></td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 2 -->
+      </div>
+      <!--SECTION-END-->
+    </main>
+    <!-- Footer -->
+    <footer
+      style="
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      ">
+      <div id="status">STATUS</div>
+    </footer>
+  </body>
+</html>
