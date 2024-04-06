@@ -51,14 +51,14 @@ void initJsonBuffer(char *buffer, size_t bufferSize) {
 bool addJsonElement(char *buffer, size_t bufferSize, const char *elementID, const char *typSuffix, const char *value) {
   size_t currentLength = strlen(buffer);
   size_t additionalLength = strlen(elementID) + strlen(typSuffix) + strlen(value) + 7; //+7 because of (":#,)
-  if (currentLength + additionalLength < bufferSize - 2) { // -2 for buffer termination
+  if (currentLength + additionalLength < bufferSize - 2) {                             // -2 for buffer termination
     strcat(buffer, "\"");
     strcat(buffer, elementID);
     strcat(buffer, "#");
     strcat(buffer, typSuffix);
     strcat(buffer, "\":\"");
     strcat(buffer, value);
-    strcat(buffer, "\","); 
+    strcat(buffer, "\",");
     return true;
   }
   return false;
@@ -257,7 +257,7 @@ void updateSettingsElements() {
   addJsonState(jsonSet, sizeof(jsonSet), "p12_sim_enable", config.sim.enable);
 
   finalizeJsonBuffer(jsonSet, sizeof(jsonSet));
-  //Serial.printf("settings string size: %d\n", strlen(jsonSet));
+  // Serial.printf("settings string size: %d\n", strlen(jsonSet));
   updateWebJSON(jsonSet);
 }
 
@@ -454,7 +454,7 @@ void updateKm271ConfigElementsAll() {
   addJsonLabelTxt(jsonCfg, sizeof(jsonCfg), "p07_time_offset", pkmConfigStr->time_offset);
 
   finalizeJsonBuffer(jsonCfg, sizeof(jsonCfg));
-  //Serial.printf("config string size: %d\n", strlen(jsonCfg));
+  // Serial.printf("config string size: %d\n", strlen(jsonCfg));
   updateWebJSON(jsonCfg);
 }
 
@@ -678,23 +678,20 @@ void updateKm271StatusElements() {
 
   // heating circuit 1 values
   if (config.km271.use_hc1) {
-    if (kmStatusCpy.HC1_OperatingStates_1 != pkmStatus->HC1_OperatingStates_1) {
+    if ((kmStatusCpy.HC1_OperatingStates_1 != pkmStatus->HC1_OperatingStates_1) ||
+        (kmStatusCpy.HC1_OperatingStates_2 != pkmStatus->HC1_OperatingStates_2)) {
       kmStatusCpy.HC1_OperatingStates_1 = pkmStatus->HC1_OperatingStates_1;
+      kmStatusCpy.HC1_OperatingStates_2 = pkmStatus->HC1_OperatingStates_2;
 
       // AUTOMATIC / MANUAL (Day/Night)
       if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) { // AUTOMATIC
-        snprintf(tmpMessage, sizeof(tmpMessage), "%s ", webText.AUTOMATIC[config.lang]);
+        updateWebText("p01_hc1_opmode", webText.AUTOMATIC[config.lang], false);
         updateWebSetIcon("p01_hc1_opmode_icon", "i_auto");
-      } else {                                               // MANUAL
-        if (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1)) { // DAY
-          snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.DAY[config.lang]);
-          updateWebSetIcon("p01_hc1_opmode_icon", "i_manual");
-        } else { // NIGHT
-          snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.NIGHT[config.lang]);
-          updateWebSetIcon("p01_hc1_opmode_icon", "i_manual");
-        }
+      } else { // MANUAL
+        updateWebSetIcon("p01_hc1_opmode_icon", "i_manual");
+        updateWebText("p01_hc1_opmode", bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? webText.MAN_DAY[config.lang] : webText.MAN_NIGHT[config.lang],
+                      false);
       }
-      updateWebText("p01_hc1_opmode", tmpMessage, false);
 
       // Summer / Winter
       if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) { // AUTOMATIC
@@ -709,7 +706,6 @@ void updateKm271StatusElements() {
         updateWebSetIcon("p01_hc1_summer_winter_icon",
                          (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc1_summer_mode_threshold ? "i_summer" : "i_winter"));
       }
-
       updateWebText("p03_hc1_ov1_off_time_opt", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 0)), false);
       updateWebText("p03_hc1_ov1_on_time_opt", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 1)), false);
       updateWebText("p03_hc1_ov1_auto", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)), false);
@@ -717,8 +713,6 @@ void updateKm271StatusElements() {
       updateWebText("p03_hc1_ov1_screed_drying", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 4)), false);
       updateWebText("p03_hc1_ov1_holiday", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 5)), false);
       updateWebText("p03_hc1_ov1_frost", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 6)), false);
-    } else if (kmStatusCpy.HC1_OperatingStates_2 != pkmStatus->HC1_OperatingStates_2) {
-      kmStatusCpy.HC1_OperatingStates_2 = pkmStatus->HC1_OperatingStates_2;
 
       // Day / Night
       updateWebText("p01_hc1_day_night", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? webText.DAY[config.lang] : webText.NIGHT[config.lang]),
@@ -773,22 +767,20 @@ void updateKm271StatusElements() {
 
   // heating circuit 2 values
   if (config.km271.use_hc2) {
-    if (kmStatusCpy.HC2_OperatingStates_1 != pkmStatus->HC2_OperatingStates_1) {
+    if ((kmStatusCpy.HC2_OperatingStates_1 != pkmStatus->HC2_OperatingStates_1) ||
+        (kmStatusCpy.HC2_OperatingStates_2 = pkmStatus->HC2_OperatingStates_2)) {
       kmStatusCpy.HC2_OperatingStates_1 = pkmStatus->HC2_OperatingStates_1;
-      // HC2-Operating State
+      kmStatusCpy.HC2_OperatingStates_2 = pkmStatus->HC2_OperatingStates_2;
+
+      // AUTOMATIC / MANUAL (Day/Night)
       if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) { // AUTOMATIC
-        snprintf(tmpMessage, sizeof(tmpMessage), "%s", webText.AUTOMATIC[config.lang]);
+        updateWebText("p01_hc2_opmode", webText.AUTOMATIC[config.lang], false);
         updateWebSetIcon("p01_hc2_opmode_icon", "i_auto");
-      } else {                                               // MANUAL
-        if (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1)) { // DAY
-          snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.DAY[config.lang]);
-          updateWebSetIcon("p01_hc2_opmode_icon", "i_manual");
-        } else { // NIGHT
-          snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.NIGHT[config.lang]);
-          updateWebSetIcon("p01_hc2_opmode_icon", "i_manual");
-        }
+      } else { // MANUAL
+        updateWebSetIcon("p01_hc2_opmode_icon", "i_manual");
+        updateWebText("p01_hc2_opmode", bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? webText.MAN_DAY[config.lang] : webText.MAN_NIGHT[config.lang],
+                      false);
       }
-      updateWebText("p01_hc2_opmode", tmpMessage, false);
 
       // Summer / Winter
       if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) { // AUTOMATIC
@@ -811,8 +803,7 @@ void updateKm271StatusElements() {
       updateWebText("p04_hc2_ov1_screed_drying", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 4)), false);
       updateWebText("p04_hc2_ov1_holiday", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 5)), false);
       updateWebText("p04_hc2_ov1_frost", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 6)), false);
-    } else if (kmStatusCpy.HC2_OperatingStates_2 != pkmStatus->HC2_OperatingStates_2) {
-      kmStatusCpy.HC2_OperatingStates_2 = pkmStatus->HC2_OperatingStates_2;
+
       // Day / Night
       updateWebText("p01_hc2_day_night", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? webText.DAY[config.lang] : webText.NIGHT[config.lang]),
                     false);
@@ -1027,21 +1018,18 @@ void updateKm271StatusElementsAll() {
     if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) { // AUTOMATIC
       addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc1_opmode", webText.AUTOMATIC[config.lang]);
       addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc1_opmode_icon", "i_auto");
-    } else {                                               // MANUAL
-      if (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1)) { // DAY
-        addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc1_opmode", webText.MAN_DAY[config.lang]);
-        addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc1_opmode_icon", "i_manual");
-      } else { // NIGHT
-        addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc1_opmode", webText.MAN_NIGHT[config.lang]);
-        addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc1_opmode_icon", "i_manual");
-      }
+    } else { // MANUAL
+      addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc1_opmode",
+                      bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? webText.MAN_DAY[config.lang] : webText.MAN_NIGHT[config.lang]);
+      addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc1_opmode_icon", "i_manual");
     }
 
     // Summer / Winter
     if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) { // AUTOMATIC
       addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc1_summer_winter",
                       (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]));
-      addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc1_summer_winter_icon", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
+      addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc1_summer_winter_icon",
+                  (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
     } else { // generate status from actual temperature and summer threshold
       addJsonLabelTxt(
           jsonStat, sizeof(jsonStat), "p01_hc1_summer_winter",
@@ -1078,7 +1066,8 @@ void updateKm271StatusElementsAll() {
     addJsonLabelInt(jsonStat, sizeof(jsonStat), "p03_hc1_room_temp", kmStatusCpy.HC1_RoomActualTemp);
     addJsonLabelInt(jsonStat, sizeof(jsonStat), "p03_hc1_on_time_opt_dur", kmStatusCpy.HC1_SwitchOnOptimizationTime);
     addJsonLabelInt(jsonStat, sizeof(jsonStat), "p03_hc1_off_time_opt_dur", kmStatusCpy.HC1_SwitchOffOptimizationTime);
-    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc1_pump", (kmStatusCpy.HC1_PumpPower == 0 ? webText.OFF[config.lang] : webText.ON[config.lang]));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc1_pump",
+                    (kmStatusCpy.HC1_PumpPower == 0 ? webText.OFF[config.lang] : webText.ON[config.lang]));
     addJsonLabelInt(jsonStat, sizeof(jsonStat), "p03_hc1_pump", kmStatusCpy.HC1_PumpPower);
     addJsonLabelInt(jsonStat, sizeof(jsonStat), "p03_hc1_mixer", kmStatusCpy.HC1_MixingValue);
     addJsonLabelInt(jsonStat, sizeof(jsonStat), "p03_hc1_heat_curve_10C", kmStatusCpy.HC1_HeatingCurvePlus10);
@@ -1092,21 +1081,18 @@ void updateKm271StatusElementsAll() {
     if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) { // AUTOMATIC
       addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc2_opmode", webText.AUTOMATIC[config.lang]);
       addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc2_opmode_icon", "i_auto");
-    } else {                                               // MANUAL
-      if (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1)) { // DAY
-        addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc2_opmode", webText.MAN_DAY[config.lang]);
-        addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc2_opmode_icon", "i_manual");
-      } else { // NIGHT
-        addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc2_opmode", webText.MAN_NIGHT[config.lang]);
-        addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc2_opmode_icon", "i_manual");
-      }
+    } else { // MANUAL
+      addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc2_opmode",
+                      bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? webText.MAN_DAY[config.lang] : webText.MAN_NIGHT[config.lang]);
+      addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc2_opmode_icon", "i_manual");
     }
 
     // Summer / Winter
     if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) { // AUTOMATIC
       addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc2_summer_winter",
                       (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]));
-      addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc2_summer_winter_icon", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
+      addJsonIcon(jsonStat, sizeof(jsonStat), "p01_hc2_summer_winter_icon",
+                  (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
     } else { // generate status from actual temperature and summer threshold
       addJsonLabelTxt(
           jsonStat, sizeof(jsonStat), "p01_hc2_summer_winter",
@@ -1142,7 +1128,8 @@ void updateKm271StatusElementsAll() {
     addJsonLabelInt(jsonStat, sizeof(jsonStat), "p04_hc2_room_temp", kmStatusCpy.HC2_RoomActualTemp);
     addJsonLabelInt(jsonStat, sizeof(jsonStat), "p04_hc2_on_time_opt_dur", kmStatusCpy.HC2_SwitchOnOptimizationTime);
     addJsonLabelInt(jsonStat, sizeof(jsonStat), "p04_hc2_off_time_opt_dur", kmStatusCpy.HC2_SwitchOffOptimizationTime);
-    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc2_pump", (kmStatusCpy.HC2_PumpPower == 0 ? webText.OFF[config.lang] : webText.ON[config.lang]));
+    addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_hc2_pump",
+                    (kmStatusCpy.HC2_PumpPower == 0 ? webText.OFF[config.lang] : webText.ON[config.lang]));
     addJsonLabelInt(jsonStat, sizeof(jsonStat), "p04_hc2_pump", kmStatusCpy.HC2_PumpPower);
     addJsonLabelInt(jsonStat, sizeof(jsonStat), "p04_hc2_mixer", kmStatusCpy.HC2_MixingValue);
     addJsonLabelInt(jsonStat, sizeof(jsonStat), "p04_hc2_heat_curve_10C", kmStatusCpy.HC2_HeatingCurvePlus10);
@@ -1237,7 +1224,7 @@ void updateKm271StatusElementsAll() {
   // TODO: check
 
   finalizeJsonBuffer(jsonStat, sizeof(jsonStat));
-  //Serial.printf("status string size: %d\n", strlen(jsonStat));
+  // Serial.printf("status string size: %d\n", strlen(jsonStat));
   updateWebJSON(jsonStat);
 }
 
