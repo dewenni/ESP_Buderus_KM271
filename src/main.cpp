@@ -22,6 +22,7 @@
 #include <telnet.h>
 #include <webUI.h>
 
+
 /* D E C L A R A T I O N S ****************************************************/
 muTimer mainTimer = muTimer();      // timer for cyclic info
 muTimer heartbeat = muTimer();      // timer for heartbeat signal
@@ -110,6 +111,9 @@ void setup() {
 
   // telnet Setup
   setupTelnet();
+
+  
+
 }
 
 /**
