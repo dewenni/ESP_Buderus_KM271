@@ -89,13 +89,25 @@ const char *floatToString(float value) {
 
 /**
  * *******************************************************************
- * @brief   create String from integer - with 3 digits
+ * @brief   create String from integer - with 4 digits
  * @param   value as float
  * @return  pointer to char array - pay attention, it is local static
  * *******************************************************************/
 const char *floatToString4(float value) {
   static char ret_str[64];
   snprintf(ret_str, sizeof(ret_str), "%.4f", value);
+  return ret_str;
+}
+
+/**
+ * *******************************************************************
+ * @brief   create String from integer - with 8 digits
+ * @param   value as float
+ * @return  pointer to char array - pay attention, it is local static
+ * *******************************************************************/
+const char *floatToString8(float value) {
+  static char ret_str[64];
+  snprintf(ret_str, sizeof(ret_str), "%.8f", value);
   return ret_str;
 }
 

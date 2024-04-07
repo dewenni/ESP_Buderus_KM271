@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>ESP Async Web Server</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" type="text/css" href="../css/pico.css" />
-    <link rel="stylesheet" type="text/css" href="../css/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../css/icons.css" />
-    <script src="../js/main.js" defer></script>
-    <script src="../js/lang.js" defer></script>
-    <style></style>
-    <script>
-      function test() {
-        document.getElementById("tab3").classList.add("active");
-      }
-      setInterval(test, 1000);
-    </script>
-  </head>
+  <title>ESP Async Web Server</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" type="text/css" href="../css/pico.css" />
+  <link rel="stylesheet" type="text/css" href="../css/custom.css" />
+  <link rel="stylesheet" type="text/css" href="../css/icons.css" />
+  <script src="../js/doc.js" defer></script>
+  <script src="../js/lang.js" defer></script>
+  <script src="../js/fun.js" defer></script>
+  <script src="../js/events.js" defer></script>
+  <style></style>
+  <script>
+    function test() {
+      document.getElementById("tab3").classList.add("active");
+      localizePage("de");
+    }
+    setInterval(test, 1000);
+  </script>
   <body>
     <!-- Layout -->
     <header
@@ -164,7 +165,7 @@
           <!-- Grid 2 -->
 
           <article class="card">
-            <p class="table-header" data-i18n="op_values"></p>
+            <p class="table-header" data-i18n="op_values$ 1$"></p>
             <table class="striped">
               <tbody>
                 <tr>
@@ -200,7 +201,7 @@
           </article>
 
           <article class="card">
-            <p class="table-header" data-i18n="op_values"></p>
+            <p class="table-header" data-i18n="op_values$ 2$"></p>
             <table class="striped">
               <tbody>
                 <tr>

@@ -9,6 +9,7 @@ const char *uint64ToString(uint64_t value);
 const char *intmaxToString(intmax_t value);
 const char *floatToString(float value);
 const char *floatToString4(float value);
+const char *floatToString8(float value);
 const char *doubleToString(double value);
 bool stringToBool(const char *str);
 char *strcat_safe(char *dest, const char *src, size_t dest_size);

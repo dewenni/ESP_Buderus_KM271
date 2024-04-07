@@ -149,14 +149,9 @@ void webCallback(const char *elementId, const char *value) {
     km271sendCmd(KM271_SENDCMD_WW_PUMP_CYCLES, atoi(value));
   }
 
-  // store input of Oilcounter value
-  if (strcmp(elementId, "p02_oilmeter_set") == 0) {
-    oilmeterSetValue = strtol(value, NULL, 10);
-  }
-
   // Set new Oilcounter value
-  if (strcmp(elementId, "p02_oilmeter_btn") == 0) {
-    cmdSetOilmeter(oilmeterSetValue);
+  if (strcmp(elementId, "p02_oilmeter_set_cmd") == 0) {
+    cmdSetOilmeter(strtol(value, NULL, 10));
   }
 
   // WiFi
@@ -303,11 +298,8 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "p12_pushover_filter") == 0) {
     config.pushover.filter = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_pushover_test_msg") == 0) {
-    snprintf(pushoverMessage, sizeof(pushoverMessage), value);
-  }
-  if (strcmp(elementId, "p12_pushover_test_btn") == 0) {
-    addPushoverMsg(pushoverMessage);
+  if (strcmp(elementId, "p12_pushover_test_msg_cmd") == 0) {
+    addPushoverMsg(value);
   }
 
   // Logamatic

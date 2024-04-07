@@ -1,12 +1,14 @@
-<img style="display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 100px;" src="./Doc/ESP-Buderus-KM271-Logo.svg"> 
+<div align="center">
+<img style="width: 100px;" src="./Doc/ESP-Buderus-KM271-Logo.svg"> 
 
 <h3 style="text-align: center;">ESP-Buderus-KM271</h3>
+</div>
+
 
 -----
 
+<div align="center">
+  
 [![Current Release](https://img.shields.io/github/release/dewenni/ESP_Buderus_KM271.svg)](https://github.com/dewenni/ESP_Buderus_KM271/releases/latest)
 ![GitHub Release Date](https://img.shields.io/github/release-date/dewenni/ESP_Buderus_KM271)
 ![GitHub last commit](https://img.shields.io/github/last-commit/dewenni/ESP_Buderus_KM271)
@@ -14,9 +16,13 @@
 ![GitHub watchers](https://img.shields.io/github/watchers/dewenni/ESP_Buderus_KM271?style=social)
 [![GitHub stars](https://img.shields.io/github/stars/dewenni/ESP_Buderus_KM271.svg?style=social&label=Star)](https://github.com/dewenni/ESP_Buderus_KM271/stargazers/)
 
+</div>
+
 -----
 
-If you like this, please push the ```Star ⭐️``` and click on ```watch 👁``` to stay tuned
+<div align="center">
+If you like this, please push the <b>[ Star ⭐️ ] </b> and click on <b>[ watch 👁 ]</b> to stay tuned
+</div>
 
 -----
 

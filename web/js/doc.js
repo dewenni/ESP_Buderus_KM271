@@ -175,4 +175,20 @@ document.addEventListener("DOMContentLoaded", function () {
       sendData(selectElement.id, selectElement.value);
     });
   });
+
+  // Event-Listener for pushover test-message
+  document
+    .getElementById("p12_pushover_test_btn")
+    .addEventListener("click", function () {
+      var text = document.getElementById("p12_pushover_test_msg").value;
+      sendData("p12_pushover_test_msg_cmd", text);
+    });
+
+  // Event-Listener for oilcounter set value
+  document
+    .getElementById("p02_oilmeter_btn")
+    .addEventListener("click", function () {
+      var text = document.getElementById("p02_oilmeter_set").value;
+      sendData("p02_oilmeter_set_cmd", text);
+    });
 });
