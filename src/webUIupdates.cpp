@@ -732,8 +732,8 @@ void updateKm271StatusElements() {
       updateWebTextInt("p03_hc1_flow_set", kmStatusCpy.HC1_HeatingForwardTargetTemp, false);
     } else if (kmStatusCpy.HC1_HeatingForwardActualTemp != pkmStatus->HC1_HeatingForwardActualTemp) {
       kmStatusCpy.HC1_HeatingForwardActualTemp = pkmStatus->HC1_HeatingForwardActualTemp;
-      updateWebTextInt("p01_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardTargetTemp, false);
-      updateWebTextInt("p03_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardTargetTemp, false);
+      updateWebTextInt("p01_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardActualTemp, false);
+      updateWebTextInt("p03_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardActualTemp, false);
     } else if (kmStatusCpy.HC1_RoomTargetTemp != pkmStatus->HC1_RoomTargetTemp) {
       kmStatusCpy.HC1_RoomTargetTemp = pkmStatus->HC1_RoomTargetTemp;
       updateWebTextInt("p03_hc1_room_set", kmStatusCpy.HC1_RoomTargetTemp, false);
