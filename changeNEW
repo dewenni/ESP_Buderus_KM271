@@ -12,3 +12,4 @@ For further details of the major release, see [release v4.0.0](https://github.co
 - bugfix of ntp enable switch in settings section
 - add automatically reconnect of SSE connection #84
 - update to bblanchon/ArduinoJson @7.0.4
+- fix warnings in OneWire Library

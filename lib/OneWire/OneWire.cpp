@@ -150,6 +150,12 @@ sample code bearing this copyright.
 
 #ifdef ARDUINO_ARCH_ESP32
 // due to the dual core esp32, a critical section works better than disabling interrupts
+#ifdef interrupts
+#undef interrupts
+#endif
+#ifdef noInterrupts
+#undef noInterrupts
+#endif
 #define noInterrupts()                                                                                                                               \
   {                                                                                                                                                  \
     portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;                                                                                                 \
