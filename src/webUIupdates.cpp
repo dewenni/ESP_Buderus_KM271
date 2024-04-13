@@ -186,7 +186,7 @@ void updateOilmeterElements(bool init) {
       oilcounterVirtOld = pkmStatus->BurnerCalcOilConsumption;
 
       // Oilmeter value in dashboardTab
-      snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f  L", float(pkmStatus->BurnerCalcOilConsumption) / 100);
+      snprintf(tmpMessage, sizeof(tmpMessage), "%0.2f  L", float(pkmStatus->BurnerCalcOilConsumption));
       updateWebText("p01_v_oilmeter", tmpMessage, false);
     }
   }
@@ -271,8 +271,10 @@ void updateSystemInfoElements() {
 
   // WiFi
   updateWebText("p09_wifi_ip", wifi.ipAddress, false);
-  updateWebTextInt("p09_wifi_signal", wifi.signal, false);
-  updateWebTextInt("p09_wifi_rssi", wifi.rssi, false);
+  snprintf(tmpMessage, sizeof(tmpMessage), "%i %%", wifi.signal);
+  updateWebText("p09_wifi_signal", tmpMessage, false);
+  snprintf(tmpMessage, sizeof(tmpMessage), "%ld dbm", wifi.rssi);
+  updateWebText("p09_wifi_rssi", tmpMessage, false);
 
   // Version informations
   updateWebText("p00_version", VERSION, false);
@@ -732,8 +734,8 @@ void updateKm271StatusElements() {
       updateWebTextInt("p03_hc1_flow_set", kmStatusCpy.HC1_HeatingForwardTargetTemp, false);
     } else if (kmStatusCpy.HC1_HeatingForwardActualTemp != pkmStatus->HC1_HeatingForwardActualTemp) {
       kmStatusCpy.HC1_HeatingForwardActualTemp = pkmStatus->HC1_HeatingForwardActualTemp;
-      updateWebTextInt("p01_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardTargetTemp, false);
-      updateWebTextInt("p03_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardTargetTemp, false);
+      updateWebTextInt("p01_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardActualTemp, false);
+      updateWebTextInt("p03_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardActualTemp, false);
     } else if (kmStatusCpy.HC1_RoomTargetTemp != pkmStatus->HC1_RoomTargetTemp) {
       kmStatusCpy.HC1_RoomTargetTemp = pkmStatus->HC1_RoomTargetTemp;
       updateWebTextInt("p03_hc1_room_set", kmStatusCpy.HC1_RoomTargetTemp, false);

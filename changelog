@@ -658,5 +658,19 @@ Example:
 > [!IMPORTANT]   
 > With this version, the dependency of the WebUI language and the MQTT messages has been removed. There is now a separate language setting in the MQTT settings that is used for the MQTT topics!
 
-## Assets
+---
 
+# v4.0.1
+
+## what's new
+
+this is a minor bugfix version of the major release 4.0.0
+For further details of the major release, see [release v4.0.0](https://github.com/dewenni/ESP_Buderus_KM271/releases/tag/v4.0.0)
+
+## changelog
+
+- bugfix Refresh issue of operation mode #48
+- improve input behavior of pushover test message and oil meter set value #83
+- bugfix oil meter value on dashboard #83
+
+---

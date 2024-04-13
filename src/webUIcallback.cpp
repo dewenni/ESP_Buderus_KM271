@@ -195,7 +195,7 @@ void webCallback(const char *elementId, const char *value) {
 
   // NTP-Server
   if (strcmp(elementId, "p12_ntp_enable") == 0) {
-    config.ip.enable = stringToBool(value);
+    config.ntp.enable = stringToBool(value);
   }
   if (strcmp(elementId, "p12_ntp_server") == 0) {
     snprintf(config.ntp.server, sizeof(config.ntp.server), value);

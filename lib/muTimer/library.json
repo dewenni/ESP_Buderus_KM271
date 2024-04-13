@@ -1,0 +1,23 @@
+{
+  "name": "muTimer",
+  "version": "0.1.1",
+  "description": "Arduino library to easily use on/off delays and cycle timers with non-blocking functions. The library provides a simple on/off delay for digital signals or a cycle timer which creates a periodically output. It keeps track of the elapsed time since the start of the delay or cycle and is non-blocking. The current time gets stored on a change of the input for the delayOnOff() functions to compare it with the given delayOn or delayOff delay times. The cycle functions restart themself without any external input and these create a permanent on/off signal (e.g. blinking LED) or just on trigger cycle (eg. start periodically actions).",
+  "keywords": "timer-on, timer-off, ton, tof, timer, delay, cycle,",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/MichaelUray/muTimer.git"
+  },
+  "authors":
+  [
+    {
+      "name": "Michael Uray",
+      "email": "mu@spamfence.net",
+      "url": "https://github.com/MichaelUray"
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://www.helloworld.org/",
+  "frameworks": "*",
+  "platforms": ["atmelavr", "espressif8266", "espressif32"]
+}

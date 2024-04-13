@@ -1,15 +1,14 @@
-
-# v4.0.1
+# v4.0.2
 
 ## what's new
 
 this is a minor bugfix version of the major release 4.0.0
-For further details of the major release, see [here v4.0.0](https://github.com/dewenni/ESP_Buderus_KM271/releases/tag/v4.0.0)
+For further details of the major release, see [release v4.0.0](https://github.com/dewenni/ESP_Buderus_KM271/releases/tag/v4.0.0)
 
 ## changelog
 
-- bugfix Refresh issue of operation mode #48
-- improve input behavior of pushover test message and oil meter set value #83
-- bugfix oilmeter value on dashboard #83
-
-
+- bugfix value of virtual oil meter #85
+- bigfix HC1_HeatingForwardActualTemp (was the same as HC1_HeatingForwardTargetTemp)
+- bugfix of ntp enable switch in settings section
+- add automatically reconnect of SSE connection #84
+- update to bblanchon/ArduinoJson @7.0.4

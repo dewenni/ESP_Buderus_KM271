@@ -390,7 +390,7 @@ void webUISetup() {
 void webUICylic() {
 
   // heartbeat timer for webclient
-  if (connectionTimer.cycleTrigger(2000)) {
+  if (connectionTimer.cycleTrigger(3000)) {
     events.send("ping", "ping", millis());
   }
 
