@@ -1,0 +1,37 @@
+/////////////////////////////////////////////////////////////////
+
+#pragma once
+#ifndef ESPTelnetStream_h
+#define ESPTelnetStream_h
+
+/////////////////////////////////////////////////////////////////
+
+#include "ESPTelnetBase.h"
+
+/////////////////////////////////////////////////////////////////
+
+class ESPTelnetStream : public ESPTelnetBase, public Stream {
+ public:
+  using ESPTelnetBase::ESPTelnetBase;
+
+  int available();
+  int read();
+  int peek();
+  void flush() override;
+
+  size_t write(uint8_t) override;
+  size_t write(const uint8_t* data, size_t size) override;
+
+ protected:
+  void handleInput();
+};
+
+/////////////////////////////////////////////////////////////////
+
+// << operator
+//  template<class T> inline ESPTelnetStream &operator <<(ESPTelnetStream &obj, T arg) { obj.print(arg); return obj; }
+
+/////////////////////////////////////////////////////////////////
+
+#endif
+/////////////////////////////////////////////////////////////////
