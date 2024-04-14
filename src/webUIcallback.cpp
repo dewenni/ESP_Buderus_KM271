@@ -385,6 +385,7 @@ void webCallback(const char *elementId, const char *value) {
   // Buttons
   if (strcmp(elementId, "p12_btn_restart") == 0) {
     storeData();
+    saveRestartReason("webUI command");
     yield();
     delay(1000);
     yield();
@@ -423,6 +424,7 @@ void webCallback(const char *elementId, const char *value) {
   // OTA-Confirm
   if (strcmp(elementId, "p11_ota_confirm_btn") == 0) {
     updateWebDialog("ota_update_done_dialog", "close");
+    saveRestartReason("ota update");
     storeData();
     yield();
     delay(1000);

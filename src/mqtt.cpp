@@ -78,6 +78,7 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
   // restart ESP command
   if (strcmp(topic, addTopic(mqttCmd.RESTART[config.lang])) == 0) {
     km271Msg(KM_TYP_MESSAGE, "restart requested!", "");
+    saveRestartReason("mqtt command");
     yield();
     delay(1000);
     yield();
@@ -311,6 +312,7 @@ void checkMqtt() {
         msgLn("MQTT connection not possible, esp rebooting...");
         msgLn("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
         storeData(); // store Data before reboot
+        saveRestartReason("no mqtt connection");
         yield();
         delay(1000);
         yield();

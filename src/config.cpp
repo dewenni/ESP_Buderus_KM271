@@ -376,3 +376,52 @@ void configLoadFromFile() {
   file.close();     // Close the file (Curiously, File's destructor doesn't close the file)
   configHashInit(); // init hash value
 }
+
+/**
+ * *******************************************************************
+ * @brief   save restart reason to file
+ * @param   reason
+ * @return  none
+ * *******************************************************************/
+void saveRestartReason(const char *reason) {
+  File file = LittleFS.open("/restart_reason.txt", "w");
+  if (!file) {
+    Serial.println("Failed to open file for writing");
+    return;
+  }
+  file.println(reason);
+  file.close();
+}
+
+/**
+ * *******************************************************************
+ * @brief   read restart reason from file
+ * @param   buffer
+ * @param   bufferSize
+ * @return  none
+ * *******************************************************************/
+bool readRestartReason(char *buffer, size_t bufferSize) {
+  if (!LittleFS.exists("/restart_reason.txt")) {
+    return false; // no file
+  }
+
+  File file = LittleFS.open("/restart_reason.txt", "r");
+  if (!file) {
+    Serial.println("Failed to open file for reading");
+    return false;
+  }
+
+  bool result = false;
+  if (file.available()) {
+    String line = file.readStringUntil('\n');
+    line.trim();
+    strncpy(buffer, line.c_str(), bufferSize - 1);
+    buffer[bufferSize - 1] = '\0';
+    result = true;
+  }
+  file.close();
+
+  LittleFS.remove("/restart_reason.txt");
+
+  return result;
+}
