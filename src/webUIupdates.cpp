@@ -39,6 +39,28 @@ char jsonSet[2048];
 char jsonCfg[5120];
 char jsonStat[4096];
 
+// convert minutes to human readable structure
+TimeComponents convertMinutes(int totalMinutes) {
+  int minutesPerYear = 525600; // 365 days * 24 hours * 60 minutes
+  int minutesPerDay = 1440;    // 24 hours * 60 minutes
+  int minutesPerHour = 60;
+
+  timeComponents result;
+
+  result.years = totalMinutes / minutesPerYear;
+  int remainingMinutes = totalMinutes % minutesPerYear;
+
+  result.days = remainingMinutes / minutesPerDay;
+  remainingMinutes %= minutesPerDay;
+
+  result.hours = remainingMinutes / minutesPerHour;
+  remainingMinutes %= minutesPerHour;
+
+  result.minutes = remainingMinutes;
+
+  return result;
+}
+
 // initialize JSON-Buffer
 void initJsonBuffer(char *buffer, size_t bufferSize) {
   if (bufferSize > 0) {
@@ -964,16 +986,17 @@ void updateKm271StatusElements() {
     updateWebTextInt("p07_exh_gas_temp", kmStatusCpy.ExhaustTemp, false);
   } else if (kmStatusCpy.BurnerOperatingDuration_2 != pkmStatus->BurnerOperatingDuration_2) {
     kmStatusCpy.BurnerOperatingDuration_2 = pkmStatus->BurnerOperatingDuration_2;
-    updateWebTextInt("p06_burn_run_min65536", kmStatusCpy.BurnerOperatingDuration_2, false);
   } else if (kmStatusCpy.BurnerOperatingDuration_1 != pkmStatus->BurnerOperatingDuration_1) {
     kmStatusCpy.BurnerOperatingDuration_1 = pkmStatus->BurnerOperatingDuration_1;
-    updateWebTextInt("p06_burn_run_min256", kmStatusCpy.BurnerOperatingDuration_1, false);
   } else if (kmStatusCpy.BurnerOperatingDuration_0 != pkmStatus->BurnerOperatingDuration_0) {
     kmStatusCpy.BurnerOperatingDuration_0 = pkmStatus->BurnerOperatingDuration_0;
-    updateWebTextInt("p06_burn_run_min", kmStatusCpy.BurnerOperatingDuration_0, false);
   } else if (kmStatusCpy.BurnerOperatingDuration_Sum != pkmStatus->BurnerOperatingDuration_Sum) {
     kmStatusCpy.BurnerOperatingDuration_Sum = pkmStatus->BurnerOperatingDuration_Sum;
-    updateWebTextInt("p06_burn_run_all", kmStatusCpy.BurnerOperatingDuration_Sum, false);
+    timeComponents burnerRuntime = convertMinutes(kmStatusCpy.BurnerOperatingDuration_Sum);
+    updateWebTextInt("p06_burn_run_years", burnerRuntime.years, false);
+    updateWebTextInt("p06_burn_run_days", burnerRuntime.days, false);
+    updateWebTextInt("p06_burn_run_hours", burnerRuntime.hours, false);
+    updateWebTextInt("p06_burn_run_min", burnerRuntime.minutes, false);
   } else if (kmStatusCpy.BurnerCalcOilConsumption != pkmStatus->BurnerCalcOilConsumption) {
     kmStatusCpy.BurnerCalcOilConsumption = pkmStatus->BurnerCalcOilConsumption;
     // is handled somewhere else
@@ -1211,10 +1234,11 @@ void updateKm271StatusElementsAll() {
   addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p01_burner", (kmStatusCpy.BurnerStates == 0) ? webText.OFF[config.lang] : webText.ON[config.lang]);
   addJsonLabelTxt(jsonStat, sizeof(jsonStat), "p06_burn_ctrl", cfgArrayTexts.BURNER_STATE[config.lang][kmStatusCpy.BurnerStates]);
   addJsonLabelInt(jsonStat, sizeof(jsonStat), "p07_exh_gas_temp", kmStatusCpy.ExhaustTemp);
-  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p06_burn_run_min65536", kmStatusCpy.BurnerOperatingDuration_2);
-  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p06_burn_run_min256", kmStatusCpy.BurnerOperatingDuration_1);
-  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p06_burn_run_min", kmStatusCpy.BurnerOperatingDuration_0);
-  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p06_burn_run_all", kmStatusCpy.BurnerOperatingDuration_Sum);
+  timeComponents burnerRuntime = convertMinutes(kmStatusCpy.BurnerOperatingDuration_Sum);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p06_burn_run_years", burnerRuntime.years);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p06_burn_run_days", burnerRuntime.days);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p06_burn_run_hours", burnerRuntime.hours);
+  addJsonLabelInt(jsonStat, sizeof(jsonStat), "p06_burn_run_min", burnerRuntime.minutes);
   addJsonLabelInt(jsonStat, sizeof(jsonStat), "p07_out_temp", kmStatusCpy.OutsideTemp);
   addJsonLabelInt(jsonStat, sizeof(jsonStat), "p01_temp_out_act", kmStatusCpy.OutsideTemp);
   addJsonLabelInt(jsonStat, sizeof(jsonStat), "p07_out_temp_damped", kmStatusCpy.OutsideDampedTemp);

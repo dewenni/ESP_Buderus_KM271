@@ -1078,21 +1078,21 @@ const translations = {
     de: "Abgastemperatur",
     en: "Exhaust gas temp",
   },
-  burner_runtime_minutes65536: {
-    de: "Brenner Laufzeit Minuten65536",
-    en: "Burner runtime minutes65536",
+  burner_runtime_years: {
+    de: "Brenner Laufzeit Jahre",
+    en: "Burner runtime years",
   },
-  burner_runtime_minutes256: {
-    de: "Brenner Laufzeit Minuten256",
-    en: "Burner runtime minutes256",
+  burner_runtime_days: {
+    de: "Brenner Laufzeit Tage",
+    en: "Burner runtime days",
+  },
+  burner_runtime_hours: {
+    de: "Brenner Laufzeit Stunden",
+    en: "Burner runtime hours",
   },
   burner_runtime_minutes: {
     de: "Brenner Laufzeit Minuten",
     en: "Burner runtime minutes",
-  },
-  burner_runtime_overall: {
-    de: "Brenner Laufzeit Summe",
-    en: "Burner runtime overall",
   },
   oil_consumption_overall_calc: {
     de: "Ölverbrauch Gesamt berechnet",
