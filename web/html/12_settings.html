@@ -284,11 +284,15 @@
             <details>
               <summary data-i18n="gpio"></summary>
               <br />
-              <select id="boards" name="boards">
-                <option value="0">Board 0.0.5</option>
-                <option value="1">Board 0.0.6</option>
-                <option value="2">Board 0.0.7</option>
-                <option value="3">generic ESP32</option>
+              <select id="p12_boards" name="boards">
+                <option
+                  selected
+                  disabled
+                  value=""
+                  data-i18n="select_template"></option>
+                <option value="1">generic ESP32</option>
+                <option value="2">Board 0.0.5</option>
+                <option value="3">Board ≥0.0.6</option>
               </select>
               <label for="km271_rx" data-i18n="km271_rx"></label>
               <input

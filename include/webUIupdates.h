@@ -17,3 +17,4 @@ typedef struct TimeComponents {
 /* P R O T O T Y P E S ********************************************************/
 void updateAllElements();
 void webUIupdates();
+void updateGpioSettings();

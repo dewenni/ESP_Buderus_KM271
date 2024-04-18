@@ -1282,4 +1282,8 @@ const translations = {
     de: "neustes Release",
     en: "newest release",
   },
+  select_template: {
+    de: "wähle Vorlage...",
+    en: "select template...",
+  },
 };
