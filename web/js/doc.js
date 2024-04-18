@@ -3,10 +3,17 @@
 // --------------------------------------
 document.addEventListener("DOMContentLoaded", function () {
   // call functions on refresh
-  resetPingTimeout();
+  setupSSE();
   initializeVisibilityBasedOnSwitches();
   localizePage("de");
 
+  // Event Listener for Reload-Button
+  document
+    .getElementById("p99_reloadButton")
+    .addEventListener("click", function () {
+      window.location.reload();
+    });
+  
   // VERSION: is called when version dialog is opened
   document.getElementById("p00_version").addEventListener("click", function () {
     document.getElementById("version_dialog").showModal();

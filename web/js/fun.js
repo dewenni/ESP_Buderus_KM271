@@ -2,6 +2,22 @@
 // js functions
 // --------------------------------------
 
+// Function timeout for server-side events
+function resetPingTimer() {
+  clearTimeout(pingTimer);
+  pingTimer = setTimeout(function () {
+    console.log("Ping timeout, attempting to reconnect...");
+    evtSource.close();
+    attemptReconnect();
+    showReloadBar();
+  }, 5000);
+}
+
+// Function to reconnect after timeout
+function attemptReconnect() {
+  setTimeout(setupSSE, 5000);
+}
+
 // Function for switching the visibility of elements
 function toggleElementVisibility(className, isVisible) {
   const elements = document.querySelectorAll(`.${className}`);
@@ -93,19 +109,14 @@ function localizePage(lang = "en") {
   });
 }
 
-// ping to check the connection to ESP
-var pingTimeout;
-function resetPingTimeout() {
-  clearTimeout(pingTimeout);
-  pingTimeout = setTimeout(function () {
-    console.log("Ping Timeout - no ping received");
-    showReloadBar();
-  }, 6000); // 6 seconds waiting time for the ping
-}
-
 // to show reload bar if connection is lost
 function showReloadBar() {
   document.getElementById("connectionLostBar").style.display = "flex";
+}
+
+// to hide reload bar if connection is lost
+function hideReloadBar() {
+  document.getElementById("connectionLostBar").style.display = "none";
 }
 
 // send data from web elements to ESP server
