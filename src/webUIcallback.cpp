@@ -317,6 +317,43 @@ void webCallback(const char *elementId, const char *value) {
   }
 
   // Hardware
+  // predefined gpio settings
+  if (strcmp(elementId, "p12_boards") == 0) {
+
+    switch (strtoul(value, NULL, 10)) {
+
+    case 1: // generic ESP32
+      config.gpio.km271_RX = 16;
+      config.gpio.km271_TX = 17;
+      config.gpio.led_wifi = 21;
+      config.gpio.led_heartbeat = -1;
+      config.gpio.led_logmode = -1;
+      config.gpio.led_oilcounter = -1;
+      config.gpio.trigger_oilcounter = -1;
+      break;
+
+    case 2: // KM271-WiFi v0.0.5
+      config.gpio.km271_RX = 4;
+      config.gpio.km271_TX = 2;
+      config.gpio.led_wifi = 21;
+      config.gpio.led_heartbeat = 22;
+      config.gpio.led_logmode = 23;
+      config.gpio.led_oilcounter = -1;
+      config.gpio.trigger_oilcounter = -1;
+      break;
+
+    case 3: // KM271-WiFi >= v0.0.6
+      config.gpio.km271_RX = 4;
+      config.gpio.km271_TX = 2;
+      config.gpio.led_wifi = 21;
+      config.gpio.led_heartbeat = 22;
+      config.gpio.led_logmode = 17;
+      config.gpio.led_oilcounter = -1;
+      config.gpio.trigger_oilcounter = -1;
+      break;
+    }
+    updateGpioSettings();
+  }
   if (strcmp(elementId, "p12_gpio_km271_rx") == 0) {
     config.gpio.km271_RX = strtoul(value, NULL, 10);
   }
@@ -385,6 +422,7 @@ void webCallback(const char *elementId, const char *value) {
   // Buttons
   if (strcmp(elementId, "p12_btn_restart") == 0) {
     storeData();
+    saveRestartReason("webUI command");
     yield();
     delay(1000);
     yield();
@@ -423,6 +461,7 @@ void webCallback(const char *elementId, const char *value) {
   // OTA-Confirm
   if (strcmp(elementId, "p11_ota_confirm_btn") == 0) {
     updateWebDialog("ota_update_done_dialog", "close");
+    saveRestartReason("ota update");
     storeData();
     yield();
     delay(1000);

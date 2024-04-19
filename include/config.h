@@ -4,7 +4,7 @@
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION "v4.0.2" // internal program version
+#define VERSION "v4.0.x" // internal program version
 
 #define WIFI_RECONNECT 10000 // Delay between wifi reconnection tries
 #define MQTT_RECONNECT 10000 // Delay between mqtt reconnection tries
@@ -145,3 +145,5 @@ void configCyclic();
 void configSaveToFile();
 void configLoadFromFile();
 void configInitValue();
+void saveRestartReason(const char *reason);
+bool readRestartReason(char *buffer, size_t bufferSize);

@@ -147,7 +147,6 @@ I have used one without potential-free contact and have subsequently attached a 
 
 You can also configure additional OneWire Sensors (e.g. DS18B20). In the configuration you can setup one or two sensors.
 The Sensor value will shown on the Dashboard and will also be send by mqtt with Topic `sensor` and the name that you can configure.
-If you only configure one sensor, it will be shown as a single control. If you enable both sensors, it will be shown in a combined control.
 Depending on the hardware used, an additional resistor may need to be installed. Classically, the OneWire sensors are connected with a resistor of 4.7kOhm between VCC and the sensor cable and operated with 3.3V - 5V.
 Only the GPIO to which the sensor cable is connected is specified in the configuration. The rest is hardware-dependent wiring.
 
