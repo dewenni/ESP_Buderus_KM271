@@ -1286,4 +1286,8 @@ const translations = {
     de: "wähle Vorlage...",
     en: "select template...",
   },
+  km271_refresh: {
+    de: "empfange Daten...",
+    en: "receiving data...",
+  },
 };
