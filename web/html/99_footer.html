@@ -6,8 +6,11 @@
     <link rel="stylesheet" type="text/css" href="../css/pico.css" />
     <link rel="stylesheet" type="text/css" href="../css/custom.css" />
     <link rel="stylesheet" type="text/css" href="../css/icons.css" />
-    <script src="../js/main.js" defer></script>
+    <script src="../js/doc.js" defer></script>
     <script src="../js/lang.js" defer></script>
+    <script src="../js/fun.js" defer></script>
+    <script src="../js/events.js" defer></script>
+    <style></style>
     <script>
       function test() {
         localizePage("de");
@@ -21,7 +24,17 @@
         <!--SECTION-START-->
       </main>
       <footer>
-        <div id="connectionLostBar" style="display: none">
+        <div
+          id="refreshBar"
+          class="footerBar"
+          style="display: none; background-color: #9b8904">
+          <div class="svg i_pulse" style="width: 50px"></div>
+          <div data-i18n="km271_refresh" style="color: white"></div>
+        </div>
+        <div
+          id="connectionLostBar"
+          class="footerBar"
+          style="display: none; background-color: #732e2e">
           <div data-i18n="lost_connection"></div>
           <button
             id="p99_reloadButton"

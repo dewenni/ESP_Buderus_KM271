@@ -76,13 +76,12 @@ hr {
   margin-bottom: 4px;
 }
 
-#connectionLostBar {
+.footerBar {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   height: 75px;
-  background-color: #732e2e;
   display: flex;
   align-items: center;
   justify-content: center;

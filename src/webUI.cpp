@@ -122,7 +122,7 @@ void showElementClass(const char *className, bool show) {
   sendWebUpdate(message, "showElementClass");
 }
 
-void hideid(const char *id, bool hide) {
+void updateWebHideElement(const char *id, bool hide) {
   char message[BUFFER_SIZE];
   snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"hide\":%s}", id, hide ? "true" : "false");
   sendWebUpdate(message, "hideElement");

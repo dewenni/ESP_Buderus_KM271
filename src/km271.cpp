@@ -55,6 +55,7 @@ uint8_t send_cmd;
 uint8_t send_buf[8] = {};
 bool kmInitDone = false;
 bool km271LogModeActive = false;
+bool km271RefreshActive = false;
 
 /**
  * *******************************************************************
@@ -161,6 +162,7 @@ void handleRxBlock(uint8_t *data, int len, uint8_t bcc) {
     if (data[0] != KM_DLE) {         // No DLE, not accepted, try again
       KmRxBlockState = KM_TSK_START; // Back to START state
     } else {
+      km271RefreshActive = true;
       KmRxBlockState = KM_TSK_LOGGING; // Command accepted, ready to log!
     }
     break;
@@ -680,6 +682,7 @@ void parseInfo(uint8_t *data, int len) {
     km271Msg(KM_TYP_STATUS, statTopic.MODULE_ID[config.mqtt.lang], uint8ToString(kmStatus.Modul));
     // this should be the last message => init done
     kmInitDone = true;
+    km271RefreshActive = false;
     break;
 
   case 0xaa42: // 0xaa42 : Bitfeld
@@ -1489,6 +1492,14 @@ s_km271_config_str *km271GetConfigStringsAdr() { return &kmConfigStr; }
  * @return  Address of alarm messages structure
  * *******************************************************************/
 s_km271_alarm_str *km271GetAlarmMsgAdr() { return &kmAlarmMsg; }
+
+/**
+ * *******************************************************************
+ * @brief   return status of km271 refresh
+ * @param   none
+ * @return  status of km271 refresh
+ * *******************************************************************/
+bool km271GetRefreshState() { return km271RefreshActive; }
 
 /**
  * *******************************************************************

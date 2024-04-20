@@ -1,4 +1,4 @@
-# v4.0.2
+# v4.0.3
 
 ## what's new
 
@@ -7,8 +7,7 @@ For further details of the major release, see [release v4.0.0](https://github.co
 
 ## changelog
 
-- bugfix value of virtual oil meter #85
-- bigfix HC1_HeatingForwardActualTemp (was the same as HC1_HeatingForwardTargetTemp)
-- bugfix of ntp enable switch in settings section
-- add automatically reconnect of SSE connection #84
-- update to bblanchon/ArduinoJson @7.0.4
+- add internal restart reasons (ota-update, mqtt-command, telnet-command, webUI, lost WiFi connection, lost mqtt connection)
+- change format of burner runtime in webUI to years, days, hours, minutes
+- fix gpio templates in webUI settings #86
+- fix mqtt command language setting #90
