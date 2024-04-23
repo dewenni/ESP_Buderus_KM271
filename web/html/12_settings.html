@@ -106,13 +106,46 @@
               <br />
               <label for="ntp_server" data-i18n="server"></label>
               <input type="text" id="p12_ntp_server" name="ntp_server" />
-              <label for="time_zone" data-i18n="ntp_tz"></label>
+              <div class="leftright">
+                <label for="time_zone" data-i18n="ntp_tz"></label>
+                <button
+                  id="p12_ntp_open_dialog_btn"
+                  class="i_help"
+                  style="
+                    height: 30px;
+                    background-color: transparent;
+                    border: none;
+                  "></button>
+              </div>
               <input type="text" id="p12_ntp_tz" name="time_zone" />
             </details>
             <hr />
+            <!-- Dialog OPEN-NTP-HELP -->
+            <dialog id="p12_ntp_dialog">
+              <article>
+                <div id="p12_ntp_help_output"></div>
+                <div class="dash-footer">
+                  <button
+                    id="p12_ntp_close_dialog_btn"
+                    data-i18n="close"
+                    style="width: 75%"></button>
+                </div>
+              </article>
+            </dialog>
             <!-- Datum & Uhrzeit -->
             <details>
               <summary data-i18n="datetime"></summary>
+              <div class="section-header">
+                <label for="ntp_auto_sync" data-i18n="ntp_auto_sync"></label>
+                <div class="switch-container">
+                  <input
+                    name="ntp_auto_sync"
+                    type="checkbox"
+                    role="switch"
+                    id="p12_ntp_auto_sync" />
+                </div>
+              </div>
+              <br />
               <label data-i18n="act_date"></label>
               <input
                 id="p12_ntp_date"

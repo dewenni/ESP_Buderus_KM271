@@ -10,6 +10,7 @@
 #include <gzip_m_css.h>
 #include <gzip_main_html.h>
 #include <language.h>
+#include <gzip_ntp.h>
 
 /* D E C L A R A T I O N S ****************************************************/
 typedef enum {

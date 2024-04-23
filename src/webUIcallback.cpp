@@ -258,6 +258,9 @@ void webCallback(const char *elementId, const char *value) {
     km271SetDateTimeDTI(dti);
     // TODO: check
   }
+  if (strcmp(elementId, "p12_ntp_auto_sync") == 0) {
+    config.ntp.auto_sync = stringToBool(value);
+  }
 
   // MQTT
   if (strcmp(elementId, "p12_mqtt_enable") == 0) {
