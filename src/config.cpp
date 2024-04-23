@@ -41,7 +41,7 @@ unsigned long hash(void *str, size_t len) {
 void readJSONstring(char *dest, size_t size, const char *src) {
   const char *check = src;
   if (check != NULL) {
-    snprintf(dest, size, src);
+    snprintf(dest, size, "%s", src);
   }
 }
 
