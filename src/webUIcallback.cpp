@@ -156,13 +156,13 @@ void webCallback(const char *elementId, const char *value) {
 
   // WiFi
   if (strcmp(elementId, "p12_wifi_hostname") == 0) {
-    snprintf(config.wifi.ssid, sizeof(config.wifi.hostname), value);
+    snprintf(config.wifi.ssid, sizeof(config.wifi.hostname), "%s", value);
   }
   if (strcmp(elementId, "p12_wifi_ssid") == 0) {
-    snprintf(config.wifi.ssid, sizeof(config.wifi.ssid), value);
+    snprintf(config.wifi.ssid, sizeof(config.wifi.ssid), "%s", value);
   }
   if (strcmp(elementId, "p12_wifi_passw") == 0) {
-    snprintf(config.wifi.password, sizeof(config.wifi.password), value);
+    snprintf(config.wifi.password, sizeof(config.wifi.password), "%s", value);
   }
 
   // IP-Settings
@@ -170,16 +170,16 @@ void webCallback(const char *elementId, const char *value) {
     config.ip.enable = stringToBool(value);
   }
   if (strcmp(elementId, "p12_ip_adr") == 0) {
-    snprintf(config.ip.ipaddress, sizeof(config.ip.ipaddress), value);
+    snprintf(config.ip.ipaddress, sizeof(config.ip.ipaddress), "%s", value);
   }
   if (strcmp(elementId, "p12_ip_subnet") == 0) {
-    snprintf(config.ip.subnet, sizeof(config.ip.subnet), value);
+    snprintf(config.ip.subnet, sizeof(config.ip.subnet), "%s", value);
   }
   if (strcmp(elementId, "p12_ip_gateway") == 0) {
-    snprintf(config.ip.gateway, sizeof(config.ip.gateway), value);
+    snprintf(config.ip.gateway, sizeof(config.ip.gateway), "%s", value);
   }
   if (strcmp(elementId, "p12_ip_dns") == 0) {
-    snprintf(config.ip.dns, sizeof(config.ip.dns), value);
+    snprintf(config.ip.dns, sizeof(config.ip.dns), "%s", value);
   }
 
   // Authentication
@@ -187,10 +187,10 @@ void webCallback(const char *elementId, const char *value) {
     config.auth.enable = stringToBool(value);
   }
   if (strcmp(elementId, "p12_auth_user") == 0) {
-    snprintf(config.auth.user, sizeof(config.auth.user), value);
+    snprintf(config.auth.user, sizeof(config.auth.user), "%s", value);
   }
   if (strcmp(elementId, "p12_auth_passw") == 0) {
-    snprintf(config.auth.password, sizeof(config.auth.password), value);
+    snprintf(config.auth.password, sizeof(config.auth.password), "%s", value);
   }
 
   // NTP-Server
@@ -198,10 +198,10 @@ void webCallback(const char *elementId, const char *value) {
     config.ntp.enable = stringToBool(value);
   }
   if (strcmp(elementId, "p12_ntp_server") == 0) {
-    snprintf(config.ntp.server, sizeof(config.ntp.server), value);
+    snprintf(config.ntp.server, sizeof(config.ntp.server), "%s", value);
   }
   if (strcmp(elementId, "p12_ntp_tz") == 0) {
-    snprintf(config.ntp.tz, sizeof(config.ntp.tz), value);
+    snprintf(config.ntp.tz, sizeof(config.ntp.tz), "%s", value);
   }
 
   // set manual date for Logamatic
@@ -267,19 +267,19 @@ void webCallback(const char *elementId, const char *value) {
     config.mqtt.config_retain = stringToBool(value);
   }
   if (strcmp(elementId, "p12_mqtt_server") == 0) {
-    snprintf(config.mqtt.server, sizeof(config.mqtt.server), value);
+    snprintf(config.mqtt.server, sizeof(config.mqtt.server), "%s", value);
   }
   if (strcmp(elementId, "p12_mqtt_port") == 0) {
     config.mqtt.port = strtoul(value, NULL, 10);
   }
   if (strcmp(elementId, "p12_mqtt_topic") == 0) {
-    snprintf(config.mqtt.topic, sizeof(config.mqtt.topic), value);
+    snprintf(config.mqtt.topic, sizeof(config.mqtt.topic), "%s", value);
   }
   if (strcmp(elementId, "p12_mqtt_user") == 0) {
-    snprintf(config.mqtt.user, sizeof(config.mqtt.user), value);
+    snprintf(config.mqtt.user, sizeof(config.mqtt.user), "%s", value);
   }
   if (strcmp(elementId, "p12_mqtt_passw") == 0) {
-    snprintf(config.mqtt.password, sizeof(config.mqtt.password), value);
+    snprintf(config.mqtt.password, sizeof(config.mqtt.password), "%s", value);
   }
   if (strcmp(elementId, "p12_mqtt_lang") == 0) {
     config.mqtt.lang = strtoul(value, NULL, 10);
@@ -290,10 +290,10 @@ void webCallback(const char *elementId, const char *value) {
     config.pushover.enable = stringToBool(value);
   }
   if (strcmp(elementId, "p12_pushover_api_token") == 0) {
-    snprintf(config.pushover.token, sizeof(config.pushover.token), value);
+    snprintf(config.pushover.token, sizeof(config.pushover.token), "%s", value);
   }
   if (strcmp(elementId, "p12_pushover_user_key") == 0) {
-    snprintf(config.pushover.user_key, sizeof(config.pushover.user_key), value);
+    snprintf(config.pushover.user_key, sizeof(config.pushover.user_key), "%s", value);
   }
   if (strcmp(elementId, "p12_pushover_filter") == 0) {
     config.pushover.filter = strtoul(value, NULL, 10);
@@ -392,10 +392,10 @@ void webCallback(const char *elementId, const char *value) {
     config.sensor.ch1_enable = stringToBool(value);
   }
   if (strcmp(elementId, "p12_sens1_name") == 0) {
-    snprintf(config.sensor.ch1_name, sizeof(config.sensor.ch1_name), value);
+    snprintf(config.sensor.ch1_name, sizeof(config.sensor.ch1_name), "%s", value);
   }
   if (strcmp(elementId, "p12_sens1_description") == 0) {
-    snprintf(config.sensor.ch1_description, sizeof(config.sensor.ch1_description), value);
+    snprintf(config.sensor.ch1_description, sizeof(config.sensor.ch1_description), "%s", value);
   }
   if (strcmp(elementId, "p12_sens1_gpio") == 0) {
     config.sensor.ch1_gpio = strtoul(value, NULL, 10);
@@ -404,10 +404,10 @@ void webCallback(const char *elementId, const char *value) {
     config.sensor.ch2_enable = stringToBool(value);
   }
   if (strcmp(elementId, "p12_sens2_name") == 0) {
-    snprintf(config.sensor.ch2_name, sizeof(config.sensor.ch2_name), value);
+    snprintf(config.sensor.ch2_name, sizeof(config.sensor.ch2_name), "%s", value);
   }
   if (strcmp(elementId, "p12_sens2_description") == 0) {
-    snprintf(config.sensor.ch2_description, sizeof(config.sensor.ch2_description), value);
+    snprintf(config.sensor.ch2_description, sizeof(config.sensor.ch2_description), "%s", "%s", value);
   }
   if (strcmp(elementId, "p12_sens2_gpio") == 0) {
     config.sensor.ch2_gpio = strtoul(value, NULL, 10);

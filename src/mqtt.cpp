@@ -6,6 +6,7 @@
 #include <oilmeter.h>
 #include <simulation.h>
 #include <mqttDiscovery.h>
+#include <haDiscovery.h>
 
 /* D E C L A R A T I O N S ****************************************************/
 WiFiClient espClient;
@@ -298,6 +299,8 @@ void checkMqtt() {
   if (mqtt_client.connected()){
     mqttDiscoverySetup();
     mqttDiscoveryCyclic();
+
+    haDiscoverySetup();
   }
   
   // automatic reconnect to mqtt broker if connection is lost - try 5 times, then reboot
