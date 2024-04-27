@@ -258,6 +258,9 @@ void webCallback(const char *elementId, const char *value) {
     km271SetDateTimeDTI(dti);
     // TODO: check
   }
+  if (strcmp(elementId, "p12_ntp_auto_sync") == 0) {
+    config.ntp.auto_sync = stringToBool(value);
+  }
 
   // MQTT
   if (strcmp(elementId, "p12_mqtt_enable") == 0) {
@@ -407,7 +410,7 @@ void webCallback(const char *elementId, const char *value) {
     snprintf(config.sensor.ch2_name, sizeof(config.sensor.ch2_name), "%s", value);
   }
   if (strcmp(elementId, "p12_sens2_description") == 0) {
-    snprintf(config.sensor.ch2_description, sizeof(config.sensor.ch2_description), "%s", "%s", value);
+    snprintf(config.sensor.ch2_description, sizeof(config.sensor.ch2_description), "%s", value);
   }
   if (strcmp(elementId, "p12_sens2_gpio") == 0) {
     config.sensor.ch2_gpio = strtoul(value, NULL, 10);

@@ -210,7 +210,7 @@ There are 3 predefined Options:
 
 ## Setup Mode
 
-There is a new "Setup Mode" available. The "Setup Mode" is activated, when you press the "reset-button" of the ESP. Press reset and after 5 seconds, press reset again.
+There is a "Setup Mode" available. The "Setup Mode" is activated, when you press the "reset-button" of the ESP two times within 3 Seconds.
 The "Setup Mode" will also activated if there is no wifi connection configured.
 
 If the ESP goes into "Setup Mode", it will automatically create a own network access point with ssid  

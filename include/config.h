@@ -4,7 +4,7 @@
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION "v4.0.x" // internal program version
+#define VERSION "v4.0.4" // internal program version
 
 #define WIFI_RECONNECT 10000 // Delay between wifi reconnection tries
 #define MQTT_RECONNECT 10000 // Delay between mqtt reconnection tries
@@ -59,6 +59,7 @@ typedef struct {
 
 typedef struct {
   bool enable = true;
+  bool auto_sync = false;
   char server[128] = {"de.pool.ntp.org"};
   char tz[128] = {"CET-1CEST,M3.5.0,M10.5.0/3"};
 } s_cfg_ntp;
