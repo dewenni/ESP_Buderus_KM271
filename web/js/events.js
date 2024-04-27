@@ -237,4 +237,3 @@ function setupSSE() {
 
   resetPingTimer();
 }
-

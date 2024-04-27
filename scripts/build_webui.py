@@ -72,8 +72,12 @@ compress_to_gzip_c_array(output_file_html, output_file_br, 'main_html')
 # Pfad zur HTML-Datei und zum Ausgabe-C-Datei
 input_html_file = 'web/html/login.html'
 output_c_file = 'include/gzip_login_html.h'
-
 compress_to_gzip_c_array(input_html_file, output_c_file, 'login_html')
+
+# Pfad zur HTML-Datei und zum Ausgabe-C-Datei
+input_html_file = 'web/html/ntp.html'
+output_c_file = 'include/gzip_ntp.h'
+compress_to_gzip_c_array(input_html_file, output_c_file, 'ntp_html')
 
 
 #================================================================

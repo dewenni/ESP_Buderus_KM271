@@ -439,12 +439,16 @@ const translations = {
     en: "Time-Zone",
   },
   act_date: {
-    de: "aktuelles Datum",
-    en: "actual date",
+    de: "aktuelles Datum (auf ESP)",
+    en: "actual date (on ESP)",
   },
   act_time: {
-    de: "aktuelle Uhrzeit",
-    en: "actual time",
+    de: "aktuelle Uhrzeit (auf ESP)",
+    en: "actual time (on ESP)",
+  },
+  ntp_auto_sync: {
+    de: "schreibe ntp Zeit nach jedem PowerOn",
+    en: "write ntp time on PowerOn",
   },
   set_date: {
     de: "Datum setzen",
@@ -1285,5 +1289,9 @@ const translations = {
   select_template: {
     de: "wähle Vorlage...",
     en: "select template...",
+  },
+  km271_refresh: {
+    de: "empfange Daten...",
+    en: "receiving data...",
   },
 };

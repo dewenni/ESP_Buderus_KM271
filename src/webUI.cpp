@@ -122,7 +122,7 @@ void showElementClass(const char *className, bool show) {
   sendWebUpdate(message, "showElementClass");
 }
 
-void hideid(const char *id, bool hide) {
+void updateWebHideElement(const char *id, bool hide) {
   char message[BUFFER_SIZE];
   snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"hide\":%s}", id, hide ? "true" : "false");
   sendWebUpdate(message, "hideElement");
@@ -312,6 +312,12 @@ void webUISetup() {
     request->send(response);
   });
 
+  server.on("/gzip_ntp", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", ntp_html, ntp_html_size);
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
+  });
+
   server.on("/favicon.svg", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(200, "image/svg+xml", faviconSvg); });
 
   // config.json download
@@ -355,8 +361,7 @@ void webUISetup() {
       });
 
   // Route für OTA-Updates
-  server.on(
-      "/update", HTTP_POST, [](AsyncWebServerRequest *request) {}, handleDoUpdate);
+  server.on("/update", HTTP_POST, [](AsyncWebServerRequest *request) {}, handleDoUpdate);
 
   // message from webClient to server
   server.on("/sendData", HTTP_GET, handleWebClientData);

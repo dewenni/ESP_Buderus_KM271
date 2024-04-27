@@ -82,63 +82,6 @@ typedef struct {
   const char *SUN[MAX_LANG] = {"So", "Sun"};
   const char *DAYS[MAX_LANG] = {"Tage", "days"};
   const char *HOURS[MAX_LANG] = {"Stunden", "hours"};
-
-  const char *HC1_OPMODE_RECV[MAX_LANG] = {"setvalue: hk1_betriebsart - empfangen", "setvalue: hc1_opmode - received"};
-  const char *HC1_OPMODE_INVALID[MAX_LANG] = {"setvalue: hk1_betriebsart - ungültig", "setvalue: hc1_opmode - invalid"};
-  const char *HC2_OPMODE_RECV[MAX_LANG] = {"setvalue: hk2_betriebsart - empfangen", "setvalue: hc2_opmode - received"};
-  const char *HC2_OPMODE_INVALID[MAX_LANG] = {"setvalue: hk2_betriebsart - ungültig", "setvalue: hc2_opmode - invalid"};
-  const char *HC1_INTERPRET_RECV[MAX_LANG] = {"setvalue: hk1_auslegung - empfangen", "setvalue: hc1_interpretation - received"};
-  const char *HC1_INTERPRET_INVALID[MAX_LANG] = {"setvalue: hk1_auslegung - ungültig", "setvalue: hc1_interpretation - invalid"};
-  const char *HC2_INTERPRET_RECV[MAX_LANG] = {"setvalue: hk2_auslegung - empfangen", "setvalue: hc2_interpretation - received"};
-  const char *HC2_INTERPRET_INVALID[MAX_LANG] = {"setvalue: hk2_auslegung - ungültig", "setvalue: hc2_interpretation - invalid"};
-  const char *HC1_PROG_RECV[MAX_LANG] = {"setvalue: hk1_programm - empfangen", "setvalue: hc1_program - received"};
-  const char *HC1_PROG_INVALID[MAX_LANG] = {"setvalue: hk1_programm - ungültig", "setvalue: hc1_program - invalid"};
-  const char *HC2_PROG_RECV[MAX_LANG] = {"setvalue: hk2_programm - empfangen", "setvalue: hc2_program - received"};
-  const char *HC2_PROG_INVALID[MAX_LANG] = {"setvalue: hk2_programm - ungültig", "setvalue: hc2_program - invalid"};
-  const char *WW_OPMODE_RECV[MAX_LANG] = {"setvalue: ww_betriebsart - empfangen", "setvalue: ww_opmode - received"};
-  const char *WW_OPMODE_INVALID[MAX_LANG] = {"setvalue: ww_betriebsart - ungültig", "setvalue: ww_opmode - invalid"};
-  const char *HC1_SUMMER_RECV[MAX_LANG] = {"setvalue: hk1_sommer_ab - empfangen", "setvalue: hc1_summer_mode_threshold - received"};
-  const char *HC1_SUMMER_INVALID[MAX_LANG] = {"setvalue: hk1_sommer_ab - ungültig", "setvalue: hc1_summer_mode_threshold - invalid"};
-  const char *HC1_FROST_RECV[MAX_LANG] = {"setvalue: hk1_frost_ab - empfangen", "setvalue: hc1_frost_mode_threshold - received"};
-  const char *HC1_FROST_INVALID[MAX_LANG] = {"setvalue: hk1_frost_ab - ungültig", "setvalue: hc1_frost_mode_threshold - invalid"};
-  const char *HC2_SUMMER_RECV[MAX_LANG] = {"setvalue: hk2_sommer_ab - empfangen", "setvalue: hc2_summer_mode_threshold - received"};
-  const char *HC2_SUMMER_INVALID[MAX_LANG] = {"setvalue: hk2_sommer_ab - ungültig", "setvalue: hc2_summer_mode_threshold - invalid"};
-  const char *HC2_FROST_RECV[MAX_LANG] = {"setvalue: hk2_frost_ab - empfangen", "setvalue: hc2_frost_mode_threshold - received"};
-  const char *HC2_FROST_INVALID[MAX_LANG] = {"setvalue: hk2_frost_ab - ungültig", "setvalue: hc2_frost_mode_threshold - invalid"};
-  const char *HC1_SWITCH_OFF_THRESHOLD_RECV[MAX_LANG] = {"setvalue: hk1_aussenhalt_ab - empfangen", "setvalue: hc1_switch_off_threshold - received"};
-  const char *HC1_SWITCH_OFF_THRESHOLD_INVALID[MAX_LANG] = {"setvalue: hk1_aussenhalt_ab - ungültig", "setvalue: hc1_switch_off_threshold - invalid"};
-  const char *HC2_SWITCH_OFF_THRESHOLD_RECV[MAX_LANG] = {"setvalue: hk2_aussenhalt_ab - empfangen", "setvalue: hc2_switch_off_threshold - received"};
-  const char *HC2_SWITCH_OFF_THRESHOLD_INVALID[MAX_LANG] = {"setvalue: hk2_aussenhalt_ab - ungültig", "setvalue: hc2_switch_off_threshold - invalid"};
-  const char *WW_SETPOINT_RECV[MAX_LANG] = {"setvalue: ww_soll - empfangen", "setvalue: ww_setpoint - received"};
-  const char *WW_SETPOINT_INVALID[MAX_LANG] = {"setvalue: ww_soll - ungültig", "setvalue: ww_setpoint - invalid"};
-  const char *HC1_DAY_SETPOINT_RECV[MAX_LANG] = {"setvalue: hk1_tag_soll - empfangen", "setvalue: hc1_day_setpoint - received"};
-  const char *HC1_DAY_SETPOINT_INVALID[MAX_LANG] = {"setvalue: hk1_tag_soll - ungültig", "setvalue: hc1_day_setpoint - invalid"};
-  const char *HC1_NIGHT_SETPOINT_RECV[MAX_LANG] = {"setvalue: hk1_nacht_soll - empfangen", "setvalue: hc1_night_setpoint - received"};
-  const char *HC1_NIGHT_SETPOINT_INVALID[MAX_LANG] = {"setvalue: hk1_nacht_soll - ungültig", "setvalue: hc1_night_setpoint - invalid"};
-  const char *HC2_DAY_SETPOINT_RECV[MAX_LANG] = {"setvalue: hk2_tag_soll - empfangen", "setvalue: hc2_day_setpoint - received"};
-  const char *HC2_DAY_SETPOINT_INVALID[MAX_LANG] = {"setvalue: hk2_tag_soll - ungültig", "setvalue: hc2_day_setpoint - invalid"};
-  const char *HC2_NIGHT_SETPOINT_RECV[MAX_LANG] = {"setvalue: hk2_nacht_soll - empfangen", "setvalue: hc2_night_setpoint - received"};
-  const char *HC2_NIGHT_SETPOINT_INVALID[MAX_LANG] = {"setvalue: hk2_nacht_soll - ungültig", "setvalue: hc2_night_setpoint - invalid"};
-  const char *HC1_HOLIDAY_SETPOINT_RECV[MAX_LANG] = {"setvalue: hk1_ferien_soll - empfangen", "setvalue: hc1_holiday_setpoint - received"};
-  const char *HC1_HOLIDAY_SETPOINT_INVALID[MAX_LANG] = {"setvalue: hk1_ferien_soll - ungültig", "setvalue: hc1_holiday_setpoint - invalid"};
-  const char *HC2_HOLIDAY_SETPOINT_RECV[MAX_LANG] = {"setvalue: hk2_ferien_soll - empfangen", "setvalue: hc2_holiday_setpoint - received"};
-  const char *HC2_HOLIDAY_SETPOINT_INVALID[MAX_LANG] = {"setvalue: hk2_ferien_soll - ungültig", "setvalue: hc2_holiday_setpoint - invalid"};
-  const char *HC1_HOLIDAYS_RECV[MAX_LANG] = {"setvalue: hk1_ferien_tage - empfangen", "setvalue: hc1_holidays - received"};
-  const char *HC1_HOLIDAYS_INVALID[MAX_LANG] = {"setvalue: hk1_ferien_tage - ungültig", "setvalue: hc1_holidays - invalid"};
-  const char *HC2_HOLIDAYS_RECV[MAX_LANG] = {"setvalue: hk2_ferien_tage - empfangen", "setvalue: hc2_holidays - received"};
-  const char *HC2_HOLIDAYS_INVALID[MAX_LANG] = {"setvalue: hk2_ferien_tage - ungültig", "setvalue: hc2_holidays - invalid"};
-  const char *WW_PUMP_CYCLE_RECV[MAX_LANG] = {"setvalue: ww_pumpen_zyklus - empfangen", "setvalue: ww_pump_cycles - received"};
-  const char *WW_PUMP_CYCLE_INVALID[MAX_LANG] = {"setvalue: ww_pumpen_zyklus - ungültig", "setvalue: ww_pump_cycles - invalid"};
-  const char *HC1_SWITCH_ON_TEMP_RECV[MAX_LANG] = {"setvalue: hk1_aufschalttemperatur - empfangen", "setvalue: hc1_switch_on_temperature - received"};
-  const char *HC2_SWITCH_ON_TEMP_RECV[MAX_LANG] = {"setvalue: hk2_aufschalttemperatur - empfangen", "setvalue: hc2_switch_on_temperature - received"};
-  const char *HC1_SWITCH_ON_TEMP_INVALID[MAX_LANG] = {"setvalue: hk1_aufschalttemperatur - ungültig",
-                                                      "setvalue: hc1_switch_on_temperature - invalid"};
-  const char *HC2_SWITCH_ON_TEMP_INVALID[MAX_LANG] = {"setvalue: hk2_aufschalttemperatur - ungültig",
-                                                      "setvalue: hc2_switch_on_temperature - invalid"};
-  const char *HC1_REDUCTION_MODE_RECV[MAX_LANG] = {"setvalue: hk1_absenkungsart - empfangen", "setvalue: hc1_reduction-mode - empfangen"};
-  const char *HC1_REDUCTION_MODE_INVALID[MAX_LANG] = {"setvalue: hk1_absenkungsart - ungültig", "setvalue: hc1_reduction-mode - invalid"};
-  const char *HC2_REDUCTION_MODE_RECV[MAX_LANG] = {"setvalue: hk2_absenkungsart - empfangen", "setvalue: hc2_reduction-mode - empfangen"};
-  const char *HC2_REDUCTION_MODE_INVALID[MAX_LANG] = {"setvalue: hk2_absenkungsart - ungültig", "setvalue: hc2_reduction-mode - invalid"};
 } s_mqtt_messags;
 
 // ======================================================================================
@@ -481,6 +424,10 @@ typedef struct {
 // status messages from KM271
 // ======================================================================================
 typedef struct {
+  const char *CMD[MAX_LANG] = {"Befehl", "command"};
+  const char *RECV[MAX_LANG] = {"empfangen", "received"};
+  const char *INVALID[MAX_LANG] = {"ungültiger Parameter", "invalid parameter"};
+  const char *VALUE[MAX_LANG] = {"Wert", "value"};
   const char *RESTARTED[MAX_LANG] = {"ESP hat neu gestartet!", "ESP has been restarted!"};
   const char *HC1_SUMMER_MODE[MAX_LANG] = {"Heizung hat in Sommerbetrieb gewechselt ☀️", "Heating has changed to summer mode ☀️"};
   const char *HC1_WINTER_MODE[MAX_LANG] = {"Heizung hat in Winterbetrieb gewechselt ❄️", "Heating has changed to winter mode ❄️"};
@@ -488,6 +435,8 @@ typedef struct {
                                            "Heating Circuit 2 has changed to summer mode ☀️"};
   const char *HC2_WINTER_MODE[MAX_LANG] = {"Heizkreis 2 hat in Winterbetrieb gewechselt ❄️",
                                            "Heating Circuit 2 has changed to winter mode ❄️"};
-  const char *HC1_FROST_MODE[MAX_LANG] = {"Heizung hat in Frostmodus gewechselt ❄️", "Heating has changed to frost mode ❄️"};
-  const char *HC2_FROST_MODE[MAX_LANG] = {"Heizkreis 2 hat in Frostmodus gewechselt ❄️", "Heating Circuit 2 has changed to frost mode ❄️"};
+  const char *HC1_FROST_MODE_ON[MAX_LANG] = {"Heizung hat in Frostmodus gewechselt ❄️", "Heating has changed to frost mode ❄️"};
+  const char *HC2_FROST_MODE_ON[MAX_LANG] = {"Heizkreis 2 hat in Frostmodus gewechselt ❄️", "Heating Circuit 2 has changed to frost mode ❄️"};
+  const char *HC1_FROST_MODE_OFF[MAX_LANG] = {"Heizung hat den Frostmodus verlassen ❄️", "Heating has exited frost mode ❄️"};
+  const char *HC2_FROST_MODE_OFF[MAX_LANG] = {"Heizkreis 2 hat den Frostmodus verlassen ❄️", "Heating Circuit 2 has exited frost mode ❄️"};
 } s_km271_msg;

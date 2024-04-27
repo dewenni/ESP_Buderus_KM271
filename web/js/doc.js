@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
     .addEventListener("click", function () {
       window.location.reload();
     });
-  
+
   // VERSION: is called when version dialog is opened
   document.getElementById("p00_version").addEventListener("click", function () {
     document.getElementById("version_dialog").showModal();
@@ -82,6 +82,26 @@ document.addEventListener("DOMContentLoaded", function () {
     .getElementById("p11_config_dialog_btn")
     .addEventListener("click", function () {
       document.getElementById("open_config_dialog").close();
+    });
+
+  // NTP: open dialog to show ntp timezones
+  document
+    .getElementById("p12_ntp_open_dialog_btn")
+    .addEventListener("click", function () {
+      fetch("/gzip_ntp")
+        .then((response) => response.text())
+        .then((data) => {
+          document.getElementById("p12_ntp_help_output").innerHTML = data;
+          document.getElementById("p12_ntp_dialog").showModal();
+        })
+        .catch((error) => console.error("error loading data:", error));
+    });
+
+  // NTP: close dialog to show ntp timezones
+  document
+    .getElementById("p12_ntp_close_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("p12_ntp_dialog").close();
     });
 
   // control for Tab-Menu

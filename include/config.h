@@ -59,6 +59,7 @@ typedef struct {
 
 typedef struct {
   bool enable = true;
+  bool auto_sync = false;
   char server[128] = {"de.pool.ntp.org"};
   char tz[128] = {"CET-1CEST,M3.5.0,M10.5.0/3"};
 } s_cfg_ntp;

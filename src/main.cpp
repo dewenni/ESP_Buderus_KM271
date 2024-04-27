@@ -27,11 +27,14 @@ muTimer mainTimer = muTimer();      // timer for cyclic info
 muTimer heartbeat = muTimer();      // timer for heartbeat signal
 muTimer setupModeTimer = muTimer(); // timer for heartbeat signal
 muTimer dstTimer = muTimer();       // timer to check daylight saving time change
+muTimer ntpTimer = muTimer();       // timer to check ntp sync
 
 DoubleResetDetector *drd; // Double-Reset-Detector
 bool main_reboot = true;  // reboot flag
 int dst_old;              // reminder for change of daylight saving time
 bool dst_ref;             // init flag fpr dst reference
+bool ntpSynced;           // ntp sync flag
+bool ntpInit = false;     // init flag for ntp sync
 
 /**
  * *******************************************************************
@@ -172,8 +175,8 @@ void loop() {
     webUICylic(); // call webUI
   }
 
-  // check every hour if DST has changed
   if (config.ntp.enable) {
+    // check every hour if DST has changed
     if (dstTimer.cycleTrigger(3600000)) {
       time_t now;
       tm dti;
@@ -189,6 +192,15 @@ void loop() {
         km271SetDateTimeNTP();                       // change date and time on buderus
       }
       dst_old = dti.tm_isdst;
+    }
+    // set ntp time on logamatic after bootup and successful ntp sync
+    if (ntpTimer.cycleTrigger(10000)) {
+      struct tm timeInfo;
+      ntpSynced = getLocalTime(&timeInfo, 5);
+      if (ntpSynced && !ntpInit && config.ntp.auto_sync) {
+        km271SetDateTimeNTP();
+        ntpInit = true;
+      }
     }
   }
 

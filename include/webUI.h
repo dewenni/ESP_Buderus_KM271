@@ -10,6 +10,7 @@
 #include <gzip_m_css.h>
 #include <gzip_main_html.h>
 #include <language.h>
+#include <gzip_ntp.h>
 
 /* D E C L A R A T I O N S ****************************************************/
 typedef enum {
@@ -109,9 +110,9 @@ void updateWebValueStr(const char *elementID, const char *value);
 void updateWebValueInt(const char *elementID, long value);
 void updateWebValueFloat(const char *elementID, double value, int decimals);
 void showElementClass(const char *className, bool show);
-void hideElementId(const char *elementID, bool hide);
 void updateWebDialog(const char *elementID, const char *state);
 void updateWebSetIcon(const char *elementID, const char *icon);
 void updateWebJSON(const char *JSON);
 void updateWebHref(const char *elementID, const char *href);
 void updateWebBusy(const char *elementID, bool busy);
+void updateWebHideElement(const char *id, bool show);

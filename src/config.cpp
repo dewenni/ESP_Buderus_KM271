@@ -41,7 +41,7 @@ unsigned long hash(void *str, size_t len) {
 void readJSONstring(char *dest, size_t size, const char *src) {
   const char *check = src;
   if (check != NULL) {
-    snprintf(dest, size, src);
+    snprintf(dest, size, "%s", src);
   }
 }
 
@@ -201,6 +201,7 @@ void configSaveToFile() {
   doc["ntp"]["enable"] = config.ntp.enable;
   doc["ntp"]["server"] = config.ntp.server;
   doc["ntp"]["tz"] = config.ntp.tz;
+  doc["ntp"]["auto_sync"] = config.ntp.auto_sync;
 
   doc["gpio"]["led_wifi"] = config.gpio.led_wifi;
   doc["gpio"]["led_heartbeat"] = config.gpio.led_heartbeat;
@@ -317,6 +318,7 @@ void configLoadFromFile() {
     config.ntp.enable = doc["ntp"]["enable"];
     readJSONstring(config.ntp.server, sizeof(config.ntp.server), doc["ntp"]["server"]);
     readJSONstring(config.ntp.tz, sizeof(config.ntp.tz), doc["ntp"]["tz"]);
+    config.ntp.auto_sync = doc["ntp"]["auto_sync"];
 
     config.gpio.led_wifi = doc["gpio"]["led_wifi"];
     config.gpio.led_heartbeat = doc["gpio"]["led_heartbeat"];

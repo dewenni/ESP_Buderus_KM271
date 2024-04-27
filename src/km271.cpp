@@ -26,6 +26,7 @@ int compareHexValues(const char *filter, uint8_t data[]);
 /* V A R I A B L E S ********************************************************/
 s_mqtt_messags mqttMsg; // texts for mqtt messages
 s_err_array errMsgText; // Array of error messages
+s_cfg_topics cfgTopic;
 
 // This structure contains the complete received status of the KM271 (as far it is parsed by now).
 // It is updated automatically on any changes by this driver and therefore kept up-to-date.
@@ -53,8 +54,10 @@ uint8_t kmRxBcc = 0;                 // BCC value for Rx Block
 KmRx_s kmRxBuf;                      // Rx block storag
 uint8_t send_cmd;
 uint8_t send_buf[8] = {};
+char kmTmpMsg[256];
 bool kmInitDone = false;
 bool km271LogModeActive = false;
+bool km271RefreshActive = false;
 
 /**
  * *******************************************************************
@@ -161,6 +164,7 @@ void handleRxBlock(uint8_t *data, int len, uint8_t bcc) {
     if (data[0] != KM_DLE) {         // No DLE, not accepted, try again
       KmRxBlockState = KM_TSK_START; // Back to START state
     } else {
+      km271RefreshActive = true;
       KmRxBlockState = KM_TSK_LOGGING; // Command accepted, ready to log!
     }
     break;
@@ -249,7 +253,6 @@ void sendTxBlock(uint8_t *data, int len) {
  * *******************************************************************/
 void parseInfo(uint8_t *data, int len) {
 
-  s_cfg_topics cfgTopic;
   s_stat_topics statTopic;
   s_cfg_arrays cfgArray;
   s_error_topics errTopic;
@@ -283,7 +286,7 @@ void parseInfo(uint8_t *data, int len) {
 
       if (kmInitDone) {
         if (bitRead(kmStatus.HC1_OperatingStates_1, 6) != bitRead(data[2], 6)) {
-          km271Msg(KM_TYP_MESSAGE, bitRead(data[2], 6) ? kmMsg.HC1_FROST_MODE[config.lang] : kmMsg.HC1_FROST_MODE[config.lang], "");
+          km271Msg(KM_TYP_MESSAGE, bitRead(data[2], 6) ? kmMsg.HC1_FROST_MODE_ON[config.lang] : kmMsg.HC1_FROST_MODE_OFF[config.lang], "");
         }
       }
 
@@ -404,7 +407,7 @@ void parseInfo(uint8_t *data, int len) {
 
       if (kmInitDone) {
         if (bitRead(kmStatus.HC2_OperatingStates_1, 6) != bitRead(data[2], 6)) {
-          km271Msg(KM_TYP_MESSAGE, bitRead(data[2], 6) ? kmMsg.HC2_FROST_MODE[config.lang] : kmMsg.HC2_FROST_MODE[config.lang], "");
+          km271Msg(KM_TYP_MESSAGE, bitRead(data[2], 6) ? kmMsg.HC2_FROST_MODE_ON[config.lang] : kmMsg.HC2_FROST_MODE_OFF[config.lang], "");
         }
       }
 
@@ -680,6 +683,7 @@ void parseInfo(uint8_t *data, int len) {
     km271Msg(KM_TYP_STATUS, statTopic.MODULE_ID[config.mqtt.lang], uint8ToString(kmStatus.Modul));
     // this should be the last message => init done
     kmInitDone = true;
+    km271RefreshActive = false;
     break;
 
   case 0xaa42: // 0xaa42 : Bitfeld
@@ -1492,6 +1496,14 @@ s_km271_alarm_str *km271GetAlarmMsgAdr() { return &kmAlarmMsg; }
 
 /**
  * *******************************************************************
+ * @brief   return status of km271 refresh
+ * @param   none
+ * @return  status of km271 refresh
+ * *******************************************************************/
+bool km271GetRefreshState() { return km271RefreshActive; }
+
+/**
+ * *******************************************************************
  * @brief   Initializes the KM271 protocoll (based on 3964 protocol)
  * @details
  * @param   rxPin   The ESP32 RX pin number to be used for KM271 communication
@@ -1693,10 +1705,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = cmdPara; // 0:Night | 1:Day | 2:AUTO
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_OPMODE_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_OPMODE[config.mqtt.lang], kmMsg.VALUE[config.mqtt.lang],
+               cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_OPMODE_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_OPMODE[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC2_OPMODE:
@@ -1709,10 +1724,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = cmdPara; // 0:Night | 1:Day | 2:AUTO
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_OPMODE_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_OPMODE[config.mqtt.lang], kmMsg.VALUE[config.mqtt.lang],
+               cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_OPMODE_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_OPMODE[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC1_DESIGN_TEMP:
@@ -1725,10 +1743,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = cmdPara; // Resolution: 1 °C - Range: 30 – 90 °C WE: 75 °C
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_INTERPRET_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_INTERPR[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_INTERPRET_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_INTERPR[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC2_DESIGN_TEMP:
@@ -1741,10 +1762,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = cmdPara; // Resolution: 1 °C - Range: 30 – 90 °C WE: 75 °C
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_INTERPRET_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_INTERPR[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_INTERPRET_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_INTERPR[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC1_PROGRAMM:
@@ -1757,10 +1781,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_PROG_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_PROGRAM[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_PROG_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_PROGRAM[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC1_HOLIDAYS:
@@ -1773,10 +1800,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = cmdPara; // Holiday days -  Resolution: 1 Day - Range: 0 – 99 Days
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_HOLIDAYS_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_HOLIDAY_DAYS[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_HOLIDAYS_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_HOLIDAY_DAYS[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC2_PROGRAMM:
@@ -1789,10 +1819,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_PROG_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_PROGRAM[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_PROG_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_PROGRAM[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC2_HOLIDAYS:
@@ -1805,10 +1838,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = cmdPara; // Resolution: 1 Day - Range: 0 – 99 Days
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_HOLIDAYS_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_HOLIDAY_DAYS[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_HOLIDAYS_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_HOLIDAY_DAYS[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_WW_OPMODE:
@@ -1821,10 +1857,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.WW_OPMODE_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.WW_OPMODE[config.mqtt.lang], kmMsg.VALUE[config.mqtt.lang],
+               cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.WW_OPMODE_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.WW_OPMODE[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC1_SUMMER:
@@ -1837,10 +1876,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_SUMMER_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_SUMMER_THRESHOLD[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_SUMMER_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_SUMMER_THRESHOLD[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC2_SUMMER:
@@ -1853,10 +1895,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_SUMMER_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_SUMMER_THRESHOLD[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_SUMMER_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_SUMMER_THRESHOLD[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC1_FROST:
@@ -1869,10 +1914,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = (cmdPara > 0) ? cmdPara : cmdPara + 256; // -20° ... +10° (add 256 if value is negative)
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_FROST_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_FROST_THRESHOLD[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_FROST_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_FROST_THRESHOLD[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC2_FROST:
@@ -1885,10 +1933,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = (cmdPara > 0) ? cmdPara : cmdPara + 256; // -20° ... +10° (add 256 if value is negative)
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_FROST_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_FROST_THRESHOLD[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_FROST_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_FROST_THRESHOLD[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC1_SWITCH_OFF_THRESHOLD:
@@ -1901,10 +1952,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_SWITCH_OFF_THRESHOLD_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_SWITCH_OFF_THRESHOLD[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_SWITCH_OFF_THRESHOLD_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_SWITCH_OFF_THRESHOLD[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC2_SWITCH_OFF_THRESHOLD:
@@ -1917,10 +1971,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_SWITCH_OFF_THRESHOLD_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_SWITCH_OFF_THRESHOLD[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_SWITCH_OFF_THRESHOLD_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_SWITCH_OFF_THRESHOLD[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_WW_SETPOINT:
@@ -1933,10 +1990,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = cmdPara; // 30°-60°
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.WW_SETPOINT_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.WW_TEMP[config.mqtt.lang], kmMsg.VALUE[config.mqtt.lang],
+               cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.WW_SETPOINT_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.WW_TEMP[config.mqtt.lang], kmMsg.INVALID[config.mqtt.lang],
+               cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_WW_PUMP_CYCLES:
@@ -1949,10 +2009,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = cmdPara; // 0:OFF - 1..6 - 7:ON
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.WW_PUMP_CYCLE_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.WW_CIRCULATION[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.WW_PUMP_CYCLE_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.WW_CIRCULATION[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC1_SWITCH_ON_TEMP:
@@ -1965,10 +2028,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      mqttPublish(addTopic("/message"), mqttMsg.HC1_SWITCH_ON_TEMP_RECV[config.mqtt.lang], false);
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_SWITCH_ON_TEMP[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      mqttPublish(addTopic("/message"), mqttMsg.HC1_SWITCH_ON_TEMP_INVALID[config.mqtt.lang], false);
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_SWITCH_ON_TEMP[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC2_SWITCH_ON_TEMP:
@@ -1981,10 +2047,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      mqttPublish(addTopic("/message"), mqttMsg.HC2_SWITCH_ON_TEMP_RECV[config.mqtt.lang], false);
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_SWITCH_ON_TEMP[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      mqttPublish(addTopic("/message"), mqttMsg.HC2_SWITCH_ON_TEMP_INVALID[config.mqtt.lang], false);
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_SWITCH_ON_TEMP[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC1_REDUCTION_MODE:
@@ -1997,10 +2066,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      mqttPublish(addTopic("/message"), mqttMsg.HC1_REDUCTION_MODE_RECV[config.mqtt.lang], false);
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_REDUCTION_MODE[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      mqttPublish(addTopic("/message"), mqttMsg.HC1_REDUCTION_MODE_INVALID[config.mqtt.lang], false);
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_REDUCTION_MODE[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC2_REDUCTION_MODE:
@@ -2013,10 +2085,13 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      mqttPublish(addTopic("/message"), mqttMsg.HC2_REDUCTION_MODE_RECV[config.mqtt.lang], false);
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_REDUCTION_MODE[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      mqttPublish(addTopic("/message"), mqttMsg.HC2_REDUCTION_MODE_INVALID[config.mqtt.lang], false);
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_REDUCTION_MODE[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   default:
@@ -2044,10 +2119,13 @@ void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara) {
       send_buf[5] = trunc(2.0 * cmdPara + 0.5); // Resolution: 0.5 °C - Range: 10 – 30 °C
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_DAY_SETPOINT_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_DAY_TEMP[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_DAY_SETPOINT_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_DAY_TEMP[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC1_NIGHT_SETPOINT:
@@ -2060,10 +2138,13 @@ void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_NIGHT_SETPOINT_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_NIGHT_TEMP[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_NIGHT_SETPOINT_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_NIGHT_TEMP[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC2_DAY_SETPOINT:
@@ -2076,10 +2157,13 @@ void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara) {
       send_buf[5] = trunc(2.0 * cmdPara + 0.5); // Resolution: 0.5 °C - Range: 10 – 30 °C
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_DAY_SETPOINT_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_DAY_TEMP[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_DAY_SETPOINT_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_DAY_TEMP[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC2_NIGHT_SETPOINT:
@@ -2092,10 +2176,13 @@ void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_NIGHT_SETPOINT_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_NIGHT_TEMP[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_NIGHT_SETPOINT_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_NIGHT_TEMP[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC1_HOLIDAY_SETPOINT:
@@ -2108,10 +2195,13 @@ void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = trunc(2.0 * cmdPara + 0.5); // Resolution: 0.5 °C - Range: 10 – 30 °C
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_HOLIDAY_SETPOINT_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_HOLIDAY_TEMP[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC1_HOLIDAY_SETPOINT_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_HOLIDAY_TEMP[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   case KM271_SENDCMD_HC2_HOLIDAY_SETPOINT:
@@ -2124,10 +2214,13 @@ void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = trunc(2.0 * cmdPara + 0.5); // Resolution: 0.5 °C - Range: 10 – 30 °C
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_HOLIDAY_SETPOINT_RECV[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_HOLIDAY_TEMP[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      km271Msg(KM_TYP_MESSAGE, mqttMsg.HC2_HOLIDAY_SETPOINT_INVALID[config.mqtt.lang], "");
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_HOLIDAY_TEMP[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
 
   default:
