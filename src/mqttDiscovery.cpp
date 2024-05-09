@@ -27,16 +27,6 @@ typedef struct {
   OptType optType;
 } DeviceConfig;
 
-void replace_underscores(const char *input, char *output, size_t output_size) {
-  if (input == NULL || output == NULL)
-    return;
-  memset(output, 0, output_size);
-  for (size_t i = 0; input[i] != '\0' && i < output_size - 1; i++) {
-    output[i] = (input[i] == '_') ? ' ' : input[i];
-  }
-  output[output_size - 1] = '\0';
-}
-
 /* P R O T O T Y P E S ********************************************************/
 
 DeviceConfig textPar() { return (DeviceConfig){NULL, NULL, NULL, OPT_NULL}; }
@@ -210,38 +200,106 @@ void mqttDiscoverySetup() {
     mqttHaConfig(KM_CONFIG, cfg_topics.HC1_TIMER14[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:timer-outline", TYP_TEXT, textPar());
   }
 
-  /*
-    // heating circuit 2 configuration
-    if (config.km271.use_hc2) {
-    }
+  // heating circuit 2 configuration
+  if (config.km271.use_hc2) {
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_OPMODE[config.mqtt.lang], NULL, "select", NULL, NULL, "mdi:cog", TYP_OPT, optPar(OPT_OP_MODE));
 
-    // hot-water config values
-    if (config.km271.use_ww) {
-      pkmConfigStr->ww_priority;
-      pkmConfigNum->ww_temp;
-      pkmConfigNum->ww_temp;
-      pkmConfigStr->ww_temp;
-      pkmConfigNum->ww_operation_mode == 0 ? true : false;
-      pkmConfigNum->ww_operation_mode == 1 ? true : false;
-      pkmConfigNum->ww_operation_mode == 2 ? true : false;
-      pkmConfigStr->ww_operation_mode;
-      pkmConfigStr->ww_processing;
-      pkmConfigNum->ww_circulation;
-      pkmConfigNum->ww_circulation;
-      pkmConfigStr->ww_circulation;
-    }
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_REDUCTION_MODE[config.mqtt.lang], NULL, "select", NULL, NULL, "mdi:cog", TYP_OPT, optPar(OPT_RED_MODE));
 
-    // general config values
-    pkmConfigStr->language;
-    pkmConfigStr->display;
-    pkmConfigStr->burner_type;
-    pkmConfigStr->max_boiler_temperature;
-    pkmConfigStr->pump_logic_temp;
-    pkmConfigStr->exhaust_gas_temperature_threshold;
-    pkmConfigStr->burner_min_modulation;
-    pkmConfigStr->burner_modulation_runtime;
-    pkmConfigStr->building_type;
-    pkmConfigStr->time_offset;
-  */
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_PROGRAM[config.mqtt.lang], NULL, "select", NULL, NULL, "mdi:cog", TYP_OPT, optPar(OPT_HC_PRG));
+
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_FROST_THRESHOLD[config.mqtt.lang], "temperature", "number", "°C", "{{value.split(' ')[0]}}",
+                 "mdi:thermometer", TYP_SLIDER, sliderPar("-20", "10", "1"));
+
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_SUMMER_THRESHOLD[config.mqtt.lang], "temperature", "number", "°C", "{{value.split(' ')[0]}}",
+                 "mdi:thermometer", TYP_SLIDER, sliderPar("9", "31", "1"));
+
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_NIGHT_TEMP[config.mqtt.lang], "temperature", "number", "°C", "{{value.split(' ')[0]}}", "mdi:thermometer",
+                 TYP_SLIDER, sliderPar("10", "30", "0.5"));
+
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_DAY_TEMP[config.mqtt.lang], "temperature", "number", "°C", "{{value.split(' ')[0]}}", "mdi:thermometer",
+                 TYP_SLIDER, sliderPar("10", "30", "0.5"));
+
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_HOLIDAY_TEMP[config.mqtt.lang], "temperature", "number", "°C", "{{value.split(' ')[0]}}",
+                 "mdi:thermometer", TYP_SLIDER, sliderPar("10", "30", "0.5"));
+
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_SWITCH_OFF_THRESHOLD[config.mqtt.lang], "temperature", "number", "°C", "{{value.split(' ')[0]}}",
+                 "mdi:thermometer", TYP_SLIDER, sliderPar("-20", "10", "1"));
+
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_SWITCH_ON_TEMP[config.mqtt.lang], "temperature", "number", "°C", "{{value.split(' ')[0]}}",
+                 "mdi:thermometer", TYP_SLIDER, sliderPar("0", "10", "1"));
+
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_INTERPR[config.mqtt.lang], "temperature", "number", "°C", "{{value.split(' ')[0]}}", "mdi:thermometer",
+                 TYP_SLIDER, sliderPar("30", "90", "1"));
+
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_HOLIDAY_DAYS[config.mqtt.lang], NULL, "number", "days", "{{value.split(' ')[0]}}", "mdi:calendar", TYP_NUM,
+                 numPar("0", "99", "1"));
+
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_MAX_TEMP[config.mqtt.lang], "temperature", "number", "°C", "{{value.split(' ')[0]}}", "mdi:thermometer",
+                 TYP_TEXT, textPar());
+
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_TEMP_OFFSET[config.mqtt.lang], "temperature", "number", "°C", "{{value.split(' ')[0]}}", "mdi:thermometer",
+                 TYP_TEXT, textPar());
+
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_HEATING_SYSTEM[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:heating-coil", TYP_TEXT, textPar());
+
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_REMOTECTRL[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:remote", TYP_TEXT, textPar());
+
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_TIMER01[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:timer-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_TIMER02[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:timer-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_TIMER03[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:timer-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_TIMER04[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:timer-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_TIMER05[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:timer-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_TIMER06[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:timer-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_TIMER07[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:timer-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_TIMER08[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:timer-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_TIMER09[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:timer-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_TIMER10[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:timer-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_TIMER11[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:timer-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_TIMER12[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:timer-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_TIMER13[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:timer-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC2_TIMER14[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:timer-outline", TYP_TEXT, textPar());
+  }
+
+  // hot-water config values
+  if (config.km271.use_ww) {
+    mqttHaConfig(KM_CONFIG, cfg_topics.WW_OPMODE[config.mqtt.lang], NULL, "select", NULL, NULL, "mdi:cog", TYP_OPT, optPar(OPT_OP_MODE));
+    mqttHaConfig(KM_CONFIG, cfg_topics.WW_PRIO[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:thermometer-chevron-up", TYP_TEXT, textPar());
+
+    mqttHaConfig(KM_CONFIG, cfg_topics.WW_TEMP[config.mqtt.lang], "temperature", "number", "°C", "{{value.split(' ')[0]}}", "mdi:thermometer",
+                 TYP_SLIDER, sliderPar("30", "60", "1"));
+
+    mqttHaConfig(KM_CONFIG, cfg_topics.WW_PROCESSING[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:water-thermometer-outline", TYP_TEXT,
+                 textPar());
+
+    mqttHaConfig(KM_CONFIG, cfg_topics.WW_CIRCULATION[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:water-sync", TYP_TEXT, textPar());
+  }
+
+  // general config values
+  mqttHaConfig(KM_CONFIG, cfg_topics.LANGUAGE[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:translate", TYP_TEXT, textPar());
+  mqttHaConfig(KM_CONFIG, cfg_topics.SCREEN[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:monitor", TYP_TEXT, textPar());
+  mqttHaConfig(KM_CONFIG, cfg_topics.BURNER_TYP[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:gas-burner", TYP_TEXT, textPar());
+  mqttHaConfig(KM_CONFIG, cfg_topics.MAX_BOILER_TEMP[config.mqtt.lang], "temperature", "number", "°C", "{{value.split(' ')[0]}}",
+               "mdi:thermometer-alert", TYP_TEXT, textPar());
+  mqttHaConfig(KM_CONFIG, cfg_topics.PUMP_LOGIC[config.mqtt.lang], "temperature", "number", "°C", "{{value.split(' ')[0]}}", "mdi:thermometer",
+               TYP_TEXT, textPar());
+
+  mqttHaConfig(KM_CONFIG, cfg_topics.EXHAUST_THRESHOLD[config.mqtt.lang], "temperature", "number", "°C", "{{value.split(' ')[0]}}",
+               "mdi:thermometer-alert", TYP_TEXT, textPar());
+
+  mqttHaConfig(KM_CONFIG, cfg_topics.EXHAUST_THRESHOLD[config.mqtt.lang], NULL, "number", "°C", "{{value.split(' ')[0]}}", "mdi:thermometer-alert",
+               TYP_TEXT, textPar());
+
+  mqttHaConfig(KM_CONFIG, cfg_topics.BURNER_MIN_MOD[config.mqtt.lang], NULL, "number", "%", "{{value.split(' ')[0]}}", "mdi:percent", TYP_TEXT,
+               textPar());
+
+  mqttHaConfig(KM_CONFIG, cfg_topics.BURNER_MOD_TIME[config.mqtt.lang], "duration", "number", "min", "{{value.split(' ')[0]}}", "mdi:clock-outline",
+               TYP_TEXT, textPar());
+
+  mqttHaConfig(KM_CONFIG, cfg_topics.BUILDING_TYP[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:home", TYP_TEXT, textPar());
+
+  mqttHaConfig(KM_CONFIG, cfg_topics.TIME_OFFSET[config.mqtt.lang], "duration", "number", "min", "{{value.split(' ')[0]}}", "mdi:clock-outline",
+               TYP_TEXT, textPar());
+
   initDone = true;
 }
