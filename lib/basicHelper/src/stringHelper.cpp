@@ -280,6 +280,24 @@ void replace_underscores(const char *input, char *output, size_t output_size) {
 
 /**
  * *******************************************************************
+ * @brief   helper function to replace whitespace with underscore
+ * @param   input string
+ * @param   output string
+ * @param   output_size
+ * @return  none
+ * *******************************************************************/
+void replace_whitespace(const char *input, char *output, size_t output_size) {
+  if (input == NULL || output == NULL)
+    return;
+  memset(output, 0, output_size);
+  for (size_t i = 0; input[i] != '\0' && i < output_size - 1; i++) {
+    output[i] = (input[i] == ' ') ? '_' : input[i];
+  }
+  output[output_size - 1] = '\0';
+}
+
+/**
+ * *******************************************************************
  * @brief   helper function to lower string input
  * @param   input string
  * @param   output string

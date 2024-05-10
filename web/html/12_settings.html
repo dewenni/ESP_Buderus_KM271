@@ -212,6 +212,14 @@
                   role="switch"
                   id="p12_mqtt_cfg_ret" />
               </div>
+              <div class="section-header">
+                <label for="mqtt_ha_enable">Home Assistant</label>
+                <input
+                  name="mqtt_ha_enable"
+                  type="checkbox"
+                  role="switch"
+                  id="p12_mqtt_ha_enable" />
+              </div>
               <br />
               <label for="mqtt_server" data-i18n="server"></label>
               <input type="text" id="p12_mqtt_server" name="mqtt_server" />
@@ -228,6 +236,8 @@
                 <option value="0" data-i18n="german"></option>
                 <option value="1" data-i18n="english"></option>
               </select>
+              <label for="mqtt_ha_topic">Home Assistant Topic</label>
+              <input type="text" id="p12_mqtt_ha_topic" placeholder="homeassistant" name="mqtt_ha_topic" />
             </details>
             <hr />
             <!-- Pushover -->

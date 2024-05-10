@@ -38,8 +38,8 @@ const char *addTopic(const char *suffix) {
  * *******************************************************************/
 const char *addCfgCmdTopic(const char *suffix) {
   static char newTopic[256];
-  //char lowerInput[64];
-  //to_lowercase(suffix, lowerInput, sizeof(lowerInput));
+  // char lowerInput[64];
+  // to_lowercase(suffix, lowerInput, sizeof(lowerInput));
   snprintf(newTopic, sizeof(newTopic), "%s/setvalue/%s", config.mqtt.topic, suffix);
   return newTopic;
 }
@@ -183,8 +183,8 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
       km271sendCmd(KM271_SENDCMD_HC1_OPMODE, intVal);
     } else {
       int targetIndex = -1;
-      for (int i=0; i<3 ; i++) {
-        if (strcmp(cfgArrays.OPMODE[config.mqtt.lang][i], payloadCopy)==0){
+      for (int i = 0; i < 3; i++) {
+        if (strcmp(cfgArrays.OPMODE[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i;
           break;
         }
@@ -388,11 +388,11 @@ void mqttSetup() {
  * @return  none
  * *******************************************************************/
 void checkMqtt() {
-  
-  if (mqtt_client.connected()){
+
+  if (mqtt_client.connected() && config.mqtt.ha_enable) {
     mqttDiscoverySetup();
   }
-  
+
   // automatic reconnect to mqtt broker if connection is lost - try 5 times, then reboot
   if (!mqtt_client.connected() && WiFi.isConnected()) {
     if (mqtt_retry == 0) {

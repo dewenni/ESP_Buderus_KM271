@@ -360,7 +360,7 @@ void parseInfo(uint8_t *data, int len) {
   case 0x8007: // 0x8007 : Minutes
     if (config.km271.use_hc1) {
       kmStatus.HC1_SwitchOffOptimizationTime = data[2];
-      km271Msg(KM_TYP_STATUS, statTopic.HC1_OV1_OFFTIME_OPT[config.mqtt.lang], uint8ToString(kmStatus.HC1_SwitchOffOptimizationTime));
+      km271Msg(KM_TYP_STATUS, statTopic.HC1_OFF_TIME_OPT[config.mqtt.lang], uint8ToString(kmStatus.HC1_SwitchOffOptimizationTime));
     }
     break;
 
@@ -481,7 +481,7 @@ void parseInfo(uint8_t *data, int len) {
   case 0x8119: // 0x8119 : Minutes
     if (config.km271.use_hc2) {
       kmStatus.HC2_SwitchOffOptimizationTime = data[2];
-      km271Msg(KM_TYP_STATUS, statTopic.HC2_OV1_OFFTIME_OPT[config.mqtt.lang], uint8ToString(kmStatus.HC2_SwitchOffOptimizationTime));
+      km271Msg(KM_TYP_STATUS, statTopic.HC2_OFF_TIME_OPT[config.mqtt.lang], uint8ToString(kmStatus.HC2_SwitchOffOptimizationTime));
     }
     break;
 
@@ -559,7 +559,7 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x8428: // 0x8428 : Minutes
     kmStatus.HotWaterOptimizationTime = data[2];
-    km271Msg(KM_TYP_STATUS, statTopic.WW_OV2_ON_TIME_OPT[config.mqtt.lang], uint8ToString(kmStatus.HotWaterOptimizationTime));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_ONTIME_OPT[config.mqtt.lang], uint8ToString(kmStatus.HotWaterOptimizationTime));
     break;
 
   case 0x8429: // 0x8429 :  Bitfield
