@@ -745,3 +745,49 @@ and in addition there is als a message when the ESP receives a mqtt or webUI com
 - add further Pushover Info Messages #92
 - fix handling special characters from user input #94
 - fix description of Setup-Mode #96
+
+---
+
+# v4.1.0
+
+## what's new
+
+with this version comes the first implementation of mqtt discovery for Home Assistant 🎉
+
+Unfortunately I have to do some breaking changes!
+
+
+### Home Assistant mqtt auto Discovery
+
+MQTT discovery for Home Assistant makes it easy to get all values in Home Assistant.
+The Logamatic values will automatically visible as mqtt device in Home Assistant.
+The config values and the status values are displayed. Some config values can also be changed as in the WebUI.
+This is the first implementation, therefore lets see this an experimental state.
+I am open for feedback and further improvements. Please use the issues and discussion section.
+
+### BREAING CHANGES!!!
+
+> [!IMPORTANT]   
+> In the past, there were separate mqtt topics defined for the setvalues of the logamatic config values.
+These topics were similar to the config Topics itself, but unfortunately there were some differences.
+Now the setvalue topics are the same as the config topics.
+
+some examples:
+OLD: {"/setvalue/hk1_tag_soll", "/setvalue/hc1_day_setpoint"} => NEW {"/setvalue/HK1_Tagtemperatur", "/setvalue/hc1_day_temp"}
+OLD: {"/setvalue/hk1_frost_ab", "/setvalue/hc1_frost_mode_threshold"} => NEW {"/setvalue/HK1_Frost_ab", "/setvalue/hc1_frost_protection_threshold"}
+OLD: {"/setvalue/hk1_ferien_tage", "/setvalue/hc1_holidays"} => NEW {"/setvalue/HK1_Ferien_Tage", "/setvalue/hc1_holiday_days"}
+
+To be more compatible, it is possible to use upper and lower case letters in the german setvalue topics.
+It is also now possible to use the "string options" instead of num values as this is necessary for the home assistant integration. 
+
+example:
+
+- hc_operation_mode - payload: "day", "night", "auto"
+- hc1_reduction_mode - payload: "off", "fixed", "room", "outdoors"
+- hc_program - payload: "custom", "family", "early", "late", "AM", "PM", "noon", "single", "senior"
+
+## changelog
+
+- fix value of HC1_SwitchOffOptimizationTime, HC2_SwitchOffOptimizationTime, HW_SwitchOffOptimizationTime (was not set before)
+- If there is a whitespace in optional sensor name, it will be replaced in the responding mqtt topic
+- Fixes the saving of the hostname. This was previously saved incorrectly as wifi.ssid which made the WiFi settings unusable. #98

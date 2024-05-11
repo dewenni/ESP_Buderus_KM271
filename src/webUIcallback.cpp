@@ -156,7 +156,7 @@ void webCallback(const char *elementId, const char *value) {
 
   // WiFi
   if (strcmp(elementId, "p12_wifi_hostname") == 0) {
-    snprintf(config.wifi.ssid, sizeof(config.wifi.hostname), "%s", value);
+    snprintf(config.wifi.hostname, sizeof(config.wifi.hostname), "%s", value);
   }
   if (strcmp(elementId, "p12_wifi_ssid") == 0) {
     snprintf(config.wifi.ssid, sizeof(config.wifi.ssid), "%s", value);
@@ -286,6 +286,15 @@ void webCallback(const char *elementId, const char *value) {
   }
   if (strcmp(elementId, "p12_mqtt_lang") == 0) {
     config.mqtt.lang = strtoul(value, NULL, 10);
+  }
+  if (strcmp(elementId, "p12_mqtt_ha_enable") == 0) {
+    config.mqtt.ha_enable = stringToBool(value);
+  }
+  if (strcmp(elementId, "p12_mqtt_ha_topic") == 0) {
+    snprintf(config.mqtt.ha_topic, sizeof(config.mqtt.ha_topic), "%s", value);
+  }
+  if (strcmp(elementId, "p12_mqtt_ha_device") == 0) {
+    snprintf(config.mqtt.ha_device, sizeof(config.mqtt.ha_device), "%s", value);
   }
 
   // Pushover

@@ -1,36 +1,43 @@
-# v4.0.4
+# v4.1.0
 
 ## what's new
 
-this is a minor update of the major release 4.0.0
-For further details of the major release, see [release v4.0.0](https://github.com/dewenni/ESP_Buderus_KM271/releases/tag/v4.0.0)
+with this version comes the first implementation of mqtt discovery for Home Assistant 🎉
 
-### new footer bar
-there is a new footer bar indicates that reading data from the Logamatic is active after restart
+Unfortunately I have to do some breaking changes!
 
-### feature-request: set Logamatic time with NTP automatically after power loss
-I have added a feature-request that the ntp time of the ESP is automatically send to the Logamatic after restart of the ESP.
-This can be activated in the "date and time" settings.
 
-### add further pushover commands
-```
-{"ESP hat neu gestartet!", "ESP has been restarted!"}
-{"Heizung hat in Sommerbetrieb gewechselt ☀️", "Heating has changed to summer mode ☀️"}
-{"Heizung hat in Winterbetrieb gewechselt ❄️", "Heating has changed to winter mode ❄️"}
-{"Heizkreis 2 hat in Sommerbetrieb gewechselt ☀️","Heating Circuit 2 has changed to summer mode ☀️"}
-{"Heizkreis 2 hat in Winterbetrieb gewechselt ❄️","Heating Circuit 2 has changed to winter mode ❄️"}
-{"Heizung hat in Frostmodus gewechselt ❄️", "Heating has changed to frost mode ❄️"}
-{"Heizkreis 2 hat in Frostmodus gewechselt ❄️", "Heating Circuit 2 has changed to frost mode ❄️"}
-{"Heizung hat den Frostmodus verlassen ❄️", "Heating has exited frost mode ❄️"}
-{"Heizkreis 2 hat den Frostmodus verlassen ❄️", "Heating Circuit 2 has exited frost mode ❄️"}
-```
-and in addition there is als a message when the ESP receives a mqtt or webUI command
+### Home Assistant mqtt auto Discovery
 
+MQTT discovery for Home Assistant makes it easy to get all values in Home Assistant.
+The Logamatic values will automatically visible as mqtt device in Home Assistant.
+The config values and the status values are displayed. Some config values can also be changed as in the WebUI.
+This is the first implementation, therefore lets see this an experimental state.
+I am open for feedback and further improvements. Please use the issues and discussion section.
+
+### BREAING CHANGES!!!
+
+> [!IMPORTANT]   
+> In the past, there were separate mqtt topics defined for the setvalues of the logamatic config values.
+These topics were similar to the config Topics itself, but unfortunately there were some differences.
+Now the setvalue topics are the same as the config topics.
+
+some examples:
+OLD: {"/setvalue/hk1_tag_soll", "/setvalue/hc1_day_setpoint"} => NEW {"/setvalue/HK1_Tagtemperatur", "/setvalue/hc1_day_temp"}
+OLD: {"/setvalue/hk1_frost_ab", "/setvalue/hc1_frost_mode_threshold"} => NEW {"/setvalue/HK1_Frost_ab", "/setvalue/hc1_frost_protection_threshold"}
+OLD: {"/setvalue/hk1_ferien_tage", "/setvalue/hc1_holidays"} => NEW {"/setvalue/HK1_Ferien_Tage", "/setvalue/hc1_holiday_days"}
+
+To be more compatible, it is possible to use upper and lower case letters in the german setvalue topics.
+It is also now possible to use the "string options" instead of num values as this is necessary for the home assistant integration. 
+
+example:
+
+- hc_operation_mode - payload: "day", "night", "auto"
+- hc1_reduction_mode - payload: "off", "fixed", "room", "outdoors"
+- hc_program - payload: "custom", "family", "early", "late", "AM", "PM", "noon", "single", "senior"
 
 ## changelog
 
-- add "receiving data" footer bar - indicates that reading data from the Logamatic is active
-- feature-request: set Logamatic time with NTP automatically after power loss #87
-- add further Pushover Info Messages #92
-- fix handling special characters from user input #94
-- fix description of Setup-Mode #96
+- fix value of HC1_SwitchOffOptimizationTime, HC2_SwitchOffOptimizationTime, HW_SwitchOffOptimizationTime (was not set before)
+- If there is a whitespace in optional sensor name, it will be replaced in the responding mqtt topic
+- Fixes the saving of the hostname. This was previously saved incorrectly as wifi.ssid which made the WiFi settings unusable. #98

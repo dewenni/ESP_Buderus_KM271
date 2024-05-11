@@ -20,3 +20,7 @@ const char *getDateStringWeb();
 const char *getTimeString();
 unsigned int strHash(const char *str);
 bool strDiff(unsigned int *lastHash, const char *currentValue);
+void replace_underscores(const char *input, char *output, size_t output_size);
+void replace_whitespace(const char *input, char *output, size_t output_size);
+void to_lowercase(const char *input, char *output, size_t output_size);
+bool isNumber(const char *str);

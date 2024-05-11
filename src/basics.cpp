@@ -195,6 +195,35 @@ void sendWiFiInfo() {
 
 /**
  * *******************************************************************
+ * @brief   build sysinfo structure and send it via mqtt
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void sendSysInfo() {
+
+  // Uptime and restart reason
+  char uptimeStr[64];
+  getUptime(uptimeStr, sizeof(uptimeStr));
+  char restartReason[64];
+  getRestartReason(restartReason, sizeof(restartReason));
+  // ESP Heap and Flash usage
+  char heap[10];
+  snprintf(heap, sizeof(heap), "%.1f %%", (float)(ESP.getHeapSize() - ESP.getFreeHeap()) * 100 / ESP.getHeapSize());
+  char flash[10];
+  snprintf(flash, sizeof(flash), "%.1f %%", (float)ESP.getSketchSize() * 100 / ESP.getFreeSketchSpace());
+
+  JsonDocument sysInfoJSON;
+  sysInfoJSON["uptime"] = uptimeStr;
+  sysInfoJSON["restart_reason"] = restartReason;
+  sysInfoJSON["heap"] = heap;
+  sysInfoJSON["flash"] = flash;
+  char sendInfoJSON[255] = {'\0'};
+  serializeJson(sysInfoJSON, sendInfoJSON);
+  mqttPublish(addTopic("/sysinfo"), sendInfoJSON, false);
+}
+
+/**
+ * *******************************************************************
  * @brief   generate uptime message
  * @param   buffer
  * @param   bufferSize

@@ -59,7 +59,9 @@ void cyclicSensor(void) {
       sensor.ch1_temp = sensor1.getTempCByIndex(0);
       if (sensor.ch1_temp != sens1_old) {
         sens1_old = sensor.ch1_temp;
-        km271Msg(KM_TYP_SENSOR, config.sensor.ch1_name, floatToString(sensor.ch1_temp));
+        char topic1[32];
+        replace_whitespace(config.sensor.ch1_name, topic1, sizeof(topic1));
+        km271Msg(KM_TYP_SENSOR, topic1, floatToString(sensor.ch1_temp));
       }
     }
 
@@ -68,7 +70,9 @@ void cyclicSensor(void) {
       sensor.ch2_temp = sensor2.getTempCByIndex(0);
       if (sensor.ch2_temp != sens2_old) {
         sens2_old = sensor.ch2_temp;
-        km271Msg(KM_TYP_SENSOR, config.sensor.ch2_name, floatToString(sensor.ch2_temp));
+        char topic2[32];
+        replace_whitespace(config.sensor.ch2_name, topic2, sizeof(topic2));
+        km271Msg(KM_TYP_SENSOR, topic2, floatToString(sensor.ch2_temp));
       }
     }
   }

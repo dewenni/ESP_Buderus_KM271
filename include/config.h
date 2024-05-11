@@ -4,7 +4,7 @@
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION "v4.0.4" // internal program version
+#define VERSION "v4.1.0" // internal program version
 
 #define WIFI_RECONNECT 10000 // Delay between wifi reconnection tries
 #define MQTT_RECONNECT 10000 // Delay between mqtt reconnection tries
@@ -55,6 +55,9 @@ typedef struct {
   uint16_t port = 1883; // MQTT Server Port
   bool config_retain;   // retain config messages
   int lang;             // MQTT Topic Language
+  bool ha_enable;       // MQTT discovery
+  char ha_topic[64];    // MQTT ha topic
+  char ha_device[32];   // MQTT ha topic
 } s_cfg_mqtt;
 
 typedef struct {

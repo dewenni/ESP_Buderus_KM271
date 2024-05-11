@@ -259,3 +259,74 @@ bool strDiff(unsigned int *lastHash, const char *currentValue) {
   }
   return false;
 }
+
+/**
+ * *******************************************************************
+ * @brief   helper function to replace underscore with whitespace
+ * @param   input string
+ * @param   output string
+ * @param   output_size
+ * @return  none
+ * *******************************************************************/
+void replace_underscores(const char *input, char *output, size_t output_size) {
+  if (input == NULL || output == NULL)
+    return;
+  memset(output, 0, output_size);
+  for (size_t i = 0; input[i] != '\0' && i < output_size - 1; i++) {
+    output[i] = (input[i] == '_') ? ' ' : input[i];
+  }
+  output[output_size - 1] = '\0';
+}
+
+/**
+ * *******************************************************************
+ * @brief   helper function to replace whitespace with underscore
+ * @param   input string
+ * @param   output string
+ * @param   output_size
+ * @return  none
+ * *******************************************************************/
+void replace_whitespace(const char *input, char *output, size_t output_size) {
+  if (input == NULL || output == NULL)
+    return;
+  memset(output, 0, output_size);
+  for (size_t i = 0; input[i] != '\0' && i < output_size - 1; i++) {
+    output[i] = (input[i] == ' ') ? '_' : input[i];
+  }
+  output[output_size - 1] = '\0';
+}
+
+/**
+ * *******************************************************************
+ * @brief   helper function to lower string input
+ * @param   input string
+ * @param   output string
+ * @param   output_size
+ * @return  none
+ * *******************************************************************/
+void to_lowercase(const char *input, char *output, size_t output_size) {
+  if (input == NULL || output == NULL)
+    return;
+  memset(output, 0, output_size);
+  size_t i;
+  for (i = 0; input[i] != '\0' && i < output_size - 1; i++) {
+    output[i] = tolower((unsigned char)input[i]);
+  }
+  output[i] = '\0';
+}
+
+/**
+ * *******************************************************************
+ * @brief   helper function to check if string is a number
+ * @param   input string
+ * @return  true if string is a number
+ * *******************************************************************/
+bool isNumber(const char *str) {
+  int num;
+  char end;
+  if (sscanf(str, "%d%c", &num, &end) == 1) {
+    return true; // string is not a number
+  } else {
+    return false; // string is a number
+  }
+}

@@ -138,6 +138,7 @@ void configInitValue() {
   // MQTT
   config.mqtt.port = 1883;
   config.mqtt.enable = false;
+  snprintf(config.mqtt.ha_topic, sizeof(config.mqtt.ha_topic), "homeassistant");
 
   // NTP
   snprintf(config.ntp.server, sizeof(config.ntp.server), "de.pool.ntp.org");
@@ -197,6 +198,9 @@ void configSaveToFile() {
   doc["mqtt"]["port"] = config.mqtt.port;
   doc["mqtt"]["config_retain"] = config.mqtt.config_retain;
   doc["mqtt"]["language"] = config.mqtt.lang;
+  doc["mqtt"]["ha_enable"] = config.mqtt.ha_enable;
+  doc["mqtt"]["ha_topic"] = config.mqtt.ha_topic;
+  doc["mqtt"]["ha_device"] = config.mqtt.ha_device;
 
   doc["ntp"]["enable"] = config.ntp.enable;
   doc["ntp"]["server"] = config.ntp.server;
@@ -314,6 +318,9 @@ void configLoadFromFile() {
     config.mqtt.port = doc["mqtt"]["port"];
     config.mqtt.config_retain = doc["mqtt"]["config_retain"];
     config.mqtt.lang = doc["mqtt"]["language"];
+    config.mqtt.ha_enable = doc["mqtt"]["ha_enable"];
+    readJSONstring(config.mqtt.ha_topic, sizeof(config.mqtt.ha_topic), doc["mqtt"]["ha_topic"]);
+    readJSONstring(config.mqtt.ha_device, sizeof(config.mqtt.ha_device), doc["mqtt"]["ha_device"]);
 
     config.ntp.enable = doc["ntp"]["enable"];
     readJSONstring(config.ntp.server, sizeof(config.ntp.server), doc["ntp"]["server"]);
@@ -373,6 +380,13 @@ void configLoadFromFile() {
   if (strlen(config.wifi.ssid) == 0) {
     // no valid wifi setting => start AP-Mode
     setupMode = true;
+  }
+
+  if (strlen(config.mqtt.ha_topic) == 0) {
+    snprintf(config.mqtt.ha_topic, sizeof(config.mqtt.ha_topic), "homeassistant");
+  }
+  if (strlen(config.mqtt.ha_device) == 0) {
+    snprintf(config.mqtt.ha_device, sizeof(config.mqtt.ha_device), "Logamatic");
   }
 
   file.close();     // Close the file (Curiously, File's destructor doesn't close the file)
