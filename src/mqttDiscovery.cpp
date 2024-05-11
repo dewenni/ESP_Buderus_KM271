@@ -523,8 +523,9 @@ void mqttDiscoverySetup() {
   }
 
   // STATUS VALUES BOILER/BURNER
-  mqttHaConfig(KM_STATUS, stat_topics.BOILER_CONSUMPTION[config.mqtt.lang], NULL, "sensor", "L", NULL, "mdi:alert-circle-outline", TYP_TEXT,
-               textPar());
+  if (config.oilmeter.use_virtual_meter) {
+    mqttHaConfig(KM_STATUS, stat_topics.BOILER_CONSUMPTION[config.mqtt.lang], NULL, "sensor", "L", NULL, "mdi:barrel-outline", TYP_TEXT, textPar());
+  }
   mqttHaConfig(KM_STATUS, stat_topics.BOILER_CONTROL[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:gas-burner", TYP_TEXT, textPar());
   mqttHaConfig(KM_STATUS, stat_topics.BOILER_ERR_AUX_SENS[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ERR_OK), "mdi:alert-circle-outline",
                TYP_TEXT, textPar());
@@ -567,21 +568,29 @@ void mqttDiscoverySetup() {
                textPar());
 
   // optional Sensors
-  char topic1[32];
-  replace_whitespace(config.sensor.ch1_name, topic1, sizeof(topic1));
-  mqttHaConfig(KM_SENS, topic1, "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT, textPar());
-  char topic2[32];
-  replace_whitespace(config.sensor.ch2_name, topic2, sizeof(topic2));
-  mqttHaConfig(KM_SENS, topic2, "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT, textPar());
+  if (config.sensor.ch1_enable) {
+    char topic1[32];
+    replace_whitespace(config.sensor.ch1_name, topic1, sizeof(topic1));
+    mqttHaConfig(KM_SENS, topic1, "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT, textPar());
+  }
+  if (config.sensor.ch2_enable) {
+    char topic2[32];
+    replace_whitespace(config.sensor.ch2_name, topic2, sizeof(topic2));
+    mqttHaConfig(KM_SENS, topic2, "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT, textPar());
+  }
 
   // Oilcounter
-  mqttHaConfig(KM_OIL, "oilcounter", NULL, "sensor", NULL, NULL, "mdi:barrel-outline", TYP_TEXT, textPar());
+  if (config.oilmeter.use_hardware_meter) {
+    mqttHaConfig(KM_OIL, "oilcounter", NULL, "sensor", NULL, NULL, "mdi:barrel-outline", TYP_TEXT, textPar());
+  }
 
   // Alarm
-  mqttHaConfig(KM_ALARM, errTopics.ERR_BUFF_1[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:alert-circle-outline", TYP_TEXT, textPar());
-  mqttHaConfig(KM_ALARM, errTopics.ERR_BUFF_2[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:alert-circle-outline", TYP_TEXT, textPar());
-  mqttHaConfig(KM_ALARM, errTopics.ERR_BUFF_3[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:alert-circle-outline", TYP_TEXT, textPar());
-  mqttHaConfig(KM_ALARM, errTopics.ERR_BUFF_4[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:alert-circle-outline", TYP_TEXT, textPar());
+  if (config.km271.use_alarmMsg) {
+    mqttHaConfig(KM_ALARM, errTopics.ERR_BUFF_1[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:alert-circle-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_ALARM, errTopics.ERR_BUFF_2[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:alert-circle-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_ALARM, errTopics.ERR_BUFF_3[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:alert-circle-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_ALARM, errTopics.ERR_BUFF_4[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:alert-circle-outline", TYP_TEXT, textPar());
+  }
 
   // DEBUG INFO
   mqttHaConfig(KM_WIFI, "wifi_signal", NULL, "sensor", "%", "{{ value_json.signal }}", "mdi:signal", TYP_TEXT, textPar());
