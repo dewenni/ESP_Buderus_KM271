@@ -4,8 +4,9 @@
 
 /* D E C L A R A T I O N S ****************************************************/
 char discoveryPrefix[128];
+char deviceName[32];
 char statePrefix[128];
-char deviceId[32] = {"esp-km271"};
+char deviceId[32];
 char swVersion[32];
 
 muTimer cyclicTimer = muTimer();
@@ -197,12 +198,11 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
 
   // device
   JsonObject deviceObj = doc["dev"].to<JsonObject>();
-  deviceObj["name"] = "Logamatic";
+  deviceObj["name"] = deviceName;
   deviceObj["ids"] = deviceId;
   deviceObj["mf"] = "Buderus";
   deviceObj["mdl"] = "KM271";
   deviceObj["sw"] = swVersion;
-  // deviceObj["cu"] = actual ip-address
 
   char jsonString[512];
   serializeJson(doc, jsonString);
@@ -223,6 +223,8 @@ void mqttDiscoverySetup() {
   // copy config values
   snprintf(discoveryPrefix, sizeof(discoveryPrefix), "%s", config.mqtt.ha_topic);
   snprintf(statePrefix, sizeof(statePrefix), "%s", config.mqtt.topic);
+  snprintf(deviceName, sizeof(deviceName), "%s", config.mqtt.ha_device);
+  snprintf(deviceId, sizeof(deviceId), "%s", config.mqtt.ha_device);
   snprintf(swVersion, sizeof(swVersion), "%s", VERSION);
 
   // heating circuit 1 configuration
@@ -599,14 +601,14 @@ void mqttDiscoverySetup() {
   mqttHaConfig(KM_WIFI, "wifi_signal", NULL, "sensor", "%", "{{ value_json.signal }}", "mdi:signal", TYP_TEXT, textPar());
   mqttHaConfig(KM_WIFI, "wifi_rssi", NULL, "sensor", "dbm", "{{ value_json.rssi }}", "mdi:signal", TYP_TEXT, textPar());
   mqttHaConfig(KM_WIFI, "wifi_ip", NULL, "sensor", NULL, "{{ value_json.ip }}", "mdi:ip-outline", TYP_TEXT, textPar());
-  
+
   mqttHaConfig(KM_DEBUG, "logmode", NULL, "sensor", NULL, "{{ value_json.logmode }}", "mdi:connection", TYP_TEXT, textPar());
   mqttHaConfig(KM_DEBUG, "sw_version", NULL, "sensor", NULL, "{{ value_json.sw_version }}", "mdi:github", TYP_TEXT, textPar());
 
   mqttHaConfig(KM_SYSINFO, "uptime", NULL, "sensor", NULL, "{{ value_json.uptime }}", "mdi:clock-outline", TYP_TEXT, textPar());
-  mqttHaConfig(KM_SYSINFO, "restart_reason", NULL, "sensor", NULL, "{{ value_json.restart_reason }}", "mdi:information-symbol", TYP_TEXT, textPar());
-  mqttHaConfig(KM_SYSINFO, "heap", NULL, "sensor", NULL, "{{ value_json.heap }}", "mdi:memory", TYP_TEXT, textPar());
-  mqttHaConfig(KM_SYSINFO, "flash", NULL, "sensor", NULL, "{{ value_json.flash }}", "mdi:memory", TYP_TEXT, textPar());
+  mqttHaConfig(KM_SYSINFO, "restart_reason", NULL, "sensor", NULL, "{{ value_json.restart_reason }}", "mdi:information-outline", TYP_TEXT, textPar());
+  mqttHaConfig(KM_SYSINFO, "heap", NULL, "sensor", "%", "{{ value_json.heap.split(' ')[0] }}", "mdi:memory", TYP_TEXT, textPar());
+  mqttHaConfig(KM_SYSINFO, "flash", NULL, "sensor", "%", "{{ value_json.flash.split(' ')[0] }}", "mdi:harddisk", TYP_TEXT, textPar());
 
   initDone = true;
 }

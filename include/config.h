@@ -56,7 +56,8 @@ typedef struct {
   bool config_retain;   // retain config messages
   int lang;             // MQTT Topic Language
   bool ha_enable;       // MQTT discovery
-  char ha_topic[128];   // MQTT ha topic
+  char ha_topic[64];    // MQTT ha topic
+  char ha_device[32];   // MQTT ha topic
 } s_cfg_mqtt;
 
 typedef struct {

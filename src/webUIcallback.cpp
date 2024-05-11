@@ -293,6 +293,9 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "p12_mqtt_ha_topic") == 0) {
     snprintf(config.mqtt.ha_topic, sizeof(config.mqtt.ha_topic), "%s", value);
   }
+  if (strcmp(elementId, "p12_mqtt_ha_device") == 0) {
+    snprintf(config.mqtt.ha_device, sizeof(config.mqtt.ha_device), "%s", value);
+  }
 
   // Pushover
   if (strcmp(elementId, "p12_pushover_enable") == 0) {

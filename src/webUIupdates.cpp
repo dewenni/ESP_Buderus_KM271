@@ -245,6 +245,7 @@ void updateSettingsElements() {
   addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_mqtt_lang", config.mqtt.lang);
   addJsonState(jsonSet, sizeof(jsonSet), "p12_mqtt_ha_enable", config.mqtt.ha_enable);
   addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_mqtt_ha_topic", config.mqtt.ha_topic);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_mqtt_ha_device", config.mqtt.ha_device);
   addJsonState(jsonSet, sizeof(jsonSet), "p12_pushover_enable", config.pushover.enable);
   addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_pushover_api_token", config.pushover.token);
   addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_pushover_user_key", config.pushover.user_key);
