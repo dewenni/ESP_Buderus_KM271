@@ -156,7 +156,7 @@ void webCallback(const char *elementId, const char *value) {
 
   // WiFi
   if (strcmp(elementId, "p12_wifi_hostname") == 0) {
-    snprintf(config.wifi.ssid, sizeof(config.wifi.hostname), "%s", value);
+    snprintf(config.wifi.hostname, sizeof(config.wifi.hostname), "%s", value);
   }
   if (strcmp(elementId, "p12_wifi_ssid") == 0) {
     snprintf(config.wifi.ssid, sizeof(config.wifi.ssid), "%s", value);
