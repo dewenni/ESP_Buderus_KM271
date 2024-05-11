@@ -174,6 +174,7 @@ void loop() {
     sendWiFiInfo();
     sendKM271Info();
     sendKM271Debug();
+    sendSysInfo();
   }
 
   if (config.webUI.enable) {

@@ -34,3 +34,4 @@ void basicSetup();
 void sendWiFiInfo();
 void storeData();
 void getUptime(char *buffer, size_t bufferSize);
+void sendSysInfo();

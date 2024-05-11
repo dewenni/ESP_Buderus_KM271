@@ -17,7 +17,7 @@ bool initDone = false;
 
 typedef enum { OPT_NULL, OPT_OP_MODE, OPT_RED_MODE, OPT_HC_PRG } OptType;
 typedef enum { TYP_TEXT, TYP_SLIDER, TYP_NUM, TYP_OPT } DeviceType;
-typedef enum { KM_CONFIG, KM_STATUS, KM_INFO, KM_WIFI, KM_ALARM, KM_DEBUG, KM_SENS, KM_OIL } KmType;
+typedef enum { KM_CONFIG, KM_STATUS, KM_INFO, KM_WIFI, KM_ALARM, KM_DEBUG, KM_SENS, KM_OIL, KM_SYSINFO } KmType;
 typedef enum { VAL_SPLIT, VAL_ON_OFF, VAL_ERR_OK } ValTmpType;
 typedef struct {
   const char *min;
@@ -115,6 +115,9 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
   case KM_ALARM:
     sprintf(stateTopic, "%s/alarm/%s", statePrefix, name);
     break;
+  case KM_SYSINFO:
+    sprintf(stateTopic, "%s/sysinfo", statePrefix);
+    break;
   default:
     break;
   }
@@ -147,7 +150,7 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
     doc["cmd_t"] = cmdTopic;
   }
 
-  if (kmType == KM_DEBUG || kmType == KM_WIFI) {
+  if (kmType == KM_DEBUG || kmType == KM_WIFI || kmType == KM_SYSINFO) {
     doc["ent_cat"] = "diagnostic";
   }
 
@@ -596,8 +599,14 @@ void mqttDiscoverySetup() {
   mqttHaConfig(KM_WIFI, "wifi_signal", NULL, "sensor", "%", "{{ value_json.signal }}", "mdi:signal", TYP_TEXT, textPar());
   mqttHaConfig(KM_WIFI, "wifi_rssi", NULL, "sensor", "dbm", "{{ value_json.rssi }}", "mdi:signal", TYP_TEXT, textPar());
   mqttHaConfig(KM_WIFI, "wifi_ip", NULL, "sensor", NULL, "{{ value_json.ip }}", "mdi:ip-outline", TYP_TEXT, textPar());
+  
   mqttHaConfig(KM_DEBUG, "logmode", NULL, "sensor", NULL, "{{ value_json.logmode }}", "mdi:connection", TYP_TEXT, textPar());
   mqttHaConfig(KM_DEBUG, "sw_version", NULL, "sensor", NULL, "{{ value_json.sw_version }}", "mdi:github", TYP_TEXT, textPar());
+
+  mqttHaConfig(KM_SYSINFO, "uptime", NULL, "sensor", NULL, "{{ value_json.uptime }}", "mdi:clock-outline", TYP_TEXT, textPar());
+  mqttHaConfig(KM_SYSINFO, "restart_reason", NULL, "sensor", NULL, "{{ value_json.restart_reason }}", "mdi:information-symbol", TYP_TEXT, textPar());
+  mqttHaConfig(KM_SYSINFO, "heap", NULL, "sensor", NULL, "{{ value_json.heap }}", "mdi:memory", TYP_TEXT, textPar());
+  mqttHaConfig(KM_SYSINFO, "flash", NULL, "sensor", NULL, "{{ value_json.flash }}", "mdi:memory", TYP_TEXT, textPar());
 
   initDone = true;
 }
