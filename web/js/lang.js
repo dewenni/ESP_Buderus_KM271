@@ -1239,7 +1239,7 @@ const translations = {
     en: "Update sucessfull!",
   },
   update_failed: {
-    de: "Update nicht erflgreich!",
+    de: "Update nicht erfolgreich!",
     en: "Update not sucessfull!",
   },
   update_ready: {
