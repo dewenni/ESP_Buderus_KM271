@@ -571,7 +571,8 @@ void mqttDiscoverySetup() {
   mqttHaConfig(KM_STATUS, stat_topics.OUTSIDE_TEMP[config.mqtt.lang], "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT, textPar());
   mqttHaConfig(KM_STATUS, stat_topics.OUTSIDE_TEMP_DAMPED[config.mqtt.lang], "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT,
                textPar());
-
+  mqttHaConfig(KM_STATUS, stat_topics.EXHAUST_TEMP[config.mqtt.lang], "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT, textPar());
+  
   // optional Sensors
   if (config.sensor.ch1_enable) {
     char topic1[32];
