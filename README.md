@@ -71,6 +71,7 @@ The WebUI is responsive and also offers a mobile layout.
 - [MQTT](#mqtt)
   - [Config and Status values](#config-and-status-values)
   - [Commands](#commands)
+  - [Home Assistant](#home-assistant)
 - [Optional Messaging](#optional-messaging)
   - [Pushover](#pushover)
   - [WebUI-Logger](#webui-logger)
@@ -495,6 +496,19 @@ topic:      {"setvalue/hk2_absenkungsart", setvalue/hc2_reduction_mode"}
 payload:    Number 0..3 (Abschalt,Reduziert,Raumhalt,Aussenhalt) / {off,fixed,room,outdoors)
 
 ```
+
+## Home Assistant
+
+MQTT discovery for Home Assistant makes it easy to get all values in Home Assistant.
+The Logamatic values will automatically visible as mqtt device in Home Assistant.
+The config values and the status values are displayed. Some config values can also be changed as in the WebUI.
+
+see also the official documentation: https://www.home-assistant.io/integrations/mqtt/#discovery-messages
+
+<img src="Doc/mqtt_ha_1.png" alt="mqtt_ha1" width="75%"> <img src="Doc/mqtt_ha_2.png" alt="mqtt_ha2" width="40%">
+
+In the mqtt settings you can activate the discovery function and also set the mqtt discovery topic and the device name for Home Assistant  
+<img src="Doc/mqtt_ha_3.png" alt="mqtt_ha1" width="50%">
 
 -----
 
