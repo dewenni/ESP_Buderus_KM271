@@ -347,7 +347,17 @@
                 <option value="2">Board 0.0.5</option>
                 <option value="3">Board ≥0.0.6</option>
               </select>
-              <label for="km271_rx" data-i18n="km271_rx"></label>
+              <div class="leftright">
+                <label for="km271_rx" data-i18n="km271_rx"></label>
+                <button
+                  id="p12_gpio_open_dialog_btn"
+                  class="i_help"
+                  style="
+                    height: 30px;
+                    background-color: transparent;
+                    border: none;
+                  "></button>
+              </div>
               <input
                 class="num-input"
                 name="km271_rx"
@@ -397,6 +407,67 @@
                 id="p12_gpio_trig_oil"
                 placeholder="-1 to disable" />
             </details>
+            <!-- Dialog OPEN-GPIO-HELP -->
+            <dialog id="p12_gpio_dialog">
+              <article>
+                <p>Description for KM271 Boards</p>
+                <table>
+                  <tbody>
+                    <tr>
+                      <th>FUNCTION</th>
+                      <th>Km271 DESC</th>
+                      <th>Km271 GPIO</th>
+                    </tr>
+                    <tr>
+                      <td>KM271-RX</td>
+                      <td>U1RX</td>
+                      <td>4</td>
+                    </tr>
+                    <tr>
+                      <td>KM271-TX</td>
+                      <td>U1TX</td>
+                      <td>2</td>
+                    </tr>
+                    <tr>
+                      <td>LED GREEN</td>
+                      <td>D1</td>
+                      <td>21</td>
+                    </tr>
+                    <tr>
+                      <td>LED GREEN</td>
+                      <td>D2</td>
+                      <td>22</td>
+                    </tr>
+                    <tr>
+                      <td>LED YELLOW</td>
+                      <td>D3</td>
+                      <td>17 (v0.0.5 = 23)</td>
+                    </tr>
+                    <tr>
+                      <td>LED RED</td>
+                      <td>D4</td>
+                      <td>25</td>
+                    </tr>
+                    <tr>
+                      <td>SW1</td>
+                      <td>USER2</td>
+                      <td>27</td>
+                    </tr>
+                    <tr>
+                      <td>SW2</td>
+                      <td>USER1</td>
+                      <td>26</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="dash-footer">
+                  <button
+                    id="p12_gpio_close_dialog_btn"
+                    data-i18n="close"
+                    style="width: 75%"></button>
+                </div>
+              </article>
+            </dialog>
             <hr />
             <!-- Oilmeter -->
             <details>

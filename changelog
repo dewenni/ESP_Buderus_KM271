@@ -791,3 +791,18 @@ example:
 - fix value of HC1_SwitchOffOptimizationTime, HC2_SwitchOffOptimizationTime, HW_SwitchOffOptimizationTime (was not set before)
 - If there is a whitespace in optional sensor name, it will be replaced in the responding mqtt topic
 - Fixes the saving of the hostname. This was previously saved incorrectly as wifi.ssid which made the WiFi settings unusable. #98
+
+---
+
+# v4.1.1
+
+## what's new
+
+some smaller changes and fixes
+
+
+## changelog
+
+- fix login problem #109
+- add info dialog for GPIO settings
+- add exhaust temp for HA discovery

@@ -104,6 +104,20 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("p12_ntp_dialog").close();
     });
 
+  // GPIO: open dialog to show GPIO configuration
+  document
+    .getElementById("p12_gpio_open_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("p12_gpio_dialog").showModal();
+    });
+
+  // GPIO: close dialog to show GPIO configuration
+  document
+    .getElementById("p12_gpio_close_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("p12_gpio_dialog").close();
+    });
+
   // control for Tab-Menu
   document.querySelectorAll(".nav-list a").forEach((tab) => {
     tab.onclick = function (e) {
