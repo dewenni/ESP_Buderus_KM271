@@ -3,6 +3,7 @@
 #include <config.h>
 #include <language.h>
 #include <message.h>
+#include <mqttDiscovery.h>
 #include <oilmeter.h>
 #include <simulation.h>
 #include <telnet.h>
@@ -31,6 +32,7 @@ void cmdLog(char param[MAX_PAR][MAX_CHAR]);
 void cmdDebug(char param[MAX_PAR][MAX_CHAR]);
 void cmdSerial(char param[MAX_PAR][MAX_CHAR]);
 void cmdKm271(char param[MAX_PAR][MAX_CHAR]);
+void cmdHA(char param[MAX_PAR][MAX_CHAR]);
 
 Command commands[] = {
     {"cls", cmdCls, "Clear screen", ""},
@@ -45,6 +47,7 @@ Command commands[] = {
     {"restart", cmdRestart, "Restart the ESP", ""},
     {"serial", cmdSerial, "serial stream output", "<stream> <[start], [stop]>"},
     {"simdata", cmdSimdata, "generate simulated KM271 values", ""},
+    {"ha", cmdHA, "Home Assistant commands", "[command]"},
 };
 const int commandsCount = sizeof(commands) / sizeof(commands[0]);
 
@@ -226,6 +229,20 @@ void cmdConfig(char param[MAX_PAR][MAX_CHAR]) {
     configInitValue();
     configSaveToFile();
     telnet.println("config was set to defaults");
+  }
+}
+
+/**
+ * *******************************************************************
+ * @brief   telnet command: Home Assistant
+ * @param   params received parameters
+ * @return  none
+ * *******************************************************************/
+void cmdHA(char param[MAX_PAR][MAX_CHAR]) {
+
+  if (!strcmp(param[1], "discovery") && !strcmp(param[2], "")) {
+    mqttDiscoverySetup();
+    telnet.println("home assistant discovery messages sent");
   }
 }
 

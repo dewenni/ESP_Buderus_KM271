@@ -37,33 +37,6 @@ typedef struct {
   const char *GET_DEBUG_FLT[MAX_LANG] = {"/cmd/getdebugflt", "/cmd/getdebugflt"};
   const char *DATETIME[MAX_LANG] = {"/setvalue/setdatetime", "/setvalue/setdatetime"};
   const char *OILCNT[MAX_LANG] = {"/setvalue/oilcounter", "/setvalue/oilcounter"};
-  const char *HC1_OPMODE[MAX_LANG] = {"/setvalue/hk1_betriebsart", "/setvalue/hc1_opmode"};
-  const char *HC2_OPMODE[MAX_LANG] = {"/setvalue/hk2_betriebsart", "/setvalue/hc2_opmode"};
-  const char *HC1_PRG[MAX_LANG] = {"/setvalue/hk1_programm", "/setvalue/hc1_program"};
-  const char *HC2_PRG[MAX_LANG] = {"/setvalue/hk2_programm", "/setvalue/hc2_program"};
-  const char *HC1_INTERPRET[MAX_LANG] = {"/setvalue/hk1_auslegung", "/setvalue/hc1_interpretation"};
-  const char *HC2_INTERPRET[MAX_LANG] = {"/setvalue/hk2_auslegung", "/setvalue/hc2_interpretation"};
-  const char *HC1_SWITCH_OFF_THRESHOLD[MAX_LANG] = {"/setvalue/hk1_aussenhalt_ab", "/setvalue/hc1_switch_off_threshold"};
-  const char *HC2_SWITCH_OFF_THRESHOLD[MAX_LANG] = {"/setvalue/hk2_aussenhalt_ab", "/setvalue/hc2_switch_off_threshold"};
-  const char *HC1_DAY_SETPOINT[MAX_LANG] = {"/setvalue/hk1_tag_soll", "/setvalue/hc1_day_setpoint"};
-  const char *HC2_DAY_SETPOINT[MAX_LANG] = {"/setvalue/hk2_tag_soll", "/setvalue/hc2_day_setpoint"};
-  const char *HC1_NIGHT_SETPOINT[MAX_LANG] = {"/setvalue/hk1_nacht_soll", "/setvalue/hc1_night_setpoint"};
-  const char *HC2_NIGHT_SETPOINT[MAX_LANG] = {"/setvalue/hk2_nacht_soll", "/setvalue/hc2_night_setpoint"};
-  const char *HC1_HOLIDAY_SETPOINT[MAX_LANG] = {"/setvalue/hk1_ferien_soll", "/setvalue/hc1_holiday_setpoint"};
-  const char *HC2_HOLIDAY_SETPOINT[MAX_LANG] = {"/setvalue/hk2_ferien_soll", "/setvalue/hc2_holiday_setpoint"};
-  const char *WW_OPMODE[MAX_LANG] = {"/setvalue/ww_betriebsart", "/setvalue/ww_opmode"};
-  const char *HC1_SUMMER[MAX_LANG] = {"/setvalue/hk1_sommer_ab", "/setvalue/hc1_summer_mode_threshold"};
-  const char *HC1_FROST[MAX_LANG] = {"/setvalue/hk1_frost_ab", "/setvalue/hc1_frost_mode_threshold"};
-  const char *HC2_SUMMER[MAX_LANG] = {"/setvalue/hk2_sommer_ab", "/setvalue/hc2_summer_mode_threshold"};
-  const char *HC2_FROST[MAX_LANG] = {"/setvalue/hk2_frost_ab", "/setvalue/hc2_frost_mode_threshold"};
-  const char *WW_SETPOINT[MAX_LANG] = {"/setvalue/ww_soll", "/setvalue/ww_setpoint"};
-  const char *HC1_HOLIDAYS[MAX_LANG] = {"/setvalue/hk1_ferien_tage", "/setvalue/hc1_holidays"};
-  const char *HC2_HOLIDAYS[MAX_LANG] = {"/setvalue/hk2_ferien_tage", "/setvalue/hc2_holidays"};
-  const char *WW_PUMP_CYCLES[MAX_LANG] = {"/setvalue/ww_pumpen_zyklus", "/setvalue/ww_pump_cycles"};
-  const char *HC1_SWITCH_ON_TEMP[MAX_LANG] = {"/setvalue/hk1_aufschalttemperatur", "/setvalue/hc1_switch_on_temperature"};
-  const char *HC2_SWITCH_ON_TEMP[MAX_LANG] = {"/setvalue/hk2_aufschalttemperatur", "/setvalue/hc2_switch_on_temperature"};
-  const char *HC1_REDUCTION_MODE[MAX_LANG] = {"/setvalue/hk1_absenkungsart", "/setvalue/hc1_reduction_mode"};
-  const char *HC2_REDUCTION_MODE[MAX_LANG] = {"/setvalue/hk2_absenkungsart", "/setvalue/hc2_reduction_mode"};
 } s_mqtt_cmds;
 
 // ======================================================================================

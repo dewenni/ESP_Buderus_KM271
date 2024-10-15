@@ -58,6 +58,7 @@ void onMqttConnect(bool sessionPresent) {
   // ... and resubscribe
   mqtt_client.subscribe(addTopic("/cmd/#"), 0);
   mqtt_client.subscribe(addTopic("/setvalue/#"), 0);
+  mqtt_client.subscribe("homeassistant/status", 0);
 }
 
 /**
@@ -175,6 +176,13 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
   // set oilmeter
   else if (strcasecmp(topic, addTopic(mqttCmd.OILCNT[config.mqtt.lang])) == 0) {
     cmdSetOilmeter(intVal);
+  }
+  // homeassistant/status
+  else if (strcmp(topic, "homeassistant/status") == 0) {
+    if (config.mqtt.ha_enable && strcmp(payloadCopy, "online") == 0) {
+      km271Msg(KM_TYP_MESSAGE, "send discovery configuration", "");
+      mqttDiscoverySendConfig(); // send discovery configuration
+    }
   }
 
   // HK1 Betriebsart
@@ -294,7 +302,18 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
   }
   // HK1 Sommer-Ab Temperatur
   else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_SUMMER_THRESHOLD[config.mqtt.lang])) == 0) {
-    km271sendCmd(KM271_SENDCMD_HC1_SUMMER, intVal);
+    if (isNumber(payloadCopy)) {
+      km271sendCmd(KM271_SENDCMD_HC1_SUMMER, intVal);
+    } else {
+      int targetIndex = -1;
+      for (int i = 0; i < 9; i++) {
+        if (strcasecmp(cfgArrays.SUMMER[config.mqtt.lang][i], payloadCopy) == 0) {
+          targetIndex = i + 9; // Values are 9..31 and array index is 0..22 - index 0 = value 9 / index 22 = value 31
+          break;
+        }
+      }
+      km271sendCmd(KM271_SENDCMD_HC1_SUMMER, targetIndex);
+    }
   }
   // HK1 Frost-Ab Temperatur
   else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_FROST_THRESHOLD[config.mqtt.lang])) == 0) {
@@ -302,7 +321,18 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
   }
   // HK2 Sommer-Ab Temperatur
   else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC2_SUMMER_THRESHOLD[config.mqtt.lang])) == 0) {
-    km271sendCmd(KM271_SENDCMD_HC2_SUMMER, intVal);
+    if (isNumber(payloadCopy)) {
+      km271sendCmd(KM271_SENDCMD_HC2_SUMMER, intVal);
+    } else {
+      int targetIndex = -1;
+      for (int i = 0; i < 9; i++) {
+        if (strcasecmp(cfgArrays.SUMMER[config.mqtt.lang][i], payloadCopy) == 0) {
+          targetIndex = i + 9; // Values are 9..31 and array index is 0..22 - index 0 = value 9 / index 22 = value 31
+          break;
+        }
+      }
+      km271sendCmd(KM271_SENDCMD_HC2_SUMMER, targetIndex);
+    }
   }
   // HK2 Frost-Ab Temperatur
   else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC2_FROST_THRESHOLD[config.mqtt.lang])) == 0) {
@@ -322,7 +352,18 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
   }
   // WW Pump Cycles
   else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.WW_CIRCULATION[config.mqtt.lang])) == 0) {
-    km271sendCmd(KM271_SENDCMD_WW_PUMP_CYCLES, intVal);
+    if (isNumber(payloadCopy)) {
+      km271sendCmd(KM271_SENDCMD_WW_PUMP_CYCLES, intVal);
+    } else {
+      int targetIndex = -1;
+      for (int i = 0; i < 9; i++) {
+        if (strcasecmp(cfgArrays.CIRC_INTERVAL[config.mqtt.lang][i], payloadCopy) == 0) {
+          targetIndex = i;
+          break;
+        }
+      }
+      km271sendCmd(KM271_SENDCMD_WW_PUMP_CYCLES, targetIndex);
+    }
   }
   // HK1 Reglereingriff
   else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_SWITCH_ON_TEMP[config.mqtt.lang])) == 0) {
@@ -389,10 +430,6 @@ void mqttSetup() {
  * *******************************************************************/
 void checkMqtt() {
 
-  if (mqtt_client.connected() && config.mqtt.ha_enable) {
-    mqttDiscoverySetup();
-  }
-
   // automatic reconnect to mqtt broker if connection is lost - try 5 times, then reboot
   if (!mqtt_client.connected() && WiFi.isConnected()) {
     if (mqtt_retry == 0) {
@@ -420,7 +457,7 @@ void checkMqtt() {
       }
     }
   }
-  // send bootup message after restart and established mqtt connection
+  // send bootup messages after restart and established mqtt connection
   if (!bootUpMsgDone && mqtt_client.connected()) {
     bootUpMsgDone = true;
     char restartReason[64];
@@ -428,8 +465,18 @@ void checkMqtt() {
     getRestartReason(restartReason, sizeof(restartReason));
     snprintf(tempMessage, sizeof(tempMessage), "%s\n(%s)", infoMsg.RESTARTED[config.lang], restartReason);
     km271Msg(KM_TYP_MESSAGE, tempMessage, "");
+
+    // send initial mqtt discovery messages after restart
+    if (config.mqtt.ha_enable) {
+      mqttDiscoverySendConfig();
+    }
+  }
+  // call mqtt cyclic function if activated
+  if (config.mqtt.ha_enable && mqtt_client.connected()) {
+    mqttDiscoveryCyclic();
   }
 }
+
 
 /**
  * *******************************************************************

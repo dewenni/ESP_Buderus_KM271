@@ -1,0 +1,33 @@
+name: Create Release
+
+# 1 Erstellt ein Release bei einem Push mit Tag
+# 2 liest die changeNew.md und nutzt diese als Beschreibung für das Release
+# 3 upload aller Files aus ./release/ als Assets im Release
+
+on:
+  workflow_dispatch: # Ermöglicht das manuelle Anstoßen des Workflows
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+        run: |
+          # Erstelle die Release-Dateien-Variable
+          files=$(ls ./release/*)
+          
+          # Erstelle das Release und lade die Assets hoch
+          gh release create "$tag" $files \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="${tag}" \
+              -F changeNew.md

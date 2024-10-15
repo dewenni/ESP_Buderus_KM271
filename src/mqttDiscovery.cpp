@@ -14,12 +14,14 @@ s_cfg_topics cfg_topics;
 s_stat_topics stat_topics;
 s_cfg_arrays cfgOptions;
 s_error_topics errTopics;
-bool initDone = false;
+s_mqtt_cmds mqttCmds;
 
-typedef enum { OPT_NULL, OPT_OP_MODE, OPT_RED_MODE, OPT_HC_PRG } OptType;
-typedef enum { TYP_TEXT, TYP_SLIDER, TYP_NUM, TYP_OPT } DeviceType;
-typedef enum { KM_CONFIG, KM_STATUS, KM_INFO, KM_WIFI, KM_ALARM, KM_DEBUG, KM_SENS, KM_OIL, KM_SYSINFO } KmType;
-typedef enum { VAL_SPLIT, VAL_ON_OFF, VAL_ERR_OK } ValTmpType;
+bool sendMqttConfig = false;
+
+typedef enum { OPT_NULL, OPT_OP_MODE, OPT_RED_MODE, OPT_HC_PRG, OPT_WW_CRC, OPT_SUMMER } OptType;
+typedef enum { TYP_TEXT, TYP_SLIDER, TYP_NUM, TYP_OPT, TYP_BTN } DeviceType;
+typedef enum { KM_CMD_BTN, KM_CONFIG, KM_STATUS, KM_INFO, KM_WIFI, KM_ALARM, KM_DEBUG, KM_SENS, KM_OIL, KM_SYSINFO } KmType;
+typedef enum { VAL_SPLIT, VAL_ON_OFF, VAL_ERR_OK, VAL_WW_CIRC, VAL_SUMMER_THRESHOLD } ValTmpType;
 typedef struct {
   const char *min;
   const char *max;
@@ -53,6 +55,24 @@ const char *valueTmpl(ValTmpType type) {
       snprintf(output, sizeof(output), "{{'FEHLER' if value == '1' else 'OK' }}");
     } else {
       snprintf(output, sizeof(output), "{{'ERROR' if value == '1' else 'OK' }}");
+    }
+    break;
+
+  case VAL_WW_CIRC:
+    if (config.mqtt.lang == 0) {
+      snprintf(output, sizeof(output), "{%% if value == 'Aus' %%} 0 {%% elif value == 'An' %%} 7 {%% else %%} {{ value }} {%% endif %%}");
+    } else {
+      snprintf(output, sizeof(output), "{%% if value == 'off' %%} 0 {%% elif value == 'on' %%} 7 {%% else %%} {{ value }} {%% endif %%}");
+    }
+    break;
+
+  case VAL_SUMMER_THRESHOLD:
+    if (config.mqtt.lang == 0) {
+      snprintf(output, sizeof(output),
+               "{%% if value == 'Sommer' %%} 9 {%% elif value == 'Winter' %%} 31 {%% else %%} {{value.split(' ')[0]}} {%% endif %%}");
+    } else {
+      snprintf(output, sizeof(output),
+               "{%% if value == 'summer' %%} 9 {%% elif value == 'winter' %%} 31 {%% else %%} {{value.split(' ')[0]}} {%% endif %%}");
     }
     break;
 
@@ -97,32 +117,39 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
   switch (kmType) {
   case KM_CONFIG:
     sprintf(stateTopic, "%s/config/%s", statePrefix, name);
+    doc["stat_t"] = stateTopic;
     break;
   case KM_STATUS:
     sprintf(stateTopic, "%s/status/%s", statePrefix, name);
+    doc["stat_t"] = stateTopic;
     break;
   case KM_SENS:
     sprintf(stateTopic, "%s/sensor/%s", statePrefix, name);
+    doc["stat_t"] = stateTopic;
     break;
   case KM_OIL:
     sprintf(stateTopic, "%s/%s", statePrefix, name);
+    doc["stat_t"] = stateTopic;
     break;
   case KM_WIFI:
     sprintf(stateTopic, "%s/wifi", statePrefix);
+    doc["stat_t"] = stateTopic;
     break;
   case KM_DEBUG:
     sprintf(stateTopic, "%s/debug", statePrefix);
+    doc["stat_t"] = stateTopic;
     break;
   case KM_ALARM:
     sprintf(stateTopic, "%s/alarm/%s", statePrefix, name);
+    doc["stat_t"] = stateTopic;
     break;
   case KM_SYSINFO:
     sprintf(stateTopic, "%s/sysinfo", statePrefix);
+    doc["stat_t"] = stateTopic;
     break;
   default:
     break;
   }
-  doc["stat_t"] = stateTopic;
 
   char friendlyName[64];
   replace_underscores(name, friendlyName, sizeof(friendlyName));
@@ -143,9 +170,13 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
     doc["icon"] = icon;
   }
 
-  if (devType != TYP_TEXT) {
+  if (devType = TYP_BTN) {
+    char cmdTopic[256];
+    sprintf(cmdTopic, "%s/cmd/%s", statePrefix, name);
+    doc["cmd_t"] = cmdTopic;
+    doc["payload_press"] = "true";
+  } else if (devType != TYP_TEXT) {
     doc["ent_cat"] = "config";
-
     char cmdTopic[256];
     sprintf(cmdTopic, "%s/setvalue/%s", statePrefix, name);
     doc["cmd_t"] = cmdTopic;
@@ -187,6 +218,16 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
         opts.add(cfgOptions.HC_PROGRAM[config.mqtt.lang][i]);
       }
       break;
+    case OPT_WW_CRC:
+      for (int i = 0; i < 8; i++) {
+        opts.add(cfgOptions.CIRC_INTERVAL[config.mqtt.lang][i]);
+      }
+      break;
+    case OPT_SUMMER:
+      for (int i = 0; i < 23; i++) {
+        opts.add(cfgOptions.SUMMER[config.mqtt.lang][i]);
+      }
+      break;
     default:
       break;
     }
@@ -204,7 +245,7 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
   deviceObj["mdl"] = "KM271";
   deviceObj["sw"] = swVersion;
 
-  char jsonString[512];
+  char jsonString[1024];
   serializeJson(doc, jsonString);
 
   mqttPublish(configTopic, jsonString, false);
@@ -216,9 +257,15 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
  * @param   none
  * @return  none
  * *******************************************************************/
+void mqttDiscoverySendConfig() { sendMqttConfig = true; }
+
+/**
+ * *******************************************************************
+ * @brief   mqttDiscovery Setup function
+ * @param   none
+ * @return  none
+ * *******************************************************************/
 void mqttDiscoverySetup() {
-  if (initDone)
-    return;
 
   // copy config values
   snprintf(discoveryPrefix, sizeof(discoveryPrefix), "%s", config.mqtt.ha_topic);
@@ -226,6 +273,8 @@ void mqttDiscoverySetup() {
   snprintf(deviceName, sizeof(deviceName), "%s", config.mqtt.ha_device);
   snprintf(deviceId, sizeof(deviceId), "%s", config.mqtt.ha_device);
   snprintf(swVersion, sizeof(swVersion), "%s", VERSION);
+
+  mqttHaConfig(KM_CMD_BTN, "restart", "restart", "button", NULL, NULL, "mdi:restart", TYP_BTN, textPar());
 
   // heating circuit 1 configuration
   if (config.km271.use_hc1) {
@@ -239,8 +288,8 @@ void mqttDiscoverySetup() {
     mqttHaConfig(KM_CONFIG, cfg_topics.HC1_FROST_THRESHOLD[config.mqtt.lang], "temperature", "number", "°C", valueTmpl(VAL_SPLIT), "mdi:thermometer",
                  TYP_SLIDER, sliderPar("-20", "10", "1"));
 
-    mqttHaConfig(KM_CONFIG, cfg_topics.HC1_SUMMER_THRESHOLD[config.mqtt.lang], "temperature", "number", "°C", valueTmpl(VAL_SPLIT), "mdi:thermometer",
-                 TYP_SLIDER, sliderPar("9", "31", "1"));
+    mqttHaConfig(KM_CONFIG, cfg_topics.HC1_SUMMER_THRESHOLD[config.mqtt.lang], NULL, "select", NULL, NULL, "mdi:thermometer", TYP_OPT,
+                 optPar(OPT_SUMMER));
 
     mqttHaConfig(KM_CONFIG, cfg_topics.HC1_NIGHT_TEMP[config.mqtt.lang], "temperature", "number", "°C", valueTmpl(VAL_SPLIT), "mdi:thermometer",
                  TYP_SLIDER, sliderPar("10", "30", "0.5"));
@@ -361,7 +410,7 @@ void mqttDiscoverySetup() {
     mqttHaConfig(KM_CONFIG, cfg_topics.WW_PROCESSING[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:water-thermometer-outline", TYP_TEXT,
                  textPar());
 
-    mqttHaConfig(KM_CONFIG, cfg_topics.WW_CIRCULATION[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:water-sync", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, cfg_topics.WW_CIRCULATION[config.mqtt.lang], NULL, "select", NULL, NULL, "mdi:water-sync", TYP_OPT, optPar(OPT_WW_CRC));
   }
 
   // general config values
@@ -572,7 +621,7 @@ void mqttDiscoverySetup() {
   mqttHaConfig(KM_STATUS, stat_topics.OUTSIDE_TEMP_DAMPED[config.mqtt.lang], "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT,
                textPar());
   mqttHaConfig(KM_STATUS, stat_topics.EXHAUST_TEMP[config.mqtt.lang], "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT, textPar());
-  
+
   // optional Sensors
   if (config.sensor.ch1_enable) {
     char topic1[32];
@@ -610,6 +659,18 @@ void mqttDiscoverySetup() {
   mqttHaConfig(KM_SYSINFO, "restart_reason", NULL, "sensor", NULL, "{{ value_json.restart_reason }}", "mdi:information-outline", TYP_TEXT, textPar());
   mqttHaConfig(KM_SYSINFO, "heap", NULL, "sensor", "%", "{{ value_json.heap.split(' ')[0] }}", "mdi:memory", TYP_TEXT, textPar());
   mqttHaConfig(KM_SYSINFO, "flash", NULL, "sensor", "%", "{{ value_json.flash.split(' ')[0] }}", "mdi:harddisk", TYP_TEXT, textPar());
+}
 
-  initDone = true;
+/**
+ * *******************************************************************
+ * @brief   mqttDiscovery Cyclic function
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void mqttDiscoveryCyclic() {
+
+  if (sendMqttConfig) {
+    mqttDiscoverySetup();
+    sendMqttConfig = false;
+  }
 }
