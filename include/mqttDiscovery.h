@@ -4,3 +4,4 @@
 void mqttDiscoverySetup();
 void mqttDiscoveryCyclic();
 void mqttDiscoverySendConfig();
+void mqttDiscoveryResetConfig();

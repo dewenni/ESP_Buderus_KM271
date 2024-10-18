@@ -47,7 +47,7 @@ Command commands[] = {
     {"restart", cmdRestart, "Restart the ESP", ""},
     {"serial", cmdSerial, "serial stream output", "<stream> <[start], [stop]>"},
     {"simdata", cmdSimdata, "generate simulated KM271 values", ""},
-    {"ha", cmdHA, "Home Assistant commands", "[command]"},
+    {"ha", cmdHA, "Home Assistant commands", "[sendconfig], resetconfig]"},
 };
 const int commandsCount = sizeof(commands) / sizeof(commands[0]);
 
@@ -240,12 +240,14 @@ void cmdConfig(char param[MAX_PAR][MAX_CHAR]) {
  * *******************************************************************/
 void cmdHA(char param[MAX_PAR][MAX_CHAR]) {
 
-  if (!strcmp(param[1], "discovery") && !strcmp(param[2], "")) {
-    mqttDiscoverySetup();
+  if (!strcmp(param[1], "sendconfig") && !strcmp(param[2], "")) {
+    mqttDiscoverySendConfig();
+    telnet.println("home assistant discovery messages sent");
+  } else if (!strcmp(param[1], "resetconfig") && !strcmp(param[2], "")) {
+    mqttDiscoveryResetConfig();
     telnet.println("home assistant discovery messages sent");
   }
 }
-
 /**
  * *******************************************************************
  * @brief   telnet command: print system information

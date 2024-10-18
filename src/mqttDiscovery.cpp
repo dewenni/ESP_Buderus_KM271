@@ -17,6 +17,7 @@ s_error_topics errTopics;
 s_mqtt_cmds mqttCmds;
 
 bool sendMqttConfig = false;
+bool resetMqttConfig = false;
 
 typedef enum { OPT_NULL, OPT_OP_MODE, OPT_RED_MODE, OPT_HC_PRG, OPT_WW_CRC, OPT_SUMMER } OptType;
 typedef enum { TYP_TEXT, TYP_SLIDER, TYP_NUM, TYP_OPT, TYP_BTN } DeviceType;
@@ -248,16 +249,28 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
   char jsonString[1024];
   serializeJson(doc, jsonString);
 
-  mqttPublish(configTopic, jsonString, false);
+  if (resetMqttConfig) {
+    mqttPublish(configTopic, "", false);
+  } else {
+    mqttPublish(configTopic, jsonString, false);
+  }
 }
 
 /**
  * *******************************************************************
- * @brief   mqttDiscovery Setup function
+ * @brief   force mqttDiscovery Setup function
  * @param   none
  * @return  none
  * *******************************************************************/
 void mqttDiscoverySendConfig() { sendMqttConfig = true; }
+
+/**
+ * *******************************************************************
+ * @brief   force mqttDiscovery Reset
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void mqttDiscoveryResetConfig() { resetMqttConfig = true; }
 
 /**
  * *******************************************************************
@@ -672,5 +685,9 @@ void mqttDiscoveryCyclic() {
   if (sendMqttConfig) {
     mqttDiscoverySetup();
     sendMqttConfig = false;
+  }
+  if (resetMqttConfig) {
+    mqttDiscoverySetup();
+    resetMqttConfig = false;
   }
 }
