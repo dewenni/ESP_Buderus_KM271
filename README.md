@@ -12,7 +12,8 @@
 [![Current Release](https://img.shields.io/github/release/dewenni/ESP_Buderus_KM271.svg)](https://github.com/dewenni/ESP_Buderus_KM271/releases/latest)
 ![GitHub Release Date](https://img.shields.io/github/release-date/dewenni/ESP_Buderus_KM271)
 ![GitHub last commit](https://img.shields.io/github/last-commit/dewenni/ESP_Buderus_KM271)
-![Github All Releases](https://img.shields.io/github/downloads/dewenni/ESP_Buderus_KM271/total.svg)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/dewenni/ESP_Buderus_KM271/total?label=downloads%20total&color=%23f0cc59)
+![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/dewenni/ESP_Buderus_KM271/latest/total?label=downloads%20latest%20Release&color=%23f0cc59)
 ![GitHub watchers](https://img.shields.io/github/watchers/dewenni/ESP_Buderus_KM271?style=social)
 [![GitHub stars](https://img.shields.io/github/stars/dewenni/ESP_Buderus_KM271.svg?style=social&label=Star)](https://github.com/dewenni/ESP_Buderus_KM271/stargazers/)
 

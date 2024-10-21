@@ -7,5 +7,4 @@
 .vscode/extensions.json
 .vscode/c_cpp_properties.json
 .travis.yml
-web/temp/
 Todo.txt
