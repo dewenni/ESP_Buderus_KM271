@@ -65,7 +65,7 @@ The WebUI is responsive and also offers a mobile layout.
 - [Hardware](#hardware)
   - [Option 1 - Board from the78mole](#option-1---board-from-the78mole)
   - [Option 2 - ESP32 with original Buderus KM271](#option-2---esp32-with-original-buderus-km271)
-  - [Optional: Hardware Oil Meter](#optional-hardware-oilmeter)
+  - [Optional: Hardware Oil Meter](#optional-hardware-oil-meter)
   - [Optional: OneWire Sensor](#optional-onewire-sensor)
 - [Getting started](#getting-started)
   - [Platform-IO](#platform-io)

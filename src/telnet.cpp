@@ -245,7 +245,7 @@ void cmdHA(char param[MAX_PAR][MAX_CHAR]) {
     telnet.println("home assistant discovery messages sent");
   } else if (!strcmp(param[1], "resetconfig") && !strcmp(param[2], "")) {
     mqttDiscoveryResetConfig();
-    telnet.println("home assistant discovery messages sent");
+    telnet.println("home assistant discovery config reset messages sent");
   }
 }
 /**
