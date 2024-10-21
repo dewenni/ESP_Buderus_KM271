@@ -171,7 +171,7 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
     doc["icon"] = icon;
   }
 
-  if (devType = TYP_BTN) {
+  if (devType == TYP_BTN) {
     char cmdTopic[256];
     sprintf(cmdTopic, "%s/cmd/%s", statePrefix, name);
     doc["cmd_t"] = cmdTopic;
