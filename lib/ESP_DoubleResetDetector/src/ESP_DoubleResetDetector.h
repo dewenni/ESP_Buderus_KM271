@@ -280,7 +280,7 @@ class DoubleResetDetector
 #if (DOUBLERESETDETECTOR_DEBUG)
 
 #if ESP_DRD_USE_LITTLEFS
-        Serial.printf("LittleFS Flag read = 0x%X\n", DOUBLERESETDETECTOR_FLAG);
+        Serial.printf("LittleFS Flag read = 0x%lX\n", DOUBLERESETDETECTOR_FLAG);
 #else
         Serial.printf("SPIFFS Flag read = 0x%X\n", DOUBLERESETDETECTOR_FLAG);
 #endif

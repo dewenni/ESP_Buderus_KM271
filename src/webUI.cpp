@@ -371,7 +371,7 @@ void webUISetup() {
   events.onConnect([](AsyncEventSourceClient *client) {
     // check if it´s a new client or reconnect
     if (client->lastId()) {
-      Serial.printf("Client reconnected with lastId %u\n", client->lastId());
+      Serial.printf("Client reconnected with lastId %lu\n", client->lastId());
     } else {
       Serial.println("New Client connected");
     }
