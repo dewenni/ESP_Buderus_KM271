@@ -104,6 +104,20 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("p12_ntp_dialog").close();
     });
 
+  // ETH: open dialog to show w5500 configuration
+  document
+    .getElementById("p12_eth_open_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("p12_eth_dialog").showModal();
+    });
+
+  // ETH: close dialog to show w5500 configuration
+  document
+    .getElementById("p12_eth_close_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("p12_eth_dialog").close();
+    });
+
   // GPIO: open dialog to show GPIO configuration
   document
     .getElementById("p12_gpio_open_dialog_btn")

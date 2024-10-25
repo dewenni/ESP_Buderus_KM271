@@ -152,6 +152,12 @@ void updateWebBusy(const char *id, bool busy) {
   sendWebUpdate(message, "updateBusy");
 }
 
+void updateWebTooltip(const char *id, const char *tooltip) {
+  char message[BUFFER_SIZE];
+  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"tooltip\":\"%s\"}", id, tooltip);
+  sendWebUpdate(message, "updateTooltip");
+}
+
 /**
  * *******************************************************************
  * @brief   function to process the firmware update
@@ -362,7 +368,8 @@ void webUISetup() {
       });
 
   // Route für OTA-Updates
-  server.on("/update", HTTP_POST, [](AsyncWebServerRequest *request) {}, handleDoUpdate);
+  server.on(
+      "/update", HTTP_POST, [](AsyncWebServerRequest *request) {}, handleDoUpdate);
 
   // message from webClient to server
   server.on("/sendData", HTTP_GET, handleWebClientData);

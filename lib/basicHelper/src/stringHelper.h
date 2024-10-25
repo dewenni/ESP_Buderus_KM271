@@ -5,6 +5,7 @@
 const char *int8ToString(int8_t value);
 const char *uint8ToString(uint8_t value);
 const char *uint16ToString(uint16_t value);
+const char *int32ToString(int32_t value);
 const char *uint64ToString(uint64_t value);
 const char *intmaxToString(intmax_t value);
 const char *floatToString(float value);

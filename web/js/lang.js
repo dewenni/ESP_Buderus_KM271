@@ -166,13 +166,13 @@ const translations = {
     de: "Vorlauf",
     en: "Flow Temperature",
   },
-  wifi_info: {
-    de: "WiFi-Information",
-    en: "WiFi-Informations",
+  network_info: {
+    de: "Netzwerk-Information",
+    en: "Network-Informations",
   },
   wifi_ip: {
-    de: "IP-Adresse",
-    en: "IP-Address",
+    de: "WiFi IP-Adresse",
+    en: "WiFi IP-Address",
   },
   wifi_signal: {
     de: "WiFi Signal",
@@ -181,6 +181,34 @@ const translations = {
   wifi_rssi: {
     de: "WiFi Rssi",
     en: "WiFi Rssi",
+  },
+  eth_ip: {
+    de: "ETH IP-Adresse",
+    en: "ETH IP-Address",
+  },
+  eth_status: {
+    de: "ETH Status",
+    en: "ETH Status",
+  },
+  static_ip: {
+    de: "feste IP-Adresse",
+    en: "static ip address",
+  },
+  ethernet: {
+    de: "Ethernet",
+    en: "Ethernet",
+  },
+  eth_link_speed: {
+    de: "Geschwindigkeit",
+    en: "Link Speed",
+  },
+  eth_link_up: {
+    de: "Verbindung aktiv",
+    en: "Link Up",
+  },
+  eth_full_duplex: {
+    de: "Vollduplex",
+    en: "Full Duplex",
   },
   heating_circuit_1: {
     de: "Heizkreis 1",

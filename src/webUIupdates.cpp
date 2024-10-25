@@ -100,7 +100,7 @@ void finalizeJsonBuffer(char *buffer, size_t bufferSize) {
 }
 
 void addJsonLabelInt(char *buffer, size_t bufferSize, const char *elementID, intmax_t value) {
-  addJsonElement(buffer, bufferSize, elementID, "l", intmaxToString(value));
+  addJsonElement(buffer, bufferSize, elementID, "l", int32ToString(value));
 };
 
 void addJsonLabelTxt(char *buffer, size_t bufferSize, const char *elementID, const char *value) {
@@ -112,7 +112,7 @@ void addJsonValueTxt(char *buffer, size_t bufferSize, const char *elementID, con
 };
 
 void addJsonValueInt(char *buffer, size_t bufferSize, const char *elementID, intmax_t value) {
-  addJsonElement(buffer, bufferSize, elementID, "v", intmaxToString(value));
+  addJsonElement(buffer, bufferSize, elementID, "v", int32ToString(value));
 };
 
 void addJsonValueFlt(char *buffer, size_t bufferSize, const char *elementID, float value) {
@@ -228,11 +228,26 @@ void updateSettingsElements() {
   addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_wifi_hostname", config.wifi.hostname);
   addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_wifi_ssid", config.wifi.ssid);
   addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_wifi_passw", config.wifi.password);
-  addJsonState(jsonSet, sizeof(jsonSet), "p12_ip_enable", config.ip.enable);
-  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_ip_adr", config.ip.ipaddress);
-  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_ip_subnet", config.ip.subnet);
-  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_ip_gateway", config.ip.gateway);
-  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_ip_dns", config.ip.dns);
+  addJsonState(jsonSet, sizeof(jsonSet), "p12_wifi_static_ip", config.wifi.static_ip);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_wifi_adr", config.wifi.ipaddress);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_wifi_subnet", config.wifi.subnet);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_wifi_gateway", config.wifi.gateway);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_wifi_dns", config.wifi.dns);
+
+  addJsonState(jsonSet, sizeof(jsonSet), "p12_eth_enable", config.eth.enable);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_eth_hostname", config.eth.hostname);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_eth_gpio_sck", config.eth.gpio_sck);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_eth_gpio_mosi", config.eth.gpio_mosi);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_eth_gpio_miso", config.eth.gpio_miso);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_eth_gpio_cs", config.eth.gpio_cs);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_eth_gpio_irq", config.eth.gpio_irq);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_eth_gpio_rst", config.eth.gpio_rst);
+  addJsonState(jsonSet, sizeof(jsonSet), "p12_eth_static_ip", config.eth.static_ip);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_eth_adr", config.eth.ipaddress);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_eth_subnet", config.eth.subnet);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_eth_gateway", config.eth.gateway);
+  addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_eth_dns", config.eth.dns);
+
   addJsonState(jsonSet, sizeof(jsonSet), "p12_auth_enable", config.auth.enable);
   addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_auth_user", config.auth.user);
   addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_auth_passw", config.auth.password);
@@ -317,12 +332,38 @@ void updateGpioSettings() {
  * *******************************************************************/
 void updateSystemInfoElements() {
 
-  // WiFi
+  // Network information
   updateWebText("p09_wifi_ip", wifi.ipAddress, false);
   snprintf(tmpMessage, sizeof(tmpMessage), "%i %%", wifi.signal);
   updateWebText("p09_wifi_signal", tmpMessage, false);
   snprintf(tmpMessage, sizeof(tmpMessage), "%ld dbm", wifi.rssi);
   updateWebText("p09_wifi_rssi", tmpMessage, false);
+
+  if (!WiFi.isConnected()) {
+    updateWebSetIcon("p00_wifi_icon", "i_wifi_nok");
+  } else if (wifi.rssi < -80) {
+    updateWebSetIcon("p00_wifi_icon", "i_wifi_1");
+  } else if (wifi.rssi < -70) {
+    updateWebSetIcon("p00_wifi_icon", "i_wifi_2");
+  } else if (wifi.rssi < -60) {
+    updateWebSetIcon("p00_wifi_icon", "i_wifi_3");
+  } else {
+    updateWebSetIcon("p00_wifi_icon", "i_wifi_4");
+  }
+
+  updateWebText("p09_eth_ip", strlen(eth.ipAddress) ? eth.ipAddress : "-.-.-.-", false);
+  updateWebText("p09_eth_status", eth.connected ? webText.CONNECTED[config.lang] : webText.NOT_CONNECTED[config.lang], false);
+
+  if (eth.connected) {
+    updateWebSetIcon("p00_eth_icon", "i_eth");
+  } else {
+    updateWebSetIcon("p00_eth_icon", "");
+  }
+
+  snprintf(tmpMessage, sizeof(tmpMessage), "%d Mbps", eth.linkSpeed);
+  updateWebText("p09_eth_link_speed", tmpMessage, false);
+  updateWebText("p09_eth_link_up", eth.linkUp ? webText.ACTIVE[config.lang] : webText.INACTIVE[config.lang], false);
+  updateWebText("p09_eth_full_duplex", eth.fullDuplex ? webText.FULL_DUPLEX[config.lang] : "---", false);
 
   // Version informations
   updateWebText("p00_version", VERSION, false);

@@ -9,8 +9,8 @@
 #include <gzip_login_html.h>
 #include <gzip_m_css.h>
 #include <gzip_main_html.h>
-#include <language.h>
 #include <gzip_ntp.h>
+#include <language.h>
 
 /* D E C L A R A T I O N S ****************************************************/
 typedef enum {
@@ -116,3 +116,4 @@ void updateWebJSON(const char *JSON);
 void updateWebHref(const char *elementID, const char *href);
 void updateWebBusy(const char *elementID, bool busy);
 void updateWebHideElement(const char *id, bool show);
+void updateWebTooltip(const char *id, const char *tooltip);

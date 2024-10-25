@@ -11,7 +11,6 @@ char pushoverBuffer[MSG_BUF_SIZE]; // Buffer for Pushover messages
 s_logdata logData;
 muTimer pushoverSendTimer = muTimer();
 HTTPClient http;
-WiFiClient client;
 
 /**
  * *******************************************************************
@@ -272,7 +271,7 @@ void sendPushoverMsg() {
   char jsonBuffer[256 + MSG_BUF_SIZE];
   serializeJson(notification, jsonBuffer, sizeof(jsonBuffer));
 
-  http.begin(client, "http://api.pushover.net/1/messages.json"); // using http instead of https, because https needs >40kb of Heap memory!!!
+  http.begin("http://api.pushover.net/1/messages.json"); // using http instead of https, because https needs >40kb of Heap memory!!!
   http.addHeader("Content-Type", "application/json");
   http.setReuse(false);
   http.POST(jsonBuffer);                             // Send the POST request with the JSON data

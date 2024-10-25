@@ -156,30 +156,69 @@ void webCallback(const char *elementId, const char *value) {
 
   // WiFi
   if (strcmp(elementId, "p12_wifi_hostname") == 0) {
-    snprintf(config.wifi.hostname, sizeof(config.wifi.hostname), "%s", value);
+    snprintf(config.wifi.hostname, sizeof(config.wifi.hostname), value);
   }
   if (strcmp(elementId, "p12_wifi_ssid") == 0) {
-    snprintf(config.wifi.ssid, sizeof(config.wifi.ssid), "%s", value);
+    snprintf(config.wifi.ssid, sizeof(config.wifi.ssid), value);
   }
   if (strcmp(elementId, "p12_wifi_passw") == 0) {
-    snprintf(config.wifi.password, sizeof(config.wifi.password), "%s", value);
+    snprintf(config.wifi.password, sizeof(config.wifi.password), value);
+  }
+  if (strcmp(elementId, "p12_wifi_static_ip") == 0) {
+    config.wifi.static_ip = stringToBool(value);
+  }
+  if (strcmp(elementId, "p12_wifi_adr") == 0) {
+    snprintf(config.wifi.ipaddress, sizeof(config.wifi.ipaddress), value);
+  }
+  if (strcmp(elementId, "p12_wifi_subnet") == 0) {
+    snprintf(config.wifi.subnet, sizeof(config.wifi.subnet), value);
+  }
+  if (strcmp(elementId, "p12_wifi_gateway") == 0) {
+    snprintf(config.wifi.gateway, sizeof(config.wifi.gateway), value);
+  }
+  if (strcmp(elementId, "p12_wifi_dns") == 0) {
+    snprintf(config.wifi.dns, sizeof(config.wifi.dns), value);
   }
 
-  // IP-Settings
-  if (strcmp(elementId, "p12_ip_enable") == 0) {
-    config.ip.enable = stringToBool(value);
+  // Ethernet
+  if (strcmp(elementId, "p12_eth_enable") == 0) {
+    config.eth.enable = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_ip_adr") == 0) {
-    snprintf(config.ip.ipaddress, sizeof(config.ip.ipaddress), "%s", value);
+  if (strcmp(elementId, "p12_eth_hostname") == 0) {
+    snprintf(config.eth.hostname, sizeof(config.eth.hostname), value);
   }
-  if (strcmp(elementId, "p12_ip_subnet") == 0) {
-    snprintf(config.ip.subnet, sizeof(config.ip.subnet), "%s", value);
+  if (strcmp(elementId, "p12_eth_gpio_sck") == 0) {
+    config.eth.gpio_sck = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_ip_gateway") == 0) {
-    snprintf(config.ip.gateway, sizeof(config.ip.gateway), "%s", value);
+  if (strcmp(elementId, "p12_eth_gpio_mosi") == 0) {
+    config.eth.gpio_mosi = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_ip_dns") == 0) {
-    snprintf(config.ip.dns, sizeof(config.ip.dns), "%s", value);
+  if (strcmp(elementId, "p12_eth_gpio_miso") == 0) {
+    config.eth.gpio_miso = strtoul(value, NULL, 10);
+  }
+  if (strcmp(elementId, "p12_eth_gpio_cs") == 0) {
+    config.eth.gpio_cs = strtoul(value, NULL, 10);
+  }
+  if (strcmp(elementId, "p12_eth_gpio_irq") == 0) {
+    config.eth.gpio_irq = strtoul(value, NULL, 10);
+  }
+  if (strcmp(elementId, "p12_eth_gpio_rst") == 0) {
+    config.eth.gpio_rst = strtoul(value, NULL, 10);
+  }
+  if (strcmp(elementId, "p12_eth_static_ip") == 0) {
+    config.eth.static_ip = stringToBool(value);
+  }
+  if (strcmp(elementId, "p12_eth_adr") == 0) {
+    snprintf(config.eth.ipaddress, sizeof(config.eth.ipaddress), value);
+  }
+  if (strcmp(elementId, "p12_eth_subnet") == 0) {
+    snprintf(config.eth.subnet, sizeof(config.eth.subnet), value);
+  }
+  if (strcmp(elementId, "p12_eth_gateway") == 0) {
+    snprintf(config.eth.gateway, sizeof(config.eth.gateway), value);
+  }
+  if (strcmp(elementId, "p12_eth_dns") == 0) {
+    snprintf(config.eth.dns, sizeof(config.eth.dns), value);
   }
 
   // Authentication

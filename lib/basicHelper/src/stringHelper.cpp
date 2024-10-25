@@ -8,7 +8,7 @@
  * *******************************************************************/
 const char *int8ToString(int8_t value) {
   static char ret_str[5];
-  snprintf(ret_str, sizeof(ret_str), "%i", value);
+  snprintf(ret_str, sizeof(ret_str), "%" PRId8, value);
   return ret_str;
 }
 
@@ -20,7 +20,7 @@ const char *int8ToString(int8_t value) {
  * *******************************************************************/
 const char *uint8ToString(uint8_t value) {
   static char ret_str[5];
-  snprintf(ret_str, sizeof(ret_str), "%u", value);
+  snprintf(ret_str, sizeof(ret_str), "%" PRIu8, value);
   return ret_str;
 }
 
@@ -32,7 +32,19 @@ const char *uint8ToString(uint8_t value) {
  * *******************************************************************/
 const char *uint16ToString(uint16_t value) {
   static char ret_str[10];
-  snprintf(ret_str, sizeof(ret_str), "%u", value);
+  snprintf(ret_str, sizeof(ret_str), "%" PRIu16, value);
+  return ret_str;
+}
+
+/**
+ * *******************************************************************
+ * @brief   create String from integer
+ * @param   value as int32_t
+ * @return  pointer to char array - pay attention, it is local static
+ * *******************************************************************/
+const char *int32ToString(int32_t value) {
+  static char ret_str[64];
+  snprintf(ret_str, sizeof(ret_str), "%" PRId32, value);
   return ret_str;
 }
 
@@ -325,8 +337,8 @@ bool isNumber(const char *str) {
   int num;
   char end;
   if (sscanf(str, "%d%c", &num, &end) == 1) {
-    return true; // string is a number
+    return true; // string is not a number
   } else {
-    return false; // string is not a number
+    return false; // string is a number
   }
 }

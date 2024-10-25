@@ -1,4 +1,11 @@
+#include <ETH.h>
+#include <SPI.h>
 #include <basics.h>
+
+#ifndef ETH_PHY_TYPE
+#define ETH_PHY_TYPE ETH_PHY_W5500
+#define ETH_PHY_ADDR 1
+#endif
 
 /* P R O T O T Y P E S ********************************************************/
 void ntpSetup();
@@ -6,7 +13,9 @@ void setupOTA();
 void setup_wifi();
 
 /* D E C L A R A T I O N S ****************************************************/
-s_wifi wifi;                            // global WiFi Informations
+s_wifi wifi; // global WiFi Informations
+s_eth eth;   // global ETH Informations
+
 muTimer wifiReconnectTimer = muTimer(); // timer for reconnect delay
 int wifi_retry = 0;
 esp_reset_reason_t reset_reason;
@@ -114,16 +123,16 @@ void setupWiFi() {
     WiFi.onEvent(onWiFiStationConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_CONNECTED);
     WiFi.onEvent(onWiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
 
-    if (config.ip.enable) {
+    if (config.wifi.static_ip) {
       // manual IP-Settings
       IPAddress manIp;
-      manIp.fromString(config.ip.ipaddress);
+      manIp.fromString(config.wifi.ipaddress);
       IPAddress manSubnet;
-      manSubnet.fromString(config.ip.subnet);
+      manSubnet.fromString(config.wifi.subnet);
       IPAddress manGateway;
-      manGateway.fromString(config.ip.gateway);
+      manGateway.fromString(config.wifi.gateway);
       IPAddress manDns;
-      manDns.fromString(config.ip.dns);
+      manDns.fromString(config.wifi.dns);
       WiFi.config(manIp, manGateway, manSubnet, manDns);
     }
 
@@ -134,6 +143,65 @@ void setupWiFi() {
     MDNS.begin(config.wifi.hostname);
     msg("WiFi Mode STA - Trying connect to: ");
     msgLn(config.wifi.ssid);
+  }
+}
+
+void onEthEvent(arduino_event_id_t event, arduino_event_info_t info) {
+  switch (event) {
+  case ARDUINO_EVENT_ETH_START:
+    Serial.println("ETH Started");
+    // set eth hostname here
+    ETH.setHostname(config.eth.hostname);
+    break;
+  case ARDUINO_EVENT_ETH_CONNECTED:
+    Serial.println("ETH Connected");
+    break;
+  case ARDUINO_EVENT_ETH_GOT_IP:
+    Serial.printf("ETH Got IP: '%s'\n", esp_netif_get_desc(info.got_ip.esp_netif));
+    Serial.println(ETH);
+    eth.connected = true;
+
+    esp_netif_ip_info_t ip_info;
+    if (esp_netif_get_ip_info(info.got_ip.esp_netif, &ip_info) == ESP_OK) {
+      snprintf(eth.ipAddress, sizeof(eth.ipAddress), "%d.%d.%d.%d", IP2STR(&ip_info.ip));
+    }
+
+    break;
+  case ARDUINO_EVENT_ETH_LOST_IP:
+    Serial.println("ETH Lost IP");
+    eth.connected = false;
+    break;
+  case ARDUINO_EVENT_ETH_DISCONNECTED:
+    Serial.println("ETH Disconnected");
+    eth.connected = false;
+    break;
+  case ARDUINO_EVENT_ETH_STOP:
+    Serial.println("ETH Stopped");
+    eth.connected = false;
+    break;
+  default:
+    break;
+  }
+}
+
+/**
+ * *******************************************************************
+ * @brief   Setup for general Ethernet Function
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void setupETH() {
+
+  pinMode(config.eth.gpio_irq, OUTPUT);
+  pinMode(config.eth.gpio_rst, OUTPUT);
+
+  Network.onEvent(onEthEvent);
+
+  SPI.begin(config.eth.gpio_sck, config.eth.gpio_miso, config.eth.gpio_mosi);
+  ETH.begin(ETH_PHY_TYPE, ETH_PHY_ADDR, config.eth.gpio_cs, config.eth.gpio_irq, config.eth.gpio_rst, SPI);
+
+  if (config.eth.static_ip) {
+    ETH.config(IPAddress(config.eth.ipaddress), IPAddress(config.eth.gateway), IPAddress(config.eth.subnet), IPAddress(config.eth.dns));
   }
 }
 
@@ -150,6 +218,11 @@ void basicSetup() {
 
   // WiFi
   setupWiFi();
+
+  // Ethernet
+  if (config.eth.enable) {
+    setupETH();
+  }
 
   // NTP
   ntpSetup();
@@ -183,7 +256,7 @@ void sendWiFiInfo() {
   wifiJSON["rssi"] = wifi.rssi;
   wifiJSON["signal"] = wifi.signal;
   wifiJSON["ip"] = wifi.ipAddress;
-  wifiJSON["date-time"] = getDateTimeString();
+  wifiJSON["date_time"] = getDateTimeString();
 
   char sendWififJSON[255];
   serializeJson(wifiJSON, sendWififJSON);
@@ -191,6 +264,31 @@ void sendWiFiInfo() {
 
   // wifi status
   mqttPublish(addTopic("/status"), "online", false);
+}
+
+/**
+ * *******************************************************************
+ * @brief   Send WiFi Information in JSON format via MQTT
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void sendETHInfo() {
+
+  JsonDocument ethJSON;
+  ethJSON["ip"] = eth.ipAddress;
+  ethJSON["status"] = eth.connected ? "connected" : "disconnected";
+  ethJSON["link_up"] = eth.linkUp ? "active" : "inactive";
+  ethJSON["link_speed"] = eth.linkSpeed;
+  ethJSON["full_duplex"] = eth.linkUp ? "full-duplex" : "---";
+  ethJSON["date_time"] = getDateTimeString();
+
+  char sendEthJSON[255];
+  serializeJson(ethJSON, sendEthJSON);
+  mqttPublish(addTopic("/eth"), sendEthJSON, false);
+
+  eth.fullDuplex = ETH.fullDuplex();
+  eth.linkUp = ETH.linkUp();
+  eth.linkSpeed = ETH.linkSpeed();
 }
 
 /**
@@ -268,8 +366,8 @@ void getUptime(char *buffer, size_t bufferSize) {
  * @return  none
  * *******************************************************************/
 void getRestartReason(char *reason, size_t reason_size) {
-  
-  if (strlen(intRestartReason)!=0) {
+
+  if (strlen(intRestartReason) != 0) {
     snprintf(reason, reason_size, "%s", intRestartReason);
   } else {
     switch (reset_reason) {

@@ -89,6 +89,7 @@ void setup() {
   // send initial WiFi infos
   if (!setupMode) {
     sendWiFiInfo();
+    sendETHInfo();
   }
 
   // setup for km271

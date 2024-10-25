@@ -177,10 +177,12 @@
       </ul>
       <div style="display: inline-flex; margin-top: auto; margin-bottom: 5px">
         <a id="p00_version" style="margin-right: auto; margin-top: auto"></a>
+        <i id="p00_wifi_icon" style="width: 28px; height: 28px"></i>
+        <i id="p00_eth_icon" style="width: 28px; height: 28px"></i>
         <a
           href="/logout"
           class="svg i_logout OPT_AUTH"
-          style="width: 32px; height: 32px"></a>
+          style="width: 28px; height: 28px"></a>
       </div>
     </div>
     <!--Sidebar-END-->
@@ -1769,7 +1771,7 @@
         <div class="grid">
           <!-- Grid 1 -->
           <article class="card">
-            <p class="table-header" data-i18n="wifi_info"></p>
+            <p class="table-header" data-i18n="network_info"></p>
             <table class="striped">
               <tbody>
                 <tr>
@@ -1783,6 +1785,30 @@
                 <tr>
                   <td data-i18n="wifi_rssi"></td>
                   <td id="p09_wifi_rssi" class="table-value"></td>
+                </tr>
+              </tbody>
+            </table>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="eth_ip"></td>
+                  <td id="p09_eth_ip" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="eth_status"></td>
+                  <td id="p09_eth_status" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="eth_link_up"></td>
+                  <td id="p09_eth_link_up" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="eth_link_speed"></td>
+                  <td id="p09_eth_link_speed" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="eth_full_duplex"></td>
+                  <td id="p09_eth_full_duplex" class="table-value"></td>
                 </tr>
               </tbody>
             </table>
@@ -1800,6 +1826,10 @@
                   <td data-i18n="date"></td>
                   <td id="p09_sw_date" class="table-value"></td>
                 </tr>
+              </tbody>
+            </table>
+            <table class="striped">
+              <tbody>
                 <tr>
                   <td data-i18n="logamatic_version"></td>
                   <td id="p09_logamatic_version" class="table-value"></td>
@@ -2050,31 +2080,158 @@
               <input type="text" id="p12_wifi_ssid" name="wifi_ssid" />
               <label for="wifi_password">Passwort</label>
               <input type="password" id="p12_wifi_passw" name="wifi_password" />
-            </details>
-            <hr />
-            <!-- IP-Settings -->
-            <details>
-              <summary data-i18n="ip_settings"></summary>
+
               <div class="section-header">
-                <label for="man_ip_enable" data-i18n="activate"></label>
+                <label for="man_ip_enable" data-i18n="static_ip"></label>
                 <div class="switch-container">
                   <input
                     name="man_ip_enable"
                     type="checkbox"
                     role="switch"
-                    id="p12_ip_enable" />
+                    hideOpt="WIFI_STATIC_IP"
+                    id="p12_wifi_static_ip" />
                 </div>
               </div>
               <br />
-              <label for="ip_adr" data-i18n="ip_adr"></label>
-              <input type="text" id="p12_ip_adr" name="ip_adr" />
-              <label for="ip_subnet" data-i18n="ip_subnet"></label>
-              <input type="text" id="p12_ip_subnet" name="ip_subnet" />
-              <label for="ip_gateway" data-i18n="ip_gateway"></label>
-              <input type="text" id="p12_ip_gateway" name="ip_gateway" />
-              <label for="ip_dns" data-i18n="ip_dns"></label>
-              <input type="text" id="p12_ip_dns" name="ip_dns" />
+              <div class="WIFI_STATIC_IP">
+                <label for="ip_adr" data-i18n="ip_adr"></label>
+                <input type="text" id="p12_wifi_adr" name="ip_adr" />
+                <label for="ip_subnet" data-i18n="ip_subnet"></label>
+                <input type="text" id="p12_wifi_subnet" name="ip_subnet" />
+                <label for="ip_gateway" data-i18n="ip_gateway"></label>
+                <input type="text" id="p12_wifi_gateway" name="ip_gateway" />
+                <label for="ip_dns" data-i18n="ip_dns"></label>
+                <input type="text" id="p12_wifi_dns" name="ip_dns" />
+              </div>
             </details>
+            <hr />
+            <!-- ETHERNET -->
+            <details>
+              <summary>Ethernet (W5500)</summary>
+              <div class="section-header">
+                <label for="eth_enable" data-i18n="activate"></label>
+                <div class="switch-container">
+                  <input
+                    name="eth_enable"
+                    type="checkbox"
+                    role="switch"
+                    id="p12_eth_enable" />
+                </div>
+              </div>
+              <br />
+              <label for="eth_hostname" data-i18n="hostname"></label>
+              <input type="text" id="p12_eth_hostname" name="eth_hostname" />
+              <div class="leftright">
+                <label for="eth_gpio_sck">GPIO CLK</label>
+                <button
+                  id="p12_eth_open_dialog_btn"
+                  class="i_help"
+                  style="
+                    height: 30px;
+                    background-color: transparent;
+                    border: none;
+                  "></button>
+              </div>
+              <input type="number" id="p12_eth_gpio_sck" name="eth_gpio_sck" />
+              <label for="eth_gpio_mosi">GPIO MOSI</label>
+              <input
+                type="number"
+                id="p12_eth_gpio_mosi"
+                name="eth_gpio_mosi" />
+              <label for="eth_gpio_miso">GPIO MISO</label>
+              <input
+                type="number"
+                id="p12_eth_gpio_miso"
+                name="eth_gpio_miso" />
+              <label for="eth_gpio_cs">GPIO CS</label>
+              <input type="number" id="p12_eth_gpio_cs" name="eth_gpio_cs" />
+              <label for="eth_gpio_irq">GPIO INT</label>
+              <input type="number" id="p12_eth_gpio_irq" name="eth_gpio_irq" />
+              <label for="eth_gpio_rst">GPIO RST</label>
+              <input type="number" id="p12_eth_gpio_rst" name="eth_gpio_rst" />
+              <div class="section-header">
+                <label for="man_ip_enable" data-i18n="static_ip"></label>
+                <div class="switch-container">
+                  <input
+                    name="man_ip_enable"
+                    type="checkbox"
+                    role="switch"
+                    hideOpt="ETH_STATIC_IP"
+                    id="p12_eth_static_ip" />
+                </div>
+              </div>
+              <br />
+              <div class="ETH_STATIC_IP">
+                <label for="ip_adr" data-i18n="ip_adr"></label>
+                <input type="text" id="p12_eth_adr" name="ip_adr" />
+                <label for="ip_subnet" data-i18n="ip_subnet"></label>
+                <input type="text" id="p12_eth_subnet" name="ip_subnet" />
+                <label for="ip_gateway" data-i18n="ip_gateway"></label>
+                <input type="text" id="p12_eth_gateway" name="ip_gateway" />
+                <label for="ip_dns" data-i18n="ip_dns"></label>
+                <input type="text" id="p12_eth_dns" name="ip_dns" />
+              </div>
+            </details>
+            <!-- Dialog OPEN-ETH-HELP -->
+            <dialog id="p12_eth_dialog">
+              <article>
+                <table>
+                  <tbody>
+                    <tr>
+                      <th>W5500</th>
+                      <th>Km271 PIN</th>
+                      <th>Km271 GPIO</th>
+                    </tr>
+                    <tr>
+                      <td>3.3V</td>
+                      <td>J7.2</td>
+                      <td>--</td>
+                    </tr>
+                    <tr>
+                      <td>GND</td>
+                      <td>J7.10</td>
+                      <td>--</td>
+                    </tr>
+                    <tr>
+                      <td>CLK</td>
+                      <td>J7.9</td>
+                      <td>18</td>
+                    </tr>
+                    <tr>
+                      <td>MOSI</td>
+                      <td>J7.7</td>
+                      <td>23</td>
+                    </tr>
+                    <tr>
+                      <td>MISO</td>
+                      <td>J7.5</td>
+                      <td>19</td>
+                    </tr>
+                    <tr>
+                      <td>CS</td>
+                      <td>J7.3</td>
+                      <td>15</td>
+                    </tr>
+                    <tr>
+                      <td>INT</td>
+                      <td>J7.8</td>
+                      <td>14</td>
+                    </tr>
+                    <tr>
+                      <td>RST</td>
+                      <td>J7.6</td>
+                      <td>13</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="dash-footer">
+                  <button
+                    id="p12_eth_close_dialog_btn"
+                    data-i18n="close"
+                    style="width: 75%"></button>
+                </div>
+              </article>
+            </dialog>
             <hr />
             <!-- Authentication -->
             <details>
@@ -2365,6 +2522,7 @@
                     border: none;
                   "></button>
               </div>
+
               <input
                 class="num-input"
                 name="km271_rx"

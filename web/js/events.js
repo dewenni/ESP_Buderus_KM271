@@ -235,5 +235,15 @@ function setupSSE() {
     false
   );
 
+  evtSource.addEventListener(
+    "updateTooltip",
+    function (e) {
+      var data = JSON.parse(e.data);
+      const element = document.getElementById(data.id);
+      element.setAttribute("data-tooltip", data.tooltip);
+    },
+    false
+  );
+
   resetPingTimer();
 }

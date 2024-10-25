@@ -166,13 +166,13 @@ const translations = {
     de: "Vorlauf",
     en: "Flow Temperature",
   },
-  wifi_info: {
-    de: "WiFi-Information",
-    en: "WiFi-Informations",
+  network_info: {
+    de: "Netzwerk-Information",
+    en: "Network-Informations",
   },
   wifi_ip: {
-    de: "IP-Adresse",
-    en: "IP-Address",
+    de: "WiFi IP-Adresse",
+    en: "WiFi IP-Address",
   },
   wifi_signal: {
     de: "WiFi Signal",
@@ -181,6 +181,34 @@ const translations = {
   wifi_rssi: {
     de: "WiFi Rssi",
     en: "WiFi Rssi",
+  },
+  eth_ip: {
+    de: "ETH IP-Adresse",
+    en: "ETH IP-Address",
+  },
+  eth_status: {
+    de: "ETH Status",
+    en: "ETH Status",
+  },
+  static_ip: {
+    de: "feste IP-Adresse",
+    en: "static ip address",
+  },
+  ethernet: {
+    de: "Ethernet",
+    en: "Ethernet",
+  },
+  eth_link_speed: {
+    de: "Geschwindigkeit",
+    en: "Link Speed",
+  },
+  eth_link_up: {
+    de: "Verbindung aktiv",
+    en: "Link Up",
+  },
+  eth_full_duplex: {
+    de: "Vollduplex",
+    en: "Full Duplex",
   },
   heating_circuit_1: {
     de: "Heizkreis 1",
@@ -1536,6 +1564,20 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("p12_ntp_dialog").close();
     });
 
+  // ETH: open dialog to show w5500 configuration
+  document
+    .getElementById("p12_eth_open_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("p12_eth_dialog").showModal();
+    });
+
+  // ETH: close dialog to show w5500 configuration
+  document
+    .getElementById("p12_eth_close_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("p12_eth_dialog").close();
+    });
+
   // GPIO: open dialog to show GPIO configuration
   document
     .getElementById("p12_gpio_open_dialog_btn")
@@ -1899,6 +1941,16 @@ function setupSSE() {
       } else if (data.state == "close") {
         dialog.close();
       }
+    },
+    false
+  );
+
+  evtSource.addEventListener(
+    "updateTooltip",
+    function (e) {
+      var data = JSON.parse(e.data);
+      const element = document.getElementById(data.id);
+      element.setAttribute("data-tooltip", data.tooltip);
     },
     false
   );

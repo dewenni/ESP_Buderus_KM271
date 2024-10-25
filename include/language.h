@@ -23,6 +23,11 @@ typedef struct {
   const char *ERROR[MAX_LANG] = {"FEHLER", "ERROR"};
   const char *MAN_DAY[MAX_LANG] = {"Handbetrieb:Tag", "Manual:Day"};
   const char *MAN_NIGHT[MAX_LANG] = {"Handbetrieb:Nacht", "Manual:Night"};
+  const char *ACTIVE[MAX_LANG] = {"aktiv", "active"};
+  const char *INACTIVE[MAX_LANG] = {"inaktiv", "inactive"};
+  const char *FULL_DUPLEX[MAX_LANG] = {"Vollduplex", "Full-Duplex"};
+  const char *CONNECTED[MAX_LANG] = {"verbunden", "connected"};
+  const char *NOT_CONNECTED[MAX_LANG] = {"nicht verbunden", "not connected"};
 } s_webui_texts;
 
 // ======================================================================================

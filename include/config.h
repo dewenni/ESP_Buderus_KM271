@@ -41,10 +41,31 @@ typedef struct {
 } s_cfg_km271;
 
 typedef struct {
-  char ssid[128];     // WiFi SSID
-  char password[128]; // WiFi Password
-  char hostname[128]; // HOSTNAME
+  char ssid[128];
+  char password[128];
+  char hostname[128];
+  bool static_ip = false;
+  char ipaddress[17];
+  char subnet[17];
+  char gateway[17];
+  char dns[17];
 } s_cfg_wifi;
+
+typedef struct {
+  bool enable = false;
+  char hostname[128];
+  bool static_ip = false;
+  char ipaddress[17];
+  char subnet[17];
+  char gateway[17];
+  char dns[17];
+  int gpio_sck;
+  int gpio_mosi;
+  int gpio_miso;
+  int gpio_cs;
+  int gpio_irq;
+  int gpio_rst;
+} s_cfg_eth;
 
 typedef struct {
   bool enable;          // Enable or disable the MQTT server
@@ -76,14 +97,6 @@ typedef struct {
   int km271_RX;
   int km271_TX;
 } s_cfg_gpio;
-
-typedef struct {
-  bool enable = true;
-  char ipaddress[17];
-  char subnet[17];
-  char gateway[17];
-  char dns[17];
-} s_cfg_ip;
 
 typedef struct {
   bool enable = true;
@@ -129,12 +142,12 @@ typedef struct {
   s_cfg_sim sim;
   s_cfg_oilmeter oilmeter;
   s_cfg_wifi wifi;
+  s_cfg_eth eth;
   s_cfg_mqtt mqtt;
   s_cfg_ntp ntp;
   s_cfg_gpio gpio;
   s_cfg_webUI webUI;
   s_cfg_km271 km271;
-  s_cfg_ip ip;
   s_cfg_auth auth;
   s_cfg_debug debug;
   s_cfg_sensor sensor;

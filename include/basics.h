@@ -28,10 +28,20 @@ typedef struct {
 } s_wifi;
 extern s_wifi wifi;
 
+typedef struct {
+  bool connected;
+  char ipAddress[20];
+  uint8_t linkSpeed;
+  bool fullDuplex;
+  bool linkUp;
+} s_eth;
+extern s_eth eth;
+
 /* P R O T O T Y P E S ********************************************************/
 void checkWiFi();
 void basicSetup();
 void sendWiFiInfo();
+void sendETHInfo();
 void storeData();
 void getUptime(char *buffer, size_t bufferSize);
 void sendSysInfo();

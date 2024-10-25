@@ -189,6 +189,25 @@ void configSaveToFile() {
   doc["wifi"]["ssid"] = config.wifi.ssid;
   doc["wifi"]["password"] = config.wifi.password;
   doc["wifi"]["hostname"] = config.wifi.hostname;
+  doc["wifi"]["static_ip"] = config.wifi.static_ip;
+  doc["wifi"]["ipaddress"] = config.wifi.ipaddress;
+  doc["wifi"]["subnet"] = config.wifi.subnet;
+  doc["wifi"]["gateway"] = config.wifi.gateway;
+  doc["wifi"]["dns"] = config.wifi.dns;
+
+  doc["eth"]["enable"] = config.eth.enable;
+  doc["eth"]["hostname"] = config.eth.hostname;
+  doc["eth"]["static_ip"] = config.eth.static_ip;
+  doc["eth"]["ipaddress"] = config.eth.ipaddress;
+  doc["eth"]["subnet"] = config.eth.subnet;
+  doc["eth"]["gateway"] = config.eth.gateway;
+  doc["eth"]["dns"] = config.eth.dns;
+  doc["eth"]["gpio_sck"] = config.eth.gpio_sck;
+  doc["eth"]["gpio_mosi"] = config.eth.gpio_mosi;
+  doc["eth"]["gpio_miso"] = config.eth.gpio_miso;
+  doc["eth"]["gpio_cs"] = config.eth.gpio_cs;
+  doc["eth"]["gpio_irq"] = config.eth.gpio_irq;
+  doc["eth"]["gpio_rst"] = config.eth.gpio_rst;
 
   doc["mqtt"]["enable"] = config.mqtt.enable;
   doc["mqtt"]["server"] = config.mqtt.server;
@@ -221,12 +240,6 @@ void configSaveToFile() {
   doc["km271"]["use_hc2"] = config.km271.use_hc2;
   doc["km271"]["use_ww"] = config.km271.use_ww;
   doc["km271"]["use_alarmMsg"] = config.km271.use_alarmMsg;
-
-  doc["ip"]["enable"] = config.ip.enable;
-  doc["ip"]["ipaddress"] = config.ip.ipaddress;
-  doc["ip"]["subnet"] = config.ip.subnet;
-  doc["ip"]["gateway"] = config.ip.gateway;
-  doc["ip"]["dns"] = config.ip.dns;
 
   doc["auth"]["enable"] = config.auth.enable;
   doc["auth"]["user"] = config.auth.user;
@@ -309,6 +322,26 @@ void configLoadFromFile() {
     readJSONstring(config.wifi.ssid, sizeof(config.wifi.ssid), doc["wifi"]["ssid"]);
     readJSONstring(config.wifi.password, sizeof(config.wifi.password), doc["wifi"]["password"]);
     readJSONstring(config.wifi.hostname, sizeof(config.wifi.hostname), doc["wifi"]["hostname"]);
+    config.wifi.static_ip = doc["wifi"]["static_ip"];
+    readJSONstring(config.wifi.ipaddress, sizeof(config.wifi.ipaddress), doc["wifi"]["ipaddress"]);
+    readJSONstring(config.wifi.subnet, sizeof(config.wifi.subnet), doc["wifi"]["subnet"]);
+    readJSONstring(config.wifi.gateway, sizeof(config.wifi.gateway), doc["wifi"]["gateway"]);
+    readJSONstring(config.wifi.dns, sizeof(config.wifi.dns), doc["wifi"]["dns"]);
+
+    config.eth.enable = doc["eth"]["enable"];
+    readJSONstring(config.eth.hostname, sizeof(config.eth.hostname), doc["eth"]["hostname"]);
+    config.eth.static_ip = doc["eth"]["static_ip"];
+    readJSONstring(config.eth.ipaddress, sizeof(config.eth.ipaddress), doc["eth"]["ipaddress"]);
+    readJSONstring(config.eth.ipaddress, sizeof(config.eth.ipaddress), doc["eth"]["ipaddress"]);
+    readJSONstring(config.eth.subnet, sizeof(config.eth.subnet), doc["eth"]["subnet"]);
+    readJSONstring(config.eth.gateway, sizeof(config.eth.gateway), doc["eth"]["gateway"]);
+    readJSONstring(config.eth.dns, sizeof(config.eth.dns), doc["eth"]["dns"]);
+    config.eth.gpio_sck = doc["eth"]["gpio_sck"];
+    config.eth.gpio_mosi = doc["eth"]["gpio_mosi"];
+    config.eth.gpio_miso = doc["eth"]["gpio_miso"];
+    config.eth.gpio_cs = doc["eth"]["gpio_cs"];
+    config.eth.gpio_irq = doc["eth"]["gpio_irq"];
+    config.eth.gpio_rst = doc["eth"]["gpio_rst"];
 
     config.mqtt.enable = doc["mqtt"]["enable"];
     readJSONstring(config.mqtt.server, sizeof(config.mqtt.server), doc["mqtt"]["server"]);
@@ -341,12 +374,6 @@ void configLoadFromFile() {
     config.km271.use_hc2 = doc["km271"]["use_hc2"];
     config.km271.use_ww = doc["km271"]["use_ww"];
     config.km271.use_alarmMsg = doc["km271"]["use_alarmMsg"];
-
-    config.ip.enable = doc["ip"]["enable"];
-    readJSONstring(config.ip.ipaddress, sizeof(config.ip.ipaddress), doc["ip"]["ipaddress"]);
-    readJSONstring(config.ip.subnet, sizeof(config.ip.subnet), doc["ip"]["subnet"]);
-    readJSONstring(config.ip.gateway, sizeof(config.ip.gateway), doc["ip"]["gateway"]);
-    readJSONstring(config.ip.dns, sizeof(config.ip.dns), doc["ip"]["dns"]);
 
     config.auth.enable = doc["auth"]["enable"];
     readJSONstring(config.auth.user, sizeof(config.auth.user), doc["auth"]["user"]);
