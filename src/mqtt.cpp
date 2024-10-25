@@ -463,7 +463,7 @@ void mqttSetup() {
   mqtt_config.clientId = config.wifi.hostname;
   mqtt_config.willTopic = addTopic("/status");
 
-  //mqtt_client.setAsync(true);
+  mqtt_client.setAsync(false);
   mqtt_client.begin(mqtt_config);
 }
 

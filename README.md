@@ -70,6 +70,10 @@ The WebUI is responsive and also offers a mobile layout.
   - [Option 2 - ESP32 with original Buderus KM271](#option-2---esp32-with-original-buderus-km271)
   - [Optional: Hardware Oil Meter](#optional-hardware-oil-meter)
   - [Optional: OneWire Sensor](#optional-onewire-sensor)
+  - [Optional: Exhaust Sensor](#optional-exhaust-sensor)
+  - [Optional: Ethernet Module W5500](#optional-ethernet-module-w5500)
+
+
 - [Getting started](#getting-started)
   - [Platform-IO](#platform-io)
   - [ESP-Flash-Tool](#esp-flash-tool)
@@ -171,6 +175,58 @@ Only the GPIO to which the sensor cable is connected is specified in the configu
 
 > [!NOTE] 
 > but this is only optional and can be used additionally to the Information´s that the software will read from the Logamatic.
+
+## Optional: Exhaust Sensor
+
+It is also possible to connect a optional exhaust sensor (NTC 100K) to the Connector J5 of the Board. In some cases you have to add some missing components to the Board.
+
+
+| Component | Value        |
+|-----------|--------------|
+| D5        | BZX84C5V1    |
+| R17       | 3.3K         |
+| R11       | 100K         |
+| C11       | 100nF        |
+| C12       | 33nF         |
+| R35       | 0            |
+| R39       | 0            |
+ 
+There is no need to configure the sensor in the software. The logamatic itself will automatically detect the sensor and send the value similar to the other values.
+
+![exhaust-sens](/Doc/exhaust_sens.png)
+
+
+## Optional: Ethernet Module W5500
+
+It is also possible to connect a W5500 Ethernet module to the Board or a generic ESP32. For the KM271 Board´s from Daniel you can connect the W5500 to the J7 Connector of the Board.
+
+Board >= 0.0.6
+
+| Signal | GPIO          | Pin (J7) |
+|--------|---------------|----------|
+| VCC    |               | J7.2     |
+| GND    |               | J7.10    |
+| CLK    |  18           | J7.9     |
+| MOSI   |  23           | J7.7     |
+| MISO   |  19           | J7.5     |
+| CS     |  15           | J7.3     |
+| INT    |  14           | J7.8     |
+| RST    |  13           | J7.6     |
+
+for the connection you need a cable with 8 wires and a DUPONT connector with 10 Pins
+
+| Connector 1 | Connector 2|
+|-----------|--------------|
+| Pin 2     | Pin 10       |
+| Pin 3     | Pin 4        |
+| Pin 5     | Pin 8        |
+| Pin 6     | Pin 5        |
+| Pin 7     | Pin 6        |
+| Pin 8     | Pin 3        |
+| Pin 9     | Pin 2        |
+| Pin 10    | Pin 7        |
+
+![W5500](/Doc/w5500.png)
 
 -----
 
