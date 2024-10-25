@@ -114,7 +114,7 @@ void setupTelnet() {
   telnet.onInputReceived(onTelnetInput);
 
   msg("Telnet Server: ");
-  if (telnet.begin()) {
+  if (telnet.begin(23, false)) {
     msgLn("running!");
   } else {
     msgLn("error!");

@@ -9,14 +9,15 @@
 
 /* D E C L A R A T I O N S ****************************************************/
 WiFiClient espClient;
-AsyncMqttClient mqtt_client;
+Mycila::MQTT mqtt_client;
 s_mqtt_cmds mqttCmd; // exts that are used as topics for KM271 commands
 s_cfg_topics cfgTopics;
 s_cfg_arrays cfgArrays;
 s_km271_msg infoMsg;
 muTimer mqttReconnectTimer = muTimer(); // timer for reconnect delay
 int mqtt_retry = 0;
-bool bootUpMsgDone = false;
+bool bootUpMsgDone, setupDone = false;
+int targetIndex = -1;
 
 /**
  * *******************************************************************
@@ -38,59 +39,52 @@ const char *addTopic(const char *suffix) {
  * *******************************************************************/
 const char *addCfgCmdTopic(const char *suffix) {
   static char newTopic[256];
-  // char lowerInput[64];
-  // to_lowercase(suffix, lowerInput, sizeof(lowerInput));
   snprintf(newTopic, sizeof(newTopic), "%s/setvalue/%s", config.mqtt.topic, suffix);
   return newTopic;
 }
 
 /**
  * *******************************************************************
- * @brief   callback function if MQTT gets connected
- * @param   none
- * @return  none
- * *******************************************************************/
-void onMqttConnect(bool sessionPresent) {
-  mqtt_retry = 0;
-  msgLn("MQTT connected");
-  // Once connected, publish an announcement...
-  sendWiFiInfo();
-  // ... and resubscribe
-  mqtt_client.subscribe(addTopic("/cmd/#"), 0);
-  mqtt_client.subscribe(addTopic("/setvalue/#"), 0);
-  mqtt_client.subscribe("homeassistant/status", 0);
-}
-
-/**
- * *******************************************************************
- * @brief   callback function if MQTT gets disconnected
- * @param   none
- * @return  none
- * *******************************************************************/
-void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) { msgLn("MQTT disconnected"); }
-
-/**
- * *******************************************************************
  * @brief   MQTT callback function for incoming message
- * @param   none
+ * @param   topic, payload
  * @return  none
  * *******************************************************************/
-void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
+void onMqttMessage(const char *topic, const char *payload) {
 
-// local copy of payload as string with NULL termination
-#define PAYLOAD_LEN 128
-  char payloadCopy[PAYLOAD_LEN] = {'\0'};
-  if (len > 0 && len < PAYLOAD_LEN) {
-    memcpy(payloadCopy, payload, len);
-    payloadCopy[len] = '\0';
+  char payloadCopy[512];
+
+  // Überprüfe, ob der Payload gültig ist. Falls null, setze ihn auf einen leeren String.
+  if (payload == NULL) {
+    payloadCopy[0] = '\0';
+    msgLn("Payload empty");
+  } else {
+    strncpy(payloadCopy, payload, sizeof(payloadCopy) - 1); // Kopiere Payload, lasse Platz für '\0'
+    payloadCopy[sizeof(payloadCopy) - 1] = '\0';            // Stelle sicher, dass der String null-terminiert ist
+
+    msg("Payload: ");
+    msgLn(payload);
+    msg("PayloadCopy: ");
+    msgLn(payloadCopy);
   }
+  int len = strlen(payloadCopy);
+  Serial.print("PayloadCopy len: ");
+  Serial.println(len);
 
-  // payload as number
   long intVal = 0;
   float floatVal = 0.0;
+
   if (len > 0) {
-    intVal = atoi(payloadCopy);
-    floatVal = atoff(payloadCopy);
+    char *endPtr;
+
+    intVal = strtol(payloadCopy, &endPtr, 10);
+    if (*endPtr != '\0') {
+      printf("Invalid integer conversion\n");
+    }
+
+    floatVal = strtof(payloadCopy, &endPtr);
+    if (*endPtr != '\0') {
+      printf("Invalid float conversion\n");
+    }
   }
 
   // restart ESP command
@@ -116,7 +110,7 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
     if (len == 23) { // 23 characters: 8 Hex-values + 7 separators "_"
       uint8_t hexArray[8];
       // Iteration thru payload
-      char *token = strtok(payload, "_");
+      char *token = strtok(payloadCopy, "_");
       size_t i = 0;
       while (token != NULL && i < 8) {
         // check, if the substring contains valid hex values
@@ -189,60 +183,72 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
   else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_OPMODE[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC1_OPMODE, intVal);
-    } else {
-      int targetIndex = -1;
-      for (int i = 0; i < 3; i++) {
+    } else if (len > 0) {
+      targetIndex = -1;
+      int arraySize = sizeof(cfgArrays.OPMODE[config.mqtt.lang]) / sizeof(cfgArrays.OPMODE[config.mqtt.lang][0]);
+      for (int i = 0; i < arraySize; i++) {
         if (strcasecmp(cfgArrays.OPMODE[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i;
           break;
         }
       }
-      km271sendCmd(KM271_SENDCMD_HC1_OPMODE, targetIndex);
+      if (targetIndex != -1) {
+        km271sendCmd(KM271_SENDCMD_HC1_OPMODE, targetIndex);
+      }
     }
   }
   // HK2 Betriebsart
   else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC2_OPMODE[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC2_OPMODE, intVal);
-    } else {
-      int targetIndex = -1;
-      for (int i = 0; i < 3; i++) {
+    } else if (len > 0) {
+      targetIndex = -1;
+      int arraySize = sizeof(cfgArrays.OPMODE[config.mqtt.lang]) / sizeof(cfgArrays.OPMODE[config.mqtt.lang][0]);
+      for (int i = 0; i < arraySize; i++) {
         if (strcasecmp(cfgArrays.OPMODE[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i;
           break;
         }
       }
-      km271sendCmd(KM271_SENDCMD_HC2_OPMODE, targetIndex);
+      if (targetIndex != -1) {
+        km271sendCmd(KM271_SENDCMD_HC2_OPMODE, targetIndex);
+      }
     }
   }
   // HK1 Programm
   else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_PROGRAM[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC1_PROGRAMM, intVal);
-    } else {
-      int targetIndex = -1;
-      for (int i = 0; i < 9; i++) {
+    } else if (len > 0) {
+      targetIndex = -1;
+      int arraySize = sizeof(cfgArrays.HC_PROGRAM[config.mqtt.lang]) / sizeof(cfgArrays.HC_PROGRAM[config.mqtt.lang][0]);
+      for (int i = 0; i < arraySize; i++) {
         if (strcasecmp(cfgArrays.HC_PROGRAM[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i;
           break;
         }
       }
-      km271sendCmd(KM271_SENDCMD_HC1_PROGRAMM, targetIndex);
+      if (targetIndex != -1) {
+        km271sendCmd(KM271_SENDCMD_HC1_PROGRAMM, targetIndex);
+      }
     }
   }
   // HK2 Programm
   else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC2_PROGRAM[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC2_PROGRAMM, intVal);
-    } else {
-      int targetIndex = -1;
-      for (int i = 0; i < 9; i++) {
+    } else if (len > 0) {
+      targetIndex = -1;
+      int arraySize = sizeof(cfgArrays.HC_PROGRAM[config.mqtt.lang]) / sizeof(cfgArrays.HC_PROGRAM[config.mqtt.lang][0]);
+      for (int i = 0; i < arraySize; i++) {
         if (strcasecmp(cfgArrays.HC_PROGRAM[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i;
           break;
         }
       }
-      km271sendCmd(KM271_SENDCMD_HC2_PROGRAMM, targetIndex);
+      if (targetIndex != -1) {
+        km271sendCmd(KM271_SENDCMD_HC2_PROGRAMM, targetIndex);
+      }
     }
   }
   // HK1 Auslegung
@@ -289,30 +295,36 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
   else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.WW_OPMODE[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_WW_OPMODE, intVal);
-    } else {
-      int targetIndex = -1;
-      for (int i = 0; i < 3; i++) {
+    } else if (len > 0) {
+      targetIndex = -1;
+      int arraySize = sizeof(cfgArrays.OPMODE[config.mqtt.lang]) / sizeof(cfgArrays.OPMODE[config.mqtt.lang][0]);
+      for (int i = 0; i < arraySize; i++) {
         if (strcasecmp(cfgArrays.OPMODE[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i;
           break;
         }
       }
-      km271sendCmd(KM271_SENDCMD_WW_OPMODE, targetIndex);
+      if (targetIndex != -1) {
+        km271sendCmd(KM271_SENDCMD_WW_OPMODE, targetIndex);
+      }
     }
   }
   // HK1 Sommer-Ab Temperatur
   else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_SUMMER_THRESHOLD[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC1_SUMMER, intVal);
-    } else {
-      int targetIndex = -1;
-      for (int i = 0; i < 9; i++) {
+    } else if (len > 0) {
+      targetIndex = -1;
+      int arraySize = sizeof(cfgArrays.SUMMER[config.mqtt.lang]) / sizeof(cfgArrays.SUMMER[config.mqtt.lang][0]);
+      for (int i = 0; i < arraySize; i++) {
         if (strcasecmp(cfgArrays.SUMMER[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i + 9; // Values are 9..31 and array index is 0..22 - index 0 = value 9 / index 22 = value 31
           break;
         }
       }
-      km271sendCmd(KM271_SENDCMD_HC1_SUMMER, targetIndex);
+      if (targetIndex != -1) {
+        km271sendCmd(KM271_SENDCMD_HC1_SUMMER, targetIndex);
+      }
     }
   }
   // HK1 Frost-Ab Temperatur
@@ -323,15 +335,18 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
   else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC2_SUMMER_THRESHOLD[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC2_SUMMER, intVal);
-    } else {
-      int targetIndex = -1;
-      for (int i = 0; i < 9; i++) {
+    } else if (len > 0) {
+      targetIndex = -1;
+      int arraySize = sizeof(cfgArrays.SUMMER[config.mqtt.lang]) / sizeof(cfgArrays.SUMMER[config.mqtt.lang][0]);
+      for (int i = 0; i < arraySize; i++) {
         if (strcasecmp(cfgArrays.SUMMER[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i + 9; // Values are 9..31 and array index is 0..22 - index 0 = value 9 / index 22 = value 31
           break;
         }
       }
-      km271sendCmd(KM271_SENDCMD_HC2_SUMMER, targetIndex);
+      if (targetIndex != -1) {
+        km271sendCmd(KM271_SENDCMD_HC2_SUMMER, targetIndex);
+      }
     }
   }
   // HK2 Frost-Ab Temperatur
@@ -354,15 +369,18 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
   else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.WW_CIRCULATION[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_WW_PUMP_CYCLES, intVal);
-    } else {
-      int targetIndex = -1;
-      for (int i = 0; i < 9; i++) {
+    } else if (len > 0) {
+      targetIndex = -1;
+      int arraySize = sizeof(cfgArrays.CIRC_INTERVAL[config.mqtt.lang]) / sizeof(cfgArrays.CIRC_INTERVAL[config.mqtt.lang][0]);
+      for (int i = 0; i < arraySize; i++) {
         if (strcasecmp(cfgArrays.CIRC_INTERVAL[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i;
           break;
         }
       }
-      km271sendCmd(KM271_SENDCMD_WW_PUMP_CYCLES, targetIndex);
+      if (targetIndex != -1) {
+        km271sendCmd(KM271_SENDCMD_WW_PUMP_CYCLES, targetIndex);
+      }
     }
   }
   // HK1 Reglereingriff
@@ -378,8 +396,9 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC1_REDUCTION_MODE, intVal);
     } else {
-      int targetIndex = -1;
-      for (int i = 0; i < 4; i++) {
+      targetIndex = -1;
+      int arraySize = sizeof(cfgArrays.REDUCT_MODE[config.mqtt.lang]) / sizeof(cfgArrays.REDUCT_MODE[config.mqtt.lang][0]);
+      for (int i = 0; i < arraySize; i++) {
         if (strcasecmp(cfgArrays.REDUCT_MODE[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i;
           break;
@@ -393,8 +412,9 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC2_REDUCTION_MODE, intVal);
     } else {
-      int targetIndex = -1;
-      for (int i = 0; i < 4; i++) {
+      targetIndex = -1;
+      int arraySize = sizeof(cfgArrays.REDUCT_MODE[config.mqtt.lang]) / sizeof(cfgArrays.REDUCT_MODE[config.mqtt.lang][0]);
+      for (int i = 0; i < arraySize; i++) {
         if (strcasecmp(cfgArrays.REDUCT_MODE[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i;
           break;
@@ -407,19 +427,44 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
 
 /**
  * *******************************************************************
+ * @brief   callback function if MQTT gets connected
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void onMqttConnect() {
+  mqtt_retry = 0;
+  msgLn("MQTT connected");
+  // Once connected, publish an announcement...
+  sendWiFiInfo();
+
+  mqtt_client.subscribe(addTopic("/cmd/#"), [](const String &topic, const String &payload) { onMqttMessage(topic.c_str(), payload.c_str()); });
+
+  mqtt_client.subscribe(addTopic("/setvalue/#"), [](const String &topic, const String &payload) { onMqttMessage(topic.c_str(), payload.c_str()); });
+
+  mqtt_client.subscribe(addTopic("homeassistant/status"),
+                        [](const String &topic, const String &payload) { onMqttMessage(topic.c_str(), payload.c_str()); });
+}
+
+/**
+ * *******************************************************************
  * @brief   Basic MQTT setup
  * @param   none
  * @return  none
  * *******************************************************************/
 void mqttSetup() {
-  mqtt_client.onConnect(onMqttConnect);
-  mqtt_client.onDisconnect(onMqttDisconnect);
-  mqtt_client.onMessage(onMqttMessage);
-  mqtt_client.setServer(config.mqtt.server, config.mqtt.port);
-  mqtt_client.setClientId(config.wifi.hostname);
-  mqtt_client.setCredentials(config.mqtt.user, config.mqtt.password);
-  mqtt_client.setWill(addTopic("/status"), 0, true, "offline");
-  mqtt_client.setKeepAlive(10);
+
+  mqtt_client.onConnect([]() { onMqttConnect(); });
+
+  Mycila::MQTT::Config mqtt_config;
+  mqtt_config.server = config.mqtt.server;
+  mqtt_config.port = config.mqtt.port;
+  mqtt_config.username = config.mqtt.user;
+  mqtt_config.password = config.mqtt.password;
+  mqtt_config.clientId = config.wifi.hostname;
+  mqtt_config.willTopic = addTopic("/status");
+
+  mqtt_client.setAsync(true);
+  mqtt_client.begin(mqtt_config);
 }
 
 /**
@@ -430,35 +475,13 @@ void mqttSetup() {
  * *******************************************************************/
 void checkMqtt() {
 
-  // automatic reconnect to mqtt broker if connection is lost - try 5 times, then reboot
-  if (!mqtt_client.connected() && WiFi.isConnected()) {
-    if (mqtt_retry == 0) {
-      mqtt_retry++;
-      mqtt_client.connect();
-      msgLn("MQTT - connection attempt: 1/5");
-    } else if (mqttReconnectTimer.delayOnTrigger(true, MQTT_RECONNECT)) {
-      mqttReconnectTimer.delayReset();
-      if (mqtt_retry < 5) {
-        mqtt_retry++;
-        mqtt_client.connect();
-        msg("MQTT - connection attempt: ");
-        msg(int8ToString(mqtt_retry));
-        msgLn("/5");
-      } else {
-        msgLn("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
-        msgLn("MQTT connection not possible, esp rebooting...");
-        msgLn("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
-        storeData(); // store Data before reboot
-        saveRestartReason("no mqtt connection");
-        yield();
-        delay(1000);
-        yield();
-        ESP.restart();
-      }
-    }
+  if (config.mqtt.enable && !setupMode && !setupDone) {
+    mqttSetup();
+    setupDone = true;
   }
+
   // send bootup messages after restart and established mqtt connection
-  if (!bootUpMsgDone && mqtt_client.connected()) {
+  if (!bootUpMsgDone && mqtt_client.isConnected()) {
     bootUpMsgDone = true;
     char restartReason[64];
     char tempMessage[128];
@@ -472,11 +495,10 @@ void checkMqtt() {
     }
   }
   // call mqtt cyclic function if activated
-  if (config.mqtt.ha_enable && mqtt_client.connected()) {
+  if (config.mqtt.ha_enable && mqtt_client.isConnected()) {
     mqttDiscoveryCyclic();
   }
 }
-
 
 /**
  * *******************************************************************
@@ -484,7 +506,4 @@ void checkMqtt() {
  * @param   none
  * @return  none
  * *******************************************************************/
-void mqttPublish(const char *sendtopic, const char *payload, boolean retained) {
-  uint8_t qos = 0;
-  mqtt_client.publish(sendtopic, qos, retained, payload);
-}
+void mqttPublish(const char *sendtopic, const char *payload, boolean retained) { mqtt_client.publish(sendtopic, payload, retained); }

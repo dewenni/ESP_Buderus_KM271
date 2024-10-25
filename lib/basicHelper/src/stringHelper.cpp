@@ -325,8 +325,8 @@ bool isNumber(const char *str) {
   int num;
   char end;
   if (sscanf(str, "%d%c", &num, &end) == 1) {
-    return true; // string is not a number
+    return true; // string is a number
   } else {
-    return false; // string is a number
+    return false; // string is not a number
   }
 }

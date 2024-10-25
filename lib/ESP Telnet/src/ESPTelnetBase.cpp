@@ -134,7 +134,7 @@ void ESPTelnetBase::flush() {
     onSuccessfullyWrite();
   }
 #else
-  client.flush();
+  client.clear();
 #endif
 }
 
