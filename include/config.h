@@ -20,6 +20,7 @@ typedef enum {
   LOG_FILTER_VALUES = 2,  // logamatic values
   LOG_FILTER_UNKNOWN = 3, // only unknown messages
   LOG_FILTER_DEBUG = 4,   // filtered debug messages
+  LOG_FILTER_SYSTEM = 5,  // filtered debug messages
 } e_LogFltTyp;
 
 typedef struct {

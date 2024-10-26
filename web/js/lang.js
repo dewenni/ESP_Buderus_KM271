@@ -1250,6 +1250,10 @@ const translations = {
     de: "Modus: debug Datagramme",
     en: "Mode: debug datagramms",
   },
+  log_mode_6: {
+    de: "Modus: SystemLog",
+    en: "Mode: SystemLog",
+  },
   import: {
     de: "import (config.json)",
     en: "import (config.json)",

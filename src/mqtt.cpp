@@ -18,6 +18,8 @@ muTimer mqttReconnectTimer = muTimer(); // timer for reconnect delay
 int mqtt_retry = 0;
 bool bootUpMsgDone, setupDone = false;
 int targetIndex = -1;
+static const char *TAG = "MQTT"; // LOG TAG
+
 
 /**
  * *******************************************************************
@@ -53,18 +55,11 @@ void onMqttMessage(const char *topic, const char *payload) {
 
   char payloadCopy[512];
 
-  // Überprüfe, ob der Payload gültig ist. Falls null, setze ihn auf einen leeren String.
   if (payload == NULL) {
     payloadCopy[0] = '\0';
-    msgLn("Payload empty");
   } else {
-    strncpy(payloadCopy, payload, sizeof(payloadCopy) - 1); // Kopiere Payload, lasse Platz für '\0'
-    payloadCopy[sizeof(payloadCopy) - 1] = '\0';            // Stelle sicher, dass der String null-terminiert ist
-
-    msg("Payload: ");
-    msgLn(payload);
-    msg("PayloadCopy: ");
-    msgLn(payloadCopy);
+    strncpy(payloadCopy, payload, sizeof(payloadCopy) - 1);
+    payloadCopy[sizeof(payloadCopy) - 1] = '\0';            
   }
   int len = strlen(payloadCopy);
   Serial.print("PayloadCopy len: ");
@@ -433,7 +428,7 @@ void onMqttMessage(const char *topic, const char *payload) {
  * *******************************************************************/
 void onMqttConnect() {
   mqtt_retry = 0;
-  msgLn("MQTT connected");
+  MY_LOGI(TAG, "MQTT connected");
   // Once connected, publish an announcement...
   sendWiFiInfo();
 

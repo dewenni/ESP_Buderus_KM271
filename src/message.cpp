@@ -1,3 +1,4 @@
+#include "esp_log.h"
 #include <HTTPClient.h>
 #include <basics.h>
 #include <km271.h>
@@ -5,12 +6,137 @@
 #include <telnet.h>
 
 /* D E C L A R A T I O N S ****************************************************/
-#define MSG_BUF_SIZE 1024          // buffer size for messaging
+#define MSG_BUF_SIZE 1024 // buffer size for messaging
+
+#define HEAP_CHECK_INTERVAL 10000 // check every x seconds
+#define HEAP_LEAK_THRESHOLD 10    // difference for heap leak in Percentage
+#define HEAP_LOW_PERCENTAGE 10    // min value for free heap in Percentage
+#define HEAP_SAMPLE_COUNT 5       // sample count for heap leak
+
+// Heap check variables
+uint32_t totalHeap = 0;
+uint32_t heapSamples[HEAP_SAMPLE_COUNT];
+int sampleIndex = 0;
+
 char pushoverBuffer[MSG_BUF_SIZE]; // Buffer for Pushover messages
+static const char *TAG = "MSG";    // LOG TAG
 
 s_logdata logData;
 muTimer pushoverSendTimer = muTimer();
+muTimer checkHeapTimer = muTimer();
 HTTPClient http;
+
+/**
+ * *******************************************************************
+ * @brief   Function to initialize heap monitoring
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void initHeapMonitoring() {
+  totalHeap = esp_get_free_heap_size(); // Get total available heap memory
+
+  // Initialize the ring buffer with the current heap values
+  for (int i = 0; i < HEAP_SAMPLE_COUNT; i++) {
+    heapSamples[i] = totalHeap;
+  }
+}
+
+/**
+ * *******************************************************************
+ * @brief   Function to calculate the moving average of the heap
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+size_t getAverageHeap() {
+  size_t sum = 0;
+  for (int i = 0; i < HEAP_SAMPLE_COUNT; i++) {
+    sum += heapSamples[i];
+  }
+  return sum / HEAP_SAMPLE_COUNT;
+}
+
+/**
+ * *******************************************************************
+ * @brief   Function to monitor the heap status
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void checkHeapStatus() {
+  static int filledSamples = 0; // Tracks how many samples have been collected
+
+  // Check if totalHeap has been initialized properly to avoid division by zero
+  if (totalHeap == 0) {
+    MY_LOGW(TAG, "Error: totalHeap is 0, make sure initHeapMonitoring() was called.");
+    return;
+  }
+
+  // Get the current free heap
+  uint32_t currentHeap = esp_get_free_heap_size();
+
+  // Add the current value to the ring buffer
+  heapSamples[sampleIndex] = currentHeap;
+  sampleIndex = (sampleIndex + 1) % HEAP_SAMPLE_COUNT;
+
+  // Track the number of samples until the buffer is fully filled at least once
+  if (filledSamples < HEAP_SAMPLE_COUNT) {
+    filledSamples++;
+    return; // Do not perform checks until we have enough samples
+  }
+
+  // Calculate the average of the last values
+  size_t averageHeap = getAverageHeap();
+
+  // Calculate the absolute difference between the oldest sample and the average
+  size_t oldestSample = heapSamples[(sampleIndex + HEAP_SAMPLE_COUNT - 1) % HEAP_SAMPLE_COUNT];
+  size_t difference = (oldestSample > averageHeap) ? (oldestSample - averageHeap) : (averageHeap - oldestSample);
+
+  // Check if the difference exceeds the threshold (possible memory leak)
+  if (difference > ((totalHeap * HEAP_LEAK_THRESHOLD) / 100)) {
+    MY_LOGW(TAG, "Warning: Possible memory leak detected!");
+    if (config.pushover.enable) {
+      addPushoverMsg("Warning: Possible memory leak detected!");
+    }
+  }
+
+  // Check if the free heap is below 10% of the total heap
+  if ((averageHeap * 100 / totalHeap) < HEAP_LOW_PERCENTAGE) {
+    MY_LOGW(TAG, "Warning: Heap memory below 10%%!");
+    if (config.pushover.enable) {
+      addPushoverMsg("Warning: Heap memory below 10%!");
+    }
+  }
+}
+
+/**
+ * *******************************************************************
+ * @brief   custom callback function for ESP_LOG messages
+ * @param   format, args
+ * @return  vprintf(format, args)
+ * *******************************************************************/
+int custom_vprintf(const char *format, va_list args) {
+
+  // create a copy
+  va_list args_copy;
+  va_copy(args_copy, args);
+
+  // add to buffer
+  if (config.log.filter == LOG_FILTER_SYSTEM) {
+    char testMessage[MAX_LOG_ENTRY];
+    vsnprintf(testMessage, sizeof(testMessage), format, args_copy);
+    addLogBuffer(testMessage);
+  }
+
+  // send to telnet stream
+  if (telnetIF.serialStream) { // Provide to Telnet stream (if active)
+    telnet.printf(format, args_copy);
+    telnetShell();
+  }
+
+  // free copy of va_list
+  va_end(args_copy);
+
+  return vprintf(format, args);
+}
 
 /**
  * *******************************************************************
@@ -40,31 +166,21 @@ void addLogBuffer(const char *message) {
 
 /**
  * *******************************************************************
- * @brief   add new entry to LogBuffer
- * @param   none
- * @return  none
- * *******************************************************************/
-void msg(const char *message) {
-  Serial.print(message);
-  if (telnetIF.serialStream) { // Provide to Telnet stream (if active)
-    telnet.print(message);
-  }
-}
-void msgLn(const char *message) {
-  Serial.println(message);
-  if (telnetIF.serialStream) { // Provide to Telnet stream (if active)
-    telnet.println(message);
-    telnetShell();
-  }
-}
-
-/**
- * *******************************************************************
  * @brief   Setup for Telegram bot
  * @param   none
  * @return  none
  * *******************************************************************/
-void messageSetup() { memset(pushoverBuffer, 0, sizeof(pushoverBuffer)); }
+void messageSetup() {
+  memset(pushoverBuffer, 0, sizeof(pushoverBuffer));
+
+  esp_log_level_set("*", ESP_LOG_INFO); // set log level
+  esp_log_set_vprintf(&custom_vprintf); // set custom vprintf callback function
+
+  // Enable serial port
+  Serial.begin(115200);
+
+  initHeapMonitoring();
+}
 
 /**
  * *******************************************************************
@@ -250,7 +366,7 @@ void addPushoverMsg(const char *str) {
   } else if (remainingSpace >= (strlen(bufferFullMsg) + 1)) {
     snprintf(pushoverBuffer + strlen(pushoverBuffer), remainingSpace + 1, "%s\n", bufferFullMsg);
   } else {
-    msgLn("send buffer full!");
+    MY_LOGE(TAG, "Pushover send buffer full!");
   }
 }
 
@@ -289,9 +405,14 @@ void messageCyclic() {
   // send Pushover message if something inside the buffer
   if (pushoverSendTimer.cycleTrigger(2000) && config.pushover.enable) {
     if (strlen(pushoverBuffer)) {
-      msgLn("Pushover Message sent");
+      MY_LOGI(TAG, "Pushover Message sent");
       sendPushoverMsg();
     }
+  }
+
+  // check HEAP
+  if (checkHeapTimer.cycleTrigger(10000)) {
+    checkHeapStatus();
   }
 }
 

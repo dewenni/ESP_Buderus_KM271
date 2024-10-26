@@ -22,7 +22,6 @@
 #include <telnet.h>
 #include <webUI.h>
 
-
 /* D E C L A R A T I O N S ****************************************************/
 muTimer mainTimer = muTimer();      // timer for cyclic info
 muTimer heartbeat = muTimer();      // timer for heartbeat signal
@@ -56,8 +55,9 @@ void storeData() {
  * @return  none
  * *******************************************************************/
 void setup() {
-  // Enable serial port
-  Serial.begin(115200);
+
+  // Message Service Setup
+  messageSetup();
 
   // check for double reset
   drd = new DoubleResetDetector(DRD_TIMEOUT, DRD_ADDRESS);
@@ -110,15 +110,8 @@ void setup() {
   // Sensor Setup
   setupSensor();
 
-  // Message Service Setup
-  messageSetup();
-
   // telnet Setup
   setupTelnet();
-
-
-  
-
 }
 
 /**
@@ -173,6 +166,7 @@ void loop() {
   // send cyclic infos
   if (mainTimer.cycleTrigger(10000) && !setupMode) {
     sendWiFiInfo();
+    sendETHInfo();
     sendKM271Info();
     sendKM271Debug();
     sendSysInfo();

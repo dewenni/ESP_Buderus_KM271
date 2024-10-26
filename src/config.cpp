@@ -11,6 +11,7 @@ bool configInitDone = false;
 unsigned long hashOld;
 s_config config;
 muTimer checkTimer = muTimer(); // timer to refresh other values
+static const char *TAG = "CFG"; // LOG TAG
 
 /* P R O T O T Y P E S ********************************************************/
 void configGPIO();
@@ -55,9 +56,9 @@ void configSetup() {
 
   // start Filesystem
   if (LittleFS.begin(true)) {
-    msgLn("LittleFS successfully started");
+    MY_LOGI(TAG, "LittleFS successfully started");
   } else {
-    msgLn("LittleFS error");
+    MY_LOGE(TAG, "LittleFS error");
   }
 
   // load config from file
@@ -272,16 +273,15 @@ void configSaveToFile() {
   // Open file for writing
   File file = LittleFS.open(filename, FILE_WRITE);
   if (!file) {
-    msgLn("Failed to create file");
+    MY_LOGE(TAG, "Failed to create file");
     return;
   }
 
   // Serialize JSON to file
   if (serializeJson(doc, file) == 0) {
-    msgLn("Failed to write to file");
+    MY_LOGE(TAG, "Failed to write to file");
   } else {
-    msg("config successfully saved to file: ");
-    msgLn(filename);
+    MY_LOGI(TAG, "config successfully saved to file: %s", filename);
   }
 
   // Close the file
@@ -304,7 +304,7 @@ void configLoadFromFile() {
   // Deserialize the JSON document
   DeserializationError error = deserializeJson(doc, file);
   if (error) {
-    msgLn("Failed to read file, using default configuration and start wifi-AP");
+    MY_LOGE(TAG, "Failed to read file, using default configuration and start wifi-AP");
     configInitValue();
     setupMode = true;
 
@@ -429,7 +429,7 @@ void configLoadFromFile() {
 void saveRestartReason(const char *reason) {
   File file = LittleFS.open("/restart_reason.txt", "w");
   if (!file) {
-    Serial.println("Failed to open file for writing");
+    MY_LOGE(TAG, "Failed to open file for writing");
     return;
   }
   file.println(reason);
@@ -450,7 +450,7 @@ bool readRestartReason(char *buffer, size_t bufferSize) {
 
   File file = LittleFS.open("/restart_reason.txt", "r");
   if (!file) {
-    Serial.println("Failed to open file for reading");
+    MY_LOGE(TAG, "Failed to open file for reading");
     return false;
   }
 

@@ -16,6 +16,7 @@ int addr = 0;         // start address for EEPROM
 int writeCounter = 0; // counter for write to EEPROM
 bool reboot = true;   // flag for reboot
 char tmpMsg[300] = {'\0'};
+static const char *TAG = "OIL"; // LOG TAG
 
 #define OILTRIGGER_TIME 1000       // 1.000 = 1sec
 #define OILCYCLICINFO_TIME 3600000 // 360.000 = 1 hour
@@ -53,8 +54,7 @@ void cmdSetOilmeter(long setvalue) {
   data.oilcounter = setvalue;
   cmdStoreOilmeter();
 
-  snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %ld", data.oilcounter);
-  msgLn(tmpMsg);
+  MY_LOGI(TAG, "oilcounter was set to: %ld", data.oilcounter);
   km271Msg(KM_TYP_MESSAGE, tmpMsg, "");
 
   sendOilmeter();
@@ -83,8 +83,7 @@ void setupOilmeter() {
   EEPROM.begin(sizeof(data));
   EEPROM.get(addr, data);
 
-  msg("restored value from Flash: ");
-  msgLn(uint64ToString(data.oilcounter));
+  MY_LOGI(TAG, "restored value from Flash: %ld", data.oilcounter);
 
   snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %ld", data.oilcounter);
   km271Msg(KM_TYP_MESSAGE, tmpMsg, "");

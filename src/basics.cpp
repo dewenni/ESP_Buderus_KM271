@@ -20,6 +20,7 @@ muTimer wifiReconnectTimer = muTimer(); // timer for reconnect delay
 int wifi_retry = 0;
 esp_reset_reason_t reset_reason;
 char intRestartReason[64];
+static const char *TAG = "SETUP"; // LOG TAG
 
 /**
  * *******************************************************************
@@ -49,7 +50,7 @@ void ntpSetup() {
  * *******************************************************************/
 void onWiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
   wifi_retry = 0;
-  msgLn("Connected to AP successfully!");
+  MY_LOGI(TAG, "Connected to AP successfully!");
 }
 
 /**
@@ -59,9 +60,8 @@ void onWiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
  * @return  none
  * *******************************************************************/
 void onWiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info) {
-  msgLn("WiFi connected");
-  msgLn("IP address: ");
-  msgLn(WiFi.localIP().toString().c_str());
+  MY_LOGI(TAG, "WiFi connected");
+  MY_LOGI(TAG, "IP address: %s", WiFi.localIP().toString().c_str());
 }
 
 /**
@@ -79,15 +79,12 @@ void checkWiFi() {
       WiFi.begin(config.wifi.ssid, config.wifi.password);
       WiFi.hostname(config.wifi.hostname);
       MDNS.begin(config.wifi.hostname);
-      msg("WiFi Mode STA - Trying connect to: ");
-      msg(config.wifi.ssid);
-      msg(" - attempt: ");
-      msg(int8ToString(wifi_retry));
-      msgLn("/5");
+      MY_LOGI(TAG, "WiFi Mode STA - Trying connect to: %s", config.wifi.ssid);
+      MY_LOGI(TAG, " - attempt: %i/5", wifi_retry);
     } else {
-      msgLn("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
-      msgLn("Wifi connection not possible, esp rebooting...");
-      msgLn("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+      MY_LOGI(TAG, "\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+      MY_LOGI(TAG, "Wifi connection not possible, esp rebooting...");
+      MY_LOGI(TAG, "\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
       storeData(); // store Data before reboot
       saveRestartReason("no wifi connection");
       yield();
@@ -113,11 +110,11 @@ void setupWiFi() {
     IPAddress subnet(255, 255, 255, 0);
     WiFi.softAPConfig(ip, gateway, subnet);
     WiFi.softAP("ESP-Buderus-km271");
-    msgLn("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
-    msgLn("> WiFi Mode: AccessPoint <");
-    msgLn("1. connect your device to SSID: ESP-Buderus-km271");
-    msgLn("2. open Browser and go to Address: http://192.168.4.1");
-    msgLn("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+    MY_LOGI(TAG, "\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+    MY_LOGI(TAG, "> WiFi Mode: AccessPoint <");
+    MY_LOGI(TAG, "1. connect your device to SSID: ESP-Buderus-km271");
+    MY_LOGI(TAG, "2. open Browser and go to Address: http://192.168.4.1");
+    MY_LOGI(TAG, "\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
   } else {
     // setup callback function
     WiFi.onEvent(onWiFiStationConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_CONNECTED);
@@ -141,8 +138,7 @@ void setupWiFi() {
     WiFi.begin(config.wifi.ssid, config.wifi.password);
     WiFi.hostname(config.wifi.hostname);
     MDNS.begin(config.wifi.hostname);
-    msg("WiFi Mode STA - Trying connect to: ");
-    msgLn(config.wifi.ssid);
+    MY_LOGI(TAG, "WiFi Mode STA - Trying connect to: %s", config.wifi.ssid);
   }
 }
 
@@ -157,8 +153,7 @@ void onEthEvent(arduino_event_id_t event, arduino_event_info_t info) {
     Serial.println("ETH Connected");
     break;
   case ARDUINO_EVENT_ETH_GOT_IP:
-    Serial.printf("ETH Got IP: '%s'\n", esp_netif_get_desc(info.got_ip.esp_netif));
-    Serial.println(ETH);
+    MY_LOGI(TAG, "ETH Got IP: '%s'\n", esp_netif_get_desc(info.got_ip.esp_netif));
     eth.connected = true;
 
     esp_netif_ip_info_t ip_info;
@@ -168,15 +163,15 @@ void onEthEvent(arduino_event_id_t event, arduino_event_info_t info) {
 
     break;
   case ARDUINO_EVENT_ETH_LOST_IP:
-    Serial.println("ETH Lost IP");
+    MY_LOGI(TAG, "ETH Lost IP");
     eth.connected = false;
     break;
   case ARDUINO_EVENT_ETH_DISCONNECTED:
-    Serial.println("ETH Disconnected");
+    MY_LOGI(TAG, "ETH Disconnected");
     eth.connected = false;
     break;
   case ARDUINO_EVENT_ETH_STOP:
-    Serial.println("ETH Stopped");
+    MY_LOGI(TAG, "ETH Stopped");
     eth.connected = false;
     break;
   default:
@@ -273,6 +268,11 @@ void sendWiFiInfo() {
  * @return  none
  * *******************************************************************/
 void sendETHInfo() {
+  ETH.desc();
+
+  eth.fullDuplex = ETH.fullDuplex();
+  eth.linkUp = ETH.linkUp();
+  eth.linkSpeed = ETH.linkSpeed();
 
   JsonDocument ethJSON;
   ethJSON["ip"] = eth.ipAddress;
@@ -285,10 +285,6 @@ void sendETHInfo() {
   char sendEthJSON[255];
   serializeJson(ethJSON, sendEthJSON);
   mqttPublish(addTopic("/eth"), sendEthJSON, false);
-
-  eth.fullDuplex = ETH.fullDuplex();
-  eth.linkUp = ETH.linkUp();
-  eth.linkSpeed = ETH.linkSpeed();
 }
 
 /**

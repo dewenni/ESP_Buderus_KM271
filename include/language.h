@@ -329,9 +329,10 @@ typedef struct {
 // 2. ENGLISH
 // ======================================================================================
 typedef struct {
-  const char *LOG_FILTER[MAX_LANG][5] = {
-      {"Modus: Alarm", "Modus: Alarm + Info", "Modus: Logamatic Werte", "Modus: unbekannte Datagramme", "Modus: debug Datagramme"},
-      {"Mode: Alarm", "Mode: Alarm + Info", "Mode: Logamatic values", "Mode: unknown datagramms", "Mode: debug datagramms"}};
+  const char *LOG_FILTER[MAX_LANG][6] = {
+      {"Modus: Alarm", "Modus: Alarm + Info", "Modus: Logamatic Werte", "Modus: unbekannte Datagramme", "Modus: debug Datagramme",
+       "Modus: SystemLog"},
+      {"Mode: Alarm", "Mode: Alarm + Info", "Mode: Logamatic values", "Mode: unknown datagramms", "Mode: debug datagramms", "Mode: SystemLog"}};
 } s_opt_arrays;
 
 // ======================================================================================

@@ -1,5 +1,6 @@
 #include <basics.h>
 #include <km271.h>
+#include <message.h>
 #include <simulation.h>
 
 /* D E C L A R A T I O N S ****************************************************/
@@ -81,11 +82,12 @@ uint8_t MAX_MSG_CNT = (sizeof(simData) / sizeof(simData[0]));
 muTimer simTimer = muTimer(); // timer for sending simulation data
 uint8_t msgCnt = 0;
 bool simDataEnable = false;
+static const char *TAG = "SIM"; // LOG TAG
 
 void startSimData() {
   simDataEnable = true;
   msgCnt = 0;
-  msgLn("start sim data === >>>");
+  MY_LOGI(TAG, "send simulated Logamatic values...");
 }
 
 void simDataCyclic() {
@@ -93,13 +95,9 @@ void simDataCyclic() {
     if (simTimer.cycleTrigger(10) && simDataEnable) {
       if (msgCnt < MAX_MSG_CNT) {
         parseInfo(simData[msgCnt], sizeof(simData[0]));
-        msg(uint8ToString(msgCnt + 1));
-        msg("/");
-        msgLn(uint8ToString(MAX_MSG_CNT));
         msgCnt++;
       } else {
         simDataEnable = false;
-        msgLn("=== >>> finished sim data");
       }
     }
   }

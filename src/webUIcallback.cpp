@@ -14,6 +14,7 @@ tm dti;
 char gitVersion[16];
 char gitUrl[256];
 char errorMsg[32];
+static const char *TAG = "WEB"; // LOG TAG
 
 /**
  * *******************************************************************
@@ -23,10 +24,8 @@ char errorMsg[32];
  * @return  none
  * *******************************************************************/
 void webCallback(const char *elementId, const char *value) {
-  msg("Received - Element ID: ");
-  msg(elementId);
-  msg(", Value: ");
-  msgLn(value);
+
+  MY_LOGD(TAG, "Received - Element ID: %s = %s", elementId, value);
 
   // check for new version on github
   if (strcmp(elementId, "check_git_version") == 0) {

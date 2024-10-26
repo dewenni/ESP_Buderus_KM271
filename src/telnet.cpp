@@ -15,6 +15,7 @@ s_telnetIF telnetIF;
 s_opt_arrays webOptArrays;
 EscapeCodes ansi;
 char param[MAX_PAR][MAX_CHAR];
+static const char *TAG = "TELNET"; // LOG TAG
 
 /* P R O T O T Y P E S ********************************************************/
 void readLogger();
@@ -33,6 +34,7 @@ void cmdDebug(char param[MAX_PAR][MAX_CHAR]);
 void cmdSerial(char param[MAX_PAR][MAX_CHAR]);
 void cmdKm271(char param[MAX_PAR][MAX_CHAR]);
 void cmdHA(char param[MAX_PAR][MAX_CHAR]);
+void cmdTest(char param[MAX_PAR][MAX_CHAR]);
 
 Command commands[] = {
     {"cls", cmdCls, "Clear screen", ""},
@@ -47,7 +49,8 @@ Command commands[] = {
     {"restart", cmdRestart, "Restart the ESP", ""},
     {"serial", cmdSerial, "serial stream output", "<stream> <[start], [stop]>"},
     {"simdata", cmdSimdata, "generate simulated KM271 values", ""},
-    {"ha", cmdHA, "Home Assistant commands", "[sendconfig], resetconfig]"},
+    {"ha", cmdHA, "Home Assistant commands", "[sendconfig], [resetconfig]"},
+    {"test", cmdTest, "test commands", "[crash]"},
 };
 const int commandsCount = sizeof(commands) / sizeof(commands[0]);
 
@@ -59,9 +62,7 @@ void telnetShell() {
 }
 
 void onTelnetConnect(String ip) {
-  msg("Telnet: ");
-  msg(ip.c_str());
-  msgLn(" connected");
+  MY_LOGI(TAG, "Telnet: %s connected", ip.c_str());
   telnet.println(ansi.setFG(ANSI_BRIGHT_GREEN));
   telnet.println("\n----------------------------------------------------------------------");
   telnet.println("\nESP Buderus KM271");
@@ -72,23 +73,11 @@ void onTelnetConnect(String ip) {
   telnetShell();
 }
 
-void onTelnetDisconnect(String ip) {
-  msg("- Telnet: ");
-  msg(ip.c_str());
-  msgLn(" disconnected");
-}
+void onTelnetDisconnect(String ip) { MY_LOGI(TAG, "Telnet: %s disconnected", ip.c_str()); }
 
-void onTelnetReconnect(String ip) {
-  msg("- Telnet: ");
-  msg(ip.c_str());
-  msgLn(" reconnected");
-}
+void onTelnetReconnect(String ip) { MY_LOGI(TAG, "Telnet: %s reconnected", ip.c_str()); }
 
-void onTelnetConnectionAttempt(String ip) {
-  msg("- Telnet: ");
-  msg(ip.c_str());
-  msgLn(" tried to connected");
-}
+void onTelnetConnectionAttempt(String ip) { MY_LOGI(TAG, "Telnet: %s tried to connect", ip.c_str()); }
 
 void onTelnetInput(String str) {
   if (!extractMessage(str, param)) {
@@ -113,11 +102,10 @@ void setupTelnet() {
   telnet.onDisconnect(onTelnetDisconnect);
   telnet.onInputReceived(onTelnetInput);
 
-  msg("Telnet Server: ");
   if (telnet.begin(23, false)) {
-    msgLn("running!");
+    MY_LOGI(TAG, "Telnet Server running!");
   } else {
-    msgLn("error!");
+    MY_LOGI(TAG, "Telnet Server error!");
   }
 }
 
@@ -166,12 +154,12 @@ void cmdLog(char param[MAX_PAR][MAX_CHAR]) {
     // log mode set
   } else if (!strcmp(param[1], "mode") && strlen(param[2]) > 0) {
     int mode = atoi(param[2]);
-    if (mode > 0 && mode < 6) {
+    if (mode > 0 && mode < 7) {
       config.log.filter = mode - 1;
       clearLogBuffer();
       telnet.println(webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
     } else {
-      telnet.println("invalid mode - mode must be between 1 and 5");
+      telnet.println("invalid mode - mode must be between 1 and 6");
     }
   } else {
     telnet.println("unknown parameter");
@@ -214,6 +202,20 @@ void cmdDebug(char param[MAX_PAR][MAX_CHAR]) {
     }
   } else {
     telnet.println("unknown parameter");
+  }
+}
+
+/**
+ * *******************************************************************
+ * @brief   telnet command: config structure
+ * @param   params received parameters
+ * @return  none
+ * *******************************************************************/
+void cmdTest(char param[MAX_PAR][MAX_CHAR]) {
+
+  if (!strcmp(param[1], "crash") && !strcmp(param[2], "")) {
+    int *ptr = nullptr; // Nullpointer
+    *ptr = 42;
   }
 }
 
