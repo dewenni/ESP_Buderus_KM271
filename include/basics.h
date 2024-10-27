@@ -22,14 +22,15 @@
 
 /* D E C L A R A T I O N S ****************************************************/
 typedef struct {
-  long rssi;
-  int signal;
-  char ipAddress[20];
+  bool connected = false;
+  long rssi = 0;
+  int signal = 0;
+  char ipAddress[20] = {0};
 } s_wifi;
 extern s_wifi wifi;
 
 typedef struct {
-  bool connected;
+  bool connected = false;
   char ipAddress[20];
   uint8_t linkSpeed;
   bool fullDuplex;

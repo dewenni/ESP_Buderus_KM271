@@ -9,9 +9,8 @@
 #define MSG_BUF_SIZE 1024 // buffer size for messaging
 
 #define HEAP_CHECK_INTERVAL 10000 // check every x seconds
-#define HEAP_LEAK_THRESHOLD 10    // difference for heap leak in Percentage
 #define HEAP_LOW_PERCENTAGE 10    // min value for free heap in Percentage
-#define HEAP_SAMPLE_COUNT 5       // sample count for heap leak
+#define HEAP_SAMPLE_COUNT 3       // sample count for heap leak
 
 // Heap check variables
 uint32_t totalHeap = 0;
@@ -86,23 +85,11 @@ void checkHeapStatus() {
   // Calculate the average of the last values
   size_t averageHeap = getAverageHeap();
 
-  // Calculate the absolute difference between the oldest sample and the average
-  size_t oldestSample = heapSamples[(sampleIndex + HEAP_SAMPLE_COUNT - 1) % HEAP_SAMPLE_COUNT];
-  size_t difference = (oldestSample > averageHeap) ? (oldestSample - averageHeap) : (averageHeap - oldestSample);
-
-  // Check if the difference exceeds the threshold (possible memory leak)
-  if (difference > ((totalHeap * HEAP_LEAK_THRESHOLD) / 100)) {
-    MY_LOGW(TAG, "Warning: Possible memory leak detected!");
-    if (config.pushover.enable) {
-      addPushoverMsg("Warning: Possible memory leak detected!");
-    }
-  }
-
   // Check if the free heap is below 10% of the total heap
   if ((averageHeap * 100 / totalHeap) < HEAP_LOW_PERCENTAGE) {
-    MY_LOGW(TAG, "Warning: Heap memory below 10%%!");
+    MY_LOGW(TAG, "Warning: Heap memory below %i %%!", HEAP_LOW_PERCENTAGE);
     if (config.pushover.enable) {
-      addPushoverMsg("Warning: Heap memory below 10%!");
+      addPushoverMsg("Warning: free Heap memory is critical!");
     }
   }
 }

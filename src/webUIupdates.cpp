@@ -1,6 +1,7 @@
 
 #include <webUI.h>
 #include <webUIupdates.h>
+#include <message.h>
 
 /* S E T T I N G S ****************************************************/
 #define WEBUI_FAST_REFRESH_TIME_MS 10
@@ -27,6 +28,7 @@ s_km271_config_str *pkmConfigStr = km271GetConfigStringsAdr();
 s_km271_config_num *pkmConfigNum = km271GetConfigValueAdr();
 s_km271_alarm_str *pkmAlarmStr = km271GetAlarmMsgAdr();
 
+static const char *TAG = "WEB"; // LOG TAG
 char tmpMessage[300] = {'\0'};
 unsigned int KmCfgHash[kmConfig_Hash_SIZE] = {0};
 unsigned int KmAlarmHash[4] = {0};
@@ -85,7 +87,7 @@ bool addJsonElement(char *buffer, size_t bufferSize, const char *elementID, cons
     return true;
   }
   return false;
-  Serial.println(">>>>>>> JSON-Buffer to small!!! <<<<<<<");
+  MY_LOGW(TAG, ">>>>>>> JSON-Buffer to small!!! <<<<<<<");
 }
 
 // Terminate JSON-Buffer
@@ -369,7 +371,13 @@ void updateSystemInfoElements() {
   // MQTT Status
   updateWebText("p09_mqtt_status", mqttIsEnabled() ? webText.ACTIVE[config.lang] : webText.INACTIVE[config.lang], false);
   updateWebText("p09_mqtt_connection", mqttIsConnected() ? webText.CONNECTED[config.lang] : webText.NOT_CONNECTED[config.lang], false);
-  updateWebText("p09_mqtt_last_err", mqttGetLastError(), false);
+
+  if (mqttGetLastError() != nullptr) {
+    updateWebText("p09_mqtt_last_err", mqttGetLastError(), false);
+  } else {
+    updateWebText("p09_mqtt_last_err", "---", false);
+  }
+    
 
   // Version informations
   updateWebText("p00_version", VERSION, false);

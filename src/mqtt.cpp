@@ -491,7 +491,7 @@ void mqttSetup() {
  * *******************************************************************/
 void checkMqtt() {
 
-  if (config.mqtt.enable && !setupMode && !setupDone) {
+  if (config.mqtt.enable && !setupMode && !setupDone && (eth.connected || wifi.connected)) {
     mqttSetup();
     setupDone = true;
   }

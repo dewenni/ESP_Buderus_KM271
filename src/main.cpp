@@ -81,17 +81,6 @@ void setup() {
   ArduinoOTA.setHostname(config.wifi.hostname);
   ArduinoOTA.begin();
 
-  // MQTT
-  if (config.mqtt.enable && !setupMode) {
-    mqttSetup();
-  }
-
-  // send initial WiFi infos
-  if (!setupMode) {
-    sendWiFiInfo();
-    sendETHInfo();
-  }
-
   // setup for km271
   if (!setupMode) {
     km271ProtInit(config.gpio.km271_RX, config.gpio.km271_TX);

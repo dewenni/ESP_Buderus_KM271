@@ -21,7 +21,7 @@ bool resetMqttConfig = false;
 
 typedef enum { OPT_NULL, OPT_OP_MODE, OPT_RED_MODE, OPT_HC_PRG, OPT_WW_CRC, OPT_SUMMER } OptType;
 typedef enum { TYP_TEXT, TYP_SLIDER, TYP_NUM, TYP_OPT, TYP_BTN } DeviceType;
-typedef enum { KM_CONFIG, KM_STATUS, KM_INFO, KM_WIFI, KM_ETH, KM_ALARM, KM_DEBUG, KM_SENS, KM_OIL, KM_SYSINFO, KM_CMD_BTN} KmType;
+typedef enum { KM_CONFIG, KM_STATUS, KM_INFO, KM_WIFI, KM_ETH, KM_ALARM, KM_DEBUG, KM_SENS, KM_OIL, KM_SYSINFO, KM_CMD_BTN } KmType;
 typedef enum { VAL_SPLIT, VAL_ON_OFF, VAL_ERR_OK, VAL_WW_CIRC, VAL_SUMMER_THRESHOLD } ValTmpType;
 typedef struct {
   const char *min;
@@ -105,7 +105,7 @@ DeviceConfig numPar(const char *min, const char *max, const char *step) { return
 void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, const char *component, const char *unit, const char *valueTemplate,
                   const char *icon, DeviceType devType, DeviceConfig devCfg) {
 
-  if (strlen(discoveryPrefix) == 0 || strlen(statePrefix) == 0 || strlen(name) == 0) {
+ /*  if (strlen(discoveryPrefix) == 0 || strlen(statePrefix) == 0 || strlen(name) == 0) {
     return;
   }
 
@@ -256,7 +256,7 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
     mqttPublish(configTopic, "", false);
   } else {
     mqttPublish(configTopic, jsonString, false);
-  }
+  } */
 }
 
 /**
@@ -668,20 +668,22 @@ void mqttDiscoverySetup() {
   mqttHaConfig(KM_WIFI, "wifi_rssi", NULL, "sensor", "dbm", "{{ value_json.rssi }}", "mdi:signal", TYP_TEXT, textPar());
   mqttHaConfig(KM_WIFI, "wifi_ip", NULL, "sensor", NULL, "{{ value_json.ip }}", "mdi:ip-outline", TYP_TEXT, textPar());
 
- mqttHaConfig(KM_ETH, "eth_ip", NULL, "sensor", NULL, "{{ value_json.ip }}", "mdi:ip-network", TYP_TEXT, textPar());
+  mqttHaConfig(KM_ETH, "eth_ip", NULL, "sensor", NULL, "{{ value_json.ip }}", "mdi:ip-network", TYP_TEXT, textPar());
   mqttHaConfig(KM_ETH, "eth_status", NULL, "sensor", NULL, "{{ value_json.status }}", "mdi:lan", TYP_TEXT, textPar());
-  mqttHaConfig(KM_ETH, "eth_link_up", NULL, "sensor", NULL, "{{ value_json.link_up }}", "mdi:lan", TYP_TEXT, textPar());
   mqttHaConfig(KM_ETH, "eth_link_speed", NULL, "sensor", "Mbps", "{{ value_json.link_speed }}", "mdi:lan", TYP_TEXT, textPar());
   mqttHaConfig(KM_ETH, "eth_full_duplex", NULL, "sensor", NULL, "{{ value_json.full_duplex }}", "mdi:lan", TYP_TEXT, textPar());
-
 
   mqttHaConfig(KM_DEBUG, "logmode", NULL, "sensor", NULL, "{{ value_json.logmode }}", "mdi:connection", TYP_TEXT, textPar());
   mqttHaConfig(KM_DEBUG, "sw_version", NULL, "sensor", NULL, "{{ value_json.sw_version }}", "mdi:github", TYP_TEXT, textPar());
 
-  mqttHaConfig(KM_SYSINFO, "uptime", NULL, "sensor", NULL, "{{ value_json.uptime }}", "mdi:clock-outline", TYP_TEXT, textPar());
   mqttHaConfig(KM_SYSINFO, "restart_reason", NULL, "sensor", NULL, "{{ value_json.restart_reason }}", "mdi:information-outline", TYP_TEXT, textPar());
   mqttHaConfig(KM_SYSINFO, "heap", NULL, "sensor", "%", "{{ value_json.heap.split(' ')[0] }}", "mdi:memory", TYP_TEXT, textPar());
   mqttHaConfig(KM_SYSINFO, "flash", NULL, "sensor", "%", "{{ value_json.flash.split(' ')[0] }}", "mdi:harddisk", TYP_TEXT, textPar());
+
+  // reset/delete with next update
+  resetMqttConfig = true;
+  mqttHaConfig(KM_SYSINFO, "uptime", NULL, "sensor", NULL, NULL, NULL, TYP_TEXT, textPar());
+  resetMqttConfig = false;
 }
 
 /**

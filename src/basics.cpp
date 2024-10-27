@@ -62,6 +62,7 @@ void onWiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
 void onWiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info) {
   MY_LOGI(TAG, "WiFi connected");
   MY_LOGI(TAG, "IP address: %s", WiFi.localIP().toString().c_str());
+  wifi.connected = true;
 }
 
 /**
@@ -71,7 +72,9 @@ void onWiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info) {
  * @return  none
  * *******************************************************************/
 void checkWiFi() {
+
   if (wifiReconnectTimer.delayOnTrigger(!WiFi.isConnected(), WIFI_RECONNECT)) {
+    wifi.connected = false;
     wifiReconnectTimer.delayReset();
     if (wifi_retry < 5) {
       wifi_retry++;
@@ -145,12 +148,12 @@ void setupWiFi() {
 void onEthEvent(arduino_event_id_t event, arduino_event_info_t info) {
   switch (event) {
   case ARDUINO_EVENT_ETH_START:
-    Serial.println("ETH Started");
+    MY_LOGI(TAG, "ETH Started");
     // set eth hostname here
     ETH.setHostname(config.eth.hostname);
     break;
   case ARDUINO_EVENT_ETH_CONNECTED:
-    Serial.println("ETH Connected");
+    MY_LOGI(TAG, "ETH Connected");
     break;
   case ARDUINO_EVENT_ETH_GOT_IP:
     MY_LOGI(TAG, "ETH Got IP: '%s'\n", esp_netif_get_desc(info.got_ip.esp_netif));

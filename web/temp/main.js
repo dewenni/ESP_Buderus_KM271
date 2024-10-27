@@ -1043,7 +1043,7 @@ const translations = {
     en: "ESP must be restarted to apply the update",
   },
   error_text: {
-    de: "Ferhler:",
+    de: "Fehler:",
     en: "Error:",
   },
   update_error_info: {

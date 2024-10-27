@@ -3,6 +3,7 @@
 #include <basics.h>
 #include <favicon.h>
 #include <km271.h>
+#include <message.h>
 #include <oilmeter.h>
 #include <sensor.h>
 #include <simulation.h>
@@ -26,6 +27,7 @@ AsyncEventSource events("/events");
 s_webui_texts webText;
 s_cfg_arrays cfgArrayTexts;
 
+static const char *TAG = "WEB"; // LOG TAG
 bool clientConnected = false;
 bool webInitDone = false;
 bool simulationInit = false;
@@ -166,7 +168,7 @@ void updateWebTooltip(const char *id, const char *tooltip) {
  * *******************************************************************/
 void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final) {
   if (!index) {
-    Serial.println("Update");
+    MY_LOGI(TAG, "OTA-Update started");
     storeData(); // store data before updating
     snprintf(otaMessage, sizeof(otaMessage), "Start OTA Update: %s", filename.c_str());
     km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
@@ -191,7 +193,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
   } else {
     // calculate progress
     int progress = (Update.progress() * 100) / content_len;
-    Serial.printf("Progress: %d%%\n", progress);
+    MY_LOGI(TAG, " OTA-Progress: %d%%\n", progress);
     char message[32];
     if (otaUpdateTimer.cycleTrigger(200)) {
       snprintf(message, 32, "Progress: %d%%", progress);
@@ -211,7 +213,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
       char message[32];
       snprintf(message, 32, "Progress: %d%%", 100);
       events.send(message, "ota-progress", millis());
-      Serial.println("Update complete");
+      MY_LOGI(TAG, "OTA Update complete");
       Serial.flush();
       updateWebDialog("ota_update_done_dialog", "open");
       km271Msg(KM_TYP_MESSAGE, "OTA Update finished!", NULL);
@@ -342,11 +344,11 @@ void webUISetup() {
 
         if (!index) { // firs call for upload
           updateWebText("upload_status_txt", "uploading...", false);
-          Serial.printf("UploadStart: %s\n", filename.c_str());
+          MY_LOGI(TAG, "Upload Start: %s\n", filename.c_str());
           uploadFile = LittleFS.open("/" + filename, "w");
 
           if (!uploadFile) {
-            Serial.println("Fehler: Datei konnte nicht geöffnet werden.");
+            MY_LOGE(TAG, "Error: file could not be opened");
             updateWebText("upload_status_txt", "error on file close!", false);
             return;
           }
@@ -359,7 +361,7 @@ void webUISetup() {
         if (final) {
           if (uploadFile) {
             uploadFile.close();
-            Serial.printf("UploadEnd: %s, %u B\n", filename.c_str(), index + len);
+            MY_LOGI(TAG, "UploadEnd: %s, %u B\n", filename.c_str(), index + len);
             updateWebText("upload_status_txt", "upload done!", false);
           } else {
             updateWebText("upload_status_txt", "error on file close!", false);
@@ -378,9 +380,9 @@ void webUISetup() {
   events.onConnect([](AsyncEventSourceClient *client) {
     // check if it´s a new client or reconnect
     if (client->lastId()) {
-      Serial.printf("Client reconnected with lastId %lu\n", client->lastId());
+      MY_LOGI(TAG, "Client reconnected with lastId %lu\n", client->lastId());
     } else {
-      Serial.println("New Client connected");
+      MY_LOGI(TAG, "New Client connected");
     }
 
     // send ping as welcome and force web elements update
