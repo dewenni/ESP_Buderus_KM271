@@ -14,21 +14,9 @@ const translations = {
     de: "Dashboard",
     en: "Dashboard",
   },
-  boiler: {
-    de: "Kessel",
-    en: "Boiler",
-  },
   auto: {
     de: "Auto",
     en: "Auto",
-  },
-  automatic: {
-    de: "Automatik",
-    en: "Automatic",
-  },
-  opmodes: {
-    de: "Betriebsarten",
-    en: "Operation Modes",
   },
   programs: {
     de: "Programme",
@@ -54,10 +42,6 @@ const translations = {
     de: "Temperaturen",
     en: "Temperatures",
   },
-  manual: {
-    de: "Handbetrieb",
-    en: "Manual",
-  },
   day: {
     de: "Tag",
     en: "Day",
@@ -69,14 +53,6 @@ const translations = {
   day_night: {
     de: "Tag/Nacht",
     en: "Day/Night",
-  },
-  summer: {
-    de: "Sommer",
-    en: "Summer",
-  },
-  winter: {
-    de: "Winter",
-    en: "Winter",
   },
   summer_winter: {
     de: "Sommer/Winter",
@@ -93,10 +69,6 @@ const translations = {
   ww: {
     de: "WW",
     en: "WW",
-  },
-  setpoint: {
-    de: "Sollwert",
-    en: "Setpoint",
   },
   act_value: {
     de: "Istwert",
@@ -122,21 +94,9 @@ const translations = {
     de: "Betriebsart",
     en: "Operation Mode",
   },
-  on: {
-    de: "EIN",
-    en: "ON",
-  },
-  off: {
-    de: "AUS",
-    en: "OFF",
-  },
   ok: {
     de: "OK",
     en: "OK",
-  },
-  error: {
-    de: "FEHLER",
-    en: "ERROR",
   },
   error_flags: {
     de: "Fehlermeldungen",
@@ -194,21 +154,13 @@ const translations = {
     de: "feste IP-Adresse",
     en: "static ip address",
   },
-  ethernet: {
-    de: "Ethernet",
-    en: "Ethernet",
-  },
   eth_link_speed: {
-    de: "Geschwindigkeit",
-    en: "Link Speed",
-  },
-  eth_link_up: {
-    de: "Verbindung aktiv",
-    en: "Link Up",
+    de: "ETH Geschwindigkeit",
+    en: "ETH Link Speed",
   },
   eth_full_duplex: {
-    de: "Vollduplex",
-    en: "Full Duplex",
+    de: "ETH Vollduplex",
+    en: "ETH Full Duplex",
   },
   heating_circuit_1: {
     de: "Heizkreis 1",
@@ -217,10 +169,6 @@ const translations = {
   heating_circuit_2: {
     de: "Heizkreis 2",
     en: "Heating Circuit 2",
-  },
-  heating_circuit: {
-    de: "Heizkreise",
-    en: "Heating Circuits",
   },
   general: {
     de: "Allgemeine Werte",
@@ -322,14 +270,6 @@ const translations = {
     de: "\u00d6lz\u00e4hler",
     en: "Oil-Meter",
   },
-  info_unit_l: {
-    de: "Einheit: Liter",
-    en: "Unit: Litre",
-  },
-  oilmeter_act: {
-    de: "\u00d6lz\u00e4hlerstand",
-    en: "Oil-Meter value",
-  },
   set: {
     de: "setzen",
     en: "set",
@@ -341,18 +281,6 @@ const translations = {
   button_dti: {
     de: "schreibe Datum/Zeit auf Logamatic",
     en: "write date/time to Logamatic",
-  },
-  voltage: {
-    de: "Spannung",
-    en: "Voltage",
-  },
-  esp_heapsize: {
-    de: "ESP HeapSize",
-    en: "ESP HeapSize",
-  },
-  esp_freeheap: {
-    de: "ESP FreeHeap",
-    en: "ESP FreeHeap",
   },
   esp_maxallocheap: {
     de: "ESP MaxAllocHeap",
@@ -386,14 +314,6 @@ const translations = {
     de: "letzte Alarm Meldungen",
     en: "latest Alarm Messages",
   },
-  message: {
-    de: "Meldung",
-    en: "Message",
-  },
-  esp_info: {
-    de: "ESP-Info",
-    en: "ESP-Info",
-  },
   operation: {
     de: "Betrieb",
     en: "Operation",
@@ -413,10 +333,6 @@ const translations = {
   date: {
     de: "Datum",
     en: "Date",
-  },
-  time: {
-    de: "Uhrzeit",
-    en: "Time",
   },
   logamatic: {
     de: "Logamatic",
@@ -518,21 +434,9 @@ const translations = {
     de: "KM271-RX",
     en: "KM271-RX",
   },
-  webui: {
-    de: "Webserver",
-    en: "Webserver",
-  },
-  save: {
-    de: "Speichern",
-    en: "save",
-  },
   restart: {
     de: "Neustart",
     en: "restart",
-  },
-  save_restart: {
-    de: "Speichern und Neustart",
-    en: "save and restart",
   },
   oil_hardware: {
     de: "\u00d6lz\u00e4hler Hardware",
@@ -549,18 +453,6 @@ const translations = {
   oil_par2_kg_l: {
     de: "\u00d6l-Dichte Kg/L",
     en: "oil density Kg/L",
-  },
-  wifi_ap_info_1: {
-    de: "\\n\u26a0\ufe0f um den ESP in den Accesspoint Mode zu versetzen \u26a0\ufe0f",
-    en: "\\n\u26a0\ufe0f to set the ESP in Accesspoint Mode \u26a0\ufe0f",
-  },
-  wifi_ap_info_2: {
-    de: "Reset dr\u00fccken und nach 5s erneut Reset dr\u00fccken",
-    en: "press reset and after 5s press reset again",
-  },
-  predefine: {
-    de: "Voreinstellung",
-    en: "Predefine",
   },
   ota: {
     de: "OTA Firmware Update",
@@ -593,10 +485,6 @@ const translations = {
   activate: {
     de: "Aktivieren",
     en: "activate",
-  },
-  ip_settings: {
-    de: "IP-Einstellungen",
-    en: "IP settings",
   },
   ip_adr: {
     de: "IP-Adresse",
@@ -634,10 +522,6 @@ const translations = {
     de: "Name",
     en: "Name",
   },
-  test: {
-    de: "Test",
-    en: "test",
-  },
   filter: {
     de: "Filter",
     en: "Filter",
@@ -658,21 +542,9 @@ const translations = {
     de: "Testnachricht",
     en: "test message",
   },
-  logout: {
-    de: "ausloggen",
-    en: "logout",
-  },
   logger: {
     de: "Logbuch",
     en: "Logger",
-  },
-  save: {
-    de: "Speichern",
-    en: "save",
-  },
-  restart: {
-    de: "Neustart",
-    en: "restart",
   },
   clear: {
     de: "L\u00f6schen",
@@ -762,17 +634,9 @@ const translations = {
     de: "Fernbedienung",
     en: "remote control",
   },
-  program: {
-    de: "Programm",
-    en: "program",
-  },
   holiday_days: {
     de: "Ferien_Tage",
     en: "holiday days",
-  },
-  timer: {
-    de: "Timer",
-    en: "timer",
   },
   time_offset: {
     de: "Uhrzeit_Offset",
@@ -866,10 +730,6 @@ const translations = {
     de: "BW1 Frostschutz",
     en: "OV1 frost protection",
   },
-  ov1_manual: {
-    de: "BW1 Manuell",
-    en: "OV1 manual",
-  },
   ov2_summer: {
     de: "BW2 Sommer",
     en: "OV2 summer",
@@ -914,17 +774,9 @@ const translations = {
     de: "Raumisttemperatur",
     en: "Room temp",
   },
-  on_time_opt_duration: {
-    de: "Einschaltoptimierung",
-    en: "On time opt duration",
-  },
   off_time_opt_duration: {
     de: "Ausschaltoptimierung",
     en: "Off time opt duration",
-  },
-  pump: {
-    de: "Pumpe",
-    en: "Pump",
   },
   mixer: {
     de: "Mischerstellung",
@@ -953,10 +805,6 @@ const translations = {
   ov1_reload: {
     de: "BW1 Nachladung",
     en: "OV1 reload",
-  },
-  ov1_holiday: {
-    de: "BW1 Ferien",
-    en: "OV1 holiday",
   },
   ov1_err_disinfection: {
     de: "BW1 Fehler Desinfektion",
@@ -994,10 +842,6 @@ const translations = {
     de: "BW2 Einschaltoptimierung",
     en: "OV2 on time opt duration",
   },
-  ov2_day: {
-    de: "BW2 Tag",
-    en: "OV2 day",
-  },
   ov2_hot: {
     de: "BW2 Warm",
     en: "OV2 hot",
@@ -1005,10 +849,6 @@ const translations = {
   ov2_priority: {
     de: "BW2 Vorrang",
     en: "OV2 priority",
-  },
-  setpoint: {
-    de: "Solltemperatur",
-    en: "setpoint",
   },
   on_time_opt_duration: {
     de: "Einschaltoptimierung",
@@ -1126,10 +966,6 @@ const translations = {
     de: "Brenner Laufzeit Minuten",
     en: "Burner runtime minutes",
   },
-  oil_consumption_overall_calc: {
-    de: "Ölverbrauch Gesamt berechnet",
-    en: "Oil consumption overall calc",
-  },
   outside_temp: {
     de: "Außentemperatur",
     en: "Outside temp",
@@ -1138,66 +974,6 @@ const translations = {
     de: "Außentemperatur gedämpft",
     en: "Outside temp damped",
   },
-  version_vk: {
-    de: "Versionsnummer VK",
-    en: "Version VK",
-  },
-  version_nk: {
-    de: "Versionsnummer NK",
-    en: "Version NK",
-  },
-  module_id: {
-    de: "Modulkennung",
-    en: "Module id",
-  },
-  err_alarm_exhaust: {
-    de: "ERR Alarmstatus Abgasfühler",
-    en: "ERR alarm exhaust",
-  },
-  err_alarm_02: {
-    de: "ERR Alarmstatus 02",
-    en: "ERR alarm 02",
-  },
-  err_alarm_boiler_flow_sensor: {
-    de: "ERR Alarmstatus Kesselvorlauffühler",
-    en: "ERR alarm boiler flow sensor",
-  },
-  err_alarm_08: {
-    de: "ERR Alarmstatus 08",
-    en: "ERR alarm 08",
-  },
-  err_alarm_burner: {
-    de: "ERR Alarmstatus Brenner",
-    en: "ERR alarm burner",
-  },
-  err_alarm_20: {
-    de: "ERR Alarmstatus 20",
-    en: "ERR alarm 20",
-  },
-  err_alarm_hk2_flow_sensor: {
-    de: "ERR Alarmstatus HK2-Vorlauffuehler",
-    en: "ERR alarm status HK2 flow sensor",
-  },
-  err_alarm_80: {
-    de: "ERR Alarmstatus 80",
-    en: "ERR alarm status 80",
-  },
-  error_buffer1: {
-    de: "Fehlerspeicher1",
-    en: "Error buffer1",
-  },
-  error_buffer2: {
-    de: "Fehlerspeicher2",
-    en: "Error buffer2",
-  },
-  error_buffer3: {
-    de: "Fehlerspeicher3",
-    en: "Error buffer3",
-  },
-  error_buffer4: {
-    de: "Fehlerspeicher4",
-    en: "Error buffer4",
-  },
   lost_connection: {
     de: "Verbindung unterbrochen!",
     en: "lost connection",
@@ -1205,22 +981,6 @@ const translations = {
   send: {
     de: "senden",
     en: "send",
-  },
-  upload: {
-    de: "hochladen",
-    en: "upload",
-  },
-  update: {
-    de: "Update",
-    en: "update",
-  },
-  upload_ready: {
-    de: "bereit für Upload",
-    en: "Ready to upload",
-  },
-  file_content: {
-    de: "Dateiübersicht",
-    en: "File system content",
   },
   sort_up: {
     de: "aufsteigend \u2B06",
@@ -1325,6 +1085,30 @@ const translations = {
   km271_refresh: {
     de: "empfange Daten...",
     en: "receiving data...",
+  },
+  mqtt_info: {
+    de: "MQTT-Informationen",
+    en: "MQTT information",
+  },
+  last_error: {
+    de: "letzter Fehler",
+    en: "last error",
+  },
+  connection: {
+    de: "Verbindung",
+    en: "connection",
+  },
+  state: {
+    de: "Zustand",
+    en: "State",
+  },
+  timer: {
+    de: "Timer",
+    en: "timer",
+  },
+  message: {
+    de: "Meldung",
+    en: "Message",
   },
 };
 

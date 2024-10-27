@@ -6,7 +6,9 @@
     <link rel="stylesheet" type="text/css" href="../css/pico.css" />
     <link rel="stylesheet" type="text/css" href="../css/custom.css" />
     <link rel="stylesheet" type="text/css" href="../css/icons.css" />
-    <script src="../js/main.js" defer></script>
+    <script src="../js/doc.js" defer></script>
+    <script src="../js/events.js" defer></script>
+    <script src="../js/fun.js" defer></script>
     <script src="../js/lang.js" defer></script>
     <style></style>
     <script>
@@ -62,10 +64,6 @@
                   <td id="p09_eth_status" class="table-value"></td>
                 </tr>
                 <tr>
-                  <td data-i18n="eth_link_up"></td>
-                  <td id="p09_eth_link_up" class="table-value"></td>
-                </tr>
-                <tr>
                   <td data-i18n="eth_link_speed"></td>
                   <td id="p09_eth_link_speed" class="table-value"></td>
                 </tr>
@@ -76,6 +74,31 @@
               </tbody>
             </table>
           </article>
+
+          <article class="card">
+            <p class="table-header" data-i18n="mqtt_info"></p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="state"></td>
+                  <td id="p09_mqtt_status" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="connection"></td>
+                  <td id="p09_mqtt_connection" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="last_error"></td>
+                  <td id="p09_mqtt_last_err" class="table-value"></td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 1 -->
+
+        <div class="grid">
+          <!-- Grid 2 -->
 
           <article class="card">
             <p class="table-header" data-i18n="version_info"></p>
@@ -104,11 +127,7 @@
               </tbody>
             </table>
           </article>
-        </div>
-        <!-- END Grid 1 -->
 
-        <div class="grid">
-          <!-- Grid 2 -->
           <article class="card">
             <p class="table-header" data-i18n="sysinfo"></p>
             <table class="striped">
@@ -135,10 +154,6 @@
                 </tr>
               </tbody>
             </table>
-          </article>
-
-          <article class="card">
-            <p class="table-header" data-i18n="sysinfo"></p>
             <table class="striped">
               <tbody>
                 <tr>

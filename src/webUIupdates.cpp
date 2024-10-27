@@ -356,14 +356,20 @@ void updateSystemInfoElements() {
 
   if (eth.connected) {
     updateWebSetIcon("p00_eth_icon", "i_eth");
+    snprintf(tmpMessage, sizeof(tmpMessage), "%d Mbps", eth.linkSpeed);
+    updateWebText("p09_eth_link_speed", tmpMessage, false);
+    updateWebText("p09_eth_full_duplex", eth.fullDuplex ? webText.FULL_DUPLEX[config.lang] : "---", false);
+
   } else {
     updateWebSetIcon("p00_eth_icon", "");
+    updateWebText("p09_eth_link_speed", "---", false);
+    updateWebText("p09_eth_full_duplex", "---", false);
   }
 
-  snprintf(tmpMessage, sizeof(tmpMessage), "%d Mbps", eth.linkSpeed);
-  updateWebText("p09_eth_link_speed", tmpMessage, false);
-  updateWebText("p09_eth_link_up", eth.linkUp ? webText.ACTIVE[config.lang] : webText.INACTIVE[config.lang], false);
-  updateWebText("p09_eth_full_duplex", eth.fullDuplex ? webText.FULL_DUPLEX[config.lang] : "---", false);
+  // MQTT Status
+  updateWebText("p09_mqtt_status", mqttIsEnabled() ? webText.ACTIVE[config.lang] : webText.INACTIVE[config.lang], false);
+  updateWebText("p09_mqtt_connection", mqttIsConnected() ? webText.CONNECTED[config.lang] : webText.NOT_CONNECTED[config.lang], false);
+  updateWebText("p09_mqtt_last_err", mqttGetLastError(), false);
 
   // Version informations
   updateWebText("p00_version", VERSION, false);

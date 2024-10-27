@@ -20,7 +20,6 @@ bool bootUpMsgDone, setupDone = false;
 int targetIndex = -1;
 static const char *TAG = "MQTT"; // LOG TAG
 
-
 /**
  * *******************************************************************
  * @brief   helper function to add subject to mqtt topic
@@ -59,12 +58,10 @@ void onMqttMessage(const char *topic, const char *payload) {
     payloadCopy[0] = '\0';
   } else {
     strncpy(payloadCopy, payload, sizeof(payloadCopy) - 1);
-    payloadCopy[sizeof(payloadCopy) - 1] = '\0';            
+    payloadCopy[sizeof(payloadCopy) - 1] = '\0';
   }
-  int len = strlen(payloadCopy);
-  Serial.print("PayloadCopy len: ");
-  Serial.println(len);
 
+  int len = strlen(payloadCopy);
   long intVal = 0;
   float floatVal = 0.0;
 
@@ -439,6 +436,30 @@ void onMqttConnect() {
   mqtt_client.subscribe(addTopic("homeassistant/status"),
                         [](const String &topic, const String &payload) { onMqttMessage(topic.c_str(), payload.c_str()); });
 }
+
+/**
+ * *******************************************************************
+ * @brief   get last MQTT error message
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+const char *mqttGetLastError() { return mqtt_client.getLastError(); }
+
+/**
+ * *******************************************************************
+ * @brief   is MQTT enabled
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+bool mqttIsEnabled() { return mqtt_client.isEnabled(); }
+
+/**
+ * *******************************************************************
+ * @brief   is MQTT connected
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+bool mqttIsConnected() { return mqtt_client.isConnected(); }
 
 /**
  * *******************************************************************
