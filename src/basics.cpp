@@ -156,14 +156,9 @@ void onEthEvent(arduino_event_id_t event, arduino_event_info_t info) {
     MY_LOGI(TAG, "ETH Connected");
     break;
   case ARDUINO_EVENT_ETH_GOT_IP:
-    MY_LOGI(TAG, "ETH Got IP: '%s'\n", esp_netif_get_desc(info.got_ip.esp_netif));
     eth.connected = true;
-
-    esp_netif_ip_info_t ip_info;
-    if (esp_netif_get_ip_info(info.got_ip.esp_netif, &ip_info) == ESP_OK) {
-      snprintf(eth.ipAddress, sizeof(eth.ipAddress), "%d.%d.%d.%d", IP2STR(&ip_info.ip));
-    }
-
+    snprintf(eth.ipAddress, sizeof(eth.ipAddress), "%s", ETH.localIP().toString().c_str());
+    MY_LOGI(TAG, "ETH Got IP: '%s'\n", eth.ipAddress);
     break;
   case ARDUINO_EVENT_ETH_LOST_IP:
     MY_LOGI(TAG, "ETH Lost IP");
@@ -195,9 +190,10 @@ void setupETH() {
 
   Network.onEvent(onEthEvent);
 
+  SPI.setFrequency(SPI_MASTER_FREQ_8M);
   SPI.begin(config.eth.gpio_sck, config.eth.gpio_miso, config.eth.gpio_mosi);
   ETH.begin(ETH_PHY_TYPE, ETH_PHY_ADDR, config.eth.gpio_cs, config.eth.gpio_irq, config.eth.gpio_rst, SPI);
-
+  
   if (config.eth.static_ip) {
     ETH.config(IPAddress(config.eth.ipaddress), IPAddress(config.eth.gateway), IPAddress(config.eth.subnet), IPAddress(config.eth.dns));
   }

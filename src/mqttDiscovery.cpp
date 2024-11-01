@@ -105,7 +105,7 @@ DeviceConfig numPar(const char *min, const char *max, const char *step) { return
 void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, const char *component, const char *unit, const char *valueTemplate,
                   const char *icon, DeviceType devType, DeviceConfig devCfg) {
 
- /*  if (strlen(discoveryPrefix) == 0 || strlen(statePrefix) == 0 || strlen(name) == 0) {
+  if (strlen(discoveryPrefix) == 0 || strlen(statePrefix) == 0 || strlen(name) == 0) {
     return;
   }
 
@@ -138,6 +138,7 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
     break;
   case KM_ETH:
     sprintf(stateTopic, "%s/eth", statePrefix);
+    doc["stat_t"] = stateTopic;
     break;
   case KM_DEBUG:
     sprintf(stateTopic, "%s/debug", statePrefix);
@@ -256,7 +257,7 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
     mqttPublish(configTopic, "", false);
   } else {
     mqttPublish(configTopic, jsonString, false);
-  } */
+  }
 }
 
 /**
