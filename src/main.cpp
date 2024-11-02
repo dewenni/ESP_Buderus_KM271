@@ -1,16 +1,7 @@
-
-// Library Settings
-#define SSE_MAX_QUEUED_MESSAGES 256      // ESPAsyncWebServer: max number of queued SSE messages
-#define CONFIG_ASYNC_TCP_QUEUE 256       // AsyncTCP: max number of queued messages
-#define CONFIG_ASYNC_TCP_STACK_SIZE 6144 // AsyncTCP: stack size
-#define ESP_DRD_USE_LITTLEFS true        // DRD: use LittleFS
-#define DOUBLERESETDETECTOR_DEBUG true   // DRD: debug serial outputs
-#define DRD_TIMEOUT 3                    // DRD: timeout for double reset detection
-#define DRD_ADDRESS 0                    // DRD: FLASH offset not used > LittleFS
-
 // includes
 #include <ArduinoOTA.h>
 #include <ESP_DoubleResetDetector.h>
+#include <MycilaTaskMonitor.h>
 #include <basics.h>
 #include <config.h>
 #include <km271.h>
@@ -28,6 +19,7 @@ muTimer heartbeat = muTimer();      // timer for heartbeat signal
 muTimer setupModeTimer = muTimer(); // timer for heartbeat signal
 muTimer dstTimer = muTimer();       // timer to check daylight saving time change
 muTimer ntpTimer = muTimer();       // timer to check ntp sync
+muTimer taskMonTimer = muTimer();   // timer to check ntp sync
 
 DoubleResetDetector *drd; // Double-Reset-Detector
 bool main_reboot = true;  // reboot flag
@@ -101,6 +93,10 @@ void setup() {
 
   // telnet Setup
   setupTelnet();
+
+  Mycila::TaskMonitor.begin(2);
+  Mycila::TaskMonitor.addTask("loopTask");
+  Mycila::TaskMonitor.addTask("async_tcp");
 }
 
 /**
@@ -208,6 +204,10 @@ void loop() {
 
   // check if config has changed
   configCyclic();
+
+  if (taskMonTimer.cycleTrigger(10000)) {
+    Mycila::TaskMonitor.log();
+  }
 
   main_reboot = false; // reset reboot flag
 }
