@@ -26,7 +26,6 @@ AsyncEventSource events("/events");
 s_webui_texts webText;
 s_cfg_arrays cfgArrayTexts;
 
-bool clientConnected = false;
 bool webInitDone = false;
 bool simulationInit = false;
 char otaMessage[128];
@@ -35,6 +34,7 @@ const size_t BUFFER_SIZE = 512;
 char webCallbackElementID[32];
 char webCallbackValue[256];
 bool webCallbackAvailable = false;
+bool onLoadRequest = false;
 
 void sendWebUpdate(const char *message, const char *event) { events.send(message, event, millis()); }
 
@@ -239,14 +239,6 @@ bool isAuthenticated(AsyncWebServerRequest *request) {
 
 /**
  * *******************************************************************
- * @brief   on connect or refresh - force update of all webUI elements
- * @param   none
- * @return  none
- * *******************************************************************/
-void onLoadRequest() { updateAllElements(); }
-
-/**
- * *******************************************************************
  * @brief   cyclic call for webUI - creates all webUI elements
  * @param   none
  * @return  none
@@ -362,7 +354,8 @@ void webUISetup() {
       });
 
   // Route für OTA-Updates
-  server.on("/update", HTTP_POST, [](AsyncWebServerRequest *request) {}, handleDoUpdate);
+  server.on(
+      "/update", HTTP_POST, [](AsyncWebServerRequest *request) {}, handleDoUpdate);
 
   // message from webClient to server
   server.on("/sendData", HTTP_GET, handleWebClientData);
@@ -377,9 +370,8 @@ void webUISetup() {
     }
 
     // send ping as welcome and force web elements update
-    client->send("ping", NULL, millis(), 5000);
-    onLoadRequest();
-    clientConnected = true;
+    client->send("ping", "ping", millis(), 5000);
+    onLoadRequest = true; // send all data to the client
   });
 
   server.addHandler(&events);
@@ -398,6 +390,12 @@ void webUICylic() {
   // heartbeat timer for webclient
   if (connectionTimer.cycleTrigger(3000)) {
     events.send("ping", "ping", millis());
+  }
+
+  // request for update alle elements
+  if (onLoadRequest) {
+    updateAllElements();
+    onLoadRequest = false;
   }
 
   // handling of update webUI elements

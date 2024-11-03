@@ -845,3 +845,15 @@ There are some changes to MQTT Discovery for Home Assistant
 - bugfix Home Assistant setvalues not working - this bug was introduced in v4.1.2 #108
 - add function to send MQTT discovery manually via Telnet (> ha sendconfig)
 - add function to reset MQTT discovery manually via Telnet (> ha resetconfig)
+
+---
+
+# v4.1.4
+
+## what's new
+
+  only stability improvements
+
+## changelog
+
+- bugfix possible problems when connecting webUI clients. #116
