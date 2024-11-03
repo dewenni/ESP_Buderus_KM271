@@ -23,7 +23,7 @@ jobs:
         id: extract_version
         run: |
           # Liest die Version aus der Header-Datei aus und entfernt Anführungszeichen
-          VERSION=$(grep '#define VERSION' path/to/your/version.h | awk '{print $3}' | tr -d '"')
+          VERSION=$(grep '#define VERSION' ./include/config.h | awk '{print $3}' | tr -d '"')
           echo "Extracted version: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
