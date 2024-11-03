@@ -1,4 +1,647 @@
 // --------------------------------------
+// js functions
+// --------------------------------------
+
+// Function timeout for server-side events
+function resetPingTimer() {
+  clearTimeout(pingTimer);
+  pingTimer = setTimeout(function () {
+    console.log("Ping timeout, attempting to reconnect...");
+    evtSource.close();
+    attemptReconnect();
+    showReloadBar();
+  }, 5000);
+}
+
+// Function to reconnect after timeout
+function attemptReconnect() {
+  setTimeout(setupSSE, 5000);
+}
+
+// Function for switching the visibility of elements
+function toggleElementVisibility(className, isVisible) {
+  const elements = document.querySelectorAll(`.${className}`);
+  elements.forEach((element) => {
+    element.style.display = isVisible ? "" : "none";
+  });
+}
+
+// Function for initializing the visibility based on the status of the switches
+function initializeVisibilityBasedOnSwitches() {
+  document
+    .querySelectorAll('input[type="checkbox"][role="switch"]')
+    .forEach(function (switchElement) {
+      // Evaluate the status of the switch and adjust visibility
+      toggleElementVisibility(
+        switchElement.getAttribute("hideOpt"),
+        switchElement.checked
+      );
+    });
+}
+
+// OTA: function is called when the ota-file is selected
+function ota_sub_fun(obj) {
+  var a = obj.value;
+  console.log(a);
+  var fileName = a.replace(/^.*[\\\/]/, "");
+  console.log(fileName);
+  document.getElementById("ota_file_input").textContent = fileName;
+  document.getElementById("ota_update_btn").disabled = false;
+  document.getElementById("ota_progress_bar").style.display = "block";
+  document.getElementById("ota_status_txt").style.display = "block";
+}
+
+// CONFIG-FORM: function for download config.json file
+function exportConfig() {
+  var a = document.createElement("a");
+  a.href = "/config-download";
+  a.download = "";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// CONFIG-FORM: function to activate import button and show status
+function file_sub_fun(obj) {
+  document.getElementById("file_upload_btn").disabled = false;
+  document.getElementById("upload_status_txt").style.display = "block";
+}
+
+// validation for date and time inputs
+const dateInput = document.getElementById("p12_dti_date");
+const timeInput = document.getElementById("p12_dti_time");
+const submitButton = document.getElementById("p12_dti_btn");
+function validateInputs() {
+  const isDateValid = dateInput.value !== "";
+  const isTimeValid = timeInput.value !== "";
+  dateInput.setAttribute("aria-invalid", !isDateValid);
+  timeInput.setAttribute("aria-invalid", !isTimeValid);
+  submitButton.disabled = !(isDateValid && isTimeValid);
+}
+dateInput.addEventListener("input", validateInputs);
+timeInput.addEventListener("input", validateInputs);
+
+// localization of web texts
+function localizePage(lang = "en") {
+  document.querySelectorAll("[data-i18n]").forEach((elem) => {
+    const i18nValue = elem.getAttribute("data-i18n");
+    const [translationPart, addon] = i18nValue.split("++", 2);
+    const matches = translationPart.split(/(\$.+?\$)/).filter(Boolean);
+    let text = "";
+
+    for (const match of matches) {
+      if (match.startsWith("$") && match.endsWith("$")) {
+        text += match.slice(1, -1);
+      } else {
+        // check if translation key is valid
+        if (translations.hasOwnProperty(match)) {
+          text += translations[match][lang] || match;
+        } else {
+          console.error(`translation key "${match}" not found`);
+          continue;
+        }
+      }
+    }
+    if (addon) {
+      text += addon;
+    }
+    elem.innerText = text;
+  });
+}
+
+// to show reload bar if connection is lost
+function showReloadBar() {
+  document.getElementById("connectionLostBar").style.display = "flex";
+}
+
+// to hide reload bar if connection is lost
+function hideReloadBar() {
+  document.getElementById("connectionLostBar").style.display = "none";
+}
+
+// send data from web elements to ESP server
+function sendData(elementId, value) {
+  fetch(`sendData?elementId=${elementId}&value=${encodeURIComponent(value)}`, {
+    method: "GET",
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+    })
+    .catch((error) => console.error("Fetch error:", error));
+}
+
+// --------------------------------------
+// Server-Side-Events (Client <- ESP)
+// --------------------------------------
+let pingTimer;
+let evtSource;
+
+function setupSSE() {
+  evtSource = new EventSource("/events");
+
+  evtSource.addEventListener(
+    "open",
+    function (e) {
+      console.log("Events Connected");
+      resetPingTimer();
+      hideReloadBar();
+    },
+    false
+  );
+  evtSource.addEventListener(
+    "error",
+    function (e) {
+      if (e.target.readyState != EventSource.OPEN) {
+        console.log("Events Disconnected");
+        evtSource.close();
+        attemptReconnect();
+      }
+    },
+    false
+  );
+
+  evtSource.addEventListener(
+    "ping",
+    function (e) {
+      console.log("Ping received");
+      resetPingTimer();
+    },
+    false
+  );
+
+  // update Text elements
+  evtSource.addEventListener(
+    "updateText",
+    function (e) {
+      var data = JSON.parse(e.data);
+      var element = document.getElementById(data.id);
+      if (element) {
+        if (data.isInput) {
+          element.value = data.text;
+        } else {
+          element.innerHTML = data.text;
+        }
+      }
+    },
+    false
+  );
+
+  // update switch elements
+  evtSource.addEventListener(
+    "updateState",
+    function (e) {
+      var data = JSON.parse(e.data);
+      var element = document.getElementById(data.id);
+      if (
+        element &&
+        (element.type === "checkbox" || element.type === "radio")
+      ) {
+        element.checked = data.state;
+        toggleElementVisibility(
+          element.getAttribute("hideOpt"),
+          element.checked
+        );
+      }
+    },
+    false
+  );
+
+  // update element.value
+  evtSource.addEventListener(
+    "updateValue",
+    function (e) {
+      var data = JSON.parse(e.data);
+      var selectElement = document.getElementById(data.id);
+      if (selectElement) {
+        selectElement.value = data.value;
+      }
+    },
+    false
+  );
+
+  // update add class to element
+  evtSource.addEventListener(
+    "updateSetIcon",
+    function (e) {
+      var data = JSON.parse(e.data);
+      var element = document.getElementById(data.id);
+      if (element) {
+        element.className = "svg " + data.icon;
+      }
+    },
+    false
+  );
+
+  // hide/show element
+  evtSource.addEventListener(
+    "hideElement",
+    function (e) {
+      var data = JSON.parse(e.data);
+      var element = document.getElementById(data.id);
+      if (element) {
+        element.style.display = data.hide ? "none" : "";
+      }
+    },
+    false
+  );
+
+  // update href
+  evtSource.addEventListener(
+    "updateHref",
+    function (e) {
+      var data = JSON.parse(e.data);
+      var element = document.getElementById(data.id);
+      if (element) {
+        element.href = data.href;
+      }
+    },
+    false
+  );
+
+  // update Busy
+  evtSource.addEventListener(
+    "updateBusy",
+    function (e) {
+      var data = JSON.parse(e.data);
+      var element = document.getElementById(data.id);
+      if (element) {
+        element.setAttribute("aria-busy", data.busy);
+      }
+    },
+    false
+  );
+
+  // hide/show elements based on className
+  evtSource.addEventListener("showElementClass", (event) => {
+    console.log("showElementClass");
+    const data = JSON.parse(event.data);
+    const elements = document.querySelectorAll(`.${data.className}`);
+    elements.forEach((element) => {
+      element.style.display = data.show ? "inline-flex" : "none";
+    });
+  });
+
+  // set language
+  evtSource.addEventListener(
+    "setLanguage",
+    function (e) {
+      console.log("set language");
+      var data = JSON.parse(e.data);
+      localizePage(data.language);
+    },
+    false
+  );
+
+  // add log message
+  evtSource.addEventListener(
+    "add_log",
+    function (event) {
+      var logOutput = document.getElementById("p10_log_output");
+      logOutput.innerHTML += event.data + "<br>";
+    },
+    false
+  );
+
+  // clear log
+  evtSource.addEventListener(
+    "clr_log",
+    function (event) {
+      var logOutput = document.getElementById("p10_log_output");
+      logOutput.innerHTML = "";
+    },
+    false
+  );
+
+  // JSON message for grouped messages
+  evtSource.addEventListener(
+    "updateJSON",
+    function (event) {
+      var data = JSON.parse(event.data);
+      Object.keys(data).forEach(function (key) {
+        let [elementID, typSuffix] = key.split("#");
+        let element = document.getElementById(elementID);
+        if (!element) {
+          console.error("unknown element:", element);
+          return;
+        }
+        let value = data[key];
+        switch (typSuffix) {
+          case "v": // value
+            element.value = value;
+            break;
+          case "c": // checked
+            element.checked = value === "true";
+            toggleElementVisibility(
+              element.getAttribute("hideOpt"),
+              element.checked
+            );
+            break;
+          case "l": // Label = innerHTML
+            element.innerHTML = value;
+            break;
+          case "i": // icon
+            element.className = "svg " + value;
+            break;
+          default:
+            console.error("unknown typ:", typSuffix);
+        }
+      });
+    },
+    false
+  );
+
+  // update ota-progress bar
+  evtSource.addEventListener(
+    "ota-progress",
+    function (e) {
+      var progress = parseInt(e.data.replace("Progress: ", ""), 10);
+      document.getElementById("ota_progress_bar").value = progress;
+      document.getElementById(
+        "ota_status_txt"
+      ).textContent = `Update Progress: ${progress}%`;
+    },
+    false
+  );
+
+  // close update dialog
+  evtSource.addEventListener(
+    "updateDialog",
+    function (e) {
+      var data = JSON.parse(e.data);
+      var dialog = document.getElementById(data.id);
+      if (data.state == "open") {
+        dialog.showModal();
+      } else if (data.state == "close") {
+        dialog.close();
+      }
+    },
+    false
+  );
+
+  evtSource.addEventListener(
+    "updateTooltip",
+    function (e) {
+      var data = JSON.parse(e.data);
+      const element = document.getElementById(data.id);
+      element.setAttribute("data-tooltip", data.tooltip);
+    },
+    false
+  );
+}
+
+// --------------------------------------
+// Fetch API (Clinet -> ESP)
+// --------------------------------------
+document.addEventListener("DOMContentLoaded", function () {
+  // call functions on refresh
+  setupSSE();
+  initializeVisibilityBasedOnSwitches();
+  localizePage("de");
+
+  // Event Listener for Reload-Button
+  document
+    .getElementById("p99_reloadButton")
+    .addEventListener("click", function () {
+      window.location.reload();
+    });
+
+  // VERSION: is called when version dialog is opened
+  document.getElementById("p00_version").addEventListener("click", function () {
+    document.getElementById("version_dialog").showModal();
+    sendData("check_git_version", "");
+  });
+
+  // VERSION: close version dialog on button click
+  document
+    .getElementById("close_version_Dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("version_dialog").close();
+    });
+
+  // OTA: close ota-failed dialog on button click
+  document
+    .getElementById("p11_ota_failed_btn")
+    .addEventListener("click", function () {
+      document.getElementById("ota_update_failed_dialog").close();
+    });
+
+  // OTA: send form data to server
+  document
+    .getElementById("ota_upload_form")
+    .addEventListener("submit", function (event) {
+      event.preventDefault();
+      document.getElementById("ota_status_txt").textContent = "Uploading...";
+      var form = document.getElementById("ota_upload_form");
+      var formData = new FormData(form);
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/update", true);
+      xhr.send(formData);
+    });
+
+  // CONFIG: send form data for config file upload
+  document
+    .getElementById("file_upload_form")
+    .addEventListener("submit", function (event) {
+      event.preventDefault();
+      var form = document.getElementById("file_upload_form");
+      var formData = new FormData(form);
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/config-upload", true);
+      xhr.send(formData);
+    });
+
+  // CONFIG: open dialog to show config.json
+  document
+    .getElementById("p11_file_show_btn")
+    .addEventListener("click", function () {
+      const dialog = document.getElementById("open_config_dialog");
+      dialog.showModal();
+      fetch("/config.json")
+        .then((response) => response.json())
+        .then((data) => {
+          document.getElementById("config_output").textContent = JSON.stringify(
+            data,
+            null,
+            2
+          );
+        })
+        .catch((error) => console.error("error loading data:", error));
+    });
+
+  // CONFIG: close dialog to show config.json
+  document
+    .getElementById("p11_config_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("open_config_dialog").close();
+    });
+
+  // NTP: open dialog to show ntp timezones
+  document
+    .getElementById("p12_ntp_open_dialog_btn")
+    .addEventListener("click", function () {
+      fetch("/gzip_ntp")
+        .then((response) => response.text())
+        .then((data) => {
+          document.getElementById("p12_ntp_help_output").innerHTML = data;
+          document.getElementById("p12_ntp_dialog").showModal();
+        })
+        .catch((error) => console.error("error loading data:", error));
+    });
+
+  // NTP: close dialog to show ntp timezones
+  document
+    .getElementById("p12_ntp_close_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("p12_ntp_dialog").close();
+    });
+
+  // ETH: open dialog to show w5500 configuration
+  document
+    .getElementById("p12_eth_open_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("p12_eth_dialog").showModal();
+    });
+
+  // ETH: close dialog to show w5500 configuration
+  document
+    .getElementById("p12_eth_close_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("p12_eth_dialog").close();
+    });
+
+  // GPIO: open dialog to show GPIO configuration
+  document
+    .getElementById("p12_gpio_open_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("p12_gpio_dialog").showModal();
+    });
+
+  // GPIO: close dialog to show GPIO configuration
+  document
+    .getElementById("p12_gpio_close_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("p12_gpio_dialog").close();
+    });
+
+  // control for Tab-Menu
+  document.querySelectorAll(".nav-list a").forEach((tab) => {
+    tab.onclick = function (e) {
+      e.preventDefault();
+      document
+        .querySelectorAll(".nav-list a")
+        .forEach((t) => t.classList.remove("active"));
+      document
+        .querySelectorAll(".tab-content")
+        .forEach((content) => content.classList.remove("active"));
+
+      const activeTab = this.getAttribute("data-tab");
+      this.classList.add("active");
+      document.getElementById(activeTab).classList.add("active");
+    };
+  });
+
+  // language selection
+  document
+    .getElementById("p12_language")
+    .addEventListener("change", function () {
+      var languageValue = this.value;
+      if (languageValue === "1") {
+        localizePage("en");
+      } else if (languageValue === "0") {
+        localizePage("de");
+      }
+    });
+
+  // event listener for all input fields that call sendData on "blur"
+  document
+    .querySelectorAll(
+      'input[type="text"], input[type="number"], input[type="password"], input[type="date"], input[type="time"]'
+    )
+    .forEach(function (input) {
+      input.addEventListener("blur", function () {
+        sendData(input.id, input.value);
+      });
+      input.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+          input.blur(); // Triggers "blur" event and sends data
+        }
+      });
+    });
+
+  // Event-Listener for Range Inputs (Slider)
+  document.querySelectorAll('input[type="range"]').forEach(function (slider) {
+    slider.addEventListener("change", function () {
+      sendData(slider.id, slider.value);
+    });
+  });
+
+  // Event-Listener for Slider labels
+  document.querySelectorAll(".rangeSlider").forEach((slider) => {
+    const valueId = slider.getAttribute("data-value-id");
+    const valueDisplay = document.getElementById(valueId);
+    slider.oninput = () => {
+      valueDisplay.textContent = slider.value;
+    };
+    // set initial value
+    valueDisplay.textContent = slider.value;
+  });
+
+  // Event-Listener for Buttons
+  document.querySelectorAll("button").forEach(function (button) {
+    button.addEventListener("click", function () {
+      sendData(button.id, true);
+    });
+  });
+
+  // Event-Listener for Switches
+  document
+    .querySelectorAll('input[type="checkbox"][role="switch"]')
+    .forEach(function (switchElement) {
+      switchElement.addEventListener("change", function () {
+        sendData(switchElement.id, switchElement.checked);
+        toggleElementVisibility(
+          switchElement.getAttribute("hideOpt"),
+          switchElement.checked
+        );
+      });
+    });
+
+  // Event-Listener for Radio
+  document
+    .querySelectorAll('input[type="radio"]')
+    .forEach(function (switchElement) {
+      switchElement.addEventListener("change", function () {
+        sendData(switchElement.id, switchElement.checked);
+      });
+    });
+
+  // Event-Listener for Select Elements
+  document.querySelectorAll("select").forEach(function (selectElement) {
+    selectElement.addEventListener("change", function () {
+      sendData(selectElement.id, selectElement.value);
+    });
+  });
+
+  // Event-Listener for pushover test-message
+  document
+    .getElementById("p12_pushover_test_btn")
+    .addEventListener("click", function () {
+      var text = document.getElementById("p12_pushover_test_msg").value;
+      sendData("p12_pushover_test_msg_cmd", text);
+    });
+
+  // Event-Listener for oilcounter set value
+  document
+    .getElementById("p02_oilmeter_btn")
+    .addEventListener("click", function () {
+      var text = document.getElementById("p02_oilmeter_set").value;
+      sendData("p02_oilmeter_set_cmd", text);
+    });
+});
+
+// --------------------------------------
 // localization texts
 // --------------------------------------
 const translations = {
@@ -1111,638 +1754,4 @@ const translations = {
     en: "Message",
   },
 };
-
-// --------------------------------------
-// js functions
-// --------------------------------------
-
-// Function timeout for server-side events
-function resetPingTimer() {
-  clearTimeout(pingTimer);
-  pingTimer = setTimeout(function () {
-    console.log("Ping timeout, attempting to reconnect...");
-    evtSource.close();
-    attemptReconnect();
-    showReloadBar();
-  }, 5000);
-}
-
-// Function to reconnect after timeout
-function attemptReconnect() {
-  setTimeout(setupSSE, 5000);
-}
-
-// Function for switching the visibility of elements
-function toggleElementVisibility(className, isVisible) {
-  const elements = document.querySelectorAll(`.${className}`);
-  elements.forEach((element) => {
-    element.style.display = isVisible ? "" : "none";
-  });
-}
-
-// Function for initializing the visibility based on the status of the switches
-function initializeVisibilityBasedOnSwitches() {
-  document
-    .querySelectorAll('input[type="checkbox"][role="switch"]')
-    .forEach(function (switchElement) {
-      // Evaluate the status of the switch and adjust visibility
-      toggleElementVisibility(
-        switchElement.getAttribute("hideOpt"),
-        switchElement.checked
-      );
-    });
-}
-
-// OTA: function is called when the ota-file is selected
-function ota_sub_fun(obj) {
-  var a = obj.value;
-  console.log(a);
-  var fileName = a.replace(/^.*[\\\/]/, "");
-  console.log(fileName);
-  document.getElementById("ota_file_input").textContent = fileName;
-  document.getElementById("ota_update_btn").disabled = false;
-  document.getElementById("ota_progress_bar").style.display = "block";
-  document.getElementById("ota_status_txt").style.display = "block";
-}
-
-// CONFIG-FORM: function for download config.json file
-function exportConfig() {
-  var a = document.createElement("a");
-  a.href = "/config-download";
-  a.download = "";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-
-// CONFIG-FORM: function to activate import button and show status
-function file_sub_fun(obj) {
-  document.getElementById("file_upload_btn").disabled = false;
-  document.getElementById("upload_status_txt").style.display = "block";
-}
-
-// validation for date and time inputs
-const dateInput = document.getElementById("p12_dti_date");
-const timeInput = document.getElementById("p12_dti_time");
-const submitButton = document.getElementById("p12_dti_btn");
-function validateInputs() {
-  const isDateValid = dateInput.value !== "";
-  const isTimeValid = timeInput.value !== "";
-  dateInput.setAttribute("aria-invalid", !isDateValid);
-  timeInput.setAttribute("aria-invalid", !isTimeValid);
-  submitButton.disabled = !(isDateValid && isTimeValid);
-}
-dateInput.addEventListener("input", validateInputs);
-timeInput.addEventListener("input", validateInputs);
-
-// localization of web texts
-function localizePage(lang = "en") {
-  document.querySelectorAll("[data-i18n]").forEach((elem) => {
-    const i18nValue = elem.getAttribute("data-i18n");
-    const [translationPart, addon] = i18nValue.split("++", 2);
-    const matches = translationPart.split(/(\$.+?\$)/).filter(Boolean);
-    let text = "";
-
-    for (const match of matches) {
-      if (match.startsWith("$") && match.endsWith("$")) {
-        text += match.slice(1, -1);
-      } else {
-        // check if translation key is valid
-        if (translations.hasOwnProperty(match)) {
-          text += translations[match][lang] || match;
-        } else {
-          console.error(`translation key "${match}" not found`);
-          continue;
-        }
-      }
-    }
-    if (addon) {
-      text += addon;
-    }
-    elem.innerText = text;
-  });
-}
-
-// to show reload bar if connection is lost
-function showReloadBar() {
-  document.getElementById("connectionLostBar").style.display = "flex";
-}
-
-// to hide reload bar if connection is lost
-function hideReloadBar() {
-  document.getElementById("connectionLostBar").style.display = "none";
-}
-
-// send data from web elements to ESP server
-function sendData(elementId, value) {
-  fetch(`sendData?elementId=${elementId}&value=${encodeURIComponent(value)}`, {
-    method: "GET",
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-    })
-    .catch((error) => console.error("Fetch error:", error));
-}
-
-// --------------------------------------
-// Fetch API (Clinet -> ESP)
-// --------------------------------------
-document.addEventListener("DOMContentLoaded", function () {
-  // call functions on refresh
-  setupSSE();
-  initializeVisibilityBasedOnSwitches();
-  localizePage("de");
-
-  // Event Listener for Reload-Button
-  document
-    .getElementById("p99_reloadButton")
-    .addEventListener("click", function () {
-      window.location.reload();
-    });
-
-  // VERSION: is called when version dialog is opened
-  document.getElementById("p00_version").addEventListener("click", function () {
-    document.getElementById("version_dialog").showModal();
-    sendData("check_git_version", "");
-  });
-
-  // VERSION: close version dialog on button click
-  document
-    .getElementById("close_version_Dialog_btn")
-    .addEventListener("click", function () {
-      document.getElementById("version_dialog").close();
-    });
-
-  // OTA: close ota-failed dialog on button click
-  document
-    .getElementById("p11_ota_failed_btn")
-    .addEventListener("click", function () {
-      document.getElementById("ota_update_failed_dialog").close();
-    });
-
-  // OTA: send form data to server
-  document
-    .getElementById("ota_upload_form")
-    .addEventListener("submit", function (event) {
-      event.preventDefault();
-      document.getElementById("ota_status_txt").textContent = "Uploading...";
-      var form = document.getElementById("ota_upload_form");
-      var formData = new FormData(form);
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", "/update", true);
-      xhr.send(formData);
-    });
-
-  // CONFIG: send form data for config file upload
-  document
-    .getElementById("file_upload_form")
-    .addEventListener("submit", function (event) {
-      event.preventDefault();
-      var form = document.getElementById("file_upload_form");
-      var formData = new FormData(form);
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", "/config-upload", true);
-      xhr.send(formData);
-    });
-
-  // CONFIG: open dialog to show config.json
-  document
-    .getElementById("p11_file_show_btn")
-    .addEventListener("click", function () {
-      const dialog = document.getElementById("open_config_dialog");
-      dialog.showModal();
-      fetch("/config.json")
-        .then((response) => response.json())
-        .then((data) => {
-          document.getElementById("config_output").textContent = JSON.stringify(
-            data,
-            null,
-            2
-          );
-        })
-        .catch((error) => console.error("error loading data:", error));
-    });
-
-  // CONFIG: close dialog to show config.json
-  document
-    .getElementById("p11_config_dialog_btn")
-    .addEventListener("click", function () {
-      document.getElementById("open_config_dialog").close();
-    });
-
-  // NTP: open dialog to show ntp timezones
-  document
-    .getElementById("p12_ntp_open_dialog_btn")
-    .addEventListener("click", function () {
-      fetch("/gzip_ntp")
-        .then((response) => response.text())
-        .then((data) => {
-          document.getElementById("p12_ntp_help_output").innerHTML = data;
-          document.getElementById("p12_ntp_dialog").showModal();
-        })
-        .catch((error) => console.error("error loading data:", error));
-    });
-
-  // NTP: close dialog to show ntp timezones
-  document
-    .getElementById("p12_ntp_close_dialog_btn")
-    .addEventListener("click", function () {
-      document.getElementById("p12_ntp_dialog").close();
-    });
-
-  // ETH: open dialog to show w5500 configuration
-  document
-    .getElementById("p12_eth_open_dialog_btn")
-    .addEventListener("click", function () {
-      document.getElementById("p12_eth_dialog").showModal();
-    });
-
-  // ETH: close dialog to show w5500 configuration
-  document
-    .getElementById("p12_eth_close_dialog_btn")
-    .addEventListener("click", function () {
-      document.getElementById("p12_eth_dialog").close();
-    });
-
-  // GPIO: open dialog to show GPIO configuration
-  document
-    .getElementById("p12_gpio_open_dialog_btn")
-    .addEventListener("click", function () {
-      document.getElementById("p12_gpio_dialog").showModal();
-    });
-
-  // GPIO: close dialog to show GPIO configuration
-  document
-    .getElementById("p12_gpio_close_dialog_btn")
-    .addEventListener("click", function () {
-      document.getElementById("p12_gpio_dialog").close();
-    });
-
-  // control for Tab-Menu
-  document.querySelectorAll(".nav-list a").forEach((tab) => {
-    tab.onclick = function (e) {
-      e.preventDefault();
-      document
-        .querySelectorAll(".nav-list a")
-        .forEach((t) => t.classList.remove("active"));
-      document
-        .querySelectorAll(".tab-content")
-        .forEach((content) => content.classList.remove("active"));
-
-      const activeTab = this.getAttribute("data-tab");
-      this.classList.add("active");
-      document.getElementById(activeTab).classList.add("active");
-    };
-  });
-
-  // language selection
-  document
-    .getElementById("p12_language")
-    .addEventListener("change", function () {
-      var languageValue = this.value;
-      if (languageValue === "1") {
-        localizePage("en");
-      } else if (languageValue === "0") {
-        localizePage("de");
-      }
-    });
-
-  // event listener for all input fields that call sendData on "blur"
-  document
-    .querySelectorAll(
-      'input[type="text"], input[type="number"], input[type="password"], input[type="date"], input[type="time"]'
-    )
-    .forEach(function (input) {
-      input.addEventListener("blur", function () {
-        sendData(input.id, input.value);
-      });
-      input.addEventListener("keypress", function (e) {
-        if (e.key === "Enter") {
-          input.blur(); // Triggers "blur" event and sends data
-        }
-      });
-    });
-
-  // Event-Listener for Range Inputs (Slider)
-  document.querySelectorAll('input[type="range"]').forEach(function (slider) {
-    slider.addEventListener("change", function () {
-      sendData(slider.id, slider.value);
-    });
-  });
-
-  // Event-Listener for Slider labels
-  document.querySelectorAll(".rangeSlider").forEach((slider) => {
-    const valueId = slider.getAttribute("data-value-id");
-    const valueDisplay = document.getElementById(valueId);
-    slider.oninput = () => {
-      valueDisplay.textContent = slider.value;
-    };
-    // set initial value
-    valueDisplay.textContent = slider.value;
-  });
-
-  // Event-Listener for Buttons
-  document.querySelectorAll("button").forEach(function (button) {
-    button.addEventListener("click", function () {
-      sendData(button.id, true);
-    });
-  });
-
-  // Event-Listener for Switches
-  document
-    .querySelectorAll('input[type="checkbox"][role="switch"]')
-    .forEach(function (switchElement) {
-      switchElement.addEventListener("change", function () {
-        sendData(switchElement.id, switchElement.checked);
-        toggleElementVisibility(
-          switchElement.getAttribute("hideOpt"),
-          switchElement.checked
-        );
-      });
-    });
-
-  // Event-Listener for Radio
-  document
-    .querySelectorAll('input[type="radio"]')
-    .forEach(function (switchElement) {
-      switchElement.addEventListener("change", function () {
-        sendData(switchElement.id, switchElement.checked);
-      });
-    });
-
-  // Event-Listener for Select Elements
-  document.querySelectorAll("select").forEach(function (selectElement) {
-    selectElement.addEventListener("change", function () {
-      sendData(selectElement.id, selectElement.value);
-    });
-  });
-
-  // Event-Listener for pushover test-message
-  document
-    .getElementById("p12_pushover_test_btn")
-    .addEventListener("click", function () {
-      var text = document.getElementById("p12_pushover_test_msg").value;
-      sendData("p12_pushover_test_msg_cmd", text);
-    });
-
-  // Event-Listener for oilcounter set value
-  document
-    .getElementById("p02_oilmeter_btn")
-    .addEventListener("click", function () {
-      var text = document.getElementById("p02_oilmeter_set").value;
-      sendData("p02_oilmeter_set_cmd", text);
-    });
-});
-
-// --------------------------------------
-// Server-Side-Events (Client <- ESP)
-// --------------------------------------
-let evtSource;
-let pingTimer;
-
-function setupSSE() {
-  evtSource = new EventSource("/events");
-
-  evtSource.onopen = function (event) {
-    console.log("SSE opened");
-    resetPingTimer();
-    hideReloadBar();
-  };
-
-  evtSource.addEventListener(
-    "ping",
-    function (e) {
-      console.log("Ping received");
-      resetPingTimer();
-    },
-    false
-  );
-
-  evtSource.onerror = function (event) {
-    console.log("SSE error", event);
-    evtSource.close();
-    attemptReconnect();
-  };
-
-  // update Text elements
-  evtSource.addEventListener(
-    "updateText",
-    function (e) {
-      var data = JSON.parse(e.data);
-      var element = document.getElementById(data.id);
-      if (element) {
-        if (data.isInput) {
-          element.value = data.text;
-        } else {
-          element.innerHTML = data.text;
-        }
-      }
-    },
-    false
-  );
-
-  // update switch elements
-  evtSource.addEventListener(
-    "updateState",
-    function (e) {
-      var data = JSON.parse(e.data);
-      var element = document.getElementById(data.id);
-      if (
-        element &&
-        (element.type === "checkbox" || element.type === "radio")
-      ) {
-        element.checked = data.state;
-        toggleElementVisibility(
-          element.getAttribute("hideOpt"),
-          element.checked
-        );
-      }
-    },
-    false
-  );
-
-  // update element.value
-  evtSource.addEventListener(
-    "updateValue",
-    function (e) {
-      var data = JSON.parse(e.data);
-      var selectElement = document.getElementById(data.id);
-      if (selectElement) {
-        selectElement.value = data.value;
-      }
-    },
-    false
-  );
-
-  // update add class to element
-  evtSource.addEventListener(
-    "updateSetIcon",
-    function (e) {
-      var data = JSON.parse(e.data);
-      var element = document.getElementById(data.id);
-      if (element) {
-        element.className = "svg " + data.icon;
-      }
-    },
-    false
-  );
-
-  // hide/show element
-  evtSource.addEventListener(
-    "hideElement",
-    function (e) {
-      var data = JSON.parse(e.data);
-      var element = document.getElementById(data.id);
-      if (element) {
-        element.style.display = data.hide ? "none" : "";
-      }
-    },
-    false
-  );
-
-  // update href
-  evtSource.addEventListener(
-    "updateHref",
-    function (e) {
-      var data = JSON.parse(e.data);
-      var element = document.getElementById(data.id);
-      if (element) {
-        element.href = data.href;
-      }
-    },
-    false
-  );
-
-  // update Busy
-  evtSource.addEventListener(
-    "updateBusy",
-    function (e) {
-      var data = JSON.parse(e.data);
-      var element = document.getElementById(data.id);
-      if (element) {
-        element.setAttribute("aria-busy", data.busy);
-      }
-    },
-    false
-  );
-
-  // hide/show elements based on className
-  evtSource.addEventListener("showElementClass", (event) => {
-    const data = JSON.parse(event.data);
-    const elements = document.querySelectorAll(`.${data.className}`);
-    elements.forEach((element) => {
-      element.style.display = data.show ? "inline-flex" : "none";
-    });
-  });
-
-  // set language
-  evtSource.addEventListener(
-    "setLanguage",
-    function (e) {
-      var data = JSON.parse(e.data);
-      localizePage(data.language);
-    },
-    false
-  );
-
-  // add log message
-  evtSource.addEventListener(
-    "add_log",
-    function (event) {
-      var logOutput = document.getElementById("p10_log_output");
-      logOutput.innerHTML += event.data + "<br>";
-    },
-    false
-  );
-
-  // clear log
-  evtSource.addEventListener(
-    "clr_log",
-    function (event) {
-      var logOutput = document.getElementById("p10_log_output");
-      logOutput.innerHTML = "";
-    },
-    false
-  );
-
-  // JSON message for grouped messages
-  evtSource.addEventListener(
-    "updateJSON",
-    function (event) {
-      var data = JSON.parse(event.data);
-      Object.keys(data).forEach(function (key) {
-        let [elementID, typSuffix] = key.split("#");
-        let element = document.getElementById(elementID);
-        if (!element) {
-          console.error("unknown element:", element);
-          return;
-        }
-        let value = data[key];
-        switch (typSuffix) {
-          case "v": // value
-            element.value = value;
-            break;
-          case "c": // checked
-            element.checked = value === "true";
-            toggleElementVisibility(
-              element.getAttribute("hideOpt"),
-              element.checked
-            );
-            break;
-          case "l": // Label = innerHTML
-            element.innerHTML = value;
-            break;
-          case "i": // icon
-            element.className = "svg " + value;
-            break;
-          default:
-            console.error("unknown typ:", typSuffix);
-        }
-      });
-    },
-    false
-  );
-
-  // update ota-progress bar
-  evtSource.addEventListener(
-    "ota-progress",
-    function (e) {
-      var progress = parseInt(e.data.replace("Progress: ", ""), 10);
-      document.getElementById("ota_progress_bar").value = progress;
-      document.getElementById(
-        "ota_status_txt"
-      ).textContent = `Update Progress: ${progress}%`;
-    },
-    false
-  );
-
-  // close update dialog
-  evtSource.addEventListener(
-    "updateDialog",
-    function (e) {
-      var data = JSON.parse(e.data);
-      var dialog = document.getElementById(data.id);
-      if (data.state == "open") {
-        dialog.showModal();
-      } else if (data.state == "close") {
-        dialog.close();
-      }
-    },
-    false
-  );
-
-  evtSource.addEventListener(
-    "updateTooltip",
-    function (e) {
-      var data = JSON.parse(e.data);
-      const element = document.getElementById(data.id);
-      element.setAttribute("data-tooltip", data.tooltip);
-    },
-    false
-  );
-
-  resetPingTimer();
-}
 

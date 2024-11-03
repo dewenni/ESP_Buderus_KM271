@@ -157,9 +157,8 @@ void loop() {
     sendSysInfo();
   }
 
-  if (config.webUI.enable) {
-    webUICylic(); // call webUI
-  }
+  webUICylic(); // call webUI
+
 
   if (config.ntp.enable) {
     // check every hour if DST has changed

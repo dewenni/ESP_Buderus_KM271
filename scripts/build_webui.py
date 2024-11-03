@@ -18,8 +18,37 @@ def compress_to_gzip_c_array(input_file_path, output_file_path, var_name):
         file.write('const uint8_t PROGMEM ' + var_name + '[] = {' + c_array_content + '};\n')
         file.write(f'const unsigned int {var_name}_size = {len(compressed_content)};\n')
 
+def convert_to_c_array(input_file_path, output_file_path, var_name):
+    # HTML-Datei einlesen
+    with open(input_file_path, 'rb') as file:
+        content = file.read()
+      
+    # Inhalt in ein C-Array umwandeln
+    c_array_content = ', '.join(['0x{:02x}'.format(byte) for byte in content])
+    
+    # C-Array in eine neue Datei schreiben
+    with open(output_file_path, 'w') as file:
+        file.write('const uint8_t PROGMEM ' + var_name + '[] = {' + c_array_content + '};\n')
+        file.write(f'const unsigned int {var_name}_size = {len(content)};\n')
+
+def convert_to_c_literal(input_file_path, output_file_path, var_name):
+    # HTML-Datei einlesen
+    with open(input_file_path, 'r', encoding='utf-8') as file:
+        content = file.read()
+    
+    # Inhalt als C-String formatieren (mit raw literal syntax für mehrzeilige Strings)
+    c_literal_content = f'const uint8_t {var_name}[] PROGMEM = R"rawliteral({content})rawliteral";\n'
+    c_literal_size = f'const unsigned int {var_name}_size = {len(content)};\n'
+    
+    # C-String in eine neue Datei schreiben
+    with open(output_file_path, 'w', encoding='utf-8') as file:
+        file.write(c_literal_content)
+        file.write(c_literal_size)
+
+
+
 #================================================================
-# HTML
+# HTML - gzip
 #================================================================
 # Definieren Sie die Pfade der Quelldateien
 source_files = [
@@ -41,7 +70,7 @@ source_files = [
 
 # Zielpfad der generierten Datei
 output_file_html = 'web/temp/index.html'
-output_file_br = 'include/gzip_main_html.h'
+output_file_br = 'include/gzip_m_html.h'
 
 combined_html = ''
 
@@ -63,35 +92,36 @@ for file_path in source_files:
 with open(output_file_html, 'w') as file:
     file.write(combined_html)
 
-compress_to_gzip_c_array(output_file_html, output_file_br, 'main_html')
+compress_to_gzip_c_array(output_file_html, output_file_br, 'gzip_main_html')
 
-#================================================================
-# HTML - only gzip
-#================================================================
+# ---------------------------------------------------------------
 
 # Pfad zur HTML-Datei und zum Ausgabe-C-Datei
 input_html_file = 'web/html/login.html'
 output_c_file = 'include/gzip_login_html.h'
-compress_to_gzip_c_array(input_html_file, output_c_file, 'login_html')
+compress_to_gzip_c_array(input_html_file, output_c_file, 'gzip_login_html')
+
+# ---------------------------------------------------------------
 
 # Pfad zur HTML-Datei und zum Ausgabe-C-Datei
 input_html_file = 'web/html/ntp.html'
-output_c_file = 'include/gzip_ntp.h'
-compress_to_gzip_c_array(input_html_file, output_c_file, 'ntp_html')
+output_c_file = 'include/gzip_ntp_html.h'
+compress_to_gzip_c_array(input_html_file, output_c_file, 'gzip_ntp_html')
 
 
 #================================================================
-# CSS - Merge and gzip
+# CSS
 #================================================================
 # Definieren Sie die Pfade der Quelldateien
 source_files = [
+    'web/css/pico.css',
     'web/css/custom.css',
-    'web/css/icons.css',
+    'web/css/icons.css'
 ]
 
 # Zielpfad der generierten Datei
 output_file_css = 'web/temp/custom.css'
-output_c_file = 'include/gzip_c_css.h'
+output_c_file = 'include/gzip_css.h'
 
 combined_content = ''
 
@@ -104,29 +134,17 @@ for file_path in source_files:
 with open(output_file_css, 'w') as file:
     file.write(combined_content)
 
-compress_to_gzip_c_array(output_file_css, output_c_file, 'c_css')
-
-
-#================================================================
-# CSS - only gzip
-#================================================================
-
-# Pfad zur HTML-Datei und zum Ausgabe-C-Datei
-input_file = 'web/css/pico.css'
-output_c_file = 'include/gzip_m_css.h'
-
-compress_to_gzip_c_array(input_file, output_c_file, 'm_css')
-
+compress_to_gzip_c_array(output_file_css, output_c_file, 'gzip_css')
 
 #================================================================
 # JS
 #================================================================
 # Definieren Sie die Pfade der Quelldateien
 source_files = [
-    'web/js/lang.js',
     'web/js/fun.js',
-    'web/js/doc.js',
     'web/js/events.js',
+    'web/js/doc.js',
+    'web/js/lang.js'
 ]
 
 # Zielpfad der generierten Datei
@@ -144,4 +162,4 @@ for file_path in source_files:
 with open(output_file_js, 'w') as file:
     file.write(combined_content)
 
-compress_to_gzip_c_array(output_file_js, output_file_br_js, 'm_js')
+compress_to_gzip_c_array(output_file_js, output_file_br_js, 'gzip_js')

@@ -1,7 +1,7 @@
 
+#include <message.h>
 #include <webUI.h>
 #include <webUIupdates.h>
-#include <message.h>
 
 /* S E T T I N G S ****************************************************/
 #define WEBUI_FAST_REFRESH_TIME_MS 10
@@ -145,13 +145,6 @@ void updateAllElements() {
 
   // reset hash values to force updates
   memset((void *)KmAlarmHash, 0, sizeof(KmAlarmHash));
-
-  updateOilmeterElements(true);
-  updateSensorElements();
-  updateSystemInfoElements();
-
-  setLanguage(LANG.CODE[config.lang]);               // set language for webUI based on config
-  showElementClass("simModeBar", config.sim.enable); // show SIMULATION_MODE in webUI based on config
 
   if (setupMode) {
     showElementClass("setupModeBar", true);
@@ -377,7 +370,6 @@ void updateSystemInfoElements() {
   } else {
     updateWebText("p09_mqtt_last_err", "---", false);
   }
-    
 
   // Version informations
   updateWebText("p00_version", VERSION, false);
@@ -1400,12 +1392,18 @@ void webUIupdates() {
       break;
     case 2:
       updateKm271StatusElementsAll();
+      break;
+    case 3:
+      setLanguage(LANG.CODE[config.lang]);
+      break;
+    case 4:
+      showElementClass("simModeBar", config.sim.enable);
       refreshRequest = false;
       break;
     default:
       UpdateCntRefresh = -1;
       break;
     }
-    UpdateCntRefresh = (UpdateCntRefresh + 1) % 3;
+    UpdateCntRefresh = (UpdateCntRefresh + 1) % 5;
   }
 }

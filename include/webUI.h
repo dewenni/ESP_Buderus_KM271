@@ -4,13 +4,12 @@
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
 #include <config.h>
-#include <gzip_c_css.h>
-#include <gzip_js.h>
-#include <gzip_login_html.h>
-#include <gzip_m_css.h>
-#include <gzip_main_html.h>
-#include <gzip_ntp.h>
 #include <language.h>
+#include <gzip_css.h>
+#include <gzip_login_html.h>
+#include <gzip_m_html.h>
+#include <gzip_js.h>
+#include <gzip_ntp_html.h>
 
 /* D E C L A R A T I O N S ****************************************************/
 typedef enum {

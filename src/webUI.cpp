@@ -37,8 +37,12 @@ const size_t BUFFER_SIZE = 512;
 char webCallbackElementID[32];
 char webCallbackValue[256];
 bool webCallbackAvailable = false;
+unsigned long sendCnt = 0;
 
-void sendWebUpdate(const char *message, const char *event) { events.send(message, event, millis()); }
+void sendWebUpdate(const char *message, const char *event) {
+  MY_LOGI(TAG, "event.send: %lu", sendCnt++);
+  events.send(message, event, millis());
+}
 
 void handleWebClientData(AsyncWebServerRequest *request) {
   if (request->hasParam("elementId") && request->hasParam("value")) {
@@ -52,6 +56,7 @@ void handleWebClientData(AsyncWebServerRequest *request) {
 }
 
 void setLanguage(const char *language) {
+  MY_LOGI(TAG, "set lang: %s", language);
   char message[BUFFER_SIZE];
   snprintf(message, BUFFER_SIZE, "{\"language\":\"%s\"}", language);
   sendWebUpdate(message, "setLanguage");
@@ -121,6 +126,7 @@ void updateWebValueFloat(const char *id, double value, int decimals) {
 void showElementClass(const char *className, bool show) {
   char message[BUFFER_SIZE];
   snprintf(message, BUFFER_SIZE, "{\"className\":\"%s\",\"show\":%s}", className, show ? "true" : "false");
+  MY_LOGI(TAG, "show Element: %s", message);
   sendWebUpdate(message, "showElementClass");
 }
 
@@ -262,9 +268,9 @@ void onLoadRequest() { updateAllElements(); }
 void webUISetup() {
 
   server.on("/login", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", login_html, login_html_size);
-    response->addHeader("Content-Encoding", "gzip");
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/html", gzip_login_html, gzip_login_html_size);
     request->send(response);
+    response->addHeader("Content-Encoding", "gzip");
   });
 
   server.on("/login", HTTP_POST, [](AsyncWebServerRequest *request) {
@@ -294,7 +300,7 @@ void webUISetup() {
   });
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", main_html, main_html_size);
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/html", gzip_main_html, gzip_main_html_size);
     if (!isAuthenticated(request)) {
       request->redirect("/login");
     } else {
@@ -303,26 +309,20 @@ void webUISetup() {
     }
   });
 
-  server.on("/gzip_c.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/css", c_css, c_css_size);
+  server.on("/main.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/css", gzip_css, gzip_css_size);
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   });
 
-  server.on("/gzip_m.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/css", m_css, m_css_size);
-    response->addHeader("Content-Encoding", "gzip");
-    request->send(response);
-  });
-
-  server.on("/gzip_m.js", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/js", m_js, m_js_size);
+  server.on("/main.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/js", gzip_js, gzip_js_size);
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   });
 
   server.on("/gzip_ntp", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", ntp_html, ntp_html_size);
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/html", gzip_ntp_html, gzip_ntp_html_size);
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   });
@@ -386,7 +386,7 @@ void webUISetup() {
     }
 
     // send ping as welcome and force web elements update
-    client->send("ping", NULL, millis(), 5000);
+    client->send("ping", "ping", millis(), 5000);
     onLoadRequest();
     clientConnected = true;
   });
@@ -406,7 +406,7 @@ void webUICylic() {
 
   // heartbeat timer for webclient
   if (connectionTimer.cycleTrigger(3000)) {
-    events.send("ping", "ping", millis());
+    sendWebUpdate("ping", "ping");
   }
 
   // handling of update webUI elements

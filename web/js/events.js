@@ -1,17 +1,32 @@
 // --------------------------------------
 // Server-Side-Events (Client <- ESP)
 // --------------------------------------
-let evtSource;
 let pingTimer;
+let evtSource;
 
 function setupSSE() {
   evtSource = new EventSource("/events");
 
-  evtSource.onopen = function (event) {
-    console.log("SSE opened");
-    resetPingTimer();
-    hideReloadBar();
-  };
+  evtSource.addEventListener(
+    "open",
+    function (e) {
+      console.log("Events Connected");
+      resetPingTimer();
+      hideReloadBar();
+    },
+    false
+  );
+  evtSource.addEventListener(
+    "error",
+    function (e) {
+      if (e.target.readyState != EventSource.OPEN) {
+        console.log("Events Disconnected");
+        evtSource.close();
+        attemptReconnect();
+      }
+    },
+    false
+  );
 
   evtSource.addEventListener(
     "ping",
@@ -21,12 +36,6 @@ function setupSSE() {
     },
     false
   );
-
-  evtSource.onerror = function (event) {
-    console.log("SSE error", event);
-    evtSource.close();
-    attemptReconnect();
-  };
 
   // update Text elements
   evtSource.addEventListener(
@@ -132,6 +141,7 @@ function setupSSE() {
 
   // hide/show elements based on className
   evtSource.addEventListener("showElementClass", (event) => {
+    console.log("showElementClass");
     const data = JSON.parse(event.data);
     const elements = document.querySelectorAll(`.${data.className}`);
     elements.forEach((element) => {
@@ -143,6 +153,7 @@ function setupSSE() {
   evtSource.addEventListener(
     "setLanguage",
     function (e) {
+      console.log("set language");
       var data = JSON.parse(e.data);
       localizePage(data.language);
     },
@@ -244,6 +255,4 @@ function setupSSE() {
     },
     false
   );
-
-  resetPingTimer();
 }
