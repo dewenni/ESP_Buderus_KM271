@@ -146,6 +146,13 @@ void updateAllElements() {
   // reset hash values to force updates
   memset((void *)KmAlarmHash, 0, sizeof(KmAlarmHash));
 
+  updateSystemInfoElements();
+  updateOilmeterElements(false);
+  updateSensorElements();
+
+  setLanguage(LANG.CODE[config.lang]);
+  showElementClass("simModeBar", config.sim.enable);
+
   if (setupMode) {
     showElementClass("setupModeBar", true);
   }
@@ -1392,18 +1399,12 @@ void webUIupdates() {
       break;
     case 2:
       updateKm271StatusElementsAll();
-      break;
-    case 3:
-      setLanguage(LANG.CODE[config.lang]);
-      break;
-    case 4:
-      showElementClass("simModeBar", config.sim.enable);
       refreshRequest = false;
       break;
     default:
       UpdateCntRefresh = -1;
       break;
     }
-    UpdateCntRefresh = (UpdateCntRefresh + 1) % 5;
+    UpdateCntRefresh = (UpdateCntRefresh + 1) % 3;
   }
 }

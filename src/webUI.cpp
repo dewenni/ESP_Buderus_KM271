@@ -28,7 +28,6 @@ s_webui_texts webText;
 s_cfg_arrays cfgArrayTexts;
 
 static const char *TAG = "WEB"; // LOG TAG
-bool clientConnected = false;
 bool webInitDone = false;
 bool simulationInit = false;
 char otaMessage[128];
@@ -38,11 +37,9 @@ char webCallbackElementID[32];
 char webCallbackValue[256];
 bool webCallbackAvailable = false;
 unsigned long sendCnt = 0;
+bool onLoadRequest = false;
 
-void sendWebUpdate(const char *message, const char *event) {
-  MY_LOGI(TAG, "event.send: %lu", sendCnt++);
-  events.send(message, event, millis());
-}
+void sendWebUpdate(const char *message, const char *event) { events.send(message, event, millis()); }
 
 void handleWebClientData(AsyncWebServerRequest *request) {
   if (request->hasParam("elementId") && request->hasParam("value")) {
@@ -56,7 +53,6 @@ void handleWebClientData(AsyncWebServerRequest *request) {
 }
 
 void setLanguage(const char *language) {
-  MY_LOGI(TAG, "set lang: %s", language);
   char message[BUFFER_SIZE];
   snprintf(message, BUFFER_SIZE, "{\"language\":\"%s\"}", language);
   sendWebUpdate(message, "setLanguage");
@@ -126,7 +122,6 @@ void updateWebValueFloat(const char *id, double value, int decimals) {
 void showElementClass(const char *className, bool show) {
   char message[BUFFER_SIZE];
   snprintf(message, BUFFER_SIZE, "{\"className\":\"%s\",\"show\":%s}", className, show ? "true" : "false");
-  MY_LOGI(TAG, "show Element: %s", message);
   sendWebUpdate(message, "showElementClass");
 }
 
@@ -253,14 +248,6 @@ bool isAuthenticated(AsyncWebServerRequest *request) {
 
 /**
  * *******************************************************************
- * @brief   on connect or refresh - force update of all webUI elements
- * @param   none
- * @return  none
- * *******************************************************************/
-void onLoadRequest() { updateAllElements(); }
-
-/**
- * *******************************************************************
  * @brief   cyclic call for webUI - creates all webUI elements
  * @param   none
  * @return  none
@@ -384,11 +371,13 @@ void webUISetup() {
     } else {
       MY_LOGI(TAG, "New Client connected");
     }
-
-    // send ping as welcome and force web elements update
     client->send("ping", "ping", millis(), 5000);
-    onLoadRequest();
-    clientConnected = true;
+    onLoadRequest = true; // send all data to the client
+  });
+
+  events.onDisconnect([](AsyncEventSourceClient *client) {
+    client->close();
+    MY_LOGI(TAG, "Client disconnected");
   });
 
   server.addHandler(&events);
@@ -407,6 +396,12 @@ void webUICylic() {
   // heartbeat timer for webclient
   if (connectionTimer.cycleTrigger(3000)) {
     sendWebUpdate("ping", "ping");
+  }
+
+  // request for update alle elements
+  if (onLoadRequest) {
+    updateAllElements();
+    onLoadRequest = false;
   }
 
   // handling of update webUI elements

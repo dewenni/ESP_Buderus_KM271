@@ -1,7 +1,6 @@
 // includes
 #include <ArduinoOTA.h>
 #include <ESP_DoubleResetDetector.h>
-#include <MycilaTaskMonitor.h>
 #include <basics.h>
 #include <config.h>
 #include <km271.h>
@@ -19,7 +18,6 @@ muTimer heartbeat = muTimer();      // timer for heartbeat signal
 muTimer setupModeTimer = muTimer(); // timer for heartbeat signal
 muTimer dstTimer = muTimer();       // timer to check daylight saving time change
 muTimer ntpTimer = muTimer();       // timer to check ntp sync
-muTimer taskMonTimer = muTimer();   // timer to check ntp sync
 
 DoubleResetDetector *drd; // Double-Reset-Detector
 bool main_reboot = true;  // reboot flag
@@ -93,10 +91,6 @@ void setup() {
 
   // telnet Setup
   setupTelnet();
-
-  Mycila::TaskMonitor.begin(2);
-  Mycila::TaskMonitor.addTask("loopTask");
-  Mycila::TaskMonitor.addTask("async_tcp");
 }
 
 /**
@@ -159,7 +153,6 @@ void loop() {
 
   webUICylic(); // call webUI
 
-
   if (config.ntp.enable) {
     // check every hour if DST has changed
     if (dstTimer.cycleTrigger(3600000)) {
@@ -203,10 +196,6 @@ void loop() {
 
   // check if config has changed
   configCyclic();
-
-  if (taskMonTimer.cycleTrigger(10000)) {
-    Mycila::TaskMonitor.log();
-  }
 
   main_reboot = false; // reset reboot flag
 }
