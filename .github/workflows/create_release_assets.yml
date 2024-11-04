@@ -19,12 +19,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Read version from config.h
-        id: get_version
+      - name: Extract version from header file
+        id: extract_version
         run: |
-          # Lese die Versionsnummer aus der config.h
-          version=$(grep '#define VERSION "' ./include/config.h | sed 's/#define VERSION "//;s/"//')
-          echo "VERSION=${version}" >> $GITHUB_ENV
+          # Liest die Version aus der Header-Datei aus und entfernt Anführungszeichen
+          VERSION=$(grep '#define VERSION' ./include/config.h | awk '{print $3}' | tr -d '"')
+          echo "Extracted version: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Check if version matches tag
         id: check_version
@@ -36,7 +37,7 @@ jobs:
             exit 1
           fi
 
-      - name: Check changelog header
+      - name: Check changelog header and prepare release notes
         id: check_changelog
         run: |
           # Lese die erste Zeile der changeNew.md und vergleiche sie mit dem Tag
@@ -47,6 +48,10 @@ jobs:
             echo "Changelog header $header does not match the tag $VERSION"
             exit 1
           fi
+
+          # Entferne die erste Zeile und speichere den Rest in einer temporären Datei
+          tail -n +2 changeNew.md > release_notes.md
+        shell: bash
 
       - name: Create release
         env:
@@ -60,4 +65,8 @@ jobs:
           gh release create "$tag" $files \
               --repo="$GITHUB_REPOSITORY" \
               --title="${tag}" \
-              -F changeNew.md
+              -F release_notes.md
+
+      - name: Clean up
+        run: rm release_notes.md
+
