@@ -13,18 +13,18 @@
 #include <webUI.h>
 
 /* D E C L A R A T I O N S ****************************************************/
-muTimer mainTimer = muTimer();      // timer for cyclic info
 muTimer heartbeat = muTimer();      // timer for heartbeat signal
 muTimer setupModeTimer = muTimer(); // timer for heartbeat signal
 muTimer dstTimer = muTimer();       // timer to check daylight saving time change
 muTimer ntpTimer = muTimer();       // timer to check ntp sync
 
-DoubleResetDetector *drd; // Double-Reset-Detector
-bool main_reboot = true;  // reboot flag
-int dst_old;              // reminder for change of daylight saving time
-bool dst_ref;             // init flag fpr dst reference
-bool ntpSynced;           // ntp sync flag
-bool ntpInit = false;     // init flag for ntp sync
+DoubleResetDetector *drd;        // Double-Reset-Detector
+bool main_reboot = true;         // reboot flag
+int dst_old;                     // reminder for change of daylight saving time
+bool dst_ref;                    // init flag fpr dst reference
+bool ntpSynced;                  // ntp sync flag
+bool ntpInit = false;            // init flag for ntp sync
+static const char *TAG = "MAIN"; // LOG TAG
 
 /**
  * *******************************************************************
@@ -106,6 +106,24 @@ void loop() {
   // double reset detector
   drd->loop();
 
+  // webUI Cyclic
+  webUICylic();
+
+  // Sensor Cyclic
+  cyclicSensor();
+
+  // Message Service
+  messageCyclic();
+
+  // get simulation telegrams of KM271
+  simDataCyclic();
+
+  // telnet communication
+  cyclicTelnet();
+
+  // check if config has changed
+  configCyclic();
+
   // check WiFi - automatic reconnect
   if (!setupMode) {
     checkWiFi();
@@ -142,17 +160,6 @@ void loop() {
     cyclicOilmeter();
   }
 
-  // send cyclic infos
-  if (mainTimer.cycleTrigger(10000) && !setupMode) {
-    sendWiFiInfo();
-    sendETHInfo();
-    sendKM271Info();
-    sendKM271Debug();
-    sendSysInfo();
-  }
-
-  webUICylic(); // call webUI
-
   if (config.ntp.enable) {
     // check every hour if DST has changed
     if (dstTimer.cycleTrigger(3600000)) {
@@ -181,21 +188,6 @@ void loop() {
       }
     }
   }
-
-  // Sensor Cyclic
-  cyclicSensor();
-
-  // Message Service
-  messageCyclic();
-
-  // get simulation telegrams of KM271
-  simDataCyclic();
-
-  // telnet communication
-  cyclicTelnet();
-
-  // check if config has changed
-  configCyclic();
 
   main_reboot = false; // reset reboot flag
 }

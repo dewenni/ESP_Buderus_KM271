@@ -27,6 +27,7 @@ int compareHexValues(const char *filter, uint8_t data[]);
 s_mqtt_messags mqttMsg; // texts for mqtt messages
 s_err_array errMsgText; // Array of error messages
 s_cfg_topics cfgTopic;
+s_stat_topics statTopic;
 
 // This structure contains the complete received status of the KM271 (as far it is parsed by now).
 // It is updated automatically on any changes by this driver and therefore kept up-to-date.
@@ -130,6 +131,7 @@ void cyclicKM271() {
       break;
     } // end-case
   }   // end-if
+
   // global status logmode active
   km271LogModeActive = (KmRxBlockState == KM_TSK_LOGGING);
 }
@@ -253,7 +255,6 @@ void sendTxBlock(uint8_t *data, int len) {
  * *******************************************************************/
 void parseInfo(uint8_t *data, int len) {
 
-  s_stat_topics statTopic;
   s_cfg_arrays cfgArray;
   s_error_topics errTopic;
 
@@ -1705,8 +1706,8 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = cmdPara; // 0:Night | 1:Day | 2:AUTO
       send_buf[7] = 0x65;
-      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_OPMODE[config.mqtt.lang], kmMsg.VALUE[config.mqtt.lang],
-               cmdPara);
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_OPMODE[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC1_OPMODE[config.mqtt.lang],
                kmMsg.INVALID[config.mqtt.lang], cmdPara);
@@ -1724,8 +1725,8 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = cmdPara; // 0:Night | 1:Day | 2:AUTO
       send_buf[7] = 0x65;
-      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_OPMODE[config.mqtt.lang], kmMsg.VALUE[config.mqtt.lang],
-               cmdPara);
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_OPMODE[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.HC2_OPMODE[config.mqtt.lang],
                kmMsg.INVALID[config.mqtt.lang], cmdPara);
@@ -1857,8 +1858,8 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = 0x65;
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.WW_OPMODE[config.mqtt.lang], kmMsg.VALUE[config.mqtt.lang],
-               cmdPara);
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.WW_OPMODE[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.WW_OPMODE[config.mqtt.lang],
                kmMsg.INVALID[config.mqtt.lang], cmdPara);
@@ -1990,11 +1991,11 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara) {
       send_buf[5] = cmdPara; // 30°-60°
       send_buf[6] = 0x65;
       send_buf[7] = 0x65;
-      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.WW_TEMP[config.mqtt.lang], kmMsg.VALUE[config.mqtt.lang],
-               cmdPara);
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.WW_TEMP[config.mqtt.lang],
+               kmMsg.VALUE[config.mqtt.lang], cmdPara);
     } else {
-      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.WW_TEMP[config.mqtt.lang], kmMsg.INVALID[config.mqtt.lang],
-               cmdPara);
+      snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", kmMsg.CMD[config.mqtt.lang], cfgTopic.WW_TEMP[config.mqtt.lang],
+               kmMsg.INVALID[config.mqtt.lang], cmdPara);
     }
     km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
     break;
@@ -2516,4 +2517,231 @@ int compareHexValues(const char *filter, uint8_t data[]) {
   }
   // Alle Hexwerte wurden gefunden
   return 1;
+}
+
+/**
+ * *******************************************************************
+ * @brief   send all km271 status values
+ * @param   noen
+ * @return  none
+ * *******************************************************************/
+void sendAllKmStatValues() {
+
+  if (config.km271.use_hc1) {
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_OV1_OFFTIME_OPT[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_1, 0)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_OV1_ONTIME_OPT[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_1, 1)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_OV1_AUTOMATIC[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_1, 2)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_OV1_WW_PRIO[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_1, 3)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_OV1_SCREED_DRY[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_1, 4)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_OV1_HOLIDAY[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_1, 5)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_OV1_FROST[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_1, 6)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_OV1_MANUAL[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_1, 7)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_OV2_SUMMER[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_2, 0)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_OV2_DAY[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_2, 1)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_OV2_NO_COM_REMOTE[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_2, 2)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_OV2_REMOTE_ERR[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_2, 3)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_OV2_FLOW_SENS_ERR[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_2, 4)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_OV2_FLOW_AT_MAX[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_2, 5)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_OV2_EXT_SENS_ERR[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC1_OperatingStates_2, 6)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_FLOW_SETPOINT[config.mqtt.lang], uint8ToString(kmStatus.HC1_HeatingForwardTargetTemp));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_FLOW_TEMP[config.mqtt.lang], uint8ToString(kmStatus.HC1_HeatingForwardActualTemp));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_ROOM_SETPOINT[config.mqtt.lang], floatToString(kmStatus.HC1_RoomTargetTemp));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_ROOM_TEMP[config.mqtt.lang], floatToString(kmStatus.HC1_RoomActualTemp));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_ON_TIME_OPT[config.mqtt.lang], uint8ToString(kmStatus.HC1_SwitchOnOptimizationTime));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_OFF_TIME_OPT[config.mqtt.lang], uint8ToString(kmStatus.HC1_SwitchOffOptimizationTime));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_PUMP[config.mqtt.lang], uint8ToString(kmStatus.HC1_PumpPower));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_MIXER[config.mqtt.lang], uint8ToString(kmStatus.HC1_MixingValue));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_HEAT_CURVE1[config.mqtt.lang], uint8ToString(kmStatus.HC1_HeatingCurvePlus10));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_HEAT_CURVE2[config.mqtt.lang], uint8ToString(kmStatus.HC1_HeatingCurve0));
+    km271Msg(KM_TYP_STATUS, statTopic.HC1_HEAT_CURVE3[config.mqtt.lang], uint8ToString(kmStatus.HC1_HeatingCurveMinus10));
+  }
+
+  if (config.km271.use_hc2) {
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_OV1_OFFTIME_OPT[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_1, 0)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_OV1_ONTIME_OPT[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_1, 1)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_OV1_AUTOMATIC[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_1, 2)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_OV1_WW_PRIO[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_1, 3)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_OV1_SCREED_DRY[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_1, 4)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_OV1_HOLIDAY[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_1, 5)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_OV1_FROST[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_1, 6)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_OV1_MANUAL[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_1, 7)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_OV2_SUMMER[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_2, 0)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_OV2_DAY[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_2, 1)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_OV2_NO_COM_REMOTE[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_2, 2)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_OV2_REMOTE_ERR[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_2, 3)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_OV2_FLOW_SENS_ERR[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_2, 4)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_OV2_FLOW_AT_MAX[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_2, 5)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_OV2_EXT_SENS_ERR[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HC2_OperatingStates_2, 6)));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_FLOW_SETPOINT[config.mqtt.lang], uint8ToString(kmStatus.HC2_HeatingForwardTargetTemp));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_FLOW_TEMP[config.mqtt.lang], uint8ToString(kmStatus.HC2_HeatingForwardActualTemp));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_ROOM_SETPOINT[config.mqtt.lang], floatToString(kmStatus.HC2_RoomTargetTemp));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_ROOM_TEMP[config.mqtt.lang], floatToString(kmStatus.HC2_RoomActualTemp));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_ON_TIME_OPT[config.mqtt.lang], uint8ToString(kmStatus.HC2_SwitchOnOptimizationTime));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_OFF_TIME_OPT[config.mqtt.lang], uint8ToString(kmStatus.HC2_SwitchOffOptimizationTime));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_PUMP[config.mqtt.lang], uint8ToString(kmStatus.HC2_PumpPower));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_MIXER[config.mqtt.lang], uint8ToString(kmStatus.HC2_MixingValue));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_HEAT_CURVE1[config.mqtt.lang], uint8ToString(kmStatus.HC2_HeatingCurvePlus10));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_HEAT_CURVE2[config.mqtt.lang], uint8ToString(kmStatus.HC2_HeatingCurve0));
+    km271Msg(KM_TYP_STATUS, statTopic.HC2_HEAT_CURVE3[config.mqtt.lang], uint8ToString(kmStatus.HC2_HeatingCurveMinus10));
+  }
+
+  if (config.km271.use_ww) {
+    km271Msg(KM_TYP_STATUS, statTopic.WW_OV1_AUTO[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterOperatingStates_1, 0)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_OV1_DESINFECT[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterOperatingStates_1, 1)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_OV1_RELOAD[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterOperatingStates_1, 2)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_OV1_HOLIDAY[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterOperatingStates_1, 3)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_OV1_ERR_DESINFECT[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterOperatingStates_1, 4)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_OV1_ERR_SENSOR[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterOperatingStates_1, 5)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_OV1_WW_STAY_COLD[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterOperatingStates_1, 6)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_OV1_ERR_ANODE[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterOperatingStates_1, 7)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_OV2_LOAD[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterOperatingStates_2, 0)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_OV2_MANUAL[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterOperatingStates_2, 1)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_OV2_RELOAD[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterOperatingStates_2, 2)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_OV2_OFF_TIME_OPT[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterOperatingStates_2, 3)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_OV2_ON_TIME_OPT[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterOperatingStates_2, 4)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_OV2_DAY[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterOperatingStates_2, 5)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_OV2_HOT[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterOperatingStates_2, 6)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_OV2_PRIO[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterOperatingStates_2, 7)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_SETPOINT[config.mqtt.lang], uint8ToString(kmStatus.HotWaterTargetTemp));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_TEMP[config.mqtt.lang], uint8ToString(kmStatus.HotWaterActualTemp));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_ONTIME_OPT[config.mqtt.lang], uint8ToString(kmStatus.HotWaterOptimizationTime));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_PUMP_CHARGE[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterPumpStates, 0)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_PUMP_CIRC[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterPumpStates, 1)));
+    km271Msg(KM_TYP_STATUS, statTopic.WW_PUMP_SOLAR[config.mqtt.lang], uint8ToString(bitRead(kmStatus.HotWaterPumpStates, 2)));
+  }
+
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_SETPOINT[config.mqtt.lang], uint8ToString(kmStatus.BoilerForwardTargetTemp));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_TEMP[config.mqtt.lang], uint8ToString(kmStatus.BoilerForwardActualTemp));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_ON_TEMP[config.mqtt.lang], uint8ToString(kmStatus.BurnerSwitchOnTemp));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_OFF_TEMP[config.mqtt.lang], uint8ToString(kmStatus.BurnerSwitchOffTemp));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_ERR_BURNER[config.mqtt.lang], uint8ToString(bitRead(kmStatus.BoilerErrorStates, 0)));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_ERR_SENSOR[config.mqtt.lang], uint8ToString(bitRead(kmStatus.BoilerErrorStates, 1)));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_ERR_AUX_SENS[config.mqtt.lang], uint8ToString(bitRead(kmStatus.BoilerErrorStates, 2)));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_ERR_STAY_COLD[config.mqtt.lang], uint8ToString(bitRead(kmStatus.BoilerErrorStates, 3)));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_ERR_GAS_SENS[config.mqtt.lang], uint8ToString(bitRead(kmStatus.BoilerErrorStates, 4)));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_ERR_EXHAUST[config.mqtt.lang], uint8ToString(bitRead(kmStatus.BoilerErrorStates, 5)));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_ERR_SAFETY[config.mqtt.lang], uint8ToString(bitRead(kmStatus.BoilerErrorStates, 6)));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_ERR_EXT[config.mqtt.lang], uint8ToString(bitRead(kmStatus.BoilerErrorStates, 7)));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_STATE_GASTEST[config.mqtt.lang], uint8ToString(bitRead(kmStatus.BoilerOperatingStates, 0)));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_STATE_STAGE1[config.mqtt.lang], uint8ToString(bitRead(kmStatus.BoilerOperatingStates, 1)));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_STATE_PROTECT[config.mqtt.lang], uint8ToString(bitRead(kmStatus.BoilerOperatingStates, 2)));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_STATE_ACTIVE[config.mqtt.lang], uint8ToString(bitRead(kmStatus.BoilerOperatingStates, 3)));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_STATE_PER_FREE[config.mqtt.lang], uint8ToString(bitRead(kmStatus.BoilerOperatingStates, 4)));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_STATE_PER_HIGH[config.mqtt.lang], uint8ToString(bitRead(kmStatus.BoilerOperatingStates, 5)));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_STATE_STAGE2[config.mqtt.lang], uint8ToString(bitRead(kmStatus.BoilerOperatingStates, 6)));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_CONTROL[config.mqtt.lang], uint8ToString(kmStatus.BurnerStates));
+  km271Msg(KM_TYP_STATUS, statTopic.EXHAUST_TEMP[config.mqtt.lang], uint8ToString(kmStatus.ExhaustTemp));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_LIFETIME_1[config.mqtt.lang], uint8ToString(kmStatus.BurnerOperatingDuration_0));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_LIFETIME_2[config.mqtt.lang], uint8ToString(kmStatus.BurnerOperatingDuration_1));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_LIFETIME_3[config.mqtt.lang], uint8ToString(kmStatus.BurnerOperatingDuration_2));
+  km271Msg(KM_TYP_STATUS, statTopic.BOILER_LIFETIME_4[config.mqtt.lang], uint64ToString(kmStatus.BurnerOperatingDuration_Sum));
+
+  if (config.oilmeter.use_virtual_meter && config.oilmeter.oil_density_kg_l != 0) {
+    kmStatus.BurnerCalcOilConsumption =
+        (double)kmStatus.BurnerOperatingDuration_Sum / 60 * config.oilmeter.consumption_kg_h / config.oilmeter.oil_density_kg_l;
+    km271Msg(KM_TYP_STATUS, statTopic.BOILER_CONSUMPTION[config.mqtt.lang], doubleToString(kmStatus.BurnerCalcOilConsumption));
+  }
+
+  km271Msg(KM_TYP_STATUS, statTopic.OUTSIDE_TEMP[config.mqtt.lang], int8ToString(kmStatus.OutsideTemp));
+  km271Msg(KM_TYP_STATUS, statTopic.OUTSIDE_TEMP_DAMPED[config.mqtt.lang], int8ToString(kmStatus.OutsideDampedTemp));
+  km271Msg(KM_TYP_STATUS, statTopic.VERSION_VK[config.mqtt.lang], uint8ToString(kmStatus.ControllerVersionMain));
+  km271Msg(KM_TYP_STATUS, statTopic.VERSION_NK[config.mqtt.lang], uint8ToString(kmStatus.ControllerVersionSub));
+  km271Msg(KM_TYP_STATUS, statTopic.MODULE_ID[config.mqtt.lang], uint8ToString(kmStatus.Modul));
+
+  km271Msg(KM_TYP_STATUS, statTopic.ALARM_EXHAUST[config.mqtt.lang], uint8ToString(bitRead(kmStatus.ERR_Alarmstatus, 0)));
+  km271Msg(KM_TYP_STATUS, statTopic.ALARM_02[config.mqtt.lang], uint8ToString(bitRead(kmStatus.ERR_Alarmstatus, 1)));
+  km271Msg(KM_TYP_STATUS, statTopic.ALARM_BOILER_FLOW[config.mqtt.lang], uint8ToString(bitRead(kmStatus.ERR_Alarmstatus, 2)));
+  km271Msg(KM_TYP_STATUS, statTopic.ALARM_08[config.mqtt.lang], uint8ToString(bitRead(kmStatus.ERR_Alarmstatus, 3)));
+  km271Msg(KM_TYP_STATUS, statTopic.ALARM_BURNER[config.mqtt.lang], uint8ToString(bitRead(kmStatus.ERR_Alarmstatus, 4)));
+  km271Msg(KM_TYP_STATUS, statTopic.ALARM_20[config.mqtt.lang], uint8ToString(bitRead(kmStatus.ERR_Alarmstatus, 5)));
+  km271Msg(KM_TYP_STATUS, statTopic.ALARM_HC2_FLOW_SENS[config.mqtt.lang], uint8ToString(bitRead(kmStatus.ERR_Alarmstatus, 6)));
+  km271Msg(KM_TYP_STATUS, statTopic.ALARM_80[config.mqtt.lang], uint8ToString(bitRead(kmStatus.ERR_Alarmstatus, 7)));
+}
+
+void sendAllKmCfgValues() {
+
+  if (config.km271.use_hc1) {
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_SUMMER_THRESHOLD[config.mqtt.lang], kmConfigStr.hc1_summer_mode_threshold);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_NIGHT_TEMP[config.mqtt.lang], kmConfigStr.hc1_night_temp);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_DAY_TEMP[config.mqtt.lang], kmConfigStr.hc1_day_temp);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_OPMODE[config.mqtt.lang], kmConfigStr.hc1_operation_mode);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_HOLIDAY_TEMP[config.mqtt.lang], kmConfigStr.hc1_holiday_temp);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_MAX_TEMP[config.mqtt.lang], kmConfigStr.hc1_max_temp);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_INTERPR[config.mqtt.lang], kmConfigStr.hc1_interpretation);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_SWITCH_ON_TEMP[config.mqtt.lang], kmConfigStr.hc1_switch_on_temperature);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_SWITCH_OFF_THRESHOLD[config.mqtt.lang], kmConfigStr.hc1_switch_off_threshold);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_REDUCTION_MODE[config.mqtt.lang], kmConfigStr.hc1_reduction_mode);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_HEATING_SYSTEM[config.mqtt.lang], kmConfigStr.hc1_heating_system);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TEMP_OFFSET[config.mqtt.lang], kmConfigStr.hc1_temp_offset);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_REMOTECTRL[config.mqtt.lang], kmConfigStr.hc1_remotecontrol);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_FROST_THRESHOLD[config.mqtt.lang], kmConfigStr.hc1_frost_protection_threshold);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_PROGRAM[config.mqtt.lang], kmConfigStr.hc1_program);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_HOLIDAY_DAYS[config.mqtt.lang], kmConfigStr.hc1_holiday_days);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER01[config.mqtt.lang], kmConfigStr.hc1_timer01);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER02[config.mqtt.lang], kmConfigStr.hc1_timer02);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER03[config.mqtt.lang], kmConfigStr.hc1_timer03);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER04[config.mqtt.lang], kmConfigStr.hc1_timer04);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER05[config.mqtt.lang], kmConfigStr.hc1_timer05);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER06[config.mqtt.lang], kmConfigStr.hc1_timer06);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER07[config.mqtt.lang], kmConfigStr.hc1_timer07);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER08[config.mqtt.lang], kmConfigStr.hc1_timer08);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER09[config.mqtt.lang], kmConfigStr.hc1_timer09);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER10[config.mqtt.lang], kmConfigStr.hc1_timer10);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER11[config.mqtt.lang], kmConfigStr.hc1_timer11);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER12[config.mqtt.lang], kmConfigStr.hc1_timer12);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER13[config.mqtt.lang], kmConfigStr.hc1_timer13);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC1_TIMER14[config.mqtt.lang], kmConfigStr.hc1_timer14);
+  }
+
+  if (config.km271.use_hc2) {
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_SUMMER_THRESHOLD[config.mqtt.lang], kmConfigStr.hc2_summer_mode_threshold);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_NIGHT_TEMP[config.mqtt.lang], kmConfigStr.hc2_night_temp);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_DAY_TEMP[config.mqtt.lang], kmConfigStr.hc2_day_temp);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_OPMODE[config.mqtt.lang], kmConfigStr.hc2_operation_mode);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_HOLIDAY_TEMP[config.mqtt.lang], kmConfigStr.hc2_holiday_temp);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_MAX_TEMP[config.mqtt.lang], kmConfigStr.hc2_max_temp);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_INTERPR[config.mqtt.lang], kmConfigStr.hc2_interpretation);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_SWITCH_ON_TEMP[config.mqtt.lang], kmConfigStr.hc2_switch_on_temperature);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_SWITCH_OFF_THRESHOLD[config.mqtt.lang], kmConfigStr.hc2_switch_off_threshold);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_REDUCTION_MODE[config.mqtt.lang], kmConfigStr.hc2_reduction_mode);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_HEATING_SYSTEM[config.mqtt.lang], kmConfigStr.hc2_heating_system);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TEMP_OFFSET[config.mqtt.lang], kmConfigStr.hc2_temp_offset);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_REMOTECTRL[config.mqtt.lang], kmConfigStr.hc2_remotecontrol);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_FROST_THRESHOLD[config.mqtt.lang], kmConfigStr.hc2_frost_protection_threshold);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_PROGRAM[config.mqtt.lang], kmConfigStr.hc2_program);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_HOLIDAY_DAYS[config.mqtt.lang], kmConfigStr.hc2_holiday_days);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER01[config.mqtt.lang], kmConfigStr.hc2_timer01);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER02[config.mqtt.lang], kmConfigStr.hc2_timer02);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER03[config.mqtt.lang], kmConfigStr.hc2_timer03);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER04[config.mqtt.lang], kmConfigStr.hc2_timer04);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER05[config.mqtt.lang], kmConfigStr.hc2_timer05);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER06[config.mqtt.lang], kmConfigStr.hc2_timer06);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER07[config.mqtt.lang], kmConfigStr.hc2_timer07);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER08[config.mqtt.lang], kmConfigStr.hc2_timer08);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER09[config.mqtt.lang], kmConfigStr.hc2_timer09);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER10[config.mqtt.lang], kmConfigStr.hc2_timer10);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER11[config.mqtt.lang], kmConfigStr.hc2_timer11);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER12[config.mqtt.lang], kmConfigStr.hc2_timer12);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER13[config.mqtt.lang], kmConfigStr.hc2_timer13);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.HC2_TIMER14[config.mqtt.lang], kmConfigStr.hc2_timer14);
+  }
+
+  if (config.km271.use_ww) {
+    km271Msg(KM_TYP_CONFIG, cfgTopic.WW_PRIO[config.mqtt.lang], kmConfigStr.ww_priority);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.WW_TEMP[config.mqtt.lang], kmConfigStr.ww_temp);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.WW_OPMODE[config.mqtt.lang], kmConfigStr.ww_operation_mode);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.WW_PROCESSING[config.mqtt.lang], kmConfigStr.ww_processing);
+    km271Msg(KM_TYP_CONFIG, cfgTopic.WW_CIRCULATION[config.mqtt.lang], kmConfigStr.ww_circulation);
+  }
+
+  km271Msg(KM_TYP_CONFIG, cfgTopic.BUILDING_TYP[config.mqtt.lang], kmConfigStr.building_type);
+  km271Msg(KM_TYP_CONFIG, cfgTopic.LANGUAGE[config.mqtt.lang], kmConfigStr.language);
+  km271Msg(KM_TYP_CONFIG, cfgTopic.SCREEN[config.mqtt.lang], kmConfigStr.display);
+  km271Msg(KM_TYP_CONFIG, cfgTopic.BURNER_TYP[config.mqtt.lang], kmConfigStr.burner_type);
+  km271Msg(KM_TYP_CONFIG, cfgTopic.MAX_BOILER_TEMP[config.mqtt.lang], kmConfigStr.max_boiler_temperature);
+  km271Msg(KM_TYP_CONFIG, cfgTopic.PUMP_LOGIC[config.mqtt.lang], kmConfigStr.pump_logic_temp);
+  km271Msg(KM_TYP_CONFIG, cfgTopic.EXHAUST_THRESHOLD[config.mqtt.lang], kmConfigStr.exhaust_gas_temperature_threshold);
+  km271Msg(KM_TYP_CONFIG, cfgTopic.BURNER_MIN_MOD[config.mqtt.lang], kmConfigStr.burner_min_modulation);
+  km271Msg(KM_TYP_CONFIG, cfgTopic.BURNER_MOD_TIME[config.mqtt.lang], kmConfigStr.burner_modulation_runtime);
+  km271Msg(KM_TYP_CONFIG, cfgTopic.TIME_OFFSET[config.mqtt.lang], kmConfigStr.time_offset);
 }

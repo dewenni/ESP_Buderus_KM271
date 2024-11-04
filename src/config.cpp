@@ -218,6 +218,7 @@ void configSaveToFile() {
   doc["mqtt"]["port"] = config.mqtt.port;
   doc["mqtt"]["config_retain"] = config.mqtt.config_retain;
   doc["mqtt"]["language"] = config.mqtt.lang;
+  doc["mqtt"]["cyclic_send"] = config.mqtt.cyclicSendMin;
   doc["mqtt"]["ha_enable"] = config.mqtt.ha_enable;
   doc["mqtt"]["ha_topic"] = config.mqtt.ha_topic;
   doc["mqtt"]["ha_device"] = config.mqtt.ha_device;
@@ -351,6 +352,7 @@ void configLoadFromFile() {
     config.mqtt.port = doc["mqtt"]["port"];
     config.mqtt.config_retain = doc["mqtt"]["config_retain"];
     config.mqtt.lang = doc["mqtt"]["language"];
+    config.mqtt.cyclicSendMin = doc["mqtt"]["cyclic_send"];
     config.mqtt.ha_enable = doc["mqtt"]["ha_enable"];
     readJSONstring(config.mqtt.ha_topic, sizeof(config.mqtt.ha_topic), doc["mqtt"]["ha_topic"]);
     readJSONstring(config.mqtt.ha_device, sizeof(config.mqtt.ha_device), doc["mqtt"]["ha_device"]);

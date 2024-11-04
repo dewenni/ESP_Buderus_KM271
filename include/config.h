@@ -69,17 +69,18 @@ typedef struct {
 } s_cfg_eth;
 
 typedef struct {
-  bool enable;          // Enable or disable the MQTT server
-  char server[128];     // MQTT Server IP
-  char user[128];       // MQTT User Name
-  char password[128];   // MQTT User Password
-  char topic[128];      // MQTT Topic Prefix
-  uint16_t port = 1883; // MQTT Server Port
-  bool config_retain;   // retain config messages
-  int lang;             // MQTT Topic Language
-  bool ha_enable;       // MQTT discovery
-  char ha_topic[64];    // MQTT ha topic
-  char ha_device[32];   // MQTT ha topic
+  bool enable;            // Enable or disable the MQTT server
+  char server[128];       // MQTT Server IP
+  char user[128];         // MQTT User Name
+  char password[128];     // MQTT User Password
+  char topic[128];        // MQTT Topic Prefix
+  uint16_t port = 1883;   // MQTT Server Port
+  bool config_retain;     // retain config messages
+  uint16_t cyclicSendMin; // send messages every x minutes
+  int lang;               // MQTT Topic Language
+  bool ha_enable;         // MQTT discovery
+  char ha_topic[64];      // MQTT ha topic
+  char ha_device[32];     // MQTT ha topic
 } s_cfg_mqtt;
 
 typedef struct {

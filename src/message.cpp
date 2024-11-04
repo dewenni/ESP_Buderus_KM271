@@ -16,14 +16,16 @@
 uint32_t totalHeap = 0;
 uint32_t heapSamples[HEAP_SAMPLE_COUNT];
 int sampleIndex = 0;
-
 char pushoverBuffer[MSG_BUF_SIZE]; // Buffer for Pushover messages
 static const char *TAG = "MSG";    // LOG TAG
-
 s_logdata logData;
+HTTPClient http;
+
 muTimer pushoverSendTimer = muTimer();
 muTimer checkHeapTimer = muTimer();
-HTTPClient http;
+muTimer mainTimer = muTimer();           // timer for cyclic info
+muTimer cyclicSendStatTimer = muTimer(); // timer to send periodic km271 messages
+muTimer cyclicSendCfgTimer = muTimer();  // timer to send periodic km271 messages
 
 /**
  * *******************************************************************
@@ -384,27 +386,6 @@ void sendPushoverMsg() {
 
 /**
  * *******************************************************************
- * @brief   Message Cyclic Loop
- * @param   none
- * @return  none
- * *******************************************************************/
-void messageCyclic() {
-  // send Pushover message if something inside the buffer
-  if (pushoverSendTimer.cycleTrigger(2000) && config.pushover.enable) {
-    if (strlen(pushoverBuffer)) {
-      MY_LOGI(TAG, "Pushover Message sent");
-      sendPushoverMsg();
-    }
-  }
-
-  // check HEAP
-  if (checkHeapTimer.cycleTrigger(10000)) {
-    checkHeapStatus();
-  }
-}
-
-/**
- * *******************************************************************
  * @brief   check Debug Filter format
  * @param   input       given input string
  * @param   input_len   input string length
@@ -445,5 +426,49 @@ bool setDebugFilter(char *input, size_t input_len, char *errMsg, size_t errMsg_l
     // invalid parameter length
     strncpy(errMsg, "invalid parameter size", errMsg_len);
     return false;
+  }
+}
+
+/**
+ * *******************************************************************
+ * @brief   Message Cyclic Loop
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void messageCyclic() {
+  // send Pushover message if something inside the buffer
+  if (pushoverSendTimer.cycleTrigger(2000) && config.pushover.enable) {
+    if (strlen(pushoverBuffer)) {
+      MY_LOGI(TAG, "Pushover Message sent");
+      sendPushoverMsg();
+    }
+  }
+
+  // check HEAP
+  if (checkHeapTimer.cycleTrigger(10000)) {
+    checkHeapStatus();
+  }
+
+  // send all km271 values from time to time
+  if (!setupMode && config.mqtt.cyclicSendMin > 0) {
+    if (cyclicSendCfgTimer.delayOnTrigger(true, config.mqtt.cyclicSendMin * 60000)) {
+      MY_LOGI(TAG, "send all Km271 config-values");
+      sendAllKmCfgValues();
+    }
+    if (cyclicSendStatTimer.delayOnTrigger(true, (config.mqtt.cyclicSendMin * 60000) + 2000)) {
+      MY_LOGI(TAG, "send all Km271 status-values");
+      sendAllKmStatValues();
+      cyclicSendCfgTimer.delayReset();
+      cyclicSendStatTimer.delayReset();
+    }
+  }
+
+  // send cyclic infos
+  if (mainTimer.cycleTrigger(10000) && !setupMode) {
+    sendWiFiInfo();
+    sendETHInfo();
+    sendKM271Info();
+    sendKM271Debug();
+    sendSysInfo();
   }
 }

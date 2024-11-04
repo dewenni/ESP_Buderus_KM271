@@ -315,3 +315,5 @@ void km271SetDateTimeNTP();
 void km271SetDateTimeDTI(tm dti);
 void parseInfo(uint8_t *data, int len);
 bool km271GetRefreshState();
+void sendAllKmCfgValues();
+void sendAllKmStatValues();

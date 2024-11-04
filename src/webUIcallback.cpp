@@ -325,6 +325,9 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "p12_mqtt_lang") == 0) {
     config.mqtt.lang = strtoul(value, NULL, 10);
   }
+  if (strcmp(elementId, "p12_mqtt_cyclic_send") == 0) {
+    config.mqtt.cyclicSendMin = strtoul(value, NULL, 10);
+  }
   if (strcmp(elementId, "p12_mqtt_ha_enable") == 0) {
     config.mqtt.ha_enable = stringToBool(value);
   }

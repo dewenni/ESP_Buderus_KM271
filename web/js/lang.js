@@ -1110,4 +1110,8 @@ const translations = {
     de: "Meldung",
     en: "Message",
   },
+  cyclic_send: {
+    de: "zyklisches Senden [min]",
+    en: "cyclic send [min]",
+  },
 };

@@ -260,6 +260,7 @@ void updateSettingsElements() {
   addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_mqtt_passw", config.mqtt.password);
   addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_mqtt_topic", config.mqtt.topic);
   addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_mqtt_lang", config.mqtt.lang);
+  addJsonValueInt(jsonSet, sizeof(jsonSet), "p12_mqtt_cyclic_send", (config.mqtt.cyclicSendMin));
   addJsonState(jsonSet, sizeof(jsonSet), "p12_mqtt_ha_enable", config.mqtt.ha_enable);
   addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_mqtt_ha_topic", config.mqtt.ha_topic);
   addJsonValueTxt(jsonSet, sizeof(jsonSet), "p12_mqtt_ha_device", config.mqtt.ha_device);
