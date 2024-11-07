@@ -8,17 +8,17 @@
 #include <simulation.h>
 
 /* D E C L A R A T I O N S ****************************************************/
-WiFiClient espClient;
 Mycila::MQTT mqtt_client;
 s_mqtt_cmds mqttCmd; // exts that are used as topics for KM271 commands
 s_cfg_topics cfgTopics;
 s_cfg_arrays cfgArrays;
 s_km271_msg infoMsg;
-muTimer mqttReconnectTimer = muTimer(); // timer for reconnect delay
-int mqtt_retry = 0;
 bool bootUpMsgDone, setupDone = false;
 int targetIndex = -1;
 static const char *TAG = "MQTT"; // LOG TAG
+char topicCopy[512];
+char payloadCopy[512];
+bool mqttMsgAvailable = false;
 
 /**
  * *******************************************************************
@@ -51,15 +51,28 @@ const char *addCfgCmdTopic(const char *suffix) {
  * @return  none
  * *******************************************************************/
 void onMqttMessage(const char *topic, const char *payload) {
-
-  char payloadCopy[512];
-
+  if (topic == NULL) {
+    topicCopy[0] = '\0';
+  } else {
+    strncpy(topicCopy, topic, sizeof(topicCopy) - 1);
+    topicCopy[sizeof(topicCopy) - 1] = '\0';
+  }
   if (payload == NULL) {
     payloadCopy[0] = '\0';
   } else {
     strncpy(payloadCopy, payload, sizeof(payloadCopy) - 1);
     payloadCopy[sizeof(payloadCopy) - 1] = '\0';
   }
+  mqttMsgAvailable = true;
+}
+
+/**
+ * *******************************************************************
+ * @brief   MQTT callback function for incoming message
+ * @param   topic, payload
+ * @return  none
+ * *******************************************************************/
+void processMqttMessage() {
 
   int len = strlen(payloadCopy);
   long intVal = 0;
@@ -80,7 +93,7 @@ void onMqttMessage(const char *topic, const char *payload) {
   }
 
   // restart ESP command
-  if (strcasecmp(topic, addTopic(mqttCmd.RESTART[config.mqtt.lang])) == 0) {
+  if (strcasecmp(topicCopy, addTopic(mqttCmd.RESTART[config.mqtt.lang])) == 0) {
     km271Msg(KM_TYP_MESSAGE, "restart requested!", "");
     saveRestartReason("mqtt command");
     yield();
@@ -89,7 +102,7 @@ void onMqttMessage(const char *topic, const char *payload) {
     ESP.restart();
   }
   // send sim data
-  else if (strcasecmp(topic, addTopic(mqttCmd.SIMDATA[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addTopic(mqttCmd.SIMDATA[config.mqtt.lang])) == 0) {
     if (config.sim.enable) {
       km271Msg(KM_TYP_MESSAGE, "start sending sim data", "");
       startSimData();
@@ -98,7 +111,7 @@ void onMqttMessage(const char *topic, const char *payload) {
     }
   }
   // Service command
-  else if (strcasecmp(topic, addTopic(mqttCmd.SERVICE[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addTopic(mqttCmd.SERVICE[config.mqtt.lang])) == 0) {
     if (len == 23) { // 23 characters: 8 Hex-values + 7 separators "_"
       uint8_t hexArray[8];
       // Iteration thru payload
@@ -131,7 +144,7 @@ void onMqttMessage(const char *topic, const char *payload) {
     }
   }
   // enable / disable debug
-  else if (strcasecmp(topic, addTopic(mqttCmd.DEBUG[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addTopic(mqttCmd.DEBUG[config.mqtt.lang])) == 0) {
     if (intVal == 1) {
       config.debug.enable = true;
       configSaveToFile();
@@ -143,7 +156,7 @@ void onMqttMessage(const char *topic, const char *payload) {
     }
   }
   // set debug filter
-  else if (strcasecmp(topic, addTopic(mqttCmd.SET_DEBUG_FLT[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addTopic(mqttCmd.SET_DEBUG_FLT[config.mqtt.lang])) == 0) {
     char errMsg[256];
     if (setDebugFilter(payloadCopy, strlen(payloadCopy), errMsg, sizeof(errMsg))) {
       km271Msg(KM_TYP_MESSAGE, "filter accepted", "");
@@ -152,19 +165,19 @@ void onMqttMessage(const char *topic, const char *payload) {
     }
   }
   // get debug filter
-  else if (strcasecmp(topic, addTopic(mqttCmd.GET_DEBUG_FLT[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addTopic(mqttCmd.GET_DEBUG_FLT[config.mqtt.lang])) == 0) {
     km271Msg(KM_TYP_MESSAGE, config.debug.filter, "");
   }
   // set date and time
-  else if (strcasecmp(topic, addTopic(mqttCmd.DATETIME[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addTopic(mqttCmd.DATETIME[config.mqtt.lang])) == 0) {
     km271SetDateTimeNTP();
   }
   // set oilmeter
-  else if (strcasecmp(topic, addTopic(mqttCmd.OILCNT[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addTopic(mqttCmd.OILCNT[config.mqtt.lang])) == 0) {
     cmdSetOilmeter(intVal);
   }
   // homeassistant/status
-  else if (strcmp(topic, "homeassistant/status") == 0) {
+  else if (strcmp(topicCopy, "homeassistant/status") == 0) {
     if (config.mqtt.ha_enable && strcmp(payloadCopy, "online") == 0) {
       km271Msg(KM_TYP_MESSAGE, "send discovery configuration", "");
       mqttDiscoverySendConfig(); // send discovery configuration
@@ -172,7 +185,7 @@ void onMqttMessage(const char *topic, const char *payload) {
   }
 
   // HK1 Betriebsart
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_OPMODE[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_OPMODE[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC1_OPMODE, intVal);
     } else if (len > 0) {
@@ -190,7 +203,7 @@ void onMqttMessage(const char *topic, const char *payload) {
     }
   }
   // HK2 Betriebsart
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC2_OPMODE[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_OPMODE[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC2_OPMODE, intVal);
     } else if (len > 0) {
@@ -208,7 +221,7 @@ void onMqttMessage(const char *topic, const char *payload) {
     }
   }
   // HK1 Programm
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_PROGRAM[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_PROGRAM[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC1_PROGRAMM, intVal);
     } else if (len > 0) {
@@ -226,7 +239,7 @@ void onMqttMessage(const char *topic, const char *payload) {
     }
   }
   // HK2 Programm
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC2_PROGRAM[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_PROGRAM[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC2_PROGRAMM, intVal);
     } else if (len > 0) {
@@ -244,47 +257,47 @@ void onMqttMessage(const char *topic, const char *payload) {
     }
   }
   // HK1 Auslegung
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_INTERPR[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_INTERPR[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC1_DESIGN_TEMP, intVal);
   }
   // HK2 Auslegung
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC2_INTERPR[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_INTERPR[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC2_DESIGN_TEMP, intVal);
   }
   // HK1 Aussenhalt-Ab Temperatur
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_SWITCH_OFF_THRESHOLD[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_SWITCH_OFF_THRESHOLD[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC1_SWITCH_OFF_THRESHOLD, intVal);
   }
   // HK2 Aussenhalt-Ab Temperatur
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC2_SWITCH_OFF_THRESHOLD[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_SWITCH_OFF_THRESHOLD[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC2_SWITCH_OFF_THRESHOLD, intVal);
   }
   // HK1 Tag-Soll Temperatur
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_DAY_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_DAY_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmdFlt(KM271_SENDCMD_HC1_DAY_SETPOINT, floatVal);
   }
   // HK2 Tag-Soll Temperatur
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC2_DAY_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_DAY_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmdFlt(KM271_SENDCMD_HC2_DAY_SETPOINT, floatVal);
   }
   // HK1 Nacht-Soll Temperatur
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_NIGHT_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_NIGHT_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmdFlt(KM271_SENDCMD_HC1_NIGHT_SETPOINT, floatVal);
   }
   // HK2 Nacht-Soll Temperatur
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC2_NIGHT_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_NIGHT_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmdFlt(KM271_SENDCMD_HC2_NIGHT_SETPOINT, floatVal);
   }
   // HK1 Ferien-Soll Temperatur
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_HOLIDAY_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_HOLIDAY_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmdFlt(KM271_SENDCMD_HC1_HOLIDAY_SETPOINT, floatVal);
   }
   // HK2 Ferien-Soll Temperatur
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC2_HOLIDAY_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_HOLIDAY_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmdFlt(KM271_SENDCMD_HC2_HOLIDAY_SETPOINT, floatVal);
   }
   // WW Betriebsart
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.WW_OPMODE[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.WW_OPMODE[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_WW_OPMODE, intVal);
     } else if (len > 0) {
@@ -302,7 +315,7 @@ void onMqttMessage(const char *topic, const char *payload) {
     }
   }
   // HK1 Sommer-Ab Temperatur
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_SUMMER_THRESHOLD[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_SUMMER_THRESHOLD[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC1_SUMMER, intVal);
     } else if (len > 0) {
@@ -320,11 +333,11 @@ void onMqttMessage(const char *topic, const char *payload) {
     }
   }
   // HK1 Frost-Ab Temperatur
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_FROST_THRESHOLD[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_FROST_THRESHOLD[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC1_FROST, intVal);
   }
   // HK2 Sommer-Ab Temperatur
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC2_SUMMER_THRESHOLD[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_SUMMER_THRESHOLD[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC2_SUMMER, intVal);
     } else if (len > 0) {
@@ -342,23 +355,23 @@ void onMqttMessage(const char *topic, const char *payload) {
     }
   }
   // HK2 Frost-Ab Temperatur
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC2_FROST_THRESHOLD[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_FROST_THRESHOLD[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC2_FROST, intVal);
   }
   // WW-Temperatur
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.WW_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.WW_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_WW_SETPOINT, intVal);
   }
   // HK1 Ferien Tage
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_HOLIDAY_DAYS[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_HOLIDAY_DAYS[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC1_HOLIDAYS, intVal);
   }
   // HK2 Ferien Tage
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC2_HOLIDAY_DAYS[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_HOLIDAY_DAYS[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC2_HOLIDAYS, intVal);
   }
   // WW Pump Cycles
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.WW_CIRCULATION[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.WW_CIRCULATION[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_WW_PUMP_CYCLES, intVal);
     } else if (len > 0) {
@@ -376,15 +389,15 @@ void onMqttMessage(const char *topic, const char *payload) {
     }
   }
   // HK1 Reglereingriff
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_SWITCH_ON_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_SWITCH_ON_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC1_SWITCH_ON_TEMP, intVal);
   }
   // HK2 Reglereingriff
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC2_SWITCH_ON_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_SWITCH_ON_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC2_SWITCH_ON_TEMP, intVal);
   }
   // HK1 Absenkungsart
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC1_REDUCTION_MODE[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_REDUCTION_MODE[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC1_REDUCTION_MODE, intVal);
     } else {
@@ -400,7 +413,7 @@ void onMqttMessage(const char *topic, const char *payload) {
     }
   }
   // HK2 Absenkungsart
-  else if (strcasecmp(topic, addCfgCmdTopic(cfgTopics.HC2_REDUCTION_MODE[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_REDUCTION_MODE[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC2_REDUCTION_MODE, intVal);
     } else {
@@ -424,10 +437,8 @@ void onMqttMessage(const char *topic, const char *payload) {
  * @return  none
  * *******************************************************************/
 void onMqttConnect() {
-  mqtt_retry = 0;
+
   MY_LOGI(TAG, "MQTT connected");
-  // Once connected, publish an announcement...
-  sendWiFiInfo();
 
   mqtt_client.subscribe(addTopic("/cmd/#"), [](const String &topic, const String &payload) { onMqttMessage(topic.c_str(), payload.c_str()); });
 
@@ -485,12 +496,19 @@ void mqttSetup() {
 
 /**
  * *******************************************************************
- * @brief   Basic MQTT setup
+ * @brief   MQTT cyclic function
  * @param   none
  * @return  none
  * *******************************************************************/
-void checkMqtt() {
+void mqttCyclic() {
+  
+  // process incoming messages
+  if (mqttMsgAvailable) {
+    processMqttMessage();
+    mqttMsgAvailable = false;
+  }
 
+  // call setup when connection is established
   if (config.mqtt.enable && !setupMode && !setupDone && (eth.connected || wifi.connected)) {
     mqttSetup();
     setupDone = true;
@@ -510,10 +528,12 @@ void checkMqtt() {
       mqttDiscoverySendConfig();
     }
   }
-  // call mqtt cyclic function if activated
+
+  // call mqttDiscovery cyclic function if HA is activated
   if (config.mqtt.ha_enable && mqtt_client.isConnected()) {
     mqttDiscoveryCyclic();
   }
+
 }
 
 /**

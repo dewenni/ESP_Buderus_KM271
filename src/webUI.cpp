@@ -391,7 +391,7 @@ void webUISetup() {
  * @param   none
  * @return  none
  * *******************************************************************/
-void webUICylic() {
+void webUICyclic() {
 
   // heartbeat timer for webclient
   if (connectionTimer.cycleTrigger(3000)) {

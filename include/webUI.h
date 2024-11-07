@@ -4,12 +4,12 @@
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
 #include <config.h>
-#include <language.h>
 #include <gzip_css.h>
+#include <gzip_js.h>
 #include <gzip_login_html.h>
 #include <gzip_m_html.h>
-#include <gzip_js.h>
 #include <gzip_ntp_html.h>
+#include <language.h>
 
 /* D E C L A R A T I O N S ****************************************************/
 typedef enum {
@@ -96,7 +96,7 @@ extern s_cfg_arrays cfgArrayTexts;
 
 /* P R O T O T Y P E S ********************************************************/
 void webUISetup();
-void webUICylic();
+void webUICyclic();
 void webReadLogBuffer();
 
 void sendWebUpdate(const char *message, const char *event);

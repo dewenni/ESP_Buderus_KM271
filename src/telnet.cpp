@@ -15,6 +15,7 @@ s_telnetIF telnetIF;
 s_opt_arrays webOptArrays;
 EscapeCodes ansi;
 char param[MAX_PAR][MAX_CHAR];
+bool msgAvailable = false;
 static const char *TAG = "TELNET"; // LOG TAG
 
 /* P R O T O T Y P E S ********************************************************/
@@ -83,7 +84,7 @@ void onTelnetInput(String str) {
   if (!extractMessage(str, param)) {
     telnet.println("Syntax error");
   } else {
-    dispatchCommand(param);
+    msgAvailable = true;
   }
   telnetShell();
 }
@@ -115,7 +116,15 @@ void setupTelnet() {
  * @param   none
  * @return  none
  * *******************************************************************/
-void cyclicTelnet() { telnet.loop(); }
+void cyclicTelnet() {
+  telnet.loop();
+
+  // process incoming messages
+  if (msgAvailable) {
+    dispatchCommand(param);
+    msgAvailable = false;
+  }
+}
 
 /**
  * *******************************************************************

@@ -18,13 +18,12 @@ muTimer setupModeTimer = muTimer(); // timer for heartbeat signal
 muTimer dstTimer = muTimer();       // timer to check daylight saving time change
 muTimer ntpTimer = muTimer();       // timer to check ntp sync
 
-DoubleResetDetector *drd;        // Double-Reset-Detector
-bool main_reboot = true;         // reboot flag
-int dst_old;                     // reminder for change of daylight saving time
-bool dst_ref;                    // init flag fpr dst reference
-bool ntpSynced;                  // ntp sync flag
-bool ntpInit = false;            // init flag for ntp sync
-static const char *TAG = "MAIN"; // LOG TAG
+DoubleResetDetector *drd; // Double-Reset-Detector
+bool main_reboot = true;  // reboot flag
+int dst_old;              // reminder for change of daylight saving time
+bool dst_ref;             // init flag fpr dst reference
+bool ntpSynced;           // ntp sync flag
+bool ntpInit = false;     // init flag for ntp sync
 
 /**
  * *******************************************************************
@@ -107,7 +106,7 @@ void loop() {
   drd->loop();
 
   // webUI Cyclic
-  webUICylic();
+  webUICyclic();
 
   // Sensor Cyclic
   cyclicSensor();
@@ -131,7 +130,7 @@ void loop() {
 
   // check MQTT - automatic reconnect
   if (config.mqtt.enable && !setupMode) {
-    checkMqtt();
+    mqttCyclic();
   }
 
   if (setupMode) {
