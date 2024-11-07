@@ -147,7 +147,7 @@ void updateAllElements() {
   memset((void *)KmAlarmHash, 0, sizeof(KmAlarmHash));
 
   updateSystemInfoElements();
-  updateOilmeterElements(false);
+  updateOilmeterElements(true);
   updateSensorElements();
 
   setLanguage(LANG.CODE[config.lang]);
