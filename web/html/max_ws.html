@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>ESP-Buderus-KM271</title>
+    <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
+    <link rel="stylesheet" type="text/css" href="main.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <script>
+    function goToMainPage() {
+      window.location.href = "/";
+    }
+  </script>
+  <body>
+    <dialog open>
+      <article>
+        <h2>ESP-Buderus-KM271</h2>
+        <p>The maximum number of Clinet connections has been reached!</p>
+        <p>Close already opened connections and try again</p>
+        <div class="dash-footer">
+          <button onclick="goToMainPage()" style="width: 75%">try again</button>
+        </div>
+      </article>
+    </dialog>
+  </body>
+</html>

@@ -16,13 +16,13 @@
 void webCallback(const char *elementId, const char *value);
 
 /* D E C L A R A T I O N S ****************************************************/
-muTimer connectionTimer = muTimer(); // timer to refresh other values
+muTimer heartbeatTimer = muTimer();  // timer to refresh other values
 muTimer simulationTimer = muTimer(); // timer to refresh other values
 muTimer logReadTimer = muTimer();    // timer to refresh other values
 muTimer otaUpdateTimer = muTimer();  // timer to refresh other values
 
 AsyncWebServer server(80);
-AsyncEventSource events("/events");
+AsyncWebSocket ws("/ws");
 
 s_webui_texts webText;
 s_cfg_arrays cfgArrayTexts;
@@ -39,126 +39,221 @@ bool webCallbackAvailable = false;
 unsigned long sendCnt = 0;
 bool onLoadRequest = false;
 
-void sendWebUpdate(const char *message, const char *event) { events.send(message, event, millis()); }
-
-void handleWebClientData(AsyncWebServerRequest *request) {
-  if (request->hasParam("elementId") && request->hasParam("value")) {
-    snprintf(webCallbackElementID, sizeof(webCallbackElementID), "%s", request->getParam("elementId")->value().c_str());
-    snprintf(webCallbackValue, sizeof(webCallbackValue), "%s", request->getParam("value")->value().c_str());
-    webCallbackAvailable = true;
-    request->send(200, "text/plain", "OK");
-  } else {
-    request->send(400, "text/plain", "Invalid Request");
-  }
+void sendHeartbeat() {
+  // if (ws.availableForWriteAll()) {
+  ws.textAll("{\"type\":\"heartbeat\"}");
+  // }
 }
 
-void setLanguage(const char *language) {
-  char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"language\":\"%s\"}", language);
-  sendWebUpdate(message, "setLanguage");
+void updateWebLanguage(const char *language) {
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "setLanguage";
+  jsonDoc["language"] = language;
+
+  const size_t len = measureJson(jsonDoc);
+  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+  assert(buffer); // optional: check buffer
+  serializeJson(jsonDoc, buffer->get(), len);
+  ws.textAll(buffer);
 }
 
-void updateWebJSON(const char *JSON) { events.send(JSON, "updateJSON", millis()); }
+void updateWebJSON(JsonDocument &jsonDoc) {
+  const size_t len = measureJson(jsonDoc);
+  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+  assert(buffer); // optional: check buffer
+  serializeJson(jsonDoc, buffer->get(), len);
+  ws.textAll(buffer);
+}
 
 void updateWebText(const char *id, const char *text, bool isInput) {
-  char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"text\":\"%s\",\"isInput\":%s}", id, text, isInput ? "true" : "false");
-  sendWebUpdate(message, "updateText");
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "updateText";
+  jsonDoc["id"] = id;
+  jsonDoc["text"] = text;
+  jsonDoc["isInput"] = isInput ? true : false;
+
+  const size_t len = measureJson(jsonDoc);
+  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+  assert(buffer); // optional: check buffer
+  serializeJson(jsonDoc, buffer->get(), len);
+  ws.textAll(buffer);
 }
 
 void updateWebTextInt(const char *id, long value, bool isInput) {
-  char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"text\":\"%ld\",\"isInput\":%s}", id, value, isInput ? "true" : "false");
-  sendWebUpdate(message, "updateText");
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "updateText";
+  jsonDoc["id"] = id;
+  jsonDoc["text"] = value;
+  jsonDoc["isInput"] = isInput ? true : false;
+
+  const size_t len = measureJson(jsonDoc);
+  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+  assert(buffer); // optional: check buffer
+  serializeJson(jsonDoc, buffer->get(), len);
+  ws.textAll(buffer);
+}
+
+void updateWebLog(const char *entry, const char *cmd) {
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "logger";
+  jsonDoc["cmd"] = cmd;
+  jsonDoc["entry"] = entry;
+
+  const size_t len = measureJson(jsonDoc);
+  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+  assert(buffer); // optional: check buffer
+  serializeJson(jsonDoc, buffer->get(), len);
+  ws.textAll(buffer);
 }
 
 void updateWebTextFloat(const char *id, double value, bool isInput, int decimals) {
-  char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"text\":\"%.1f\",\"isInput\":%s}", id, value, isInput ? "true" : "false");
-  if (decimals == 0)
-    snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"text\":\"%.0f\",\"isInput\":%s}", id, value, isInput ? "true" : "false");
-  else if (decimals == 2)
-    snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"text\":\"%.2f\",\"isInput\":%s}", id, value, isInput ? "true" : "false");
-  else if (decimals == 3)
-    snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"text\":\"%.3f\",\"isInput\":%s}", id, value, isInput ? "true" : "false");
-  else
-    snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"text\":\"%.1f\",\"isInput\":%s}", id, value, isInput ? "true" : "false");
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "updateText";
+  jsonDoc["id"] = id;
+  jsonDoc["isInput"] = isInput;
 
-  sendWebUpdate(message, "updateText");
+  char textBuffer[16];
+  snprintf(textBuffer, sizeof(textBuffer), "%.*f", decimals, value);
+  jsonDoc["text"] = textBuffer;
+
+  const size_t len = measureJson(jsonDoc);
+  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+  assert(buffer); // optional: check buffer
+  serializeJson(jsonDoc, buffer->get(), len);
+  ws.textAll(buffer);
 }
 
 void updateWebState(const char *id, bool state) {
-  char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"state\":%s}", id, state ? "true" : "false");
-  sendWebUpdate(message, "updateState");
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "updateState";
+  jsonDoc["id"] = id;
+  jsonDoc["state"] = state ? true : false;
+
+  const size_t len = measureJson(jsonDoc);
+  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+  assert(buffer); // optional: check buffer
+  serializeJson(jsonDoc, buffer->get(), len);
+  ws.textAll(buffer);
 }
 
 void updateWebValueStr(const char *id, const char *value) {
-  char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"value\":\"%s\"}", id, value);
-  sendWebUpdate(message, "updateValue");
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "updateValue";
+  jsonDoc["id"] = id;
+  jsonDoc["value"] = value;
+
+  const size_t len = measureJson(jsonDoc);
+  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+  assert(buffer); // optional: check buffer
+  serializeJson(jsonDoc, buffer->get(), len);
+  ws.textAll(buffer);
 }
 
 void updateWebValueInt(const char *id, long value) {
-  char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"value\":\"%ld\"}", id, value);
-  sendWebUpdate(message, "updateValue");
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "updateValue";
+  jsonDoc["id"] = id;
+  jsonDoc["value"] = value;
+
+  const size_t len = measureJson(jsonDoc);
+  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+  assert(buffer); // optional: check buffer
+  serializeJson(jsonDoc, buffer->get(), len);
+  ws.textAll(buffer);
 }
 
 void updateWebValueFloat(const char *id, double value, int decimals) {
-  char message[BUFFER_SIZE];
-  if (decimals == 0)
-    snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"value\":\"%.0f\"}", id, value);
-  else if (decimals == 2)
-    snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"value\":\"%.2f\"}", id, value);
-  else if (decimals == 3)
-    snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"value\":\"%.3f\"}", id, value);
-  else
-    snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"value\":\"%.1f\"}", id, value);
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "updateValue";
+  jsonDoc["id"] = id;
 
-  sendWebUpdate(message, "updateValue");
+  char textBuffer[16];
+  snprintf(textBuffer, sizeof(textBuffer), "%.*f", decimals, value);
+  jsonDoc["value"] = textBuffer;
+
+  const size_t len = measureJson(jsonDoc);
+  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+  assert(buffer); // optional: check buffer
+  serializeJson(jsonDoc, buffer->get(), len);
+  ws.textAll(buffer);
 }
 
 void showElementClass(const char *className, bool show) {
-  char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"className\":\"%s\",\"show\":%s}", className, show ? "true" : "false");
-  sendWebUpdate(message, "showElementClass");
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "showElementClass";
+  jsonDoc["className"] = className;
+  jsonDoc["show"] = show ? true : false;
+
+  const size_t len = measureJson(jsonDoc);
+  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+  assert(buffer); // optional: check buffer
+  serializeJson(jsonDoc, buffer->get(), len);
+  ws.textAll(buffer);
 }
 
 void updateWebHideElement(const char *id, bool hide) {
-  char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"hide\":%s}", id, hide ? "true" : "false");
-  sendWebUpdate(message, "hideElement");
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "hideElement";
+  jsonDoc["id"] = id;
+  jsonDoc["hide"] = hide ? true : false;
+
+  const size_t len = measureJson(jsonDoc);
+  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+  assert(buffer); // optional: check buffer
+  serializeJson(jsonDoc, buffer->get(), len);
+  ws.textAll(buffer);
 }
 
 void updateWebDialog(const char *id, const char *state) {
-  char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"state\":\"%s\"}", id, state);
-  sendWebUpdate(message, "updateDialog");
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "updateDialog";
+  jsonDoc["id"] = id;
+  jsonDoc["state"] = state;
+
+  const size_t len = measureJson(jsonDoc);
+  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+  assert(buffer); // optional: check buffer
+  serializeJson(jsonDoc, buffer->get(), len);
+  ws.textAll(buffer);
 }
 
 void updateWebSetIcon(const char *id, const char *icon) {
-  char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"icon\":\"%s\"}", id, icon);
-  sendWebUpdate(message, "updateSetIcon");
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "updateSetIcon";
+  jsonDoc["id"] = id;
+  jsonDoc["icon"] = icon;
+
+  const size_t len = measureJson(jsonDoc);
+  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+  assert(buffer); // optional: check buffer
+  serializeJson(jsonDoc, buffer->get(), len);
+  ws.textAll(buffer);
 }
 
 void updateWebHref(const char *id, const char *href) {
-  char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"href\":\"%s\"}", id, href);
-  sendWebUpdate(message, "updateHref");
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "updateHref";
+  jsonDoc["id"] = id;
+  jsonDoc["href"] = href;
+
+  const size_t len = measureJson(jsonDoc);
+  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+  assert(buffer); // optional: check buffer
+  serializeJson(jsonDoc, buffer->get(), len);
+  ws.textAll(buffer);
 }
 
 void updateWebBusy(const char *id, bool busy) {
-  char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"busy\":%s}", id, busy ? "true" : "false");
-  sendWebUpdate(message, "updateBusy");
-}
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "updateBusy";
+  jsonDoc["id"] = id;
+  jsonDoc["busy"] = busy;
 
-void updateWebTooltip(const char *id, const char *tooltip) {
-  char message[BUFFER_SIZE];
-  snprintf(message, BUFFER_SIZE, "{\"id\":\"%s\",\"tooltip\":\"%s\"}", id, tooltip);
-  sendWebUpdate(message, "updateTooltip");
+  const size_t len = measureJson(jsonDoc);
+  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+  assert(buffer); // optional: check buffer
+  serializeJson(jsonDoc, buffer->get(), len);
+  ws.textAll(buffer);
 }
 
 /**
@@ -194,11 +289,15 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
   } else {
     // calculate progress
     int progress = (Update.progress() * 100) / content_len;
-    MY_LOGI(TAG, " OTA-Progress: %d%%\n", progress);
-    char message[32];
     if (otaUpdateTimer.cycleTrigger(200)) {
-      snprintf(message, 32, "Progress: %d%%", progress);
-      events.send(message, "ota-progress", millis());
+      JsonDocument jsonDoc;
+      jsonDoc["type"] = "otaProgress";
+      jsonDoc["progress"] = progress;
+      const size_t len = measureJson(jsonDoc);
+      AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+      assert(buffer); // optional: check buffer
+      serializeJson(jsonDoc, buffer->get(), len);
+      ws.textAll(buffer);
     }
   }
   // update done
@@ -211,9 +310,15 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
       updateWebDialog("ota_update_failed_dialog", "open");
       return request->send(400, "text/plain", "Could not end OTA");
     } else {
-      char message[32];
-      snprintf(message, 32, "Progress: %d%%", 100);
-      events.send(message, "ota-progress", millis());
+      JsonDocument jsonDoc;
+      jsonDoc["type"] = "otaProgress";
+      jsonDoc["progress"] = 100;
+      const size_t len = measureJson(jsonDoc);
+      AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+      assert(buffer); // optional: check buffer
+      serializeJson(jsonDoc, buffer->get(), len);
+      ws.textAll(buffer);
+
       MY_LOGI(TAG, "OTA Update complete");
       Serial.flush();
       updateWebDialog("ota_update_done_dialog", "open");
@@ -256,6 +361,12 @@ void webUISetup() {
 
   server.on("/login", HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncWebServerResponse *response = request->beginResponse(200, "text/html", gzip_login_html, gzip_login_html_size);
+    request->send(response);
+    response->addHeader("Content-Encoding", "gzip");
+  });
+
+  server.on("/max_ws", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/html", gzip_max_ws_html, gzip_max_ws_html_size);
     request->send(response);
     response->addHeader("Content-Encoding", "gzip");
   });
@@ -360,27 +471,46 @@ void webUISetup() {
   server.on(
       "/update", HTTP_POST, [](AsyncWebServerRequest *request) {}, handleDoUpdate);
 
-  // message from webClient to server
-  server.on("/sendData", HTTP_GET, handleWebClientData);
-
-  // SSE Endpoint
-  events.onConnect([](AsyncEventSourceClient *client) {
-    // check if it´s a new client or reconnect
-    if (client->lastId()) {
-      MY_LOGI(TAG, "Client reconnected with lastId %lu\n", client->lastId());
-    } else {
-      MY_LOGI(TAG, "New Client connected");
+  ws.onEvent([](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
+    (void)len;
+    if (type == WS_EVT_CONNECT) {
+      if (ws.count() < 2) {
+        MY_LOGI(TAG, "web-client connected");
+        client->setCloseClientOnQueueFull(false);
+        onLoadRequest = true;
+      } else {
+        MY_LOGI(TAG, "max web-client reached");
+        client->text("{\"type\":\"redirect\",\"url\":\"/max_ws\"}");
+        client->close(1008, "max client reached");
+      }
+    } else if (type == WS_EVT_DISCONNECT) {
+      MY_LOGI(TAG, "web-client disconnected");
+    } else if (type == WS_EVT_ERROR) {
+      MY_LOGI(TAG, "web-client error");
+    } else if (type == WS_EVT_PONG) {
+      // Serial.println("ws pong");
+    } else if (type == WS_EVT_DATA) {
+      AwsFrameInfo *info = (AwsFrameInfo *)arg;
+      if (info->final && info->index == 0 && info->len == len) {
+        if (info->opcode == WS_TEXT) {
+          data[len] = 0;
+          JsonDocument jsonDoc;
+          DeserializationError error = deserializeJson(jsonDoc, data);
+          if (error) {
+            MY_LOGW(TAG, "Failed to parse WebSocket message as JSON");
+            return;
+          }
+          const char *elementId = jsonDoc["elementId"];
+          const char *value = jsonDoc["value"];
+          snprintf(webCallbackElementID, sizeof(webCallbackElementID), "%s", elementId);
+          snprintf(webCallbackValue, sizeof(webCallbackValue), "%s", value);
+          webCallbackAvailable = true;
+        }
+      }
     }
-    client->send("ping", "ping", millis(), 5000);
-    onLoadRequest = true; // send all data to the client
   });
 
-  events.onDisconnect([](AsyncEventSourceClient *client) {
-    client->close();
-    MY_LOGI(TAG, "Client disconnected");
-  });
-
-  server.addHandler(&events);
+  server.addHandler(&ws);
   server.begin();
 
 } // END SETUP
@@ -393,9 +523,10 @@ void webUISetup() {
  * *******************************************************************/
 void webUICyclic() {
 
-  // heartbeat timer for webclient
-  if (connectionTimer.cycleTrigger(3000)) {
-    sendWebUpdate("ping", "ping");
+  // ws.cleanupClients();
+
+  if (heartbeatTimer.cycleTrigger(3000)) {
+    sendHeartbeat();
   }
 
   // request for update alle elements

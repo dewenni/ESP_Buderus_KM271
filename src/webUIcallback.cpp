@@ -489,16 +489,16 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "p10_log_mode") == 0) {
     config.log.filter = strtoul(value, NULL, 10);
     clearLogBuffer();
-    sendWebUpdate("", "clr_log"); // clear log
+    updateWebLog("", "clr_log"); // clear log
   }
   if (strcmp(elementId, "p10_log_order") == 0) {
     config.log.order = strtoul(value, NULL, 10);
-    sendWebUpdate("", "clr_log"); // clear log
+    updateWebLog("", "clr_log"); // clear log
     webReadLogBuffer();
   }
   if (strcmp(elementId, "p10_log_clr_btn") == 0) {
     clearLogBuffer();
-    sendWebUpdate("", "clr_log"); // clear log
+    updateWebLog("", "clr_log"); // clear log
   }
   if (strcmp(elementId, "p10_log_refresh_btn") == 0) {
     webReadLogBuffer();

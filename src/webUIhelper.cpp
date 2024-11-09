@@ -103,15 +103,15 @@ void webReadLogBufferCyclic() {
     logIdx = 0;
   }
   if (logLine == 0) {
-    sendWebUpdate("", "clr_log");                     // clear log
-    sendWebUpdate(logData.buffer[logIdx], "add_log"); // add first log element
+    updateWebLog("", "clr_log");                      // clear log
+    updateWebLog(logData.buffer[logIdx], "add_log");  // add first log element
     logLine++;
   } else if (logLine == MAX_LOG_LINES - 1) {
     // end
     return;
   } else {
     if (logData.buffer[logIdx][0] != '\0') {
-      sendWebUpdate(logData.buffer[logIdx], "add_log"); // add next log element
+      updateWebLog(logData.buffer[logIdx], "add_log"); // add next log element
       logLine++;
     } else {
       // no more entries

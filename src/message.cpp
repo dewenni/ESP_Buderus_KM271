@@ -452,7 +452,6 @@ void messageCyclic() {
   // send all km271 values from time to time
   if (!setupMode && config.mqtt.cyclicSendMin > 0) {
     if (cyclicSendCfgTimer.delayOnTrigger(true, config.mqtt.cyclicSendMin * 60000)) {
-      MY_LOGI(TAG, "cyclic send Km271 values");
       sendAllKmCfgValues();
     }
     if (cyclicSendStatTimer.delayOnTrigger(true, (config.mqtt.cyclicSendMin * 60000) + 2000)) {

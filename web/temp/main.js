@@ -1,21 +1,234 @@
-// --------------------------------------
-// js functions
-// --------------------------------------
+let ws;
+let heartbeatTimeout;
+const maxReconnectDelay = 5000;
+const minReconnectDelay = 1000;
+let reconnectDelay = minReconnectDelay;
 
-// Function timeout for server-side events
-function resetPingTimer() {
-  clearTimeout(pingTimer);
-  pingTimer = setTimeout(function () {
-    console.log("Ping timeout, attempting to reconnect...");
-    evtSource.close();
+function setupWS() {
+  ws = new WebSocket("ws://" + window.location.host + "/ws");
+
+  ws.onopen = function () {
+    console.log("WebSocket connected");
+    resetHeartbeat();
+    hideReloadBar();
+    reconnectDelay = minReconnectDelay;
+  };
+
+  ws.onclose = function () {
+    console.log("WebSocket disconnected. Retrying...");
     attemptReconnect();
+    showReloadBar();
+  };
+
+  ws.onmessage = function (event) {
+    let message = JSON.parse(event.data);
+    //console.log(message);
+    if (message.type === "redirect") {
+      console.log("Redirecting to:", message.url);
+      ws.close();
+      window.location.href = message.url;
+    } else if (message.type === "heartbeat") {
+      resetHeartbeat();
+    } else if (message.type === "updateText") {
+      updateText(message);
+    } else if (message.type === "setLanguage") {
+      setLanguage(message);
+    } else if (message.type === "updateJSON") {
+      updateJSON(message);
+    } else if (message.type === "updateValue") {
+      updateValue(message);
+    } else if (message.type === "updateState") {
+      updateState(message);
+    } else if (message.type === "updateSetIcon") {
+      updateSetIcon(message);
+    } else if (message.type === "hideElement") {
+      hideElement(message);
+    } else if (message.type === "updateHref") {
+      updateHref(message);
+    } else if (message.type === "updateBusy") {
+      updateBusy(message);
+    } else if (message.type === "showElementClass") {
+      showElementClass(message);
+    } else if (message.type === "logger") {
+      logger(message);
+    } else if (message.type === "cmdLogClr") {
+      cmdLogClr(message);
+    } else if (message.type === "otaProgress") {
+      otaProgress(message);
+    } else if (message.type === "updateDialog") {
+      updateDialog(message);
+    }
+  };
+}
+
+// Heartbeat-Timeout zurücksetzen
+function resetHeartbeat() {
+  clearTimeout(heartbeatTimeout);
+  heartbeatTimeout = setTimeout(() => {
+    console.warn("No heartbeat received, reconnecting...");
+    ws.close();
     showReloadBar();
   }, 5000);
 }
 
-// Function to reconnect after timeout
 function attemptReconnect() {
-  setTimeout(setupSSE, 5000);
+  setTimeout(() => {
+    console.log(`Attempting reconnect in ${reconnectDelay / 1000} seconds...`);
+    setupWS();
+    reconnectDelay = Math.min(reconnectDelay * 2, maxReconnectDelay);
+  }, reconnectDelay);
+}
+
+function sendData(elementId, value) {
+  if (ws.readyState === WebSocket.OPEN) {
+    const message = {
+      type: "sendData",
+      elementId: elementId,
+      value: String(value),
+    };
+    ws.send(JSON.stringify(message));
+  } else {
+    console.error("WebSocket is not open. Cannot send data.");
+  }
+}
+
+function updateText(data) {
+  var element = document.getElementById(data.id);
+  //console.log(element);
+  if (element) {
+    if (data.isInput) {
+      element.value = data.text;
+    } else {
+      element.innerHTML = data.text;
+    }
+  }
+}
+
+function setLanguage(data) {
+  console.log("Set language to:", data.language);
+  localizePage(data.language);
+}
+
+function updateJSON(data) {
+  Object.keys(data).forEach(function (key) {
+    if (key != "type") {
+      // skip the first key
+      let [elementID, typSuffix] = key.split("#");
+      let element = document.getElementById(elementID);
+      if (!element) {
+        console.error("unknown element:", key);
+        return;
+      }
+      let value = data[key];
+      switch (typSuffix) {
+        case "v": // value
+          element.value = value;
+          break;
+        case "c": // checked
+          element.checked = value === "true";
+          toggleElementVisibility(
+            element.getAttribute("hideOpt"),
+            element.checked
+          );
+          break;
+        case "l": // Label = innerHTML
+          element.innerHTML = value;
+          break;
+        case "i": // icon
+          element.className = "svg " + value;
+          break;
+        default:
+          console.error("unknown typ:", typSuffix);
+      }
+    }
+  });
+}
+
+function updateValue(data) {
+  var element = document.getElementById(data.id);
+  if (element) {
+    if (data.isInput) {
+      element.value = data.value;
+    }
+  }
+}
+
+// update switch elements
+function updateState(data) {
+  var element = document.getElementById(data.id);
+  if (element && (element.type === "checkbox" || element.type === "radio")) {
+    element.checked = data.state;
+    toggleElementVisibility(element.getAttribute("hideOpt"), element.checked);
+  }
+}
+
+// update add class to element
+function updateSetIcon(data) {
+  var element = document.getElementById(data.id);
+  if (element) {
+    element.className = "svg " + data.icon;
+  }
+}
+
+// hide/show element
+function hideElement(data) {
+  var element = document.getElementById(data.id);
+  if (element) {
+    element.style.display = data.hide ? "none" : "";
+  }
+}
+
+// update href
+function updateHref(data) {
+  var element = document.getElementById(data.id);
+  if (element) {
+    element.href = data.href;
+  }
+}
+
+// update Busy
+function updateBusy(data) {
+  var element = document.getElementById(data.id);
+  if (element) {
+    element.setAttribute("aria-busy", data.busy);
+  }
+}
+
+// hide/show elements based on className
+function showElementClass(data) {
+  const elements = document.querySelectorAll(`.${data.className}`);
+  elements.forEach((element) => {
+    element.style.display = data.show ? "inline-flex" : "none";
+  });
+}
+
+// add log message
+function logger(data) {
+  var logOutput = document.getElementById("p10_log_output");
+  if (data.cmd === "add_log") {
+    logOutput.innerHTML += data.entry + "<br>";
+  } else if (data.cmd === "clr_log") {
+    logOutput.innerHTML = "";
+  }
+}
+
+// update ota-progress bar
+function otaProgress(data) {
+  var progress = data.progress;
+  document.getElementById("ota_progress_bar").value = progress;
+  document.getElementById(
+    "ota_status_txt"
+  ).textContent = `Update Progress: ${progress}%`;
+}
+
+// close update dialog
+function updateDialog(data) {
+  var dialog = document.getElementById(data.id);
+  if (data.state == "open") {
+    dialog.showModal();
+  } else if (data.state == "close") {
+    dialog.close();
+  }
 }
 
 // Function for switching the visibility of elements
@@ -119,284 +332,11 @@ function hideReloadBar() {
   document.getElementById("connectionLostBar").style.display = "none";
 }
 
-// send data from web elements to ESP server
-function sendData(elementId, value) {
-  fetch(`sendData?elementId=${elementId}&value=${encodeURIComponent(value)}`, {
-    method: "GET",
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-    })
-    .catch((error) => console.error("Fetch error:", error));
-}
-
 // --------------------------------------
-// Server-Side-Events (Client <- ESP)
-// --------------------------------------
-let pingTimer;
-let evtSource;
-
-function setupSSE() {
-  evtSource = new EventSource("/events");
-
-  evtSource.addEventListener(
-    "open",
-    function (e) {
-      console.log("Events Connected");
-      resetPingTimer();
-      hideReloadBar();
-    },
-    false
-  );
-  evtSource.addEventListener(
-    "error",
-    function (e) {
-      if (e.target.readyState != EventSource.OPEN) {
-        console.log("Events Disconnected");
-        evtSource.close();
-        attemptReconnect();
-      }
-    },
-    false
-  );
-
-  evtSource.addEventListener(
-    "ping",
-    function (e) {
-      console.log("Ping received");
-      resetPingTimer();
-    },
-    false
-  );
-
-  // update Text elements
-  evtSource.addEventListener(
-    "updateText",
-    function (e) {
-      var data = JSON.parse(e.data);
-      var element = document.getElementById(data.id);
-      if (element) {
-        if (data.isInput) {
-          element.value = data.text;
-        } else {
-          element.innerHTML = data.text;
-        }
-      }
-    },
-    false
-  );
-
-  // update switch elements
-  evtSource.addEventListener(
-    "updateState",
-    function (e) {
-      var data = JSON.parse(e.data);
-      var element = document.getElementById(data.id);
-      if (
-        element &&
-        (element.type === "checkbox" || element.type === "radio")
-      ) {
-        element.checked = data.state;
-        toggleElementVisibility(
-          element.getAttribute("hideOpt"),
-          element.checked
-        );
-      }
-    },
-    false
-  );
-
-  // update element.value
-  evtSource.addEventListener(
-    "updateValue",
-    function (e) {
-      var data = JSON.parse(e.data);
-      var selectElement = document.getElementById(data.id);
-      if (selectElement) {
-        selectElement.value = data.value;
-      }
-    },
-    false
-  );
-
-  // update add class to element
-  evtSource.addEventListener(
-    "updateSetIcon",
-    function (e) {
-      var data = JSON.parse(e.data);
-      var element = document.getElementById(data.id);
-      if (element) {
-        element.className = "svg " + data.icon;
-      }
-    },
-    false
-  );
-
-  // hide/show element
-  evtSource.addEventListener(
-    "hideElement",
-    function (e) {
-      var data = JSON.parse(e.data);
-      var element = document.getElementById(data.id);
-      if (element) {
-        element.style.display = data.hide ? "none" : "";
-      }
-    },
-    false
-  );
-
-  // update href
-  evtSource.addEventListener(
-    "updateHref",
-    function (e) {
-      var data = JSON.parse(e.data);
-      var element = document.getElementById(data.id);
-      if (element) {
-        element.href = data.href;
-      }
-    },
-    false
-  );
-
-  // update Busy
-  evtSource.addEventListener(
-    "updateBusy",
-    function (e) {
-      var data = JSON.parse(e.data);
-      var element = document.getElementById(data.id);
-      if (element) {
-        element.setAttribute("aria-busy", data.busy);
-      }
-    },
-    false
-  );
-
-  // hide/show elements based on className
-  evtSource.addEventListener("showElementClass", (event) => {
-    console.log("showElementClass");
-    const data = JSON.parse(event.data);
-    const elements = document.querySelectorAll(`.${data.className}`);
-    elements.forEach((element) => {
-      element.style.display = data.show ? "inline-flex" : "none";
-    });
-  });
-
-  // set language
-  evtSource.addEventListener(
-    "setLanguage",
-    function (e) {
-      console.log("set language");
-      var data = JSON.parse(e.data);
-      localizePage(data.language);
-    },
-    false
-  );
-
-  // add log message
-  evtSource.addEventListener(
-    "add_log",
-    function (event) {
-      var logOutput = document.getElementById("p10_log_output");
-      logOutput.innerHTML += event.data + "<br>";
-    },
-    false
-  );
-
-  // clear log
-  evtSource.addEventListener(
-    "clr_log",
-    function (event) {
-      var logOutput = document.getElementById("p10_log_output");
-      logOutput.innerHTML = "";
-    },
-    false
-  );
-
-  // JSON message for grouped messages
-  evtSource.addEventListener(
-    "updateJSON",
-    function (event) {
-      var data = JSON.parse(event.data);
-      Object.keys(data).forEach(function (key) {
-        let [elementID, typSuffix] = key.split("#");
-        let element = document.getElementById(elementID);
-        if (!element) {
-          console.error("unknown element:", element);
-          return;
-        }
-        let value = data[key];
-        switch (typSuffix) {
-          case "v": // value
-            element.value = value;
-            break;
-          case "c": // checked
-            element.checked = value === "true";
-            toggleElementVisibility(
-              element.getAttribute("hideOpt"),
-              element.checked
-            );
-            break;
-          case "l": // Label = innerHTML
-            element.innerHTML = value;
-            break;
-          case "i": // icon
-            element.className = "svg " + value;
-            break;
-          default:
-            console.error("unknown typ:", typSuffix);
-        }
-      });
-    },
-    false
-  );
-
-  // update ota-progress bar
-  evtSource.addEventListener(
-    "ota-progress",
-    function (e) {
-      var progress = parseInt(e.data.replace("Progress: ", ""), 10);
-      document.getElementById("ota_progress_bar").value = progress;
-      document.getElementById(
-        "ota_status_txt"
-      ).textContent = `Update Progress: ${progress}%`;
-    },
-    false
-  );
-
-  // close update dialog
-  evtSource.addEventListener(
-    "updateDialog",
-    function (e) {
-      var data = JSON.parse(e.data);
-      var dialog = document.getElementById(data.id);
-      if (data.state == "open") {
-        dialog.showModal();
-      } else if (data.state == "close") {
-        dialog.close();
-      }
-    },
-    false
-  );
-
-  evtSource.addEventListener(
-    "updateTooltip",
-    function (e) {
-      var data = JSON.parse(e.data);
-      const element = document.getElementById(data.id);
-      element.setAttribute("data-tooltip", data.tooltip);
-    },
-    false
-  );
-}
-
-// --------------------------------------
-// Fetch API (Clinet -> ESP)
 // --------------------------------------
 document.addEventListener("DOMContentLoaded", function () {
   // call functions on refresh
-  setupSSE();
+  setupWS();
   initializeVisibilityBasedOnSwitches();
   localizePage("de");
 

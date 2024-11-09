@@ -1,21 +1,234 @@
-// --------------------------------------
-// js functions
-// --------------------------------------
+let ws;
+let heartbeatTimeout;
+const maxReconnectDelay = 5000;
+const minReconnectDelay = 1000;
+let reconnectDelay = minReconnectDelay;
 
-// Function timeout for server-side events
-function resetPingTimer() {
-  clearTimeout(pingTimer);
-  pingTimer = setTimeout(function () {
-    console.log("Ping timeout, attempting to reconnect...");
-    evtSource.close();
+function setupWS() {
+  ws = new WebSocket("ws://" + window.location.host + "/ws");
+
+  ws.onopen = function () {
+    console.log("WebSocket connected");
+    resetHeartbeat();
+    hideReloadBar();
+    reconnectDelay = minReconnectDelay;
+  };
+
+  ws.onclose = function () {
+    console.log("WebSocket disconnected. Retrying...");
     attemptReconnect();
+    showReloadBar();
+  };
+
+  ws.onmessage = function (event) {
+    let message = JSON.parse(event.data);
+    //console.log(message);
+    if (message.type === "redirect") {
+      console.log("Redirecting to:", message.url);
+      ws.close();
+      window.location.href = message.url;
+    } else if (message.type === "heartbeat") {
+      resetHeartbeat();
+    } else if (message.type === "updateText") {
+      updateText(message);
+    } else if (message.type === "setLanguage") {
+      setLanguage(message);
+    } else if (message.type === "updateJSON") {
+      updateJSON(message);
+    } else if (message.type === "updateValue") {
+      updateValue(message);
+    } else if (message.type === "updateState") {
+      updateState(message);
+    } else if (message.type === "updateSetIcon") {
+      updateSetIcon(message);
+    } else if (message.type === "hideElement") {
+      hideElement(message);
+    } else if (message.type === "updateHref") {
+      updateHref(message);
+    } else if (message.type === "updateBusy") {
+      updateBusy(message);
+    } else if (message.type === "showElementClass") {
+      showElementClass(message);
+    } else if (message.type === "logger") {
+      logger(message);
+    } else if (message.type === "cmdLogClr") {
+      cmdLogClr(message);
+    } else if (message.type === "otaProgress") {
+      otaProgress(message);
+    } else if (message.type === "updateDialog") {
+      updateDialog(message);
+    }
+  };
+}
+
+// Heartbeat-Timeout zurücksetzen
+function resetHeartbeat() {
+  clearTimeout(heartbeatTimeout);
+  heartbeatTimeout = setTimeout(() => {
+    console.warn("No heartbeat received, reconnecting...");
+    ws.close();
     showReloadBar();
   }, 5000);
 }
 
-// Function to reconnect after timeout
 function attemptReconnect() {
-  setTimeout(setupSSE, 5000);
+  setTimeout(() => {
+    console.log(`Attempting reconnect in ${reconnectDelay / 1000} seconds...`);
+    setupWS();
+    reconnectDelay = Math.min(reconnectDelay * 2, maxReconnectDelay);
+  }, reconnectDelay);
+}
+
+function sendData(elementId, value) {
+  if (ws.readyState === WebSocket.OPEN) {
+    const message = {
+      type: "sendData",
+      elementId: elementId,
+      value: String(value),
+    };
+    ws.send(JSON.stringify(message));
+  } else {
+    console.error("WebSocket is not open. Cannot send data.");
+  }
+}
+
+function updateText(data) {
+  var element = document.getElementById(data.id);
+  //console.log(element);
+  if (element) {
+    if (data.isInput) {
+      element.value = data.text;
+    } else {
+      element.innerHTML = data.text;
+    }
+  }
+}
+
+function setLanguage(data) {
+  console.log("Set language to:", data.language);
+  localizePage(data.language);
+}
+
+function updateJSON(data) {
+  Object.keys(data).forEach(function (key) {
+    if (key != "type") {
+      // skip the first key
+      let [elementID, typSuffix] = key.split("#");
+      let element = document.getElementById(elementID);
+      if (!element) {
+        console.error("unknown element:", key);
+        return;
+      }
+      let value = data[key];
+      switch (typSuffix) {
+        case "v": // value
+          element.value = value;
+          break;
+        case "c": // checked
+          element.checked = value === "true";
+          toggleElementVisibility(
+            element.getAttribute("hideOpt"),
+            element.checked
+          );
+          break;
+        case "l": // Label = innerHTML
+          element.innerHTML = value;
+          break;
+        case "i": // icon
+          element.className = "svg " + value;
+          break;
+        default:
+          console.error("unknown typ:", typSuffix);
+      }
+    }
+  });
+}
+
+function updateValue(data) {
+  var element = document.getElementById(data.id);
+  if (element) {
+    if (data.isInput) {
+      element.value = data.value;
+    }
+  }
+}
+
+// update switch elements
+function updateState(data) {
+  var element = document.getElementById(data.id);
+  if (element && (element.type === "checkbox" || element.type === "radio")) {
+    element.checked = data.state;
+    toggleElementVisibility(element.getAttribute("hideOpt"), element.checked);
+  }
+}
+
+// update add class to element
+function updateSetIcon(data) {
+  var element = document.getElementById(data.id);
+  if (element) {
+    element.className = "svg " + data.icon;
+  }
+}
+
+// hide/show element
+function hideElement(data) {
+  var element = document.getElementById(data.id);
+  if (element) {
+    element.style.display = data.hide ? "none" : "";
+  }
+}
+
+// update href
+function updateHref(data) {
+  var element = document.getElementById(data.id);
+  if (element) {
+    element.href = data.href;
+  }
+}
+
+// update Busy
+function updateBusy(data) {
+  var element = document.getElementById(data.id);
+  if (element) {
+    element.setAttribute("aria-busy", data.busy);
+  }
+}
+
+// hide/show elements based on className
+function showElementClass(data) {
+  const elements = document.querySelectorAll(`.${data.className}`);
+  elements.forEach((element) => {
+    element.style.display = data.show ? "inline-flex" : "none";
+  });
+}
+
+// add log message
+function logger(data) {
+  var logOutput = document.getElementById("p10_log_output");
+  if (data.cmd === "add_log") {
+    logOutput.innerHTML += data.entry + "<br>";
+  } else if (data.cmd === "clr_log") {
+    logOutput.innerHTML = "";
+  }
+}
+
+// update ota-progress bar
+function otaProgress(data) {
+  var progress = data.progress;
+  document.getElementById("ota_progress_bar").value = progress;
+  document.getElementById(
+    "ota_status_txt"
+  ).textContent = `Update Progress: ${progress}%`;
+}
+
+// close update dialog
+function updateDialog(data) {
+  var dialog = document.getElementById(data.id);
+  if (data.state == "open") {
+    dialog.showModal();
+  } else if (data.state == "close") {
+    dialog.close();
+  }
 }
 
 // Function for switching the visibility of elements
@@ -117,17 +330,4 @@ function showReloadBar() {
 // to hide reload bar if connection is lost
 function hideReloadBar() {
   document.getElementById("connectionLostBar").style.display = "none";
-}
-
-// send data from web elements to ESP server
-function sendData(elementId, value) {
-  fetch(`sendData?elementId=${elementId}&value=${encodeURIComponent(value)}`, {
-    method: "GET",
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-    })
-    .catch((error) => console.error("Fetch error:", error));
 }

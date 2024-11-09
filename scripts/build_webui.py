@@ -97,6 +97,13 @@ compress_to_gzip_c_array(output_file_html, output_file_br, 'gzip_main_html')
 # ---------------------------------------------------------------
 
 # Pfad zur HTML-Datei und zum Ausgabe-C-Datei
+input_html_file = 'web/html/max_ws.html'
+output_c_file = 'include/gzip_max_ws_html.h'
+compress_to_gzip_c_array(input_html_file, output_c_file, 'gzip_max_ws_html')
+
+# ---------------------------------------------------------------
+
+# Pfad zur HTML-Datei und zum Ausgabe-C-Datei
 input_html_file = 'web/html/login.html'
 output_c_file = 'include/gzip_login_html.h'
 compress_to_gzip_c_array(input_html_file, output_c_file, 'gzip_login_html')
@@ -142,7 +149,6 @@ compress_to_gzip_c_array(output_file_css, output_c_file, 'gzip_css')
 # Definieren Sie die Pfade der Quelldateien
 source_files = [
     'web/js/fun.js',
-    'web/js/events.js',
     'web/js/doc.js',
     'web/js/lang.js'
 ]
