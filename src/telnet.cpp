@@ -51,7 +51,7 @@ Command commands[] = {
     {"serial", cmdSerial, "serial stream output", "<stream> <[start], [stop]>"},
     {"simdata", cmdSimdata, "generate simulated KM271 values", ""},
     {"ha", cmdHA, "Home Assistant commands", "[sendconfig], [resetconfig]"},
-    {"test", cmdTest, "test commands", "[crash]"},
+    {"test", cmdTest, "test commands", "[crash], [watchdog]"},
 };
 const int commandsCount = sizeof(commands) / sizeof(commands[0]);
 
@@ -223,8 +223,12 @@ void cmdDebug(char param[MAX_PAR][MAX_CHAR]) {
 void cmdTest(char param[MAX_PAR][MAX_CHAR]) {
 
   if (!strcmp(param[1], "crash") && !strcmp(param[2], "")) {
-    int *ptr = nullptr; // Nullpointer
+    int *ptr = nullptr;
     *ptr = 42;
+  } else if (!strcmp(param[1], "watchdog") && !strcmp(param[2], "")) {
+    telnet.println("watchdog test started...");
+    while (1) {
+    }
   }
 }
 
