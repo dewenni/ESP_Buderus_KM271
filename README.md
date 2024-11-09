@@ -9,7 +9,6 @@
 
 <div align="center">
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dewenni_ESP_Buderus_KM271&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dewenni_ESP_Buderus_KM271)
 [![Current Release](https://img.shields.io/github/release/dewenni/ESP_Buderus_KM271.svg)](https://github.com/dewenni/ESP_Buderus_KM271/releases/latest)
 ![GitHub Release Date](https://img.shields.io/github/release-date/dewenni/ESP_Buderus_KM271)
 ![GitHub last commit](https://img.shields.io/github/last-commit/dewenni/ESP_Buderus_KM271)
