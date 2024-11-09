@@ -19,16 +19,16 @@ s_mqtt_cmds mqttCmds;
 bool sendMqttConfig = false;
 bool resetMqttConfig = false;
 
-typedef enum { OPT_NULL, OPT_OP_MODE, OPT_RED_MODE, OPT_HC_PRG, OPT_WW_CRC, OPT_SUMMER } OptType;
-typedef enum { TYP_TEXT, TYP_SLIDER, TYP_NUM, TYP_OPT, TYP_BTN } DeviceType;
-typedef enum { KM_CONFIG, KM_STATUS, KM_INFO, KM_WIFI, KM_ETH, KM_ALARM, KM_DEBUG, KM_SENS, KM_OIL, KM_SYSINFO, KM_CMD_BTN } KmType;
-typedef enum { VAL_SPLIT, VAL_ON_OFF, VAL_ERR_OK, VAL_WW_CIRC, VAL_SUMMER_THRESHOLD } ValTmpType;
-typedef struct {
+enum OptType { OPT_NULL, OPT_OP_MODE, OPT_RED_MODE, OPT_HC_PRG, OPT_WW_CRC, OPT_SUMMER };
+enum DeviceType { TYP_TEXT, TYP_SLIDER, TYP_NUM, TYP_OPT, TYP_BTN };
+enum KmType { KM_CONFIG, KM_STATUS, KM_INFO, KM_WIFI, KM_ETH, KM_ALARM, KM_DEBUG, KM_SENS, KM_OIL, KM_SYSINFO, KM_CMD_BTN };
+enum ValTmpType { VAL_SPLIT, VAL_ON_OFF, VAL_ERR_OK, VAL_WW_CIRC, VAL_SUMMER_THRESHOLD };
+struct DeviceConfig {
   const char *min;
   const char *max;
   const char *step;
   OptType optType;
-} DeviceConfig;
+};
 
 /**
  * *******************************************************************
@@ -112,44 +112,44 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
   JsonDocument doc;
 
   char configTopic[256];
-  sprintf(configTopic, "%s/%s/%s/%s/config", discoveryPrefix, component, deviceId, name);
+  snprintf(configTopic, sizeof(configTopic), "%s/%s/%s/%s/config", discoveryPrefix, component, deviceId, name);
 
   char stateTopic[256];
   switch (kmType) {
   case KM_CONFIG:
-    sprintf(stateTopic, "%s/config/%s", statePrefix, name);
+    snprintf(stateTopic, sizeof(stateTopic), "%s/config/%s", statePrefix, name);
     doc["stat_t"] = stateTopic;
     break;
   case KM_STATUS:
-    sprintf(stateTopic, "%s/status/%s", statePrefix, name);
+    snprintf(stateTopic, sizeof(stateTopic), "%s/status/%s", statePrefix, name);
     doc["stat_t"] = stateTopic;
     break;
   case KM_SENS:
-    sprintf(stateTopic, "%s/sensor/%s", statePrefix, name);
+    snprintf(stateTopic, sizeof(stateTopic), "%s/sensor/%s", statePrefix, name);
     doc["stat_t"] = stateTopic;
     break;
   case KM_OIL:
-    sprintf(stateTopic, "%s/%s", statePrefix, name);
+    snprintf(stateTopic, sizeof(stateTopic), "%s/%s", statePrefix, name);
     doc["stat_t"] = stateTopic;
     break;
   case KM_WIFI:
-    sprintf(stateTopic, "%s/wifi", statePrefix);
+    snprintf(stateTopic, sizeof(stateTopic), "%s/wifi", statePrefix);
     doc["stat_t"] = stateTopic;
     break;
   case KM_ETH:
-    sprintf(stateTopic, "%s/eth", statePrefix);
+    snprintf(stateTopic, sizeof(stateTopic), "%s/eth", statePrefix);
     doc["stat_t"] = stateTopic;
     break;
   case KM_DEBUG:
-    sprintf(stateTopic, "%s/debug", statePrefix);
+    snprintf(stateTopic, sizeof(stateTopic), "%s/debug", statePrefix);
     doc["stat_t"] = stateTopic;
     break;
   case KM_ALARM:
-    sprintf(stateTopic, "%s/alarm/%s", statePrefix, name);
+    snprintf(stateTopic, sizeof(stateTopic), "%s/alarm/%s", statePrefix, name);
     doc["stat_t"] = stateTopic;
     break;
   case KM_SYSINFO:
-    sprintf(stateTopic, "%s/sysinfo", statePrefix);
+    snprintf(stateTopic, sizeof(stateTopic), "%s/sysinfo", statePrefix);
     doc["stat_t"] = stateTopic;
     break;
   default:
@@ -177,13 +177,13 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
 
   if (devType == TYP_BTN) {
     char cmdTopic[256];
-    sprintf(cmdTopic, "%s/cmd/%s", statePrefix, name);
+    snprintf(cmdTopic, sizeof(cmdTopic), "%s/cmd/%s", statePrefix, name);
     doc["cmd_t"] = cmdTopic;
     doc["payload_press"] = "true";
   } else if (devType != TYP_TEXT) {
     doc["ent_cat"] = "config";
     char cmdTopic[256];
-    sprintf(cmdTopic, "%s/setvalue/%s", statePrefix, name);
+    snprintf(cmdTopic, sizeof(cmdTopic), "%s/setvalue/%s", statePrefix, name);
     doc["cmd_t"] = cmdTopic;
   }
 

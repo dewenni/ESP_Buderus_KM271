@@ -14,7 +14,7 @@
 #include <language.h>
 
 /* D E C L A R A T I O N S ****************************************************/
-typedef enum {
+enum s_kmConfig_Hash_enum {
   hc1_frost_protection_threshold,
   hc1_summer_mode_threshold,
   hc2_frost_protection_threshold,
@@ -91,7 +91,7 @@ typedef enum {
   hc2_timer13,
   hc2_timer14,
   kmConfig_Hash_SIZE,
-} s_kmConfig_Hash_enum;
+};
 
 extern s_webui_texts webText;
 extern s_cfg_arrays cfgArrayTexts;

@@ -28,29 +28,29 @@
 // The states to receive a single block of data.
 // First a block iof data is received byte by byte by using this state interpreter.
 // If a full block of data is received, a second level state interopreter is called to handle the blocks.
-typedef enum {
+enum e_rxState {
   KM_RX_RESYNC, // Unknown state, re-sync by wait for STX
   KM_RX_IDLE,   // Idle state for RX interrupt routine
   KM_RX_ON,     // Block reception started
   KM_RX_DLE,    // DLE doubling
   KM_RX_BCC,    // Verify block
-} e_rxState;
+};
 
 // The higher level states used in handleRxBlock();
-typedef enum {
+enum e_rxBlockState {
   KM_TSK_START,   // Switch to logging mode
   KM_TSK_LG_CMD,  // Receive confirmation from KM
   KM_TSK_LOGGING, // Logging active
-} e_rxBlockState;
+};
 
-typedef struct {              // Rx structure for one rx block
+struct KmRx_s {               // Rx structure for one rx block
   uint8_t len;                // Length of data in buffer
   uint8_t buf[KM_RX_BUF_LEN]; // Received bytes without "10 03 bcc"
-} KmRx_s;
+};
 
 // This struicure contains all values read from the heating controller.
 // This structure is kept up-to-date automatically by the km271.cpp.
-typedef struct {
+struct s_km271_status {
   // Retrieved values
   uint8_t HC1_OperatingStates_1;         // 0x8000 : Bitfield
   uint8_t HC1_OperatingStates_2;         // 0x8001 : Bitfield
@@ -105,14 +105,14 @@ typedef struct {
   uint8_t ControllerVersionSub;          // 0x893f : Number
   uint8_t Modul;                         // 0x8940 : Number
   uint8_t ERR_Alarmstatus;               // 0xaa42 : Bitfield
-} s_km271_status;
+};
 
 // This struicure contains all config values read from the heating controller.
 // This structure is kept up-to-date automatically by the km271.cpp.
 #define CFG_MAX_CHAR_VALUE 20
 #define CFG_MAX_CHAR_TEXT 64
 #define CFG_MAX_CHAR_TIMER 322
-typedef struct {
+struct s_km271_config_str {
   char hc1_frost_protection_threshold[CFG_MAX_CHAR_VALUE] = {'\0'};
   char hc1_summer_mode_threshold[CFG_MAX_CHAR_VALUE] = {'\0'};
   char hc2_frost_protection_threshold[CFG_MAX_CHAR_VALUE] = {'\0'};
@@ -188,21 +188,21 @@ typedef struct {
   char hc2_timer13[CFG_MAX_CHAR_TIMER] = {'\0'};
   char hc2_timer14[CFG_MAX_CHAR_TIMER] = {'\0'};
   char time_offset[CFG_MAX_CHAR_TIMER] = {'\0'};
-} s_km271_config_str;
+};
 
 // This struicure contains the alarm message read from the heating controller.
 // This structure is kept up-to-date automatically by the km271.cpp.
 #define CFG_MAX_CHAR_ALARM 255
-typedef struct {
+struct s_km271_alarm_str {
   char alarm1[CFG_MAX_CHAR_ALARM] = {'\0'};
   char alarm2[CFG_MAX_CHAR_ALARM] = {'\0'};
   char alarm3[CFG_MAX_CHAR_ALARM] = {'\0'};
   char alarm4[CFG_MAX_CHAR_ALARM] = {'\0'};
-} s_km271_alarm_str;
+};
 
 // This struicure contains all config values read from the heating controller.
 // This structure is kept up-to-date automatically by the km271.cpp.
-typedef struct {
+struct s_km271_config_num {
   int8_t hc1_frost_protection_threshold;
   uint8_t hc1_summer_mode_threshold;
   int8_t hc2_frost_protection_threshold;
@@ -252,16 +252,16 @@ typedef struct {
   uint8_t hc2_holiday_days;
   uint8_t hc1_timer[14];
   uint8_t hc2_timer[14];
-} s_km271_config_num;
+};
 
 // Return values used by the KM271 protocol functions
-typedef enum {
+enum e_ret {
   RET_OK = 0,
   RET_ERR,
-} e_ret;
+};
 
 // send commands to KM271
-typedef enum {
+enum e_km271_sendCmd {
   KM271_SENDCMD_HC1_OPMODE,               // HC1 OperationMode
   KM271_SENDCMD_HC1_DESIGN_TEMP,          // HC1 Design Temperature
   KM271_SENDCMD_HC1_PROGRAMM,             // HC1 Program
@@ -289,7 +289,7 @@ typedef enum {
   KM271_SENDCMD_HC2_SWITCH_ON_TEMP,       // HC2 Switch On Temperature
   KM271_SENDCMD_HC1_REDUCTION_MODE,       // HC1 Reduction Mode
   KM271_SENDCMD_HC2_REDUCTION_MODE,       // HC1 Reduction Mode
-} e_km271_sendCmd;
+};
 
 /* P R O T O T Y P E S ********************************************************/
 e_ret km271ProtInit(int rxPin, int txPin);

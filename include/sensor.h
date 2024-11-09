@@ -8,10 +8,10 @@
 #include <mqtt.h>
 
 /* D E C L A R A T I O N S ****************************************************/
-typedef struct {
+struct s_sensor {
   float ch1_temp;
   float ch2_temp;
-} s_sensor;
+};
 extern s_sensor sensor;
 
 /* P R O T O T Y P E S ********************************************************/

@@ -3,14 +3,14 @@
 
 #define MAX_LANG 2 // increase if you add more languages
 
-typedef struct {
+struct s_lang {
   const char *CODE[MAX_LANG] = {"de", "en"};
-} s_lang;
+};
 
 // ======================================================================================
 // mqtt messages : texts that are used for mqtt messages from KM271
 // ======================================================================================
-typedef struct {
+struct s_webui_texts {
   const char *AUTOMATIC[MAX_LANG] = {"Automatik", "Automatic"};
   const char *MANUAL[MAX_LANG] = {"Handbetrieb", "Manual"};
   const char *DAY[MAX_LANG] = {"Tag", "Day"};
@@ -28,12 +28,12 @@ typedef struct {
   const char *FULL_DUPLEX[MAX_LANG] = {"Vollduplex", "Full-Duplex"};
   const char *CONNECTED[MAX_LANG] = {"verbunden", "connected"};
   const char *NOT_CONNECTED[MAX_LANG] = {"nicht verbunden", "not connected"};
-} s_webui_texts;
+};
 
 // ======================================================================================
 // mqtt commands : texts that are used as topics for KM271 commands
 // ======================================================================================
-typedef struct {
+struct s_mqtt_cmds {
   const char *RESTART[MAX_LANG] = {"/cmd/restart", "/cmd/restart"};
   const char *SERVICE[MAX_LANG] = {"/cmd/service", "/cmd/service"};
   const char *SIMDATA[MAX_LANG] = {"/cmd/simdata", "/cmd/simdata"};
@@ -42,12 +42,12 @@ typedef struct {
   const char *GET_DEBUG_FLT[MAX_LANG] = {"/cmd/getdebugflt", "/cmd/getdebugflt"};
   const char *DATETIME[MAX_LANG] = {"/setvalue/setdatetime", "/setvalue/setdatetime"};
   const char *OILCNT[MAX_LANG] = {"/setvalue/oilcounter", "/setvalue/oilcounter"};
-} s_mqtt_cmds;
+};
 
 // ======================================================================================
 // mqtt messages : texts that are used for mqtt messages from KM271
 // ======================================================================================
-typedef struct {
+struct s_mqtt_messags {
   const char *DATETIME_CHANGED[MAX_LANG] = {"Datum und Uhrzeit geändert auf", "date and time set to"};
   const char *ON[MAX_LANG] = {"An", "On"};
   const char *OFF[MAX_LANG] = {"Aus", "Off"};
@@ -60,12 +60,12 @@ typedef struct {
   const char *SUN[MAX_LANG] = {"So", "Sun"};
   const char *DAYS[MAX_LANG] = {"Tage", "days"};
   const char *HOURS[MAX_LANG] = {"Stunden", "hours"};
-} s_mqtt_messags;
+};
 
 // ======================================================================================
 // topic decription for config values from KM271
 // ======================================================================================
-typedef struct {
+struct s_cfg_topics {
   const char *HC1_FROST_THRESHOLD[MAX_LANG] = {"HK1_Frost_ab", "hc1_frost_protection_threshold"};
   const char *HC1_SUMMER_THRESHOLD[MAX_LANG] = {"HK1_Sommer_ab", "hc1_summer_mode_threshold"};
   const char *HC2_FROST_THRESHOLD[MAX_LANG] = {"HK2_Frost_ab", "hc2_frost_protection_threshold"};
@@ -141,12 +141,12 @@ typedef struct {
   const char *HC2_TIMER13[MAX_LANG] = {"HK2_Timer13", "hc2_timer13"};
   const char *HC2_TIMER14[MAX_LANG] = {"HK2_Timer14", "hc2_timer14"};
   const char *TIME_OFFSET[MAX_LANG] = {"Uhrzeit_Offset", "time_offset"};
-} s_cfg_topics;
+};
 
 // ======================================================================================
 // topic decription for status values from KM271
 // ======================================================================================
-typedef struct {
+struct s_stat_topics {
   const char *HC1_OV1_OFFTIME_OPT[MAX_LANG] = {"HK1_BW1_Ausschaltoptimierung", "hc1_ov1_off_time_optimization"};
   const char *HC1_OV1_ONTIME_OPT[MAX_LANG] = {"HK1_BW1_Einschaltoptimierung", "hc1_ov1_on_time_optimization"};
   const char *HC1_OV1_AUTOMATIC[MAX_LANG] = {"HK1_BW1_Automatik", "hc1_ov1_automatic"};
@@ -275,24 +275,24 @@ typedef struct {
   const char *ALARM_20[MAX_LANG] = {"ERR_Alarmstatus_20", "err_alarm_20"};
   const char *ALARM_HC2_FLOW_SENS[MAX_LANG] = {"ERR_Alarmstatus_HK2-Vorlauffuehler", "err_alarm_HK2-flow_sensor"};
   const char *ALARM_80[MAX_LANG] = {"ERR_Alarmstatus_80", "err_alarm_80"};
-} s_stat_topics;
+};
 
 // ======================================================================================
 // topic decription for error messages buffer from KM271
 // ======================================================================================
-typedef struct {
+struct s_error_topics {
   const char *ERR_BUFF_1[MAX_LANG] = {"Fehlerspeicher1", "error_buffer1"};
   const char *ERR_BUFF_2[MAX_LANG] = {"Fehlerspeicher2", "error_buffer2"};
   const char *ERR_BUFF_3[MAX_LANG] = {"Fehlerspeicher3", "error_buffer3"};
   const char *ERR_BUFF_4[MAX_LANG] = {"Fehlerspeicher4", "error_buffer4"};
-} s_error_topics;
+};
 
 // ======================================================================================
 // decription for encode different config value arrays
 // 1. GERMAN
 // 2. ENGLISH
 // ======================================================================================
-typedef struct {
+struct s_cfg_arrays {
   const char *OPMODE[MAX_LANG][3] = {{"Nacht", "Tag", "Automatik"}, {"night", "day", "auto"}};
   const char *SCREEN[MAX_LANG][4] = {{"Automatik", "Kessel", "Warmwasser", "Aussen"}, {"auto", "boiler", "DHW", "outdoor"}};
   const char *LANGUAGE[MAX_LANG][6] = {{"DE", "FR", "IT", "NL", "EN", "PL"}, {"DE", "FR", "IT", "NL", "EN", "PL"}};
@@ -321,24 +321,24 @@ typedef struct {
                                          {"custom", "family", "early", "late", "AM", "PM", "noon", "single", "senior"}};
   const char *BURNER_STATE[MAX_LANG][5] = {{"Kessel AUS", "EIN (Stufe 1)", "-", "-", "EIN (Stufe 2)"},
                                            {"Burner OFF", "ON (Stage 1)", "-", "-", "ON (Stage 2)"}};
-} s_cfg_arrays;
+};
 
 // ======================================================================================
 // decription for dropdown selection
 // 1. GERMAN
 // 2. ENGLISH
 // ======================================================================================
-typedef struct {
+struct s_opt_arrays {
   const char *LOG_FILTER[MAX_LANG][6] = {
       {"Modus: Alarm", "Modus: Alarm + Info", "Modus: Logamatic Werte", "Modus: unbekannte Datagramme", "Modus: debug Datagramme",
        "Modus: SystemLog"},
       {"Mode: Alarm", "Mode: Alarm + Info", "Mode: Logamatic values", "Mode: unknown datagramms", "Mode: debug datagramms", "Mode: SystemLog"}};
-} s_opt_arrays;
+};
 
 // ======================================================================================
 // decription for encode error messages
 // ======================================================================================
-typedef struct {
+struct s_err_array {
   const char *idx[2][28] = {{// GERMAN
                              "Kein Fehler",
                              "Aussenfuehler defekt",
@@ -397,12 +397,12 @@ typedef struct {
                              "failure Return flow sensor",
                              "RESET",
                              "unknown error"}};
-} s_err_array;
+};
 
 // ======================================================================================
 // status messages from KM271
 // ======================================================================================
-typedef struct {
+struct s_km271_msg {
   const char *CMD[MAX_LANG] = {"Befehl", "command"};
   const char *RECV[MAX_LANG] = {"empfangen", "received"};
   const char *INVALID[MAX_LANG] = {"ungültiger Parameter", "invalid parameter"};
@@ -418,4 +418,4 @@ typedef struct {
   const char *HC2_FROST_MODE_ON[MAX_LANG] = {"Heizkreis 2 hat in Frostmodus gewechselt ❄️", "Heating Circuit 2 has changed to frost mode ❄️"};
   const char *HC1_FROST_MODE_OFF[MAX_LANG] = {"Heizung hat den Frostmodus verlassen ❄️", "Heating has exited frost mode ❄️"};
   const char *HC2_FROST_MODE_OFF[MAX_LANG] = {"Heizkreis 2 hat den Frostmodus verlassen ❄️", "Heating Circuit 2 has exited frost mode ❄️"};
-} s_km271_msg;
+};

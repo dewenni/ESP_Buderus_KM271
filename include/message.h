@@ -2,7 +2,7 @@
 #include <Arduino.h>
 
 /* D E C L A R A T I O N S ****************************************************/
-typedef enum {
+enum e_kmMsgTyp {
   KM_TYP_STATUS,    // Status value
   KM_TYP_CONFIG,    // Config Value
   KM_TYP_SENSOR,    // Sensor Value
@@ -13,7 +13,7 @@ typedef enum {
   KM_TYP_INFO,      // Info Message
   KM_TYP_KM_DEBUG,  // KM271-Info Message
   KM_TYP_UNDEF_MSG, // undefined Message
-} e_kmMsgTyp;
+};
 
 #define MAX_LOG_LINES 200 // max log lines
 #define MAX_LOG_ENTRY 128 // max length of one entry
@@ -23,10 +23,10 @@ typedef enum {
 #define MY_LOGW(tag, format, ...) esp_log_write(ESP_LOG_WARN, tag, "W (APP-%s): " format "\n", tag, ##__VA_ARGS__)
 #define MY_LOGD(tag, format, ...) esp_log_write(ESP_LOG_DEBUG, tag, "D (APP-%s): " format "\n", tag, ##__VA_ARGS__)
 
-typedef struct {
+struct s_logdata {
   int lastLine;
   char buffer[MAX_LOG_LINES][MAX_LOG_ENTRY];
-} s_logdata;
+};
 
 extern s_logdata logData;
 

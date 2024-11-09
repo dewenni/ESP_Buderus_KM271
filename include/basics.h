@@ -21,21 +21,21 @@
 #include <stdlib.h>
 
 /* D E C L A R A T I O N S ****************************************************/
-typedef struct {
+struct s_wifi {
   bool connected = false;
   long rssi = 0;
   int signal = 0;
   char ipAddress[20] = {0};
-} s_wifi;
+};
 extern s_wifi wifi;
 
-typedef struct {
+struct s_eth {
   bool connected = false;
   char ipAddress[20];
   uint8_t linkSpeed;
   bool fullDuplex;
   bool linkUp;
-} s_eth;
+};
 extern s_eth eth;
 
 /* P R O T O T Y P E S ********************************************************/

@@ -40,7 +40,7 @@ s_lang LANG;
 JsonDocument jsonDoc;
 
 // convert minutes to human readable structure
-TimeComponents convertMinutes(int totalMinutes) {
+timeComponents convertMinutes(int totalMinutes) {
   int minutesPerYear = 525600; // 365 days * 24 hours * 60 minutes
   int minutesPerDay = 1440;    // 24 hours * 60 minutes
   int minutesPerHour = 60;

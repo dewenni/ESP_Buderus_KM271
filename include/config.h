@@ -9,39 +9,39 @@ General Configuration
 #define WIFI_RECONNECT 10000 // Delay between wifi reconnection tries
 #define MQTT_RECONNECT 10000 // Delay between mqtt reconnection tries
 
-typedef enum {
+enum e_MsgFltTyp {
   MSG_FILTER_ALARM = 0, // only alarms
   MSG_FILTER_INFO = 1,  // alarm + info messages
-} e_MsgFltTyp;
+};
 
-typedef enum {
+enum e_LogFltTyp {
   LOG_FILTER_ALARM = 0,   // only alarms
   LOG_FILTER_INFO = 1,    // alarm + info messages
   LOG_FILTER_VALUES = 2,  // logamatic values
   LOG_FILTER_UNKNOWN = 3, // only unknown messages
   LOG_FILTER_DEBUG = 4,   // filtered debug messages
   LOG_FILTER_SYSTEM = 5,  // filtered debug messages
-} e_LogFltTyp;
+};
 
-typedef struct {
+struct s_cfg_oilmeter {
   bool use_hardware_meter;
   bool use_virtual_meter = false;
   float consumption_kg_h = 2.0;
   float oil_density_kg_l = 0.85;
-} s_cfg_oilmeter;
+};
 
-typedef struct {
+struct s_cfg_webUI {
   bool enable = true;
-} s_cfg_webUI;
+};
 
-typedef struct {
+struct s_cfg_km271 {
   bool use_hc1;
   bool use_hc2;
   bool use_ww;
   bool use_alarmMsg;
-} s_cfg_km271;
+};
 
-typedef struct {
+struct s_cfg_wifi {
   char ssid[128];
   char password[128];
   char hostname[128];
@@ -50,9 +50,9 @@ typedef struct {
   char subnet[17];
   char gateway[17];
   char dns[17];
-} s_cfg_wifi;
+};
 
-typedef struct {
+struct s_cfg_eth {
   bool enable = false;
   char hostname[128];
   bool static_ip = false;
@@ -66,9 +66,9 @@ typedef struct {
   int gpio_cs;
   int gpio_irq;
   int gpio_rst;
-} s_cfg_eth;
+};
 
-typedef struct {
+struct s_cfg_mqtt {
   bool enable;            // Enable or disable the MQTT server
   char server[128];       // MQTT Server IP
   char user[128];         // MQTT User Name
@@ -81,16 +81,16 @@ typedef struct {
   bool ha_enable;         // MQTT discovery
   char ha_topic[64];      // MQTT ha topic
   char ha_device[32];     // MQTT ha topic
-} s_cfg_mqtt;
+};
 
-typedef struct {
+struct s_cfg_ntp {
   bool enable = true;
   bool auto_sync = false;
   char server[128] = {"de.pool.ntp.org"};
   char tz[128] = {"CET-1CEST,M3.5.0,M10.5.0/3"};
-} s_cfg_ntp;
+};
 
-typedef struct {
+struct s_cfg_gpio {
   int led_wifi;
   int led_heartbeat;
   int led_logmode;
@@ -98,26 +98,26 @@ typedef struct {
   int trigger_oilcounter;
   int km271_RX;
   int km271_TX;
-} s_cfg_gpio;
+};
 
-typedef struct {
+struct s_cfg_auth {
   bool enable = true;
   char user[64];
   char password[64];
-} s_cfg_auth;
+};
 
-typedef struct {
+struct s_cfg_debug {
   bool enable = true;
   char filter[33];
-} s_cfg_debug;
+};
 
-typedef struct {
+struct s_cfg_log {
   bool enable = true;
   int filter;
   int order;
-} s_cfg_log;
+};
 
-typedef struct {
+struct s_cfg_sensor {
   bool ch1_enable = false;
   char ch1_name[32] = {"sensor1"};
   char ch1_description[32];
@@ -126,20 +126,20 @@ typedef struct {
   char ch2_name[32] = {"sensor2"};
   char ch2_description[32];
   int ch2_gpio = 19;
-} s_cfg_sensor;
+};
 
-typedef struct {
+struct s_cfg_pushover {
   bool enable;       // Enable or disable the Pushover Service
   char token[64];    // Pushover API-Token
   char user_key[64]; // Pushover User-Key
   int filter;        // Messaging filter
-} s_cfg_pushover;
+};
 
-typedef struct {
+struct s_cfg_sim {
   bool enable;
-} s_cfg_sim;
+};
 
-typedef struct {
+struct s_config {
   int lang;
   s_cfg_sim sim;
   s_cfg_oilmeter oilmeter;
@@ -155,7 +155,7 @@ typedef struct {
   s_cfg_sensor sensor;
   s_cfg_pushover pushover;
   s_cfg_log log;
-} s_config;
+};
 
 extern s_config config;
 extern bool setupMode;

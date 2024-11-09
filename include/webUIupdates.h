@@ -7,12 +7,12 @@
 #include <webUIhelper.h>
 
 // time structure for burner runtime
-typedef struct TimeComponents {
+struct timeComponents {
   int years;
   int days;
   int hours;
   int minutes;
-} timeComponents;
+};
 
 /* P R O T O T Y P E S ********************************************************/
 void updateAllElements();
