@@ -461,6 +461,8 @@ void webUISetup() {
             uploadFile.close();
             MY_LOGI(TAG, "UploadEnd: %s, %u B\n", filename.c_str(), index + len);
             updateWebText("upload_status_txt", "upload done!", false);
+            configLoadFromFile(); // load configuration
+            onLoadRequest = true; // update all webUI elements
           } else {
             updateWebText("upload_status_txt", "error on file close!", false);
           }
@@ -477,7 +479,7 @@ void webUISetup() {
       if (ws.count() < 2) {
         MY_LOGI(TAG, "web-client connected");
         client->setCloseClientOnQueueFull(false);
-        onLoadRequest = true;
+        onLoadRequest = true; // update all webUI elements
       } else {
         MY_LOGI(TAG, "max web-client reached");
         client->text("{\"type\":\"redirect\",\"url\":\"/max_ws\"}");
