@@ -429,11 +429,11 @@ topic:      {"setvalue/hk2_aussenhalt_ab", setvalue/hc2_switch_off_threshold"}
 payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
 
 command:    heating circuit 1: day temperature setpoint
-topic:      {"setvalue/hk1_tag_soll", setvalue/hc1_day_setpoint"}
+topic:      {"/setvalue/HK1_Tagtemperatur", "/setvalue/hc1_day_temp"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
 command:    heating circuit 2: day temperature setpoint
-topic:      {"setvalue/hk2_tag_soll", setvalue/hc2_day_setpoint"}
+topic:      {"/setvalue/HK2_Tagtemperatur", "/setvalue/hc2_day_temp"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
 command:    heating circuit 1: night temperature setpoint
@@ -465,11 +465,11 @@ topic:      {"setvalue/hk2_sommer_ab", setvalue/hc2_summer_mode_threshold"}
 payload:    Resolution: 1 [°C] - Range: 9:Summer | 10°..30° | 31:Winter
 
 command:    heating circuit 1: frost mode threshold Temperature
-topic:      {"setvalue/hk1_frost_ab", setvalue/hc1_frost_mode_threshold"}
+topic:      {"/setvalue/HK1_Frost_ab", "/setvalue/hc1_frost_protection_threshold"}
 payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
 
 command:    heating circuit 2: frost mode threshold Temperature
-topic:      {"setvalue/hk2_frost_ab", setvalue/hc2_frost_mode_threshold"}
+topic:      {"/setvalue/HK2_Frost_ab", "/setvalue/hc2_frost_protection_threshold"}
 payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
 
 command:    warm water: setpoint temperature
@@ -477,11 +477,11 @@ topic:      {"setvalue/ww_soll", setvalue/ww_setpoint"}
 payload:    Resolution: 1 [°C] - Range: 30 ... 60 [°C]
 
 command:    heating circuit 1: count of days for holiday mode (Logamatic will decrement every day by one)
-topic:      {"setvalue/hk1_ferien_tage", setvalue/hc1_holidays"}
+topic:      {"/setvalue/HK1_Ferien_Tage", "/setvalue/hc1_holiday_days"}
 payload:    count of days 0 .. 99
 
 command:    heating circuit 2: count of days for holiday mode (Logamatic will decrement every day by one)
-topic:      {"setvalue/hk1_ferien_tage", setvalue/hc1_holidays"}
+topic:      {"/setvalue/HK2_Ferien_Tage", "/setvalue/hc2_holiday_days"}
 payload:    count of days 0 .. 99
 
 command:    warm water pump cycles
