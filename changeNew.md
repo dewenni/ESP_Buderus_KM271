@@ -14,6 +14,10 @@ This could be useful in situations where the WiFi connection is not available or
 
 For mor details, please have a look at the [documentation](https://github.com/dewenni/ESP_Buderus_KM271?tab=readme-ov-file#optional-ethernet-module-w5500) 
 
+### internal communication between ESP and WebUI changed
+
+The internal communication between ESP and WebUI has changed from "Server Side Events" to Websockets.
+The maximum number of client connections is monitored and limited to the number of 2 active connections.
 
 ### BREAKING CHANGES!!!
 
@@ -26,10 +30,12 @@ For mor details, please have a look at the [documentation](https://github.com/de
 ## changelog
 
 - change mqtt Library to [mathieucarbou/MycilaMQTT](https://github.com/mathieucarbou/MycilaMQTT)
-- update AsyncTCP library to [mathieucarbou/AsyncTCP](https://github.com/mathieucarbou/AsyncTCP) v3.2.10
+- update AsyncTCPSock library to [mathieucarbou/AsyncTCPSock](https://github.com/mathieucarbou/AsyncTCPSock) v3.2.10
+- change communication from SSE to websocket
 - add "Mode: SystemLog" to the WebUI Logger function that shows the ESP_LOG messages
 - add mqtt information to webUI
 - remove "uptime" from MQTT discovery, because it floods the log #108
 - fix typo "Ferhler" in OTA Dialog #108
 - clean unused webUI texts
 - update Descriptions for Ethernet and Exhaust Sensor in README.md
+- add watchdog to automatically reboot if ESP is getting stuck
