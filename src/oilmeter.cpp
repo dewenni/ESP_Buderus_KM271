@@ -54,7 +54,7 @@ void cmdSetOilmeter(long setvalue) {
   data.oilcounter = setvalue;
   cmdStoreOilmeter();
 
-  MY_LOGI(TAG, "oilcounter was set to: %ld", data.oilcounter);
+  snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %ld", data.oilcounter);
   km271Msg(KM_TYP_MESSAGE, tmpMsg, "");
 
   sendOilmeter();
