@@ -116,6 +116,7 @@ void updateAllElements() {
   // reset hash values to force updates
   memset((void *)KmAlarmHash, 0, sizeof(KmAlarmHash));
 
+  updateOilmeterElements(true);
   updateWebLanguage(LANG.CODE[config.lang]);
   showElementClass("simModeBar", config.sim.enable);
 
