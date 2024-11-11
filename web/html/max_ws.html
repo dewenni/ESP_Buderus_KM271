@@ -12,15 +12,39 @@
     function goToMainPage() {
       window.location.href = "/";
     }
+    function closeAllWsClients() {
+      fetch("/close_all_ws_clients", {
+        method: "POST",
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === "all clients closed") {
+            alert("All unused WebSocket clients have been closed.");
+          } else {
+            alert("Failed to disconnect clients.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("Error disconnecting clients.");
+        });
+    }
   </script>
   <body>
     <dialog open>
       <article>
         <h2>ESP-Buderus-KM271</h2>
-        <p>The maximum number of Clinet connections has been reached!</p>
-        <p>Close already opened connections and try again</p>
+        <p>The maximum number of Client connections has been reached!</p>
+        <p>close connections already opened and try again</p>
         <div class="dash-footer">
-          <button onclick="goToMainPage()" style="width: 75%">try again</button>
+          <button onclick="closeAllWsClients()" style="width: 100%">
+            close all open Client connections
+          </button>
+          <p></p>
+            <button onclick="goToMainPage()" style="width: 100%">
+              try again
+            </button>
+          </p>
         </div>
       </article>
     </dialog>

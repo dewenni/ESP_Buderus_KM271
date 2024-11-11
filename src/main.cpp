@@ -26,7 +26,7 @@ bool dst_ref;             // init flag fpr dst reference
 bool ntpSynced;           // ntp sync flag
 bool ntpInit = false;     // init flag for ntp sync
 
-esp_task_wdt_config_t twdt_config{timeout_ms : 3000U, idle_core_mask : 0b10, trigger_panic : true};
+esp_task_wdt_config_t twdt_config{timeout_ms : 60000U, idle_core_mask : 0b10, trigger_panic : true};
 
 /**
  * *******************************************************************
@@ -49,8 +49,10 @@ void storeData() {
 void setup() {
 
   // setup watchdog timer
-  esp_task_wdt_init(&twdt_config); // Initialize ESP32 Task WDT
-  esp_task_wdt_add(NULL);          // Subscribe to the Task WDT
+  if (!setupMode) {
+    esp_task_wdt_init(&twdt_config); // Initialize ESP32 Task WDT
+    esp_task_wdt_add(NULL);          // Subscribe to the Task WDT
+  }
 
   // Message Service Setup
   messageSetup();
@@ -107,7 +109,9 @@ void setup() {
 void loop() {
 
   // reset watchdog
-  esp_task_wdt_reset();
+  if (!setupMode) {
+    esp_task_wdt_reset();
+  }
 
   // OTA Update
   ArduinoOTA.handle();

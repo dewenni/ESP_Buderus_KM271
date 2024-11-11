@@ -12,6 +12,8 @@
 #include <webUIhelper.h>
 #include <webUIupdates.h>
 
+const int MAX_WS_CLIENT = 2;
+
 /* P R O T O T Y P E S ********************************************************/
 void webCallback(const char *elementId, const char *value);
 
@@ -45,25 +47,25 @@ void sendHeartbeat() {
   // }
 }
 
+void sendWs(JsonDocument &jsonDoc) {
+  ws.cleanupClients(MAX_WS_CLIENT);
+  if (ws.count()) {
+    const size_t len = measureJson(jsonDoc);
+    AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+    assert(buffer); // optional: check buffer
+    serializeJson(jsonDoc, buffer->get(), len);
+    ws.textAll(buffer);
+  }
+}
+
 void updateWebLanguage(const char *language) {
   JsonDocument jsonDoc;
   jsonDoc["type"] = "setLanguage";
   jsonDoc["language"] = language;
-
-  const size_t len = measureJson(jsonDoc);
-  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-  assert(buffer); // optional: check buffer
-  serializeJson(jsonDoc, buffer->get(), len);
-  ws.textAll(buffer);
+  sendWs(jsonDoc);
 }
 
-void updateWebJSON(JsonDocument &jsonDoc) {
-  const size_t len = measureJson(jsonDoc);
-  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-  assert(buffer); // optional: check buffer
-  serializeJson(jsonDoc, buffer->get(), len);
-  ws.textAll(buffer);
-}
+void updateWebJSON(JsonDocument &jsonDoc) { sendWs(jsonDoc); }
 
 void updateWebText(const char *id, const char *text, bool isInput) {
   JsonDocument jsonDoc;
@@ -71,12 +73,7 @@ void updateWebText(const char *id, const char *text, bool isInput) {
   jsonDoc["id"] = id;
   jsonDoc["text"] = text;
   jsonDoc["isInput"] = isInput ? true : false;
-
-  const size_t len = measureJson(jsonDoc);
-  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-  assert(buffer); // optional: check buffer
-  serializeJson(jsonDoc, buffer->get(), len);
-  ws.textAll(buffer);
+  sendWs(jsonDoc);
 }
 
 void updateWebTextInt(const char *id, long value, bool isInput) {
@@ -85,12 +82,7 @@ void updateWebTextInt(const char *id, long value, bool isInput) {
   jsonDoc["id"] = id;
   jsonDoc["text"] = value;
   jsonDoc["isInput"] = isInput ? true : false;
-
-  const size_t len = measureJson(jsonDoc);
-  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-  assert(buffer); // optional: check buffer
-  serializeJson(jsonDoc, buffer->get(), len);
-  ws.textAll(buffer);
+  sendWs(jsonDoc);
 }
 
 void updateWebLog(const char *entry, const char *cmd) {
@@ -98,12 +90,7 @@ void updateWebLog(const char *entry, const char *cmd) {
   jsonDoc["type"] = "logger";
   jsonDoc["cmd"] = cmd;
   jsonDoc["entry"] = entry;
-
-  const size_t len = measureJson(jsonDoc);
-  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-  assert(buffer); // optional: check buffer
-  serializeJson(jsonDoc, buffer->get(), len);
-  ws.textAll(buffer);
+  sendWs(jsonDoc);
 }
 
 void updateWebTextFloat(const char *id, double value, bool isInput, int decimals) {
@@ -111,16 +98,10 @@ void updateWebTextFloat(const char *id, double value, bool isInput, int decimals
   jsonDoc["type"] = "updateText";
   jsonDoc["id"] = id;
   jsonDoc["isInput"] = isInput;
-
   char textBuffer[16];
   snprintf(textBuffer, sizeof(textBuffer), "%.*f", decimals, value);
   jsonDoc["text"] = textBuffer;
-
-  const size_t len = measureJson(jsonDoc);
-  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-  assert(buffer); // optional: check buffer
-  serializeJson(jsonDoc, buffer->get(), len);
-  ws.textAll(buffer);
+  sendWs(jsonDoc);
 }
 
 void updateWebState(const char *id, bool state) {
@@ -128,12 +109,7 @@ void updateWebState(const char *id, bool state) {
   jsonDoc["type"] = "updateState";
   jsonDoc["id"] = id;
   jsonDoc["state"] = state ? true : false;
-
-  const size_t len = measureJson(jsonDoc);
-  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-  assert(buffer); // optional: check buffer
-  serializeJson(jsonDoc, buffer->get(), len);
-  ws.textAll(buffer);
+  sendWs(jsonDoc);
 }
 
 void updateWebValueStr(const char *id, const char *value) {
@@ -141,12 +117,7 @@ void updateWebValueStr(const char *id, const char *value) {
   jsonDoc["type"] = "updateValue";
   jsonDoc["id"] = id;
   jsonDoc["value"] = value;
-
-  const size_t len = measureJson(jsonDoc);
-  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-  assert(buffer); // optional: check buffer
-  serializeJson(jsonDoc, buffer->get(), len);
-  ws.textAll(buffer);
+  sendWs(jsonDoc);
 }
 
 void updateWebValueInt(const char *id, long value) {
@@ -154,28 +125,17 @@ void updateWebValueInt(const char *id, long value) {
   jsonDoc["type"] = "updateValue";
   jsonDoc["id"] = id;
   jsonDoc["value"] = value;
-
-  const size_t len = measureJson(jsonDoc);
-  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-  assert(buffer); // optional: check buffer
-  serializeJson(jsonDoc, buffer->get(), len);
-  ws.textAll(buffer);
+  sendWs(jsonDoc);
 }
 
 void updateWebValueFloat(const char *id, double value, int decimals) {
   JsonDocument jsonDoc;
   jsonDoc["type"] = "updateValue";
   jsonDoc["id"] = id;
-
   char textBuffer[16];
   snprintf(textBuffer, sizeof(textBuffer), "%.*f", decimals, value);
   jsonDoc["value"] = textBuffer;
-
-  const size_t len = measureJson(jsonDoc);
-  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-  assert(buffer); // optional: check buffer
-  serializeJson(jsonDoc, buffer->get(), len);
-  ws.textAll(buffer);
+  sendWs(jsonDoc);
 }
 
 void showElementClass(const char *className, bool show) {
@@ -183,12 +143,7 @@ void showElementClass(const char *className, bool show) {
   jsonDoc["type"] = "showElementClass";
   jsonDoc["className"] = className;
   jsonDoc["show"] = show ? true : false;
-
-  const size_t len = measureJson(jsonDoc);
-  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-  assert(buffer); // optional: check buffer
-  serializeJson(jsonDoc, buffer->get(), len);
-  ws.textAll(buffer);
+  sendWs(jsonDoc);
 }
 
 void updateWebHideElement(const char *id, bool hide) {
@@ -196,12 +151,7 @@ void updateWebHideElement(const char *id, bool hide) {
   jsonDoc["type"] = "hideElement";
   jsonDoc["id"] = id;
   jsonDoc["hide"] = hide ? true : false;
-
-  const size_t len = measureJson(jsonDoc);
-  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-  assert(buffer); // optional: check buffer
-  serializeJson(jsonDoc, buffer->get(), len);
-  ws.textAll(buffer);
+  sendWs(jsonDoc);
 }
 
 void updateWebDialog(const char *id, const char *state) {
@@ -209,12 +159,7 @@ void updateWebDialog(const char *id, const char *state) {
   jsonDoc["type"] = "updateDialog";
   jsonDoc["id"] = id;
   jsonDoc["state"] = state;
-
-  const size_t len = measureJson(jsonDoc);
-  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-  assert(buffer); // optional: check buffer
-  serializeJson(jsonDoc, buffer->get(), len);
-  ws.textAll(buffer);
+  sendWs(jsonDoc);
 }
 
 void updateWebSetIcon(const char *id, const char *icon) {
@@ -222,12 +167,7 @@ void updateWebSetIcon(const char *id, const char *icon) {
   jsonDoc["type"] = "updateSetIcon";
   jsonDoc["id"] = id;
   jsonDoc["icon"] = icon;
-
-  const size_t len = measureJson(jsonDoc);
-  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-  assert(buffer); // optional: check buffer
-  serializeJson(jsonDoc, buffer->get(), len);
-  ws.textAll(buffer);
+  sendWs(jsonDoc);
 }
 
 void updateWebHref(const char *id, const char *href) {
@@ -235,12 +175,7 @@ void updateWebHref(const char *id, const char *href) {
   jsonDoc["type"] = "updateHref";
   jsonDoc["id"] = id;
   jsonDoc["href"] = href;
-
-  const size_t len = measureJson(jsonDoc);
-  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-  assert(buffer); // optional: check buffer
-  serializeJson(jsonDoc, buffer->get(), len);
-  ws.textAll(buffer);
+  sendWs(jsonDoc);
 }
 
 void updateWebBusy(const char *id, bool busy) {
@@ -248,12 +183,7 @@ void updateWebBusy(const char *id, bool busy) {
   jsonDoc["type"] = "updateBusy";
   jsonDoc["id"] = id;
   jsonDoc["busy"] = busy;
-
-  const size_t len = measureJson(jsonDoc);
-  AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-  assert(buffer); // optional: check buffer
-  serializeJson(jsonDoc, buffer->get(), len);
-  ws.textAll(buffer);
+  sendWs(jsonDoc);
 }
 
 /**
@@ -371,6 +301,11 @@ void webUISetup() {
     response->addHeader("Content-Encoding", "gzip");
   });
 
+  server.on("/close_all_ws_clients", HTTP_POST, [](AsyncWebServerRequest *request) {
+    ws.closeAll(); // close all websocket connections
+    request->send(200, "application/json", "{\"status\":\"all clients closed\"}");
+  });
+
   server.on("/login", HTTP_POST, [](AsyncWebServerRequest *request) {
     if (request->hasParam("username", true) && request->hasParam("password", true)) {
       if ((request->getParam("username", true)->value() == String(config.auth.user) &&
@@ -476,7 +411,7 @@ void webUISetup() {
   ws.onEvent([](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
     (void)len;
     if (type == WS_EVT_CONNECT) {
-      if (ws.count() < 2) {
+      if (ws.count() < MAX_WS_CLIENT) {
         MY_LOGI(TAG, "web-client connected");
         client->setCloseClientOnQueueFull(false);
         onLoadRequest = true; // update all webUI elements
@@ -524,8 +459,6 @@ void webUISetup() {
  * @return  none
  * *******************************************************************/
 void webUICyclic() {
-
-  // ws.cleanupClients();
 
   if (heartbeatTimer.cycleTrigger(3000)) {
     sendHeartbeat();
