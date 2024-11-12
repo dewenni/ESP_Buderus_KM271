@@ -12,7 +12,6 @@
 /* D E C L A R A T I O N S ****************************************************/
 ESPTelnet telnet;
 s_telnetIF telnetIF;
-s_opt_arrays webOptArrays;
 EscapeCodes ansi;
 char param[MAX_PAR][MAX_CHAR];
 bool msgAvailable = false;
@@ -159,14 +158,14 @@ void cmdLog(char param[MAX_PAR][MAX_CHAR]) {
     clearLogBuffer();
     // log mode read
   } else if (!strcmp(param[1], "mode") && strlen(param[2]) == 0) {
-    telnet.println(webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
+    telnet.println(KM_CFG_ARRAY::LOG_FILTER[config.lang][config.log.filter]);
     // log mode set
   } else if (!strcmp(param[1], "mode") && strlen(param[2]) > 0) {
     int mode = atoi(param[2]);
     if (mode > 0 && mode < 7) {
       config.log.filter = mode - 1;
       clearLogBuffer();
-      telnet.println(webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
+      telnet.println(KM_CFG_ARRAY::LOG_FILTER[config.lang][config.log.filter]);
     } else {
       telnet.println("invalid mode - mode must be between 1 and 6");
     }
@@ -299,7 +298,7 @@ void cmdInfo(char param[MAX_PAR][MAX_CHAR]) {
   telnet.println("\nLOGGING-INFO");
   telnet.print(ansi.reset());
   telnet.printf("Logging: %s\n", config.log.enable ? "enabled" : "disabled");
-  telnet.printf("Log %s\n", webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
+  telnet.printf("Log %s\n", KM_CFG_ARRAY::LOG_FILTER[config.lang][config.log.filter]);
   telnet.printf("Debug: %s\n", config.debug.enable ? "enabled" : "disabled");
   telnet.printf("Debug Filter: %s\n", config.debug.filter);
 
@@ -379,7 +378,7 @@ void cmdSerial(char param[MAX_PAR][MAX_CHAR]) {
 void cmdKm271(char param[MAX_PAR][MAX_CHAR]) {
   if (!strcmp(param[1], "stream") && !strcmp(param[2], "start")) {
     telnetIF.km271Stream = true;
-    telnet.printf("km271 stream active - %s\n", webOptArrays.LOG_FILTER[config.lang][config.log.filter]);
+    telnet.printf("km271 stream active - %s\n", KM_CFG_ARRAY::LOG_FILTER[config.lang][config.log.filter]);
     telnet.println("=> to abort streaming, send \"x\"");
   } else if (!strcmp(param[1], "stream") && !strcmp(param[2], "stop")) {
     telnetIF.km271Stream = false;

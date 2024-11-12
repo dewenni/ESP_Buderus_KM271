@@ -1,4 +1,6 @@
 
+#include <language.h>
+#include <main.h>
 #include <message.h>
 #include <webUI.h>
 #include <webUIupdates.h>
@@ -321,13 +323,13 @@ void updateSystemInfoElements() {
   }
 
   addJsonLabelTxt(jsonDoc, "p09_eth_ip", strlen(eth.ipAddress) ? eth.ipAddress : "-.-.-.-");
-  addJsonLabelTxt(jsonDoc, "p09_eth_status", eth.connected ? webText.CONNECTED[config.lang] : webText.NOT_CONNECTED[config.lang]);
+  addJsonLabelTxt(jsonDoc, "p09_eth_status", eth.connected ? WEB_TXT::CONNECTED[config.lang] : WEB_TXT::NOT_CONNECTED[config.lang]);
 
   if (eth.connected) {
     addJsonIcon(jsonDoc, "p00_eth_icon", "i_eth");
     snprintf(tmpMessage, sizeof(tmpMessage), "%d Mbps", eth.linkSpeed);
     addJsonLabelTxt(jsonDoc, "p09_eth_link_speed", tmpMessage);
-    addJsonLabelTxt(jsonDoc, "p09_eth_full_duplex", eth.fullDuplex ? webText.FULL_DUPLEX[config.lang] : "---");
+    addJsonLabelTxt(jsonDoc, "p09_eth_full_duplex", eth.fullDuplex ? WEB_TXT::FULL_DUPLEX[config.lang] : "---");
 
   } else {
     addJsonIcon(jsonDoc, "p00_eth_icon", "");
@@ -336,8 +338,8 @@ void updateSystemInfoElements() {
   }
 
   // MQTT Status
-  addJsonLabelTxt(jsonDoc, "p09_mqtt_status", mqttIsEnabled() ? webText.ACTIVE[config.lang] : webText.INACTIVE[config.lang]);
-  addJsonLabelTxt(jsonDoc, "p09_mqtt_connection", mqttIsConnected() ? webText.CONNECTED[config.lang] : webText.NOT_CONNECTED[config.lang]);
+  addJsonLabelTxt(jsonDoc, "p09_mqtt_status", mqttIsEnabled() ? WEB_TXT::ACTIVE[config.lang] : WEB_TXT::INACTIVE[config.lang]);
+  addJsonLabelTxt(jsonDoc, "p09_mqtt_connection", mqttIsConnected() ? WEB_TXT::CONNECTED[config.lang] : WEB_TXT::NOT_CONNECTED[config.lang]);
 
   if (mqttGetLastError() != nullptr) {
     addJsonLabelTxt(jsonDoc, "p09_mqtt_last_err", mqttGetLastError());
@@ -771,23 +773,23 @@ void updateKm271StatusElements() {
 
       // AUTOMATIC / MANUAL (Day/Night)
       if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) { // AUTOMATIC
-        updateWebText("p01_hc1_opmode", webText.AUTOMATIC[config.lang], false);
+        updateWebText("p01_hc1_opmode", WEB_TXT::AUTOMATIC[config.lang], false);
         updateWebSetIcon("p01_hc1_opmode_icon", "i_auto");
       } else { // MANUAL
         updateWebSetIcon("p01_hc1_opmode_icon", "i_manual");
-        updateWebText("p01_hc1_opmode", bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? webText.MAN_DAY[config.lang] : webText.MAN_NIGHT[config.lang],
-                      false);
+        updateWebText("p01_hc1_opmode",
+                      bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? WEB_TXT::MAN_DAY[config.lang] : WEB_TXT::MAN_NIGHT[config.lang], false);
       }
 
       // Summer / Winter
       if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) { // AUTOMATIC
         updateWebText("p01_hc1_summer_winter",
-                      (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]), false);
+                      (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? WEB_TXT::SUMMER[config.lang] : WEB_TXT::WINTER[config.lang]), false);
         updateWebSetIcon("p01_hc1_summer_winter_icon", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
       } else { // generate status from actual temperature and summer threshold
         updateWebText(
             "p01_hc1_summer_winter",
-            (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc1_summer_mode_threshold ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]),
+            (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc1_summer_mode_threshold ? WEB_TXT::SUMMER[config.lang] : WEB_TXT::WINTER[config.lang]),
             false);
         updateWebSetIcon("p01_hc1_summer_winter_icon",
                          (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc1_summer_mode_threshold ? "i_summer" : "i_winter"));
@@ -801,7 +803,7 @@ void updateKm271StatusElements() {
       updateWebText("p03_hc1_ov1_frost", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 6)), false);
 
       // Day / Night
-      updateWebText("p01_hc1_day_night", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? webText.DAY[config.lang] : webText.NIGHT[config.lang]),
+      updateWebText("p01_hc1_day_night", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? WEB_TXT::DAY[config.lang] : WEB_TXT::NIGHT[config.lang]),
                     false);
       updateWebSetIcon("p01_hc1_day_night_icon", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? "i_day" : "i_night"));
 
@@ -834,7 +836,7 @@ void updateKm271StatusElements() {
       updateWebTextInt("p03_hc1_off_time_opt_dur", kmStatusCpy.HC1_SwitchOffOptimizationTime, false);
     } else if (kmStatusCpy.HC1_PumpPower != pkmStatus->HC1_PumpPower) {
       kmStatusCpy.HC1_PumpPower = pkmStatus->HC1_PumpPower;
-      updateWebText("p01_hc1_pump", (kmStatusCpy.HC1_PumpPower == 0 ? webText.OFF[config.lang] : webText.ON[config.lang]), false);
+      updateWebText("p01_hc1_pump", (kmStatusCpy.HC1_PumpPower == 0 ? WEB_TXT::OFF[config.lang] : WEB_TXT::ON[config.lang]), false);
       updateWebTextInt("p03_hc1_pump", kmStatusCpy.HC1_PumpPower, false);
     } else if (kmStatusCpy.HC1_MixingValue != pkmStatus->HC1_MixingValue) {
       kmStatusCpy.HC1_MixingValue = pkmStatus->HC1_MixingValue;
@@ -860,23 +862,23 @@ void updateKm271StatusElements() {
 
       // AUTOMATIC / MANUAL (Day/Night)
       if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) { // AUTOMATIC
-        updateWebText("p01_hc2_opmode", webText.AUTOMATIC[config.lang], false);
+        updateWebText("p01_hc2_opmode", WEB_TXT::AUTOMATIC[config.lang], false);
         updateWebSetIcon("p01_hc2_opmode_icon", "i_auto");
       } else { // MANUAL
         updateWebSetIcon("p01_hc2_opmode_icon", "i_manual");
-        updateWebText("p01_hc2_opmode", bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? webText.MAN_DAY[config.lang] : webText.MAN_NIGHT[config.lang],
-                      false);
+        updateWebText("p01_hc2_opmode",
+                      bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? WEB_TXT::MAN_DAY[config.lang] : WEB_TXT::MAN_NIGHT[config.lang], false);
       }
 
       // Summer / Winter
       if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) { // AUTOMATIC
         updateWebText("p01_hc2_summer_winter",
-                      (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]), false);
+                      (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? WEB_TXT::SUMMER[config.lang] : WEB_TXT::WINTER[config.lang]), false);
         updateWebSetIcon("p01_hc2_summer_winter_icon", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
       } else { // generate status from actual temperature and summer threshold
         updateWebText(
             "p01_hc2_summer_winter",
-            (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc2_summer_mode_threshold ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]),
+            (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc2_summer_mode_threshold ? WEB_TXT::SUMMER[config.lang] : WEB_TXT::WINTER[config.lang]),
             false);
         updateWebSetIcon("p01_hc2_summer_winter_icon",
                          (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc2_summer_mode_threshold ? "i_summer" : "i_winter"));
@@ -891,7 +893,7 @@ void updateKm271StatusElements() {
       updateWebText("p04_hc2_ov1_frost", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 6)), false);
 
       // Day / Night
-      updateWebText("p01_hc2_day_night", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? webText.DAY[config.lang] : webText.NIGHT[config.lang]),
+      updateWebText("p01_hc2_day_night", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? WEB_TXT::DAY[config.lang] : WEB_TXT::NIGHT[config.lang]),
                     false);
       updateWebSetIcon("p01_hc2_day_night_icon", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? "i_day" : "i_night"));
 
@@ -924,7 +926,7 @@ void updateKm271StatusElements() {
       updateWebTextInt("p04_hc2_off_time_opt_dur", kmStatusCpy.HC2_SwitchOffOptimizationTime, false);
     } else if (kmStatusCpy.HC2_PumpPower != pkmStatus->HC2_PumpPower) {
       kmStatusCpy.HC2_PumpPower = pkmStatus->HC2_PumpPower;
-      updateWebText("p01_hc2_pump", (kmStatusCpy.HC2_PumpPower == 0 ? webText.OFF[config.lang] : webText.ON[config.lang]), false);
+      updateWebText("p01_hc2_pump", (kmStatusCpy.HC2_PumpPower == 0 ? WEB_TXT::OFF[config.lang] : WEB_TXT::ON[config.lang]), false);
       updateWebTextInt("p04_hc2_pump", kmStatusCpy.HC2_PumpPower, false);
     } else if (kmStatusCpy.HC2_MixingValue != pkmStatus->HC2_MixingValue) {
       kmStatusCpy.HC2_MixingValue = pkmStatus->HC2_MixingValue;
@@ -947,14 +949,14 @@ void updateKm271StatusElements() {
       kmStatusCpy.HotWaterOperatingStates_1 = pkmStatus->HotWaterOperatingStates_1;
       // WW-Operating State
       if (bitRead(kmStatusCpy.HotWaterOperatingStates_1, 0)) { // AUTOMATIC
-        snprintf(tmpMessage, sizeof(tmpMessage), "%s", webText.AUTOMATIC[config.lang]);
+        snprintf(tmpMessage, sizeof(tmpMessage), "%s", WEB_TXT::AUTOMATIC[config.lang]);
         updateWebSetIcon("p01_ww_opmode_icon", "i_auto");
       } else {                                                   // MANUAL
         if (bitRead(kmStatusCpy.HotWaterOperatingStates_2, 5)) { // DAY
-          snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.DAY[config.lang]);
+          snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", WEB_TXT::MANUAL[config.lang], WEB_TXT::DAY[config.lang]);
           updateWebSetIcon("p01_ww_opmode_icon", "i_manual");
         } else { // NIGHT
-          snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", webText.MANUAL[config.lang], webText.NIGHT[config.lang]);
+          snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", WEB_TXT::MANUAL[config.lang], WEB_TXT::NIGHT[config.lang]);
           updateWebSetIcon("p01_ww_opmode_icon", "i_manual");
         }
       }
@@ -1041,8 +1043,8 @@ void updateKm271StatusElements() {
     updateWebText("p06_boil_s_stage2", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 6)), false);
   } else if (kmStatusCpy.BurnerStates != pkmStatus->BurnerStates) {
     kmStatusCpy.BurnerStates = pkmStatus->BurnerStates;
-    updateWebText("p01_burner", (kmStatusCpy.BurnerStates == 0) ? webText.OFF[config.lang] : webText.ON[config.lang], false);
-    updateWebText("p06_burn_ctrl", cfgArrayTexts.BURNER_STATE[config.lang][kmStatusCpy.BurnerStates], false);
+    updateWebText("p01_burner", (kmStatusCpy.BurnerStates == 0) ? WEB_TXT::OFF[config.lang] : WEB_TXT::ON[config.lang], false);
+    updateWebText("p06_burn_ctrl", KM_CFG_ARRAY::BURNER_STATE[config.lang][kmStatusCpy.BurnerStates], false);
   } else if (kmStatusCpy.ExhaustTemp != pkmStatus->ExhaustTemp) {
     kmStatusCpy.ExhaustTemp = pkmStatus->ExhaustTemp;
     updateWebTextInt("p07_exh_gas_temp", kmStatusCpy.ExhaustTemp, false);
@@ -1102,23 +1104,23 @@ void updateKm271StatusElementsAll() {
   if (config.km271.use_hc1) {
     // AUTOMATIC / MANUAL (Day/Night)
     if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) { // AUTOMATIC
-      addJsonLabelTxt(jsonDoc, "p01_hc1_opmode", webText.AUTOMATIC[config.lang]);
+      addJsonLabelTxt(jsonDoc, "p01_hc1_opmode", WEB_TXT::AUTOMATIC[config.lang]);
       addJsonIcon(jsonDoc, "p01_hc1_opmode_icon", "i_auto");
     } else { // MANUAL
       addJsonLabelTxt(jsonDoc, "p01_hc1_opmode",
-                      bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? webText.MAN_DAY[config.lang] : webText.MAN_NIGHT[config.lang]);
+                      bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? WEB_TXT::MAN_DAY[config.lang] : WEB_TXT::MAN_NIGHT[config.lang]);
       addJsonIcon(jsonDoc, "p01_hc1_opmode_icon", "i_manual");
     }
 
     // Summer / Winter
     if (bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)) { // AUTOMATIC
       addJsonLabelTxt(jsonDoc, "p01_hc1_summer_winter",
-                      (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]));
+                      (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? WEB_TXT::SUMMER[config.lang] : WEB_TXT::WINTER[config.lang]));
       addJsonIcon(jsonDoc, "p01_hc1_summer_winter_icon", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
     } else { // generate status from actual temperature and summer threshold
       addJsonLabelTxt(
           jsonDoc, "p01_hc1_summer_winter",
-          (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc1_summer_mode_threshold ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]));
+          (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc1_summer_mode_threshold ? WEB_TXT::SUMMER[config.lang] : WEB_TXT::WINTER[config.lang]));
       addJsonIcon(jsonDoc, "p01_hc1_summer_winter_icon",
                   (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc1_summer_mode_threshold ? "i_summer" : "i_winter"));
     }
@@ -1133,7 +1135,7 @@ void updateKm271StatusElementsAll() {
 
     // Day / Night
     addJsonLabelTxt(jsonDoc, "p01_hc1_day_night",
-                    (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? webText.DAY[config.lang] : webText.NIGHT[config.lang]));
+                    (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? WEB_TXT::DAY[config.lang] : WEB_TXT::NIGHT[config.lang]));
     addJsonIcon(jsonDoc, "p01_hc1_day_night_icon", (bitRead(kmStatusCpy.HC1_OperatingStates_2, 1) ? "i_day" : "i_night"));
 
     addJsonLabelTxt(jsonDoc, "p03_hc1_ov2_summer", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 0)));
@@ -1151,7 +1153,7 @@ void updateKm271StatusElementsAll() {
     addJsonLabelInt(jsonDoc, "p03_hc1_room_temp", kmStatusCpy.HC1_RoomActualTemp);
     addJsonLabelInt(jsonDoc, "p03_hc1_on_time_opt_dur", kmStatusCpy.HC1_SwitchOnOptimizationTime);
     addJsonLabelInt(jsonDoc, "p03_hc1_off_time_opt_dur", kmStatusCpy.HC1_SwitchOffOptimizationTime);
-    addJsonLabelTxt(jsonDoc, "p01_hc1_pump", (kmStatusCpy.HC1_PumpPower == 0 ? webText.OFF[config.lang] : webText.ON[config.lang]));
+    addJsonLabelTxt(jsonDoc, "p01_hc1_pump", (kmStatusCpy.HC1_PumpPower == 0 ? WEB_TXT::OFF[config.lang] : WEB_TXT::ON[config.lang]));
     addJsonLabelInt(jsonDoc, "p03_hc1_pump", kmStatusCpy.HC1_PumpPower);
     addJsonLabelInt(jsonDoc, "p03_hc1_mixer", kmStatusCpy.HC1_MixingValue);
     addJsonLabelInt(jsonDoc, "p03_hc1_heat_curve_10C", kmStatusCpy.HC1_HeatingCurvePlus10);
@@ -1163,23 +1165,23 @@ void updateKm271StatusElementsAll() {
   if (config.km271.use_hc2) {
     // HC2-Operating State
     if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) { // AUTOMATIC
-      addJsonLabelTxt(jsonDoc, "p01_hc2_opmode", webText.AUTOMATIC[config.lang]);
+      addJsonLabelTxt(jsonDoc, "p01_hc2_opmode", WEB_TXT::AUTOMATIC[config.lang]);
       addJsonIcon(jsonDoc, "p01_hc2_opmode_icon", "i_auto");
     } else { // MANUAL
       addJsonLabelTxt(jsonDoc, "p01_hc2_opmode",
-                      bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? webText.MAN_DAY[config.lang] : webText.MAN_NIGHT[config.lang]);
+                      bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? WEB_TXT::MAN_DAY[config.lang] : WEB_TXT::MAN_NIGHT[config.lang]);
       addJsonIcon(jsonDoc, "p01_hc2_opmode_icon", "i_manual");
     }
 
     // Summer / Winter
     if (bitRead(kmStatusCpy.HC2_OperatingStates_1, 2)) { // AUTOMATIC
       addJsonLabelTxt(jsonDoc, "p01_hc2_summer_winter",
-                      (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]));
+                      (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? WEB_TXT::SUMMER[config.lang] : WEB_TXT::WINTER[config.lang]));
       addJsonIcon(jsonDoc, "p01_hc2_summer_winter_icon", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 0) ? "i_summer" : "i_winter"));
     } else { // generate status from actual temperature and summer threshold
       addJsonLabelTxt(
           jsonDoc, "p01_hc2_summer_winter",
-          (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc2_summer_mode_threshold ? webText.SUMMER[config.lang] : webText.WINTER[config.lang]));
+          (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc2_summer_mode_threshold ? WEB_TXT::SUMMER[config.lang] : WEB_TXT::WINTER[config.lang]));
       addJsonIcon(jsonDoc, "p01_hc2_summer_winter_icon",
                   (kmStatusCpy.OutsideDampedTemp > pkmConfigNum->hc2_summer_mode_threshold ? "i_summer" : "i_winter"));
     }
@@ -1193,7 +1195,7 @@ void updateKm271StatusElementsAll() {
     addJsonLabelTxt(jsonDoc, "p04_hc2_ov1_frost", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_1, 6)));
     // Day / Night
     addJsonLabelTxt(jsonDoc, "p01_hc2_day_night",
-                    (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? webText.DAY[config.lang] : webText.NIGHT[config.lang]));
+                    (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? WEB_TXT::DAY[config.lang] : WEB_TXT::NIGHT[config.lang]));
     addJsonIcon(jsonDoc, "p01_hc2_day_night_icon", (bitRead(kmStatusCpy.HC2_OperatingStates_2, 1) ? "i_day" : "i_night"));
 
     addJsonLabelTxt(jsonDoc, "p04_hc2_ov2_summer", onOffString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 0)));
@@ -1211,7 +1213,7 @@ void updateKm271StatusElementsAll() {
     addJsonLabelInt(jsonDoc, "p04_hc2_room_temp", kmStatusCpy.HC2_RoomActualTemp);
     addJsonLabelInt(jsonDoc, "p04_hc2_on_time_opt_dur", kmStatusCpy.HC2_SwitchOnOptimizationTime);
     addJsonLabelInt(jsonDoc, "p04_hc2_off_time_opt_dur", kmStatusCpy.HC2_SwitchOffOptimizationTime);
-    addJsonLabelTxt(jsonDoc, "p01_hc2_pump", (kmStatusCpy.HC2_PumpPower == 0 ? webText.OFF[config.lang] : webText.ON[config.lang]));
+    addJsonLabelTxt(jsonDoc, "p01_hc2_pump", (kmStatusCpy.HC2_PumpPower == 0 ? WEB_TXT::OFF[config.lang] : WEB_TXT::ON[config.lang]));
     addJsonLabelInt(jsonDoc, "p04_hc2_pump", kmStatusCpy.HC2_PumpPower);
     addJsonLabelInt(jsonDoc, "p04_hc2_mixer", kmStatusCpy.HC2_MixingValue);
     addJsonLabelInt(jsonDoc, "p04_hc2_heat_curve_10C", kmStatusCpy.HC2_HeatingCurvePlus10);
@@ -1224,14 +1226,14 @@ void updateKm271StatusElementsAll() {
   if (config.km271.use_ww) {
     // WW-Operating State
     if (bitRead(kmStatusCpy.HotWaterOperatingStates_1, 0)) { // AUTOMATIC
-      addJsonLabelTxt(jsonDoc, "p01_ww_opmode", webText.AUTOMATIC[config.lang]);
+      addJsonLabelTxt(jsonDoc, "p01_ww_opmode", WEB_TXT::AUTOMATIC[config.lang]);
       addJsonIcon(jsonDoc, "p01_ww_opmode_icon", "i_auto");
     } else {                                                   // MANUAL
       if (bitRead(kmStatusCpy.HotWaterOperatingStates_2, 5)) { // DAY
-        addJsonLabelTxt(jsonDoc, "p01_ww_opmode", webText.MAN_DAY[config.lang]);
+        addJsonLabelTxt(jsonDoc, "p01_ww_opmode", WEB_TXT::MAN_DAY[config.lang]);
         addJsonIcon(jsonDoc, "p01_ww_opmode_icon", "i_manual");
       } else { // NIGHT
-        addJsonLabelTxt(jsonDoc, "p01_ww_opmode", webText.MAN_NIGHT[config.lang]);
+        addJsonLabelTxt(jsonDoc, "p01_ww_opmode", WEB_TXT::MAN_NIGHT[config.lang]);
         addJsonIcon(jsonDoc, "p01_ww_opmode_icon", "i_manual");
       }
     }
@@ -1288,8 +1290,8 @@ void updateKm271StatusElementsAll() {
   addJsonLabelTxt(jsonDoc, "p06_boil_s_perf_free", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 4)));
   addJsonLabelTxt(jsonDoc, "p06_boil_s_perf_high", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 5)));
   addJsonLabelTxt(jsonDoc, "p06_boil_s_stage2", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 6)));
-  addJsonLabelTxt(jsonDoc, "p01_burner", (kmStatusCpy.BurnerStates == 0) ? webText.OFF[config.lang] : webText.ON[config.lang]);
-  addJsonLabelTxt(jsonDoc, "p06_burn_ctrl", cfgArrayTexts.BURNER_STATE[config.lang][kmStatusCpy.BurnerStates]);
+  addJsonLabelTxt(jsonDoc, "p01_burner", (kmStatusCpy.BurnerStates == 0) ? WEB_TXT::OFF[config.lang] : WEB_TXT::ON[config.lang]);
+  addJsonLabelTxt(jsonDoc, "p06_burn_ctrl", KM_CFG_ARRAY::BURNER_STATE[config.lang][kmStatusCpy.BurnerStates]);
   addJsonLabelInt(jsonDoc, "p07_exh_gas_temp", kmStatusCpy.ExhaustTemp);
   timeComponents burnerRuntime = convertMinutes(kmStatusCpy.BurnerOperatingDuration_Sum);
   addJsonLabelInt(jsonDoc, "p06_burn_run_years", burnerRuntime.years);
@@ -1311,7 +1313,7 @@ void updateKm271StatusElementsAll() {
 void webUIupdates() {
 
   // ON-BROWSER-REFRESH: refresh ALL elements - do this step by step not to stress the connection
-  if (refreshTimer3.cycleTrigger(WEBUI_JSON_REFRESH_TIME_MS) && refreshRequest) {
+  if (refreshTimer3.cycleTrigger(WEBUI_JSON_REFRESH_TIME_MS) && refreshRequest && !otaActiveState()) {
     switch (UpdateCntRefresh) {
     case 0:
       updateSystemInfoElementsStatic(); // update static informations (≈ 200 Bytes)
@@ -1334,7 +1336,7 @@ void webUIupdates() {
   }
 
   // CHANGE-BASED: check and refresh single elemets if they have changed - do this step by step not to stress the connection
-  if (refreshTimer1.cycleTrigger(WEBUI_FAST_REFRESH_TIME_MS)) {
+  if (refreshTimer1.cycleTrigger(WEBUI_FAST_REFRESH_TIME_MS) && !otaActiveState()) {
 
     if (webLogRefreshActive()) {
       webReadLogBufferCyclic(); // webUI logger has to be updated
@@ -1358,7 +1360,7 @@ void webUIupdates() {
   }
 
   // CYCLIC: update elemets every 1 seconds - do this step by step not to stress the connection
-  if (refreshTimer2.cycleTrigger(WEBUI_SLOW_REFRESH_TIME_MS)) {
+  if (refreshTimer2.cycleTrigger(WEBUI_SLOW_REFRESH_TIME_MS) && !otaActiveState()) {
     switch (UpdateCntSlow) {
     case 0:
       updateSystemInfoElements(); // refresh all "System" elements as one big JSON update (≈ 570 Bytes)

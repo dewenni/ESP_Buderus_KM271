@@ -11,6 +11,7 @@
 #include <webUI.h>
 #include <webUIhelper.h>
 #include <webUIupdates.h>
+#include <language.h>
 
 const int MAX_WS_CLIENT = 2;
 
@@ -26,8 +27,6 @@ muTimer otaUpdateTimer = muTimer();  // timer to refresh other values
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
-s_webui_texts webText;
-s_cfg_arrays cfgArrayTexts;
 
 static const char *TAG = "WEB"; // LOG TAG
 bool webInitDone = false;

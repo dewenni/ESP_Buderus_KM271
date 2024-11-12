@@ -1,6 +1,7 @@
 #include <WiFi.h>
 #include <basics.h>
 #include <km271.h>
+#include <language.h>
 #include <message.h>
 #include <mqtt.h>
 #include <mqttDiscovery.h>
@@ -9,10 +10,6 @@
 
 /* D E C L A R A T I O N S ****************************************************/
 Mycila::MQTT mqtt_client;
-s_mqtt_cmds mqttCmd; // exts that are used as topics for KM271 commands
-s_cfg_topics cfgTopics;
-s_cfg_arrays cfgArrays;
-s_km271_msg infoMsg;
 bool bootUpMsgDone, setupDone = false;
 int targetIndex = -1;
 static const char *TAG = "MQTT"; // LOG TAG
@@ -93,7 +90,7 @@ void processMqttMessage() {
   }
 
   // restart ESP command
-  if (strcasecmp(topicCopy, addTopic(mqttCmd.RESTART[config.mqtt.lang])) == 0) {
+  if (strcasecmp(topicCopy, addTopic(MQTT_CMD::RESTART[config.mqtt.lang])) == 0) {
     km271Msg(KM_TYP_MESSAGE, "restart requested!", "");
     saveRestartReason("mqtt command");
     yield();
@@ -102,7 +99,7 @@ void processMqttMessage() {
     ESP.restart();
   }
   // send sim data
-  else if (strcasecmp(topicCopy, addTopic(mqttCmd.SIMDATA[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addTopic(MQTT_CMD::SIMDATA[config.mqtt.lang])) == 0) {
     if (config.sim.enable) {
       km271Msg(KM_TYP_MESSAGE, "start sending sim data", "");
       startSimData();
@@ -111,7 +108,7 @@ void processMqttMessage() {
     }
   }
   // Service command
-  else if (strcasecmp(topicCopy, addTopic(mqttCmd.SERVICE[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addTopic(MQTT_CMD::SERVICE[config.mqtt.lang])) == 0) {
     if (len == 23) { // 23 characters: 8 Hex-values + 7 separators "_"
       uint8_t hexArray[8];
       // Iteration thru payload
@@ -144,7 +141,7 @@ void processMqttMessage() {
     }
   }
   // enable / disable debug
-  else if (strcasecmp(topicCopy, addTopic(mqttCmd.DEBUG[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addTopic(MQTT_CMD::DEBUG[config.mqtt.lang])) == 0) {
     if (intVal == 1) {
       config.debug.enable = true;
       configSaveToFile();
@@ -156,7 +153,7 @@ void processMqttMessage() {
     }
   }
   // set debug filter
-  else if (strcasecmp(topicCopy, addTopic(mqttCmd.SET_DEBUG_FLT[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addTopic(MQTT_CMD::SET_DEBUG_FLT[config.mqtt.lang])) == 0) {
     char errMsg[256];
     if (setDebugFilter(payloadCopy, strlen(payloadCopy), errMsg, sizeof(errMsg))) {
       km271Msg(KM_TYP_MESSAGE, "filter accepted", "");
@@ -165,15 +162,15 @@ void processMqttMessage() {
     }
   }
   // get debug filter
-  else if (strcasecmp(topicCopy, addTopic(mqttCmd.GET_DEBUG_FLT[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addTopic(MQTT_CMD::GET_DEBUG_FLT[config.mqtt.lang])) == 0) {
     km271Msg(KM_TYP_MESSAGE, config.debug.filter, "");
   }
   // set date and time
-  else if (strcasecmp(topicCopy, addTopic(mqttCmd.DATETIME[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addTopic(MQTT_CMD::DATETIME[config.mqtt.lang])) == 0) {
     km271SetDateTimeNTP();
   }
   // set oilmeter
-  else if (strcasecmp(topicCopy, addTopic(mqttCmd.OILCNT[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addTopic(MQTT_CMD::OILCNT[config.mqtt.lang])) == 0) {
     cmdSetOilmeter(intVal);
   }
   // homeassistant/status
@@ -185,14 +182,14 @@ void processMqttMessage() {
   }
 
   // HK1 Betriebsart
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_OPMODE[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC1_OPMODE[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC1_OPMODE, intVal);
     } else if (len > 0) {
       targetIndex = -1;
-      int arraySize = sizeof(cfgArrays.OPMODE[config.mqtt.lang]) / sizeof(cfgArrays.OPMODE[config.mqtt.lang][0]);
+      int arraySize = sizeof(KM_CFG_ARRAY::OPMODE[config.mqtt.lang]) / sizeof(KM_CFG_ARRAY::OPMODE[config.mqtt.lang][0]);
       for (int i = 0; i < arraySize; i++) {
-        if (strcasecmp(cfgArrays.OPMODE[config.mqtt.lang][i], payloadCopy) == 0) {
+        if (strcasecmp(KM_CFG_ARRAY::OPMODE[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i;
           break;
         }
@@ -203,14 +200,14 @@ void processMqttMessage() {
     }
   }
   // HK2 Betriebsart
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_OPMODE[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC2_OPMODE[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC2_OPMODE, intVal);
     } else if (len > 0) {
       targetIndex = -1;
-      int arraySize = sizeof(cfgArrays.OPMODE[config.mqtt.lang]) / sizeof(cfgArrays.OPMODE[config.mqtt.lang][0]);
+      int arraySize = sizeof(KM_CFG_ARRAY::OPMODE[config.mqtt.lang]) / sizeof(KM_CFG_ARRAY::OPMODE[config.mqtt.lang][0]);
       for (int i = 0; i < arraySize; i++) {
-        if (strcasecmp(cfgArrays.OPMODE[config.mqtt.lang][i], payloadCopy) == 0) {
+        if (strcasecmp(KM_CFG_ARRAY::OPMODE[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i;
           break;
         }
@@ -221,14 +218,14 @@ void processMqttMessage() {
     }
   }
   // HK1 Programm
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_PROGRAM[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC1_PROGRAM[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC1_PROGRAMM, intVal);
     } else if (len > 0) {
       targetIndex = -1;
-      int arraySize = sizeof(cfgArrays.HC_PROGRAM[config.mqtt.lang]) / sizeof(cfgArrays.HC_PROGRAM[config.mqtt.lang][0]);
+      int arraySize = sizeof(KM_CFG_ARRAY::HC_PROGRAM[config.mqtt.lang]) / sizeof(KM_CFG_ARRAY::HC_PROGRAM[config.mqtt.lang][0]);
       for (int i = 0; i < arraySize; i++) {
-        if (strcasecmp(cfgArrays.HC_PROGRAM[config.mqtt.lang][i], payloadCopy) == 0) {
+        if (strcasecmp(KM_CFG_ARRAY::HC_PROGRAM[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i;
           break;
         }
@@ -239,14 +236,14 @@ void processMqttMessage() {
     }
   }
   // HK2 Programm
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_PROGRAM[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC2_PROGRAM[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC2_PROGRAMM, intVal);
     } else if (len > 0) {
       targetIndex = -1;
-      int arraySize = sizeof(cfgArrays.HC_PROGRAM[config.mqtt.lang]) / sizeof(cfgArrays.HC_PROGRAM[config.mqtt.lang][0]);
+      int arraySize = sizeof(KM_CFG_ARRAY::HC_PROGRAM[config.mqtt.lang]) / sizeof(KM_CFG_ARRAY::HC_PROGRAM[config.mqtt.lang][0]);
       for (int i = 0; i < arraySize; i++) {
-        if (strcasecmp(cfgArrays.HC_PROGRAM[config.mqtt.lang][i], payloadCopy) == 0) {
+        if (strcasecmp(KM_CFG_ARRAY::HC_PROGRAM[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i;
           break;
         }
@@ -257,54 +254,54 @@ void processMqttMessage() {
     }
   }
   // HK1 Auslegung
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_INTERPR[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC1_INTERPR[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC1_DESIGN_TEMP, intVal);
   }
   // HK2 Auslegung
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_INTERPR[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC2_INTERPR[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC2_DESIGN_TEMP, intVal);
   }
   // HK1 Aussenhalt-Ab Temperatur
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_SWITCH_OFF_THRESHOLD[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC1_SWITCH_OFF_THRESHOLD[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC1_SWITCH_OFF_THRESHOLD, intVal);
   }
   // HK2 Aussenhalt-Ab Temperatur
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_SWITCH_OFF_THRESHOLD[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC2_SWITCH_OFF_THRESHOLD[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC2_SWITCH_OFF_THRESHOLD, intVal);
   }
   // HK1 Tag-Soll Temperatur
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_DAY_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC1_DAY_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmdFlt(KM271_SENDCMD_HC1_DAY_SETPOINT, floatVal);
   }
   // HK2 Tag-Soll Temperatur
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_DAY_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC2_DAY_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmdFlt(KM271_SENDCMD_HC2_DAY_SETPOINT, floatVal);
   }
   // HK1 Nacht-Soll Temperatur
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_NIGHT_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC1_NIGHT_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmdFlt(KM271_SENDCMD_HC1_NIGHT_SETPOINT, floatVal);
   }
   // HK2 Nacht-Soll Temperatur
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_NIGHT_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC2_NIGHT_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmdFlt(KM271_SENDCMD_HC2_NIGHT_SETPOINT, floatVal);
   }
   // HK1 Ferien-Soll Temperatur
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_HOLIDAY_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC1_HOLIDAY_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmdFlt(KM271_SENDCMD_HC1_HOLIDAY_SETPOINT, floatVal);
   }
   // HK2 Ferien-Soll Temperatur
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_HOLIDAY_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC2_HOLIDAY_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmdFlt(KM271_SENDCMD_HC2_HOLIDAY_SETPOINT, floatVal);
   }
   // WW Betriebsart
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.WW_OPMODE[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::WW_OPMODE[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_WW_OPMODE, intVal);
     } else if (len > 0) {
       targetIndex = -1;
-      int arraySize = sizeof(cfgArrays.OPMODE[config.mqtt.lang]) / sizeof(cfgArrays.OPMODE[config.mqtt.lang][0]);
+      int arraySize = sizeof(KM_CFG_ARRAY::OPMODE[config.mqtt.lang]) / sizeof(KM_CFG_ARRAY::OPMODE[config.mqtt.lang][0]);
       for (int i = 0; i < arraySize; i++) {
-        if (strcasecmp(cfgArrays.OPMODE[config.mqtt.lang][i], payloadCopy) == 0) {
+        if (strcasecmp(KM_CFG_ARRAY::OPMODE[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i;
           break;
         }
@@ -315,14 +312,14 @@ void processMqttMessage() {
     }
   }
   // HK1 Sommer-Ab Temperatur
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_SUMMER_THRESHOLD[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC1_SUMMER_THRESHOLD[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC1_SUMMER, intVal);
     } else if (len > 0) {
       targetIndex = -1;
-      int arraySize = sizeof(cfgArrays.SUMMER[config.mqtt.lang]) / sizeof(cfgArrays.SUMMER[config.mqtt.lang][0]);
+      int arraySize = sizeof(KM_CFG_ARRAY::SUMMER[config.mqtt.lang]) / sizeof(KM_CFG_ARRAY::SUMMER[config.mqtt.lang][0]);
       for (int i = 0; i < arraySize; i++) {
-        if (strcasecmp(cfgArrays.SUMMER[config.mqtt.lang][i], payloadCopy) == 0) {
+        if (strcasecmp(KM_CFG_ARRAY::SUMMER[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i + 9; // Values are 9..31 and array index is 0..22 - index 0 = value 9 / index 22 = value 31
           break;
         }
@@ -333,18 +330,18 @@ void processMqttMessage() {
     }
   }
   // HK1 Frost-Ab Temperatur
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_FROST_THRESHOLD[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC1_FROST_THRESHOLD[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC1_FROST, intVal);
   }
   // HK2 Sommer-Ab Temperatur
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_SUMMER_THRESHOLD[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC2_SUMMER_THRESHOLD[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC2_SUMMER, intVal);
     } else if (len > 0) {
       targetIndex = -1;
-      int arraySize = sizeof(cfgArrays.SUMMER[config.mqtt.lang]) / sizeof(cfgArrays.SUMMER[config.mqtt.lang][0]);
+      int arraySize = sizeof(KM_CFG_ARRAY::SUMMER[config.mqtt.lang]) / sizeof(KM_CFG_ARRAY::SUMMER[config.mqtt.lang][0]);
       for (int i = 0; i < arraySize; i++) {
-        if (strcasecmp(cfgArrays.SUMMER[config.mqtt.lang][i], payloadCopy) == 0) {
+        if (strcasecmp(KM_CFG_ARRAY::SUMMER[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i + 9; // Values are 9..31 and array index is 0..22 - index 0 = value 9 / index 22 = value 31
           break;
         }
@@ -355,30 +352,30 @@ void processMqttMessage() {
     }
   }
   // HK2 Frost-Ab Temperatur
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_FROST_THRESHOLD[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC2_FROST_THRESHOLD[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC2_FROST, intVal);
   }
   // WW-Temperatur
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.WW_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::WW_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_WW_SETPOINT, intVal);
   }
   // HK1 Ferien Tage
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_HOLIDAY_DAYS[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC1_HOLIDAY_DAYS[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC1_HOLIDAYS, intVal);
   }
   // HK2 Ferien Tage
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_HOLIDAY_DAYS[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC2_HOLIDAY_DAYS[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC2_HOLIDAYS, intVal);
   }
   // WW Pump Cycles
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.WW_CIRCULATION[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::WW_CIRCULATION[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_WW_PUMP_CYCLES, intVal);
     } else if (len > 0) {
       targetIndex = -1;
-      int arraySize = sizeof(cfgArrays.CIRC_INTERVAL[config.mqtt.lang]) / sizeof(cfgArrays.CIRC_INTERVAL[config.mqtt.lang][0]);
+      int arraySize = sizeof(KM_CFG_ARRAY::CIRC_INTERVAL[config.mqtt.lang]) / sizeof(KM_CFG_ARRAY::CIRC_INTERVAL[config.mqtt.lang][0]);
       for (int i = 0; i < arraySize; i++) {
-        if (strcasecmp(cfgArrays.CIRC_INTERVAL[config.mqtt.lang][i], payloadCopy) == 0) {
+        if (strcasecmp(KM_CFG_ARRAY::CIRC_INTERVAL[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i;
           break;
         }
@@ -389,22 +386,22 @@ void processMqttMessage() {
     }
   }
   // HK1 Reglereingriff
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_SWITCH_ON_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC1_SWITCH_ON_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC1_SWITCH_ON_TEMP, intVal);
   }
   // HK2 Reglereingriff
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_SWITCH_ON_TEMP[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC2_SWITCH_ON_TEMP[config.mqtt.lang])) == 0) {
     km271sendCmd(KM271_SENDCMD_HC2_SWITCH_ON_TEMP, intVal);
   }
   // HK1 Absenkungsart
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC1_REDUCTION_MODE[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC1_REDUCTION_MODE[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC1_REDUCTION_MODE, intVal);
     } else {
       targetIndex = -1;
-      int arraySize = sizeof(cfgArrays.REDUCT_MODE[config.mqtt.lang]) / sizeof(cfgArrays.REDUCT_MODE[config.mqtt.lang][0]);
+      int arraySize = sizeof(KM_CFG_ARRAY::REDUCT_MODE[config.mqtt.lang]) / sizeof(KM_CFG_ARRAY::REDUCT_MODE[config.mqtt.lang][0]);
       for (int i = 0; i < arraySize; i++) {
-        if (strcasecmp(cfgArrays.REDUCT_MODE[config.mqtt.lang][i], payloadCopy) == 0) {
+        if (strcasecmp(KM_CFG_ARRAY::REDUCT_MODE[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i;
           break;
         }
@@ -413,14 +410,14 @@ void processMqttMessage() {
     }
   }
   // HK2 Absenkungsart
-  else if (strcasecmp(topicCopy, addCfgCmdTopic(cfgTopics.HC2_REDUCTION_MODE[config.mqtt.lang])) == 0) {
+  else if (strcasecmp(topicCopy, addCfgCmdTopic(KM_CFG_TOPIC::HC2_REDUCTION_MODE[config.mqtt.lang])) == 0) {
     if (isNumber(payloadCopy)) {
       km271sendCmd(KM271_SENDCMD_HC2_REDUCTION_MODE, intVal);
     } else {
       targetIndex = -1;
-      int arraySize = sizeof(cfgArrays.REDUCT_MODE[config.mqtt.lang]) / sizeof(cfgArrays.REDUCT_MODE[config.mqtt.lang][0]);
+      int arraySize = sizeof(KM_CFG_ARRAY::REDUCT_MODE[config.mqtt.lang]) / sizeof(KM_CFG_ARRAY::REDUCT_MODE[config.mqtt.lang][0]);
       for (int i = 0; i < arraySize; i++) {
-        if (strcasecmp(cfgArrays.REDUCT_MODE[config.mqtt.lang][i], payloadCopy) == 0) {
+        if (strcasecmp(KM_CFG_ARRAY::REDUCT_MODE[config.mqtt.lang][i], payloadCopy) == 0) {
           targetIndex = i;
           break;
         }
@@ -520,7 +517,7 @@ void mqttCyclic() {
     char restartReason[64];
     char tempMessage[128];
     getRestartReason(restartReason, sizeof(restartReason));
-    snprintf(tempMessage, sizeof(tempMessage), "%s\n(%s)", infoMsg.RESTARTED[config.lang], restartReason);
+    snprintf(tempMessage, sizeof(tempMessage), "%s\n(%s)", KM_INFO_MSG::RESTARTED[config.lang], restartReason);
     km271Msg(KM_TYP_MESSAGE, tempMessage, "");
 
     // send initial mqtt discovery messages after restart

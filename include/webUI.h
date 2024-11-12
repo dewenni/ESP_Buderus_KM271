@@ -93,9 +93,6 @@ enum s_kmConfig_Hash_enum {
   kmConfig_Hash_SIZE,
 };
 
-extern s_webui_texts webText;
-extern s_cfg_arrays cfgArrayTexts;
-
 /* P R O T O T Y P E S ********************************************************/
 void webUISetup();
 void webUICyclic();

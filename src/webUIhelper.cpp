@@ -1,3 +1,4 @@
+#include <language.h>
 #include <webUI.h>
 #include <webUIhelper.h>
 
@@ -37,9 +38,9 @@ void getBuildDateTime(char *formatted_date) {
 const char *onOffString(uint8_t value) {
   static char ret_str[64];
   if (value != 0)
-    snprintf(ret_str, sizeof(ret_str), "%s", webText.ON[config.lang]);
+    snprintf(ret_str, sizeof(ret_str), "%s", WEB_TXT::ON[config.lang]);
   else
-    snprintf(ret_str, sizeof(ret_str), "%s", webText.OFF[config.lang]);
+    snprintf(ret_str, sizeof(ret_str), "%s", WEB_TXT::OFF[config.lang]);
 
   return ret_str;
 }
@@ -52,9 +53,9 @@ const char *onOffString(uint8_t value) {
 const char *errOkString(uint8_t value) {
   static char ret_str[64];
   if (value != 0)
-    snprintf(ret_str, sizeof(ret_str), "%s", webText.ERROR[config.lang]);
+    snprintf(ret_str, sizeof(ret_str), "%s", WEB_TXT::ERROR[config.lang]);
   else
-    snprintf(ret_str, sizeof(ret_str), "%s", webText.OK[config.lang]);
+    snprintf(ret_str, sizeof(ret_str), "%s", WEB_TXT::OK[config.lang]);
 
   return ret_str;
 }
@@ -71,18 +72,18 @@ bool logReadActive = false;
 bool webLogRefreshActive() { return logReadActive; }
 
 void webReadLogBuffer() {
- logReadActive = true;
+  logReadActive = true;
   logLine = 0;
   logIdx = 0;
 }
 
 void webReadLogBufferCyclic() {
-  if ( !logReadActive) {
+  if (!logReadActive) {
     return;
   }
   if (logLine == 0 && logData.lastLine == 0) {
     // log empty
-   logReadActive = false;
+    logReadActive = false;
     return;
   }
   if (config.log.order == 1) {
@@ -103,8 +104,8 @@ void webReadLogBufferCyclic() {
     logIdx = 0;
   }
   if (logLine == 0) {
-    updateWebLog("", "clr_log");                      // clear log
-    updateWebLog(logData.buffer[logIdx], "add_log");  // add first log element
+    updateWebLog("", "clr_log");                     // clear log
+    updateWebLog(logData.buffer[logIdx], "add_log"); // add first log element
     logLine++;
   } else if (logLine == MAX_LOG_LINES - 1) {
     // end
@@ -115,7 +116,7 @@ void webReadLogBufferCyclic() {
       logLine++;
     } else {
       // no more entries
-     logReadActive = false;
+      logReadActive = false;
       return;
     }
   }
