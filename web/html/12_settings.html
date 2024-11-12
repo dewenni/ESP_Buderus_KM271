@@ -38,11 +38,14 @@
             <details>
               <summary data-i18n="wifi"></summary>
               <label for="wifi_hostname" data-i18n="hostname"></label>
-              <input type="text" id="p12_wifi_hostname" name="wifi_hostname" />
+              <input type="text" id="cfg_wifi_hostname" name="wifi_hostname" />
               <label for="wifi_ssid" data-i18n="ssid"></label>
-              <input type="text" id="p12_wifi_ssid" name="wifi_ssid" />
+              <input type="text" id="cfg_wifi_ssid" name="wifi_ssid" />
               <label for="wifi_password">Passwort</label>
-              <input type="password" id="p12_wifi_passw" name="wifi_password" />
+              <input
+                type="password"
+                id="cfg_wifi_password"
+                name="wifi_password" />
 
               <div class="section-header">
                 <label for="man_ip_enable" data-i18n="static_ip"></label>
@@ -52,19 +55,19 @@
                     type="checkbox"
                     role="switch"
                     hideOpt="WIFI_STATIC_IP"
-                    id="p12_wifi_static_ip" />
+                    id="cfg_wifi_static_ip" />
                 </div>
               </div>
               <br />
               <div class="WIFI_STATIC_IP">
                 <label for="ip_adr" data-i18n="ip_adr"></label>
-                <input type="text" id="p12_wifi_adr" name="ip_adr" />
+                <input type="text" id="cfg_wifi_ipaddress" name="ip_adr" />
                 <label for="ip_subnet" data-i18n="ip_subnet"></label>
-                <input type="text" id="p12_wifi_subnet" name="ip_subnet" />
+                <input type="text" id="cfg_wifi_subnet" name="ip_subnet" />
                 <label for="ip_gateway" data-i18n="ip_gateway"></label>
-                <input type="text" id="p12_wifi_gateway" name="ip_gateway" />
+                <input type="text" id="cfg_wifi_gateway" name="ip_gateway" />
                 <label for="ip_dns" data-i18n="ip_dns"></label>
-                <input type="text" id="p12_wifi_dns" name="ip_dns" />
+                <input type="text" id="cfg_wifi_dns" name="ip_dns" />
               </div>
             </details>
             <hr />
@@ -78,12 +81,12 @@
                     name="eth_enable"
                     type="checkbox"
                     role="switch"
-                    id="p12_eth_enable" />
+                    id="cfg_eth_enable" />
                 </div>
               </div>
               <br />
               <label for="eth_hostname" data-i18n="hostname"></label>
-              <input type="text" id="p12_eth_hostname" name="eth_hostname" />
+              <input type="text" id="cfg_eth_hostname" name="eth_hostname" />
               <div class="leftright">
                 <label for="eth_gpio_sck">GPIO CLK</label>
                 <button
@@ -95,23 +98,23 @@
                     border: none;
                   "></button>
               </div>
-              <input type="number" id="p12_eth_gpio_sck" name="eth_gpio_sck" />
+              <input type="number" id="cfg_eth_gpio_sck" name="eth_gpio_sck" />
               <label for="eth_gpio_mosi">GPIO MOSI</label>
               <input
                 type="number"
-                id="p12_eth_gpio_mosi"
+                id="cfg_eth_gpio_mosi"
                 name="eth_gpio_mosi" />
               <label for="eth_gpio_miso">GPIO MISO</label>
               <input
                 type="number"
-                id="p12_eth_gpio_miso"
+                id="cfg_eth_gpio_miso"
                 name="eth_gpio_miso" />
               <label for="eth_gpio_cs">GPIO CS</label>
-              <input type="number" id="p12_eth_gpio_cs" name="eth_gpio_cs" />
+              <input type="number" id="cfg_eth_gpio_cs" name="eth_gpio_cs" />
               <label for="eth_gpio_irq">GPIO INT</label>
-              <input type="number" id="p12_eth_gpio_irq" name="eth_gpio_irq" />
+              <input type="number" id="cfg_eth_gpio_irq" name="eth_gpio_irq" />
               <label for="eth_gpio_rst">GPIO RST</label>
-              <input type="number" id="p12_eth_gpio_rst" name="eth_gpio_rst" />
+              <input type="number" id="cfg_eth_gpio_rst" name="eth_gpio_rst" />
               <div class="section-header">
                 <label for="man_ip_enable" data-i18n="static_ip"></label>
                 <div class="switch-container">
@@ -120,19 +123,19 @@
                     type="checkbox"
                     role="switch"
                     hideOpt="ETH_STATIC_IP"
-                    id="p12_eth_static_ip" />
+                    id="cfg_eth_static_ip" />
                 </div>
               </div>
               <br />
               <div class="ETH_STATIC_IP">
                 <label for="ip_adr" data-i18n="ip_adr"></label>
-                <input type="text" id="p12_eth_adr" name="ip_adr" />
+                <input type="text" id="cfg_eth_ipaddress" name="ip_adr" />
                 <label for="ip_subnet" data-i18n="ip_subnet"></label>
-                <input type="text" id="p12_eth_subnet" name="ip_subnet" />
+                <input type="text" id="cfg_eth_subnet" name="ip_subnet" />
                 <label for="ip_gateway" data-i18n="ip_gateway"></label>
-                <input type="text" id="p12_eth_gateway" name="ip_gateway" />
+                <input type="text" id="cfg_eth_gateway" name="ip_gateway" />
                 <label for="ip_dns" data-i18n="ip_dns"></label>
-                <input type="text" id="p12_eth_dns" name="ip_dns" />
+                <input type="text" id="cfg_eth_dns" name="ip_dns" />
               </div>
             </details>
             <!-- Dialog OPEN-ETH-HELP -->
@@ -207,14 +210,14 @@
                     type="checkbox"
                     role="switch"
                     hideOpt="OPT_AUTH"
-                    id="p12_auth_enable" />
+                    id="cfg_auth_enable" />
                 </div>
               </div>
               <br />
               <label for="auth_user" data-i18n="user"></label>
-              <input type="text" id="p12_auth_user" name="auth_user" />
+              <input type="text" id="cfg_auth_user" name="auth_user" />
               <label for="auth_passw" data-i18n="password"></label>
-              <input type="password" id="p12_auth_passw" name="auth_passw" />
+              <input type="password" id="cfg_auth_password" name="auth_passw" />
             </details>
             <hr />
             <!-- NTP-Server -->
@@ -227,12 +230,12 @@
                     name="ntp_enable"
                     type="checkbox"
                     role="switch"
-                    id="p12_ntp_enable" />
+                    id="cfg_ntp_enable" />
                 </div>
               </div>
               <br />
               <label for="ntp_server" data-i18n="server"></label>
-              <input type="text" id="p12_ntp_server" name="ntp_server" />
+              <input type="text" id="cfg_ntp_server" name="ntp_server" />
               <div class="leftright">
                 <label for="time_zone" data-i18n="ntp_tz"></label>
                 <button
@@ -244,7 +247,7 @@
                     border: none;
                   "></button>
               </div>
-              <input type="text" id="p12_ntp_tz" name="time_zone" />
+              <input type="text" id="cfg_ntp_tz" name="time_zone" />
             </details>
             <hr />
             <!-- Dialog OPEN-NTP-HELP -->
@@ -269,7 +272,7 @@
                     name="ntp_auto_sync"
                     type="checkbox"
                     role="switch"
-                    id="p12_ntp_auto_sync" />
+                    id="cfg_ntp_auto_sync" />
                 </div>
               </div>
               <br />
@@ -328,7 +331,7 @@
                     name="mqtt_enable"
                     type="checkbox"
                     role="switch"
-                    id="p12_mqtt_enable" />
+                    id="cfg_mqtt_enable" />
                 </div>
               </div>
               <div class="section-header">
@@ -337,7 +340,7 @@
                   name="mqtt_cfg_ret"
                   type="checkbox"
                   role="switch"
-                  id="p12_mqtt_cfg_ret" />
+                  id="cfg_mqtt_config_retain" />
               </div>
               <div class="section-header">
                 <label for="mqtt_ha_enable">Home Assistant</label>
@@ -345,39 +348,42 @@
                   name="mqtt_ha_enable"
                   type="checkbox"
                   role="switch"
-                  id="p12_mqtt_ha_enable" />
+                  id="cfg_mqtt_ha_enable" />
               </div>
               <br />
               <label for="mqtt_server" data-i18n="server"></label>
-              <input type="text" id="p12_mqtt_server" name="mqtt_server" />
+              <input type="text" id="cfg_mqtt_server" name="mqtt_server" />
               <label for="mqtt_port" data-i18n="port"></label>
-              <input type="text" id="p12_mqtt_port" name="mqtt_port" />
+              <input type="text" id="cfg_mqtt_port" name="mqtt_port" />
               <label for="mqtt_topic" data-i18n="topic"></label>
-              <input type="text" id="p12_mqtt_topic" name="mqtt_topic" />
+              <input type="text" id="cfg_mqtt_topic" name="mqtt_topic" />
               <label for="mqtt_user" data-i18n="user"></label>
-              <input type="text" id="p12_mqtt_user" name="mqtt_user" />
+              <input type="text" id="cfg_mqtt_user" name="mqtt_user" />
               <label for="mqtt_password" data-i18n="password"></label>
-              <input type="password" id="p12_mqtt_passw" name="mqtt_password" />
+              <input
+                type="password"
+                id="cfg_mqtt_password"
+                name="mqtt_password" />
               <label for="mqtt_language" data-i18n="topic$ $language"></label>
-              <select id="p12_mqtt_lang" name="mqtt_language">
+              <select id="cfg_mqtt_language" name="mqtt_language">
                 <option value="0" data-i18n="german"></option>
                 <option value="1" data-i18n="english"></option>
               </select>
               <label for="mqtt_cyclicsend" data-i18n="cyclic_send"></label>
               <input
                 type="text"
-                id="p12_mqtt_cyclic_send"
+                id="cfg_mqtt_cyclic_send"
                 name="mqtt_cyclic_send" />
               <label for="mqtt_ha_topic">Home Assistant Topic</label>
               <input
                 type="text"
-                id="p12_mqtt_ha_topic"
+                id="cfg_mqtt_ha_topic"
                 placeholder="homeassistant"
                 name="mqtt_ha_topic" />
               <label for="mqtt_ha_device">Home Assistant Device Name</label>
               <input
                 type="text"
-                id="p12_mqtt_ha_device"
+                id="cfg_mqtt_ha_device"
                 placeholder="Logamatic"
                 name="mqtt_ha_device" />
             </details>
@@ -392,22 +398,22 @@
                     name="pushover_enable"
                     type="checkbox"
                     role="switch"
-                    id="p12_pushover_enable" />
+                    id="cfg_pushover_enable" />
                 </div>
               </div>
               <br />
               <label for="pushover_api_token" data-i18n="api_token"></label>
               <input
                 type="password"
-                id="p12_pushover_api_token"
+                id="cfg_pushover_token"
                 name="pushover_api_token" />
               <label for="pushover_user_key" data-i18n="user_key"></label>
               <input
                 type="password"
-                id="p12_pushover_user_key"
+                id="cfg_pushover_user_key"
                 name="pushover_user_key" />
               <label for="pushover_filter" data-i18n="filter"></label>
-              <select id="p12_pushover_filter" name="pushover_filter">
+              <select id="cfg_pushover_filter" name="pushover_filter">
                 <option value="0" data-i18n="alarm"></option>
                 <option value="1" data-i18n="alarm_info"></option>
               </select>
@@ -432,7 +438,7 @@
                   type="checkbox"
                   role="switch"
                   hideOpt="OPT_HC1"
-                  id="p12_hc1_enable" />
+                  id="cfg_km271_use_hc1" />
               </div>
               <div class="section-header">
                 <label
@@ -443,7 +449,7 @@
                   type="checkbox"
                   role="switch"
                   hideOpt="OPT_HC2"
-                  id="p12_hc2_enable" />
+                  id="cfg_km271_use_hc2" />
               </div>
               <div class="section-header">
                 <label for="hot_water" data-i18n="hot_water"></label>
@@ -452,7 +458,7 @@
                   type="checkbox"
                   role="switch"
                   hideOpt="OPT_HW"
-                  id="p12_hw_enable" />
+                  id="cfg_km271_use_ww" />
               </div>
               <div class="section-header">
                 <label for="alarm" data-i18n="alarm"></label>
@@ -461,7 +467,7 @@
                   type="checkbox"
                   role="switch"
                   hideOpt="OPT_ALARM"
-                  id="p12_alarm_enable" />
+                  id="cfg_km271_use_alarmMsg" />
               </div>
             </details>
             <hr />
@@ -495,49 +501,49 @@
                 class="num-input"
                 name="km271_rx"
                 type="number"
-                id="p12_gpio_km271_rx"
+                id="cfg_gpio_km271_RX"
                 placeholder="-1 to disable" />
               <label for="km271_tx" data-i18n="km271_tx"></label>
               <input
                 class="num-input"
                 name="km271_tx"
                 type="number"
-                id="p12_gpio_km271_tx"
+                id="cfg_gpio_km271_TX"
                 placeholder="-1 to disable" />
               <label for="led_heartbeat" data-i18n="led_heartbeat"></label>
               <input
                 class="num-input"
                 name="led_heartbeat"
                 type="number"
-                id="p12_gpio_led_heartbeat"
+                id="cfg_gpio_led_heartbeat"
                 placeholder="-1 to disable" />
               <label for="led_logmode" data-i18n="led_logmode"></label>
               <input
                 class="num-input"
                 name="led_logmode"
                 type="number"
-                id="p12_gpio_led_logmode"
+                id="cfg_gpio_led_logmode"
                 placeholder="-1 to disable" />
               <label for="led_wifi" data-i18n="led_wifi"></label>
               <input
                 class="num-input"
                 name="led_wifi"
                 type="number"
-                id="p12_gpio_led_wifi"
+                id="cfg_gpio_led_wifi"
                 placeholder="-1 to disable" />
               <label for="led_oilcounter" data-i18n="led_oilcounter"></label>
               <input
                 class="num-input"
                 name="led_oilcounter"
                 type="number"
-                id="p12_gpio_led_oil"
+                id="cfg_gpio_led_oilcounter"
                 placeholder="-1 to disable" />
               <label for="trig_oilcounter" data-i18n="trig_oilcounter"></label>
               <input
                 class="num-input"
                 name="trig_oilcounter"
                 type="number"
-                id="p12_gpio_trig_oil"
+                id="cfg_gpio_trigger_oilcounter"
                 placeholder="-1 to disable" />
             </details>
             <!-- Dialog OPEN-GPIO-HELP -->
@@ -603,7 +609,7 @@
                   type="checkbox"
                   role="switch"
                   hideOpt="OPT_HW_OIL"
-                  id="p12_oil_hw_enable" />
+                  id="cfg_oilmeter_use_hardware_meter" />
               </div>
               <div class="section-header">
                 <h6 for="oil_virtual" data-i18n="oil_virtual"></h6>
@@ -612,7 +618,7 @@
                   type="checkbox"
                   role="switch"
                   hideOpt="OPT_V_OIL"
-                  id="p12_oil_virt_enable" />
+                  id="cfg_oilmeter_use_virtual_meter" />
               </div>
               <br />
               <label
@@ -623,7 +629,7 @@
                 class="OPT_V_OIL"
                 name="oil_par1_kg_h"
                 type="number"
-                id="p12_oil_par1_kg_h" />
+                id="cfg_oilmeter_consumption_kg_h" />
               <label
                 class="OPT_V_OIL"
                 for="oil_par2_kg_l"
@@ -632,7 +638,7 @@
                 class="OPT_V_OIL"
                 name="oil_par2_kg_l"
                 type="number"
-                id="p12_oil_par2_kg_l" />
+                id="cfg_oilmeter_oil_density_kg_l" />
             </details>
             <hr />
             <!-- Optional Sensors -->
@@ -645,17 +651,20 @@
                   type="checkbox"
                   role="switch"
                   hideOpt="OPT_SENS1"
-                  id="p12_sens1_enable" />
+                  id="cfg_sensor_ch1_enable" />
               </div>
               <label for="sens1_name" data-i18n="name"></label>
-              <input type="text" id="p12_sens1_name" name="sens1_name" />
+              <input type="text" id="cfg_sensor_ch1_name" name="sens1_name" />
               <label for="sens1_desc" data-i18n="description"></label>
-              <input type="text" id="p12_sens1_description" name="sens1_desc" />
+              <input
+                type="text"
+                id="cfg_sensor_ch1_description"
+                name="sens1_desc" />
               <label for="sens1_gpio" data-i18n="gpio"></label>
               <input
                 name="sens1_gpio"
                 type="number"
-                id="p12_sens1_gpio"
+                id="cfg_sensor_ch1_gpio"
                 placeholder="-1 to disable" />
 
               <div class="section-header">
@@ -665,17 +674,20 @@
                   type="checkbox"
                   role="switch"
                   hideOpt="OPT_SENS2"
-                  id="p12_sens2_enable" />
+                  id="cfg_sensor_ch2_enable" />
               </div>
               <label for="sens2_name">Name</label>
-              <input type="text" id="p12_sens2_name" name="sens2_name" />
+              <input type="text" id="cfg_sensor_ch2_name" name="sens2_name" />
               <label for="sens2_desc" data-i18n="description"></label>
-              <input type="text" id="p12_sens2_description" name="sens2_desc" />
+              <input
+                type="text"
+                id="cfg_sensor_ch2_description"
+                name="sens2_desc" />
               <label for="sens2_gpio" data-i18n="gpio"></label>
               <input
                 name="sens2_gpio"
                 type="number"
-                id="p12_sens2_gpio"
+                id="cfg_sensor_ch2_gpio"
                 placeholder="-1 to disable" />
             </details>
             <hr />
@@ -690,7 +702,7 @@
                     type="checkbox"
                     role="switch"
                     hideOpt="OPT_SIM"
-                    id="p12_sim_enable" />
+                    id="cfg_sim_enable" />
                 </div>
               </div>
               <br />
@@ -704,7 +716,7 @@
             <!-- Language -->
             <details>
               <summary data-i18n="language"></summary>
-              <select id="p12_language">
+              <select id="cfg_lang">
                 <option value="0" data-i18n="german"></option>
                 <option value="1" data-i18n="english"></option>
               </select>

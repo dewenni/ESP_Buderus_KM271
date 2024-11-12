@@ -161,9 +161,6 @@ void configInitValue() {
   config.oilmeter.use_hardware_meter = false;
   config.oilmeter.use_virtual_meter = false;
 
-  // webUI
-  config.webUI.enable = true;
-
   // gpio
   memset(&config.gpio, -1, sizeof(config.gpio));
 }
@@ -235,8 +232,6 @@ void configSaveToFile() {
   doc["gpio"]["trigger_oilcounter"] = config.gpio.trigger_oilcounter;
   doc["gpio"]["km271_RX"] = config.gpio.km271_RX;
   doc["gpio"]["km271_TX"] = config.gpio.km271_TX;
-
-  doc["webUI"]["enable"] = config.webUI.enable;
 
   doc["km271"]["use_hc1"] = config.km271.use_hc1;
   doc["km271"]["use_hc2"] = config.km271.use_hc2;
@@ -369,8 +364,6 @@ void configLoadFromFile() {
     config.gpio.trigger_oilcounter = doc["gpio"]["trigger_oilcounter"];
     config.gpio.km271_RX = doc["gpio"]["km271_RX"];
     config.gpio.km271_TX = doc["gpio"]["km271_TX"];
-
-    config.webUI.enable = doc["webUI"]["enable"];
 
     config.km271.use_hc1 = doc["km271"]["use_hc1"];
     config.km271.use_hc2 = doc["km271"]["use_hc2"];

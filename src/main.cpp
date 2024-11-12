@@ -106,9 +106,7 @@ void setup() {
   }
 
   // webUI Setup
-  if (config.webUI.enable) {
-    webUISetup();
-  }
+  webUISetup();
 
   // Sensor Setup
   setupSensor();

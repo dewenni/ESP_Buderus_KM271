@@ -30,10 +30,6 @@ struct s_cfg_oilmeter {
   float oil_density_kg_l = 0.85;
 };
 
-struct s_cfg_webUI {
-  bool enable = true;
-};
-
 struct s_cfg_km271 {
   bool use_hc1;
   bool use_hc2;
@@ -148,7 +144,6 @@ struct s_config {
   s_cfg_mqtt mqtt;
   s_cfg_ntp ntp;
   s_cfg_gpio gpio;
-  s_cfg_webUI webUI;
   s_cfg_km271 km271;
   s_cfg_auth auth;
   s_cfg_debug debug;

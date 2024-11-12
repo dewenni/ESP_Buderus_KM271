@@ -331,3 +331,64 @@ function showReloadBar() {
 function hideReloadBar() {
   document.getElementById("connectionLostBar").style.display = "none";
 }
+
+// update elements based on config.json file
+function updateUI(config, prefix = "cfg", ignoreKeys = ["debug"]) {
+  for (const key in config) {
+    if (config.hasOwnProperty(key)) {
+      // Prüfen, ob der aktuelle Schlüssel ignoriert werden soll
+      if (ignoreKeys.includes(key)) {
+        console.log("config update - key ignored: " + key);
+        continue;
+      }
+
+      const value = config[key];
+      const elementId = `${prefix}_${key}`;
+
+      // Überprüfen, ob das aktuelle Element ein verschachteltes Objekt ist
+      if (typeof value === "object" && value !== null) {
+        // Rekursiv weiter ins Objekt gehen, mit dem erweiterten Prefix
+        updateUI(value, elementId, ignoreKeys);
+      } else {
+        // UI-Element mit dem zusammengesetzten ID suchen
+        const element = document.getElementById(elementId);
+        if (element) {
+          // Unterscheide die Art des HTML-Elements
+          if (element.type === "checkbox") {
+            // Setze das "checked"-Attribut für Checkboxen
+            element.checked = value === true;
+            toggleElementVisibility(
+              element.getAttribute("hideOpt"),
+              element.checked
+            );
+          } else if (element.type === "radio") {
+            // Setze das "checked"-Attribut für Radio-Buttons
+            element.checked = element.value === value.toString();
+          } else {
+            // Setze das "value"-Attribut für andere Eingabetypen (z.B. text, number)
+            element.value = value;
+          }
+        } else {
+          console.error("config update - elementId not found: " + elementId);
+        }
+      }
+    }
+  }
+}
+
+
+// Config bei Seitenaufruf laden und UI aktualisieren
+async function loadConfig() {
+  try {
+    const response = await fetch("/config.json");
+    if (!response.ok)
+      throw new Error("Fehler beim Abrufen der Konfigurationsdaten");
+
+    const config = await response.json();
+
+    // UI-Elemente basierend auf der geladenen config.json aktualisieren
+    updateUI(config);
+  } catch (error) {
+    console.error("Error loading config:", error);
+  }
+}

@@ -192,103 +192,17 @@ void updateOilmeterElements(bool init) {
  * @param   none
  * @return  none
  * *******************************************************************/
-void updateSettingsElements() {
-
-  initJsonBuffer(jsonDoc);
-
-  addJsonValueTxt(jsonDoc, "p12_wifi_hostname", config.wifi.hostname);
-  addJsonValueTxt(jsonDoc, "p12_wifi_ssid", config.wifi.ssid);
-  addJsonValueTxt(jsonDoc, "p12_wifi_passw", config.wifi.password);
-  addJsonState(jsonDoc, "p12_wifi_static_ip", config.wifi.static_ip);
-  addJsonValueTxt(jsonDoc, "p12_wifi_adr", config.wifi.ipaddress);
-  addJsonValueTxt(jsonDoc, "p12_wifi_subnet", config.wifi.subnet);
-  addJsonValueTxt(jsonDoc, "p12_wifi_gateway", config.wifi.gateway);
-  addJsonValueTxt(jsonDoc, "p12_wifi_dns", config.wifi.dns);
-
-  addJsonState(jsonDoc, "p12_eth_enable", config.eth.enable);
-  addJsonValueTxt(jsonDoc, "p12_eth_hostname", config.eth.hostname);
-  addJsonValueInt(jsonDoc, "p12_eth_gpio_sck", config.eth.gpio_sck);
-  addJsonValueInt(jsonDoc, "p12_eth_gpio_mosi", config.eth.gpio_mosi);
-  addJsonValueInt(jsonDoc, "p12_eth_gpio_miso", config.eth.gpio_miso);
-  addJsonValueInt(jsonDoc, "p12_eth_gpio_cs", config.eth.gpio_cs);
-  addJsonValueInt(jsonDoc, "p12_eth_gpio_irq", config.eth.gpio_irq);
-  addJsonValueInt(jsonDoc, "p12_eth_gpio_rst", config.eth.gpio_rst);
-  addJsonState(jsonDoc, "p12_eth_static_ip", config.eth.static_ip);
-  addJsonValueTxt(jsonDoc, "p12_eth_adr", config.eth.ipaddress);
-  addJsonValueTxt(jsonDoc, "p12_eth_subnet", config.eth.subnet);
-  addJsonValueTxt(jsonDoc, "p12_eth_gateway", config.eth.gateway);
-  addJsonValueTxt(jsonDoc, "p12_eth_dns", config.eth.dns);
-
-  addJsonState(jsonDoc, "p12_auth_enable", config.auth.enable);
-  addJsonValueTxt(jsonDoc, "p12_auth_user", config.auth.user);
-  addJsonValueTxt(jsonDoc, "p12_auth_passw", config.auth.password);
-  addJsonState(jsonDoc, "p12_mqtt_enable", config.mqtt.enable);
-  addJsonValueTxt(jsonDoc, "p12_mqtt_server", config.mqtt.server);
-  addJsonValueInt(jsonDoc, "p12_mqtt_port", (config.mqtt.port));
-  addJsonValueTxt(jsonDoc, "p12_mqtt_user", config.mqtt.user);
-  addJsonValueTxt(jsonDoc, "p12_mqtt_passw", config.mqtt.password);
-  addJsonValueTxt(jsonDoc, "p12_mqtt_topic", config.mqtt.topic);
-  addJsonValueInt(jsonDoc, "p12_mqtt_lang", config.mqtt.lang);
-  addJsonValueInt(jsonDoc, "p12_mqtt_cyclic_send", (config.mqtt.cyclicSendMin));
-  addJsonState(jsonDoc, "p12_mqtt_ha_enable", config.mqtt.ha_enable);
-  addJsonValueTxt(jsonDoc, "p12_mqtt_ha_topic", config.mqtt.ha_topic);
-  addJsonValueTxt(jsonDoc, "p12_mqtt_ha_device", config.mqtt.ha_device);
-  addJsonState(jsonDoc, "p12_pushover_enable", config.pushover.enable);
-  addJsonValueTxt(jsonDoc, "p12_pushover_api_token", config.pushover.token);
-  addJsonValueTxt(jsonDoc, "p12_pushover_user_key", config.pushover.user_key);
-  addJsonValueInt(jsonDoc, "p12_pushover_filter", config.pushover.filter);
-  addJsonState(jsonDoc, "p12_hc1_enable", config.km271.use_hc1);
-  addJsonState(jsonDoc, "p12_hc2_enable", config.km271.use_hc2);
-  addJsonState(jsonDoc, "p12_hw_enable", config.km271.use_ww);
-  addJsonState(jsonDoc, "p12_alarm_enable", config.km271.use_alarmMsg);
-  addJsonValueInt(jsonDoc, "p12_gpio_km271_rx", config.gpio.km271_RX);
-  addJsonValueInt(jsonDoc, "p12_gpio_km271_tx", config.gpio.km271_TX);
-  addJsonValueInt(jsonDoc, "p12_gpio_led_heartbeat", config.gpio.led_heartbeat);
-  addJsonValueInt(jsonDoc, "p12_gpio_led_logmode", config.gpio.led_logmode);
-  addJsonValueInt(jsonDoc, "p12_gpio_led_wifi", config.gpio.led_wifi);
-  addJsonValueInt(jsonDoc, "p12_gpio_led_oil", config.gpio.led_oilcounter);
-  addJsonValueInt(jsonDoc, "p12_gpio_trig_oil", config.gpio.trigger_oilcounter);
-  addJsonState(jsonDoc, "p12_oil_hw_enable", config.oilmeter.use_hardware_meter);
-  addJsonState(jsonDoc, "p12_oil_virt_enable", config.oilmeter.use_virtual_meter);
-  addJsonValueFlt8(jsonDoc, "p12_oil_par1_kg_h", config.oilmeter.consumption_kg_h);
-  addJsonValueFlt8(jsonDoc, "p12_oil_par2_kg_l", config.oilmeter.oil_density_kg_l);
-  addJsonState(jsonDoc, "p12_sens1_enable", config.sensor.ch1_enable);
-  addJsonValueTxt(jsonDoc, "p12_sens1_name", config.sensor.ch1_name);
-  addJsonValueTxt(jsonDoc, "p12_sens1_description", config.sensor.ch1_description);
-  addJsonValueInt(jsonDoc, "p12_sens1_gpio", config.sensor.ch1_gpio);
-  addJsonState(jsonDoc, "p12_sens2_enable", config.sensor.ch2_enable);
-  addJsonValueTxt(jsonDoc, "p12_sens2_name", config.sensor.ch2_name);
-  addJsonValueTxt(jsonDoc, "p12_sens2_description", config.sensor.ch2_description);
-  addJsonValueInt(jsonDoc, "p12_sens2_gpio", config.sensor.ch2_gpio);
-  addJsonValueInt(jsonDoc, "p12_language", config.lang);
-  addJsonState(jsonDoc, "p10_log_enable", config.log.enable);
-  addJsonValueInt(jsonDoc, "p10_log_mode", config.log.filter);
-  addJsonValueInt(jsonDoc, "p10_log_order", config.log.order);
-  addJsonState(jsonDoc, "p12_ntp_enable", config.ntp.enable);
-  addJsonValueTxt(jsonDoc, "p12_ntp_server", config.ntp.server);
-  addJsonValueTxt(jsonDoc, "p12_ntp_tz", config.ntp.tz);
-  addJsonState(jsonDoc, "p12_sim_enable", config.sim.enable);
-
-  updateWebJSON(jsonDoc);
-}
-
-/**
- * *******************************************************************
- * @brief   update System informations
- * @param   none
- * @return  none
- * *******************************************************************/
 void updateGpioSettings() {
 
   initJsonBuffer(jsonDoc);
 
-  addJsonValueInt(jsonDoc, "p12_gpio_km271_rx", config.gpio.km271_RX);
-  addJsonValueInt(jsonDoc, "p12_gpio_km271_tx", config.gpio.km271_TX);
-  addJsonValueInt(jsonDoc, "p12_gpio_led_heartbeat", config.gpio.led_heartbeat);
-  addJsonValueInt(jsonDoc, "p12_gpio_led_logmode", config.gpio.led_logmode);
-  addJsonValueInt(jsonDoc, "p12_gpio_led_wifi", config.gpio.led_wifi);
-  addJsonValueInt(jsonDoc, "p12_gpio_led_oil", config.gpio.led_oilcounter);
-  addJsonValueInt(jsonDoc, "p12_gpio_trig_oil", config.gpio.trigger_oilcounter);
+  addJsonValueInt(jsonDoc, "cfg_gpio_km271_RX", config.gpio.km271_RX);
+  addJsonValueInt(jsonDoc, "cfg_gpio_km271_TX", config.gpio.km271_TX);
+  addJsonValueInt(jsonDoc, "cfg_gpio_led_heartbeat", config.gpio.led_heartbeat);
+  addJsonValueInt(jsonDoc, "cfg_gpio_led_logmode", config.gpio.led_logmode);
+  addJsonValueInt(jsonDoc, "cfg_gpio_led_wifi", config.gpio.led_wifi);
+  addJsonValueInt(jsonDoc, "cfg_gpio_led_oilcounter", config.gpio.led_oilcounter);
+  addJsonValueInt(jsonDoc, "cfg_gpio_trigger_oilcounter", config.gpio.trigger_oilcounter);
 
   updateWebJSON(jsonDoc);
 }
@@ -1319,12 +1233,9 @@ void webUIupdates() {
       updateSystemInfoElementsStatic(); // update static informations (≈ 200 Bytes)
       break;
     case 1:
-      updateSettingsElements(); // send all "Settings" elements as one big JSON update (≈ 2 kB)
-      break;
-    case 2:
       updateKm271ConfigElementsAll(); // send all "Config" elements as one big JSON update ( ≈ 4 kB)
       break;
-    case 3:
+    case 2:
       updateKm271StatusElementsAll(); // send all "Status" elements as one big JSON update (≈ 4 kB)
       refreshRequest = false;
       break;
@@ -1332,7 +1243,7 @@ void webUIupdates() {
       UpdateCntRefresh = -1;
       break;
     }
-    UpdateCntRefresh = (UpdateCntRefresh + 1) % 4;
+    UpdateCntRefresh = (UpdateCntRefresh + 1) % 3;
   }
 
   // CHANGE-BASED: check and refresh single elemets if they have changed - do this step by step not to stress the connection

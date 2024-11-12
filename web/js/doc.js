@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
   setupWS();
   initializeVisibilityBasedOnSwitches();
   localizePage("de");
+  loadConfig();
 
   // Event Listener for Reload-Button
   document
@@ -149,16 +150,14 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // language selection
-  document
-    .getElementById("p12_language")
-    .addEventListener("change", function () {
-      var languageValue = this.value;
-      if (languageValue === "1") {
-        localizePage("en");
-      } else if (languageValue === "0") {
-        localizePage("de");
-      }
-    });
+  document.getElementById("cfg_lang").addEventListener("change", function () {
+    var languageValue = this.value;
+    if (languageValue === "1") {
+      localizePage("en");
+    } else if (languageValue === "0") {
+      localizePage("de");
+    }
+  });
 
   // event listener for all input fields that call sendData on "blur"
   document
