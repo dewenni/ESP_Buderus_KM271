@@ -25,8 +25,17 @@ int dst_old;              // reminder for change of daylight saving time
 bool dst_ref;             // init flag fpr dst reference
 bool ntpSynced;           // ntp sync flag
 bool ntpInit = false;     // init flag for ntp sync
+bool otaActive = false;   // OTA active flag
 
 esp_task_wdt_config_t twdt_config{timeout_ms : 10000U, idle_core_mask : 0b10, trigger_panic : true};
+
+/**
+ * *******************************************************************
+ * @brief   is OTA update active?
+ * @param   none
+ * @return  true if update is active
+ * *******************************************************************/
+bool otaActiveState() { return otaActive; }
 
 /**
  * *******************************************************************
@@ -73,9 +82,15 @@ void setup() {
   ArduinoOTA.onStart([]() {
     storeData();               // store Data before update
     esp_task_wdt_delete(NULL); // disable watchdog timer
+    otaActive = true;
   });
   ArduinoOTA.onEnd([]() {
     esp_task_wdt_add(NULL); // re-activate Watchdog
+    otaActive = false;
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
+    esp_task_wdt_add(NULL); // re-activate Watchdog
+    otaActive = false;
   });
   ArduinoOTA.setHostname(config.wifi.hostname);
   ArduinoOTA.begin();
