@@ -25,3 +25,5 @@ void replace_underscores(const char *input, char *output, size_t output_size);
 void replace_whitespace(const char *input, char *output, size_t output_size);
 void to_lowercase(const char *input, char *output, size_t output_size);
 bool isNumber(const char *str);
+void readJSONstring(char *dest, size_t size, const char *src);
+unsigned long hash(void *str, size_t len);

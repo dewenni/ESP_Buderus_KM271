@@ -333,7 +333,11 @@ function hideReloadBar() {
 }
 
 // update elements based on config.json file
-function updateUI(config, prefix = "cfg", ignoreKeys = ["debug"]) {
+function updateUI(
+  config,
+  prefix = "cfg",
+  ignoreKeys = ["debug", "webUI_enable"]
+) {
   for (const key in config) {
     if (config.hasOwnProperty(key)) {
       // Prüfen, ob der aktuelle Schlüssel ignoriert werden soll

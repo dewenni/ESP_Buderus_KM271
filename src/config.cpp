@@ -3,6 +3,7 @@
 #include <LittleFS.h>
 #include <basics.h>
 #include <config.h>
+#include <stringHelper.h>
 
 /* D E C L A R A T I O N S ****************************************************/
 char filename[24] = {"/config.json"};
@@ -17,34 +18,7 @@ static const char *TAG = "CFG"; // LOG TAG
 void configGPIO();
 void configInitValue();
 
-/**
- * *******************************************************************
- * @brief   hash djb2 function
- * @param   str, len
- * @return  none
- * *******************************************************************/
-unsigned long hash(void *str, size_t len) {
-  unsigned char *p = (unsigned char *)str;
-  unsigned long hash = 5381;
-  size_t i;
-  for (i = 0; i < len; i++) {
-    hash = ((hash << 5) + hash) + p[i]; /* hash * 33 + c */
-  }
-  return hash;
-}
 
-/**
- * *******************************************************************
- * @brief   check before read from file
- * @param   dest, size, src
- * @return  none
- * *******************************************************************/
-void readJSONstring(char *dest, size_t size, const char *src) {
-  const char *check = src;
-  if (check != NULL) {
-    snprintf(dest, size, "%s", src);
-  }
-}
 
 /**
  * *******************************************************************
@@ -91,6 +65,7 @@ void configCyclic() {
     if (hashNew != hashOld) {
       hashOld = hashNew;
       configSaveToFile();
+      MY_LOGD(TAG, "config saved to file");
     }
   }
 }

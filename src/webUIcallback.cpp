@@ -154,91 +154,91 @@ void webCallback(const char *elementId, const char *value) {
   }
 
   // WiFi
-  if (strcmp(elementId, "p12_wifi_hostname") == 0) {
+  if (strcmp(elementId, "cfg_wifi_hostname") == 0) {
     snprintf(config.wifi.hostname, sizeof(config.wifi.hostname), value);
   }
-  if (strcmp(elementId, "p12_wifi_ssid") == 0) {
+  if (strcmp(elementId, "cfg_wifi_ssid") == 0) {
     snprintf(config.wifi.ssid, sizeof(config.wifi.ssid), value);
   }
-  if (strcmp(elementId, "p12_wifi_passw") == 0) {
+  if (strcmp(elementId, "cfg_wifi_password") == 0) {
     snprintf(config.wifi.password, sizeof(config.wifi.password), value);
   }
-  if (strcmp(elementId, "p12_wifi_static_ip") == 0) {
+  if (strcmp(elementId, "cfg_wifi_static_ip") == 0) {
     config.wifi.static_ip = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_wifi_adr") == 0) {
+  if (strcmp(elementId, "cfg_wifi_ipaddress") == 0) {
     snprintf(config.wifi.ipaddress, sizeof(config.wifi.ipaddress), value);
   }
-  if (strcmp(elementId, "p12_wifi_subnet") == 0) {
+  if (strcmp(elementId, "cfg_wifi_subnet") == 0) {
     snprintf(config.wifi.subnet, sizeof(config.wifi.subnet), value);
   }
-  if (strcmp(elementId, "p12_wifi_gateway") == 0) {
+  if (strcmp(elementId, "cfg_wifi_gateway") == 0) {
     snprintf(config.wifi.gateway, sizeof(config.wifi.gateway), value);
   }
-  if (strcmp(elementId, "p12_wifi_dns") == 0) {
+  if (strcmp(elementId, "cfg_wifi_dns") == 0) {
     snprintf(config.wifi.dns, sizeof(config.wifi.dns), value);
   }
 
   // Ethernet
-  if (strcmp(elementId, "p12_eth_enable") == 0) {
+  if (strcmp(elementId, "cfg_eth_enable") == 0) {
     config.eth.enable = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_eth_hostname") == 0) {
+  if (strcmp(elementId, "cfg_eth_hostname") == 0) {
     snprintf(config.eth.hostname, sizeof(config.eth.hostname), value);
   }
-  if (strcmp(elementId, "p12_eth_gpio_sck") == 0) {
+  if (strcmp(elementId, "cfg_eth_gpio_sck") == 0) {
     config.eth.gpio_sck = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_eth_gpio_mosi") == 0) {
+  if (strcmp(elementId, "cfg_eth_gpio_mosi") == 0) {
     config.eth.gpio_mosi = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_eth_gpio_miso") == 0) {
+  if (strcmp(elementId, "cfg_eth_gpio_miso") == 0) {
     config.eth.gpio_miso = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_eth_gpio_cs") == 0) {
+  if (strcmp(elementId, "cfg_eth_gpio_cs") == 0) {
     config.eth.gpio_cs = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_eth_gpio_irq") == 0) {
+  if (strcmp(elementId, "cfg_eth_gpio_irq") == 0) {
     config.eth.gpio_irq = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_eth_gpio_rst") == 0) {
+  if (strcmp(elementId, "cfg_eth_gpio_rst") == 0) {
     config.eth.gpio_rst = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_eth_static_ip") == 0) {
+  if (strcmp(elementId, "cfg_eth_static_ip") == 0) {
     config.eth.static_ip = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_eth_adr") == 0) {
+  if (strcmp(elementId, "cfg_eth_ipaddress") == 0) {
     snprintf(config.eth.ipaddress, sizeof(config.eth.ipaddress), value);
   }
-  if (strcmp(elementId, "p12_eth_subnet") == 0) {
+  if (strcmp(elementId, "cfg_eth_subnet") == 0) {
     snprintf(config.eth.subnet, sizeof(config.eth.subnet), value);
   }
-  if (strcmp(elementId, "p12_eth_gateway") == 0) {
+  if (strcmp(elementId, "cfg_eth_gateway") == 0) {
     snprintf(config.eth.gateway, sizeof(config.eth.gateway), value);
   }
-  if (strcmp(elementId, "p12_eth_dns") == 0) {
+  if (strcmp(elementId, "cfg_eth_dns") == 0) {
     snprintf(config.eth.dns, sizeof(config.eth.dns), value);
   }
 
   // Authentication
-  if (strcmp(elementId, "p12_auth_enable") == 0) {
+  if (strcmp(elementId, "cfg_auth_enable") == 0) {
     config.auth.enable = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_auth_user") == 0) {
+  if (strcmp(elementId, "cfg_auth_user") == 0) {
     snprintf(config.auth.user, sizeof(config.auth.user), "%s", value);
   }
-  if (strcmp(elementId, "p12_auth_passw") == 0) {
+  if (strcmp(elementId, "cfg_auth_password") == 0) {
     snprintf(config.auth.password, sizeof(config.auth.password), "%s", value);
   }
 
   // NTP-Server
-  if (strcmp(elementId, "p12_ntp_enable") == 0) {
+  if (strcmp(elementId, "cfg_ntp_enable") == 0) {
     config.ntp.enable = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_ntp_server") == 0) {
+  if (strcmp(elementId, "cfg_ntp_server") == 0) {
     snprintf(config.ntp.server, sizeof(config.ntp.server), "%s", value);
   }
-  if (strcmp(elementId, "p12_ntp_tz") == 0) {
+  if (strcmp(elementId, "cfg_ntp_tz") == 0) {
     snprintf(config.ntp.tz, sizeof(config.ntp.tz), "%s", value);
   }
 
@@ -296,59 +296,59 @@ void webCallback(const char *elementId, const char *value) {
     km271SetDateTimeDTI(dti);
     // TODO: check
   }
-  if (strcmp(elementId, "p12_ntp_auto_sync") == 0) {
+  if (strcmp(elementId, "cfg_ntp_auto_sync") == 0) {
     config.ntp.auto_sync = stringToBool(value);
   }
 
   // MQTT
-  if (strcmp(elementId, "p12_mqtt_enable") == 0) {
+  if (strcmp(elementId, "cfg_mqtt_enable") == 0) {
     config.mqtt.enable = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_mqtt_cfg_ret") == 0) {
+  if (strcmp(elementId, "cfg_mqtt_cfg_ret") == 0) {
     config.mqtt.config_retain = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_mqtt_server") == 0) {
+  if (strcmp(elementId, "cfg_mqtt_server") == 0) {
     snprintf(config.mqtt.server, sizeof(config.mqtt.server), "%s", value);
   }
-  if (strcmp(elementId, "p12_mqtt_port") == 0) {
+  if (strcmp(elementId, "cfg_mqtt_port") == 0) {
     config.mqtt.port = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_mqtt_topic") == 0) {
+  if (strcmp(elementId, "cfg_mqtt_topic") == 0) {
     snprintf(config.mqtt.topic, sizeof(config.mqtt.topic), "%s", value);
   }
-  if (strcmp(elementId, "p12_mqtt_user") == 0) {
+  if (strcmp(elementId, "cfg_mqtt_user") == 0) {
     snprintf(config.mqtt.user, sizeof(config.mqtt.user), "%s", value);
   }
-  if (strcmp(elementId, "p12_mqtt_passw") == 0) {
+  if (strcmp(elementId, "cfg_mqtt_password") == 0) {
     snprintf(config.mqtt.password, sizeof(config.mqtt.password), "%s", value);
   }
-  if (strcmp(elementId, "p12_mqtt_lang") == 0) {
+  if (strcmp(elementId, "cfg_mqtt_language") == 0) {
     config.mqtt.lang = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_mqtt_cyclic_send") == 0) {
+  if (strcmp(elementId, "cfg_mqtt_cyclic_send") == 0) {
     config.mqtt.cyclicSendMin = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_mqtt_ha_enable") == 0) {
+  if (strcmp(elementId, "cfg_mqtt_ha_enable") == 0) {
     config.mqtt.ha_enable = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_mqtt_ha_topic") == 0) {
+  if (strcmp(elementId, "cfg_mqtt_ha_topic") == 0) {
     snprintf(config.mqtt.ha_topic, sizeof(config.mqtt.ha_topic), "%s", value);
   }
-  if (strcmp(elementId, "p12_mqtt_ha_device") == 0) {
+  if (strcmp(elementId, "cfg_mqtt_ha_device") == 0) {
     snprintf(config.mqtt.ha_device, sizeof(config.mqtt.ha_device), "%s", value);
   }
 
   // Pushover
-  if (strcmp(elementId, "p12_pushover_enable") == 0) {
+  if (strcmp(elementId, "cfg_pushover_enable") == 0) {
     config.pushover.enable = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_pushover_api_token") == 0) {
+  if (strcmp(elementId, "cfg_pushover_token") == 0) {
     snprintf(config.pushover.token, sizeof(config.pushover.token), "%s", value);
   }
-  if (strcmp(elementId, "p12_pushover_user_key") == 0) {
+  if (strcmp(elementId, "cfg_pushover_user_key") == 0) {
     snprintf(config.pushover.user_key, sizeof(config.pushover.user_key), "%s", value);
   }
-  if (strcmp(elementId, "p12_pushover_filter") == 0) {
+  if (strcmp(elementId, "cfg_pushover_filter") == 0) {
     config.pushover.filter = strtoul(value, NULL, 10);
   }
   if (strcmp(elementId, "p12_pushover_test_msg_cmd") == 0) {
@@ -356,16 +356,16 @@ void webCallback(const char *elementId, const char *value) {
   }
 
   // Logamatic
-  if (strcmp(elementId, "p12_hc1_enable") == 0) {
+  if (strcmp(elementId, "cfg_km271_use_hc1") == 0) {
     config.km271.use_hc1 = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_hc2_enable") == 0) {
+  if (strcmp(elementId, "cfg_km271_use_hc2") == 0) {
     config.km271.use_hc2 = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_hw_enable") == 0) {
+  if (strcmp(elementId, "cfg_km271_use_ww") == 0) {
     config.km271.use_ww = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_alarm_enable") == 0) {
+  if (strcmp(elementId, "cfg_km271_use_alarmMsg") == 0) {
     config.km271.use_alarmMsg = stringToBool(value);
   }
 
@@ -407,67 +407,70 @@ void webCallback(const char *elementId, const char *value) {
     }
     updateGpioSettings();
   }
-  if (strcmp(elementId, "p12_gpio_km271_rx") == 0) {
+  if (strcmp(elementId, "cfg_gpio_km271_RX") == 0) {
     config.gpio.km271_RX = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_gpio_km271_tx") == 0) {
+  if (strcmp(elementId, "cfg_gpio_km271_TX") == 0) {
     config.gpio.km271_TX = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_gpio_led_heartbeat") == 0) {
+  if (strcmp(elementId, "cfg_gpio_led_heartbeat") == 0) {
     config.gpio.led_heartbeat = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_gpio_led_logmode") == 0) {
+  if (strcmp(elementId, "cfg_gpio_led_logmode") == 0) {
     config.gpio.led_logmode = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_gpio_led_wifi") == 0) {
+  if (strcmp(elementId, "cfg_gpio_led_wifi") == 0) {
+    config.gpio.led_wifi = strtoul(value, NULL, 10);
+  }
+  if (strcmp(elementId, "cfg_gpio_led_oilcounter") == 0) {
     config.gpio.led_oilcounter = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_gpio_trig_oil") == 0) {
+  if (strcmp(elementId, "cfg_gpio_trigger_oilcounter") == 0) {
     config.gpio.trigger_oilcounter = strtoul(value, NULL, 10);
   }
 
   // Oil-Meter
-  if (strcmp(elementId, "p12_oil_hw_enable") == 0) {
+  if (strcmp(elementId, "cfg_oilmeter_use_hardware_meter") == 0) {
     config.oilmeter.use_hardware_meter = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_oil_virt_enable") == 0) {
+  if (strcmp(elementId, "cfg_oilmeter_use_virtual_meter") == 0) {
     config.oilmeter.use_virtual_meter = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_oil_par1_kg_h") == 0) {
+  if (strcmp(elementId, "cfg_oilmeter_consumption_kg_h") == 0) {
     config.oilmeter.consumption_kg_h = strtof(value, NULL);
   }
-  if (strcmp(elementId, "p12_oil_par2_kg_l") == 0) {
+  if (strcmp(elementId, "cfg_oilmeter_oil_density_kg_l") == 0) {
     config.oilmeter.oil_density_kg_l = strtof(value, NULL);
   }
 
   // Optional Sensor
-  if (strcmp(elementId, "p12_sens1_enable") == 0) {
+  if (strcmp(elementId, "cfg_sensor_ch1_enable") == 0) {
     config.sensor.ch1_enable = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_sens1_name") == 0) {
+  if (strcmp(elementId, "cfg_sensor_ch1_name") == 0) {
     snprintf(config.sensor.ch1_name, sizeof(config.sensor.ch1_name), "%s", value);
   }
-  if (strcmp(elementId, "p12_sens1_description") == 0) {
+  if (strcmp(elementId, "cfg_sensor_ch1_description") == 0) {
     snprintf(config.sensor.ch1_description, sizeof(config.sensor.ch1_description), "%s", value);
   }
-  if (strcmp(elementId, "p12_sens1_gpio") == 0) {
+  if (strcmp(elementId, "cfg_sensor_ch1_gpio") == 0) {
     config.sensor.ch1_gpio = strtoul(value, NULL, 10);
   }
-  if (strcmp(elementId, "p12_sens2_enable") == 0) {
+  if (strcmp(elementId, "cfg_sensor_ch2_enable") == 0) {
     config.sensor.ch2_enable = stringToBool(value);
   }
-  if (strcmp(elementId, "p12_sens2_name") == 0) {
+  if (strcmp(elementId, "cfg_sensor_ch2_name") == 0) {
     snprintf(config.sensor.ch2_name, sizeof(config.sensor.ch2_name), "%s", value);
   }
-  if (strcmp(elementId, "p12_sens2_description") == 0) {
+  if (strcmp(elementId, "cfg_sensor_ch2_description") == 0) {
     snprintf(config.sensor.ch2_description, sizeof(config.sensor.ch2_description), "%s", value);
   }
-  if (strcmp(elementId, "p12_sens2_gpio") == 0) {
+  if (strcmp(elementId, "cfg_sensor_ch2_gpio") == 0) {
     config.sensor.ch2_gpio = strtoul(value, NULL, 10);
   }
 
   // Language
-  if (strcmp(elementId, "p12_language") == 0) {
+  if (strcmp(elementId, "cfg_lang") == 0) {
     config.lang = strtoul(value, NULL, 10);
     updateAllElements();
   }
@@ -483,15 +486,15 @@ void webCallback(const char *elementId, const char *value) {
   }
 
   // Logger
-  if (strcmp(elementId, "p10_log_enable") == 0) {
+  if (strcmp(elementId, "cfg_logger_enable") == 0) {
     config.log.enable = stringToBool(value);
   }
-  if (strcmp(elementId, "p10_log_mode") == 0) {
+  if (strcmp(elementId, "cfg_logger_filter") == 0) {
     config.log.filter = strtoul(value, NULL, 10);
     clearLogBuffer();
     updateWebLog("", "clr_log"); // clear log
   }
-  if (strcmp(elementId, "p10_log_order") == 0) {
+  if (strcmp(elementId, "cfg_logger_order") == 0) {
     config.log.order = strtoul(value, NULL, 10);
     updateWebLog("", "clr_log"); // clear log
     webReadLogBuffer();
@@ -504,7 +507,7 @@ void webCallback(const char *elementId, const char *value) {
     webReadLogBuffer();
   }
   // Simulation
-  if (strcmp(elementId, "p12_sim_enable") == 0) {
+  if (strcmp(elementId, "cfg_sim_enable") == 0) {
     config.sim.enable = stringToBool(value);
     showElementClass("simModeBar", config.sim.enable);
   }

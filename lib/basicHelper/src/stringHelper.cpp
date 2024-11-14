@@ -342,3 +342,32 @@ bool isNumber(const char *str) {
     return false; // string is a number
   }
 }
+
+/**
+ * *******************************************************************
+ * @brief   check before read from file
+ * @param   dest, size, src
+ * @return  none
+ * *******************************************************************/
+void readJSONstring(char *dest, size_t size, const char *src) {
+  const char *check = src;
+  if (check != NULL) {
+    snprintf(dest, size, "%s", src);
+  }
+}
+
+/**
+ * *******************************************************************
+ * @brief   hash djb2 function
+ * @param   str, len
+ * @return  none
+ * *******************************************************************/
+unsigned long hash(void *str, size_t len) {
+  unsigned char *p = (unsigned char *)str;
+  unsigned long hash = 5381;
+  size_t i;
+  for (i = 0; i < len; i++) {
+    hash = ((hash << 5) + hash) + p[i]; /* hash * 33 + c */
+  }
+  return hash;
+}

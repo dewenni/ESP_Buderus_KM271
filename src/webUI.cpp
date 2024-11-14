@@ -3,6 +3,7 @@
 #include <basics.h>
 #include <favicon.h>
 #include <km271.h>
+#include <language.h>
 #include <message.h>
 #include <oilmeter.h>
 #include <sensor.h>
@@ -11,9 +12,9 @@
 #include <webUI.h>
 #include <webUIhelper.h>
 #include <webUIupdates.h>
-#include <language.h>
 
 const int MAX_WS_CLIENT = 2;
+const int CHUNK_SIZE = 1024;
 
 /* P R O T O T Y P E S ********************************************************/
 void webCallback(const char *elementId, const char *value);
@@ -23,10 +24,10 @@ muTimer heartbeatTimer = muTimer();  // timer to refresh other values
 muTimer simulationTimer = muTimer(); // timer to refresh other values
 muTimer logReadTimer = muTimer();    // timer to refresh other values
 muTimer otaUpdateTimer = muTimer();  // timer to refresh other values
+muTimer onLoadTimer = muTimer();  // timer to refresh other values
 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
-
 
 static const char *TAG = "WEB"; // LOG TAG
 bool webInitDone = false;
@@ -54,6 +55,7 @@ void sendWs(JsonDocument &jsonDoc) {
     assert(buffer); // optional: check buffer
     serializeJson(jsonDoc, buffer->get(), len);
     ws.textAll(buffer);
+    MY_LOGD(TAG, "sendWS - JSON elements: %u", jsonDoc.size());
   }
 }
 
@@ -64,7 +66,9 @@ void updateWebLanguage(const char *language) {
   sendWs(jsonDoc);
 }
 
-void updateWebJSON(JsonDocument &jsonDoc) { sendWs(jsonDoc); }
+void updateWebJSON(JsonDocument &jsonDoc) {
+  sendWs(jsonDoc);
+}
 
 void updateWebText(const char *id, const char *text, bool isInput) {
   JsonDocument jsonDoc;
@@ -280,6 +284,83 @@ bool isAuthenticated(AsyncWebServerRequest *request) {
   return false;
 }
 
+String getLastModifiedDate() {
+  // Parse date and time from macros
+  char monthStr[4];
+  int day, year, hour, minute, second;
+  sscanf(__DATE__, "%3s %d %d", monthStr, &day, &year);
+  sscanf(__TIME__, "%d:%d:%d", &hour, &minute, &second);
+
+  // Convert month abbreviation to month number
+  const char *months = "JanFebMarAprMayJunJulAugSepOctNovDec";
+  int month = (strstr(months, monthStr) - months) / 3 + 1;
+
+  // Populate tm structure
+  struct tm t = {};
+  t.tm_year = year - 1900; // Year since 1900
+  t.tm_mon = month - 1;    // Month, 0-11
+  t.tm_mday = day;
+  t.tm_hour = hour;
+  t.tm_min = minute;
+  t.tm_sec = second;
+
+  // Calculate day of the week
+  mktime(&t);
+  const char *daysOfWeek[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+  const char *dayOfWeek = daysOfWeek[t.tm_wday];
+
+  // Format date in RFC 1123 format
+  char lastModified[30];
+  snprintf(lastModified, sizeof(lastModified), "%s, %02d %s %d %02d:%02d:%02d GMT", dayOfWeek, day, monthStr, year, hour, minute, second);
+
+  return String(lastModified);
+}
+
+// Generic function to handle gzip-compressed chunked responses with customizable chunk size
+void sendGzipChunkedResponse(AsyncWebServerRequest *request, const uint8_t *content, size_t contentLength, const char *contentType, bool checkAuth,
+                             size_t chunkSize) {
+  // Set ETag based on the size of the gzip-compressed file
+  String etag = String(contentLength);
+
+  // Check if the client already has the current version in cache
+  if (request->header("If-None-Match") == etag) {
+    request->send(304); // 304 Not Modified
+    MY_LOGD(TAG, "contend not changed: %s", request->url().c_str());
+    return;
+  }
+
+  // check if authenticated
+  if (!isAuthenticated(request) && checkAuth) {
+    request->redirect("/login");
+    return;
+  }
+
+  MY_LOGD(TAG, "sending: %s", request->url().c_str());
+  // Create a chunked response with the specified chunk size
+  AsyncWebServerResponse *response =
+      request->beginChunkedResponse(contentType, [content, contentLength, chunkSize](uint8_t *buffer, size_t maxLen, size_t index) -> size_t {
+        // Check if we have reached the end of the file
+        if (index >= contentLength) {
+          //MY_LOGD(TAG, "finished");
+          return 0; // End transmission
+        }
+        // Determine the actual chunk size to send, ensuring we don't exceed maxLen or remaining content length
+        size_t actualChunkSize = min(chunkSize, min(maxLen, contentLength - index));
+        memcpy(buffer, content + index, actualChunkSize);
+        //MY_LOGD(TAG, "sending: %u", actualChunkSize);
+        return actualChunkSize; // Return the number of bytes sent
+      });
+
+  // Set HTTP headers
+  response->addHeader(asyncsrv::T_Content_Encoding, "gzip");             // Gzip-Encoding
+  response->addHeader(asyncsrv::T_Cache_Control, "public,max-age=60");   // Cache-Control header
+  response->addHeader(asyncsrv::T_ETag, etag);                           // Set ETag based on file size
+  response->addHeader(asyncsrv::T_Last_Modified, getLastModifiedDate()); // Set Last-Modified to build date
+
+  // Send the response
+  request->send(response);
+}
+
 /**
  * *******************************************************************
  * @brief   cyclic call for webUI - creates all webUI elements
@@ -289,15 +370,11 @@ bool isAuthenticated(AsyncWebServerRequest *request) {
 void webUISetup() {
 
   server.on("/login", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse(200, "text/html", gzip_login_html, gzip_login_html_size);
-    request->send(response);
-    response->addHeader("Content-Encoding", "gzip");
+    sendGzipChunkedResponse(request, gzip_login_html, gzip_login_html_size, "text/html", false, CHUNK_SIZE);
   });
 
   server.on("/max_ws", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse(200, "text/html", gzip_max_ws_html, gzip_max_ws_html_size);
-    request->send(response);
-    response->addHeader("Content-Encoding", "gzip");
+    sendGzipChunkedResponse(request, gzip_max_ws_html, gzip_max_ws_html_size, "text/html", false, CHUNK_SIZE);
   });
 
   server.on("/close_all_ws_clients", HTTP_POST, [](AsyncWebServerRequest *request) {
@@ -310,7 +387,7 @@ void webUISetup() {
       if ((request->getParam("username", true)->value() == String(config.auth.user) &&
            request->getParam("password", true)->value() == String(config.auth.password)) ||
           (request->getParam("username", true)->value() == "esp-buderus" && request->getParam("password", true)->value() == "km271")) {
-        // Erfolgreicher Login, Cookie setzen
+        // successful login - set cookie
         AsyncWebServerResponse *response = request->beginResponse(303); // 303 See Other
         response->addHeader("Location", "/");
         response->addHeader("Set-Cookie", "esp_buderus_km271_auth=1; Path=/; HttpOnly");
@@ -332,31 +409,17 @@ void webUISetup() {
   });
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse(200, "text/html", gzip_main_html, gzip_main_html_size);
-    if (!isAuthenticated(request)) {
-      request->redirect("/login");
-    } else {
-      response->addHeader("Content-Encoding", "gzip");
-      request->send(response);
-    }
+    sendGzipChunkedResponse(request, gzip_main_html, gzip_main_html_size, "text/html", true, CHUNK_SIZE);
   });
 
-  server.on("/main.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse(200, "text/css", gzip_css, gzip_css_size);
-    response->addHeader("Content-Encoding", "gzip");
-    request->send(response);
-  });
+  server.on("/main.css", HTTP_GET,
+            [](AsyncWebServerRequest *request) { sendGzipChunkedResponse(request, gzip_css, gzip_css_size, "text/css", true, CHUNK_SIZE); });
 
-  server.on("/main.js", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse(200, "text/js", gzip_js, gzip_js_size);
-    response->addHeader("Content-Encoding", "gzip");
-    request->send(response);
-  });
+  server.on("/main.js", HTTP_GET,
+            [](AsyncWebServerRequest *request) { sendGzipChunkedResponse(request, gzip_js, gzip_js_size, "text/js", false, CHUNK_SIZE); });
 
   server.on("/gzip_ntp", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse(200, "text/html", gzip_ntp_html, gzip_ntp_html_size);
-    response->addHeader("Content-Encoding", "gzip");
-    request->send(response);
+    sendGzipChunkedResponse(request, gzip_ntp_html, gzip_ntp_html_size, "text/html", false, CHUNK_SIZE);
   });
 
   server.on("/favicon.svg", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(200, "image/svg+xml", faviconSvg); });
@@ -365,7 +428,7 @@ void webUISetup() {
   server.on("/config-download", HTTP_GET,
             [](AsyncWebServerRequest *request) { request->send(LittleFS, "/config.json", "application/octet-stream"); });
 
-  // Route, um die config.json-Datei zu senden
+  // send config.json file
   server.on("/config.json", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/config.json", "application/json"); });
 
   // config.json upload
@@ -459,14 +522,16 @@ void webUISetup() {
  * *******************************************************************/
 void webUICyclic() {
 
+  // send heartbeat for websocket client
   if (heartbeatTimer.cycleTrigger(3000)) {
     sendHeartbeat();
   }
 
-  // request for update alle elements
-  if (onLoadRequest) {
+  // request for update alle elements - not faster than every 1s
+  if (onLoadRequest && onLoadTimer.cycleTrigger(1000)) {
     updateAllElements();
     onLoadRequest = false;
+    MY_LOGD(TAG, "updateAllElements()");
   }
 
   // handling of update webUI elements

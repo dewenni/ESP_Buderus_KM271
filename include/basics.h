@@ -46,3 +46,4 @@ void sendETHInfo();
 void storeData();
 void getUptime(char *buffer, size_t bufferSize);
 void sendSysInfo();
+void setupETH();

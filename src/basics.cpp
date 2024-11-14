@@ -193,7 +193,7 @@ void setupETH() {
   SPI.setFrequency(SPI_MASTER_FREQ_8M);
   SPI.begin(config.eth.gpio_sck, config.eth.gpio_miso, config.eth.gpio_mosi);
   ETH.begin(ETH_PHY_TYPE, ETH_PHY_ADDR, config.eth.gpio_cs, config.eth.gpio_irq, config.eth.gpio_rst, SPI);
-  
+
   if (config.eth.static_ip) {
     ETH.config(IPAddress(config.eth.ipaddress), IPAddress(config.eth.gateway), IPAddress(config.eth.subnet), IPAddress(config.eth.dns));
   }
