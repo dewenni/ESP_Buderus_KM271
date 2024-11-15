@@ -68,7 +68,6 @@ const char *errOkString(uint8_t value) {
  * *******************************************************************/
 int logLine, logIdx = 0;
 bool logReadActive = false;
-
 bool webLogRefreshActive() { return logReadActive; }
 
 void webReadLogBuffer() {
@@ -78,46 +77,58 @@ void webReadLogBuffer() {
 }
 
 void webReadLogBufferCyclic() {
-  if (!logReadActive) {
-    return;
-  }
-  if (logLine == 0 && logData.lastLine == 0) {
-    // log empty
-    logReadActive = false;
-    return;
-  }
-  if (config.log.order == 1) {
-    logIdx = (logData.lastLine - logLine - 1) % MAX_LOG_LINES;
-  } else {
-    if (logData.buffer[logData.lastLine][0] == '\0') {
-      // buffer is not full - start reading at element index 0
-      logIdx = logLine % MAX_LOG_LINES;
-    } else {
-      // buffer is full - start reading at element index "logData.lastLine"
-      logIdx = (logData.lastLine + logLine) % MAX_LOG_LINES;
-    }
-  }
-  if (logIdx < 0) {
-    logIdx += MAX_LOG_LINES;
-  }
-  if (logIdx >= MAX_LOG_LINES) {
-    logIdx = 0;
-  }
-  if (logLine == 0) {
-    updateWebLog("", "clr_log");                     // clear log
-    updateWebLog(logData.buffer[logIdx], "add_log"); // add first log element
-    logLine++;
-  } else if (logLine == MAX_LOG_LINES - 1) {
-    // end
-    return;
-  } else {
-    if (logData.buffer[logIdx][0] != '\0') {
-      updateWebLog(logData.buffer[logIdx], "add_log"); // add next log element
-      logLine++;
-    } else {
-      // no more entries
+  JsonDocument jsonLog;
+  jsonLog.clear();
+  jsonLog["type"] = "logger";
+  jsonLog["cmd"] = "add_log";
+  JsonArray entryArray = jsonLog["entry"].to<JsonArray>();
+
+  while (logReadActive) {
+
+    if (logLine == 0 && logData.lastLine == 0) {
+      // log empty
       logReadActive = false;
       return;
+    }
+    if (config.log.order == 1) {
+      logIdx = (logData.lastLine - logLine - 1) % MAX_LOG_LINES;
+    } else {
+      if (logData.buffer[logData.lastLine][0] == '\0') {
+        // buffer is not full - start reading at element index 0
+        logIdx = logLine % MAX_LOG_LINES;
+      } else {
+        // buffer is full - start reading at element index "logData.lastLine"
+        logIdx = (logData.lastLine + logLine) % MAX_LOG_LINES;
+      }
+    }
+    if (logIdx < 0) {
+      logIdx += MAX_LOG_LINES;
+    }
+    if (logIdx >= MAX_LOG_LINES) {
+      logIdx = 0;
+    }
+    if (logLine == MAX_LOG_LINES - 1) {
+      // end
+      updateWebJSON(jsonLog);
+      logReadActive = false;
+      Serial.println("exit1");
+      return;
+    } else {
+      if (logData.buffer[logIdx][0] != '\0') {
+        entryArray.add(logData.buffer[logIdx]);
+        logLine++;
+      } else {
+        // no more entries
+        logReadActive = false;
+        Serial.println("exit2");
+
+        String jsonString;
+        serializeJson(jsonLog, jsonString);
+        Serial.println(jsonString);
+
+        updateWebJSON(jsonLog);
+        return;
+      }
     }
   }
 }

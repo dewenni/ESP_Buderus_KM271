@@ -1121,7 +1121,7 @@ void webUIupdates() {
       updateSensorElements(false); // send update of sensor elements
       break;
     case 3:
-      checkKm271ConfigElements(false); // check and send if Km271 config values has changed (≈ 4 Bytes)
+      checkKm271ConfigElements(false); // check and send if Km271 config values has changed (≈ 4 kB)
       break;
     default:
       UpdateCntSlow = -1;

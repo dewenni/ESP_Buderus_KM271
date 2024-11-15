@@ -206,7 +206,10 @@ function showElementClass(data) {
 function logger(data) {
   var logOutput = document.getElementById("p10_log_output");
   if (data.cmd === "add_log") {
-    logOutput.innerHTML += data.entry + "<br>";
+    
+    data.entry.forEach(function (entry) {   
+      logOutput.innerHTML += entry + "<br>";
+    });
   } else if (data.cmd === "clr_log") {
     logOutput.innerHTML = "";
   }
