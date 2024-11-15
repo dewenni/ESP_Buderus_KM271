@@ -27,8 +27,6 @@ s_km271_config_str *pkmConfigStr = km271GetConfigStringsAdr();
 s_km271_config_num *pkmConfigNum = km271GetConfigValueAdr();
 s_km271_alarm_str *pkmAlarmStr = km271GetAlarmMsgAdr();
 
-static const char *TAG = "WEB"; // LOG TAG
-
 char tmpMessage[300] = {'\0'};
 unsigned int KmAlarmHash[4] = {0};
 bool refreshRequest = false;
@@ -493,6 +491,27 @@ void generateKm271ConfigJSON() {
   addJsonLabelTxt(kmCfgJsonDoc, "p07_burner_mod_run", pkmConfigStr->burner_modulation_runtime);
   addJsonLabelTxt(kmCfgJsonDoc, "p07_building_type", pkmConfigStr->building_type);
   addJsonLabelTxt(kmCfgJsonDoc, "p07_time_offset", pkmConfigStr->time_offset);
+
+  // solar config values
+  if (config.km271.use_solar) {
+
+    if (pkmConfigNum->solar_operation_mode == 2) {
+      snprintf(tmpMessage, sizeof(tmpMessage), "%s", WEB_TXT::AUTOMATIC[config.lang]);
+      addJsonIcon(kmCfgJsonDoc, "p01_solar_opmode_icon", "i_auto");
+    } else if (pkmConfigNum->solar_operation_mode == 1) {
+      snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", WEB_TXT::MANUAL[config.lang], WEB_TXT::DAY[config.lang]);
+      addJsonIcon(kmCfgJsonDoc, "p01_solar_opmode_icon", "i_manual");
+    } else {
+      snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", WEB_TXT::MANUAL[config.lang], WEB_TXT::NIGHT[config.lang]);
+      addJsonIcon(kmCfgJsonDoc, "p01_solar_opmode_icon", "i_manual");
+    }
+    addJsonLabelTxt(kmCfgJsonDoc, "p01_solar_opmode", tmpMessage);
+
+    addJsonLabelTxt(kmCfgJsonDoc, "p13_solar_enable", pkmConfigStr->solar_activation);
+    addJsonLabelTxt(kmCfgJsonDoc, "p13_solar_opmode", pkmConfigStr->solar_operation_mode);
+    addJsonLabelTxt(kmCfgJsonDoc, "p13_solar_min", pkmConfigStr->solar_min);
+    addJsonLabelTxt(kmCfgJsonDoc, "p13_solar_max", pkmConfigStr->solar_max);
+  }
 }
 
 /**
@@ -892,6 +911,41 @@ void updateKm271StatusElements(bool forceUpdate) {
   if (forceUpdate || kmStatusCpy.ERR_Alarmstatus != pkmStatus->ERR_Alarmstatus) {
     kmStatusCpy.ERR_Alarmstatus = pkmStatus->ERR_Alarmstatus;
   }
+
+  if (config.km271.use_solar) {
+
+    if (forceUpdate || kmStatusCpy.SolarLoad != pkmStatus->SolarLoad) {
+      kmStatusCpy.SolarLoad = pkmStatus->SolarLoad;
+      addJsonLabelTxt(jsonDoc, "p13_solar_load", (kmStatusCpy.SolarLoad == 0) ? WEB_TXT::OFF[config.lang] : WEB_TXT::ON[config.lang]);
+    }
+
+    if (forceUpdate || kmStatusCpy.SolarWW != pkmStatus->SolarWW) {
+      kmStatusCpy.SolarWW = pkmStatus->SolarWW;
+      addJsonLabelInt(jsonDoc, "p01_solar_ww", kmStatusCpy.SolarWW);
+      addJsonLabelInt(jsonDoc, "p13_solar_ww", kmStatusCpy.SolarWW);
+    }
+
+    if (forceUpdate || kmStatusCpy.SolarCollector != pkmStatus->SolarCollector) {
+      kmStatusCpy.SolarCollector = pkmStatus->SolarCollector;
+      addJsonLabelInt(jsonDoc, "p01_solar_collector", kmStatusCpy.SolarCollector);
+      addJsonLabelInt(jsonDoc, "p13_solar_collector", kmStatusCpy.SolarCollector);
+    }
+
+    if (forceUpdate || kmStatusCpy.SolarOperatingDuration_Sum != pkmStatus->SolarOperatingDuration_Sum) {
+      kmStatusCpy.SolarOperatingDuration_Sum = pkmStatus->SolarOperatingDuration_Sum;
+      timeComponents solarRuntime = convertMinutes(kmStatusCpy.SolarOperatingDuration_Sum);
+      addJsonLabelInt(jsonDoc, "p13_solar_run_years", solarRuntime.years);
+      addJsonLabelInt(jsonDoc, "p13_solar_run_days", solarRuntime.days);
+      addJsonLabelInt(jsonDoc, "p13_solar_run_hours", solarRuntime.hours);
+      addJsonLabelInt(jsonDoc, "p13_solar_run_min", solarRuntime.minutes);
+    }
+
+    if (forceUpdate || kmStatusCpy.Solar9147 != pkmStatus->Solar9147) {
+      kmStatusCpy.Solar9147 = pkmStatus->Solar9147;
+      addJsonLabelInt(jsonDoc, "p13_solar_9147", kmStatusCpy.Solar9147);
+    }
+  }
+
   // check if something is to send
   if (dataInJsonBuffer()) {
     updateWebJSON(jsonDoc);

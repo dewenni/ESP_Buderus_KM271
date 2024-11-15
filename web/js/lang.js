@@ -650,6 +650,10 @@ const translations = {
     de: "Temperatur",
     en: "temp",
   },
+  temp_c: {
+    de: "°C",
+    en: "°C",
+  },
   processing: {
     de: "Aufbereitung",
     en: "processing",
@@ -950,21 +954,21 @@ const translations = {
     de: "Abgastemperatur",
     en: "Exhaust gas temp",
   },
-  burner_runtime_years: {
-    de: "Brenner Laufzeit Jahre",
-    en: "Burner runtime years",
+  runtime_years: {
+    de: "Laufzeit Jahre",
+    en: "runtime years",
   },
-  burner_runtime_days: {
-    de: "Brenner Laufzeit Tage",
-    en: "Burner runtime days",
+  runtime_days: {
+    de: "Laufzeit Tage",
+    en: "runtime days",
   },
-  burner_runtime_hours: {
-    de: "Brenner Laufzeit Stunden",
-    en: "Burner runtime hours",
+  runtime_hours: {
+    de: "Laufzeit Stunden",
+    en: "runtime hours",
   },
-  burner_runtime_minutes: {
-    de: "Brenner Laufzeit Minuten",
-    en: "Burner runtime minutes",
+  runtime_minutes: {
+    de: "Laufzeit Minuten",
+    en: "runtime minutes",
   },
   outside_temp: {
     de: "Außentemperatur",
@@ -1113,5 +1117,29 @@ const translations = {
   cyclic_send: {
     de: "zyklisches Senden [min]",
     en: "cyclic send [min]",
+  },
+  solar: {
+    de: "Solar",
+    en: "Solar",
+  },
+  enabled: {
+    de: "Aktiviert",
+    en: "activated",
+  },
+  maxtemp: {
+    de: "Maximaltemperatur",
+    en: "max temperature",
+  },
+  mintemp: {
+    de: "Minimaltemperatur",
+    en: "min temperature",
+  },
+  load: {
+    de: "Ladung",
+    en: "load",
+  },
+  collector: {
+    de: "Kollektor",
+    en: "Collector",
   },
 };

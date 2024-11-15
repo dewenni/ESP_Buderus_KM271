@@ -105,6 +105,14 @@ struct s_km271_status {
   uint8_t ControllerVersionSub;          // 0x893f : Number
   uint8_t Modul;                         // 0x8940 : Number
   uint8_t ERR_Alarmstatus;               // 0xaa42 : Bitfield
+  uint8_t SolarLoad;                     // 0x9142 : on=1 / off=0
+  uint8_t SolarWW;                       // 0x9144 : Temperature (1C resolution)
+  uint8_t SolarCollector;                // 0x9146 : Temperature (1C resolution)
+  uint8_t Solar9147;                     // 0x9147 : unknown
+  uint8_t SolarOperatingDuration_2;      // 0x9148 : Minutes (*65536)
+  uint8_t SolarOperatingDuration_1;      // 0x9149 : Minutes (*256)
+  uint8_t SolarOperatingDuration_0;      // 0x914a : Minutes (*1)
+  uint64_t SolarOperatingDuration_Sum;   // Minutes (sum)
 };
 
 // This struicure contains all config values read from the heating controller.
@@ -188,6 +196,10 @@ struct s_km271_config_str {
   char hc2_timer13[CFG_MAX_CHAR_TIMER] = {'\0'};
   char hc2_timer14[CFG_MAX_CHAR_TIMER] = {'\0'};
   char time_offset[CFG_MAX_CHAR_TIMER] = {'\0'};
+  char solar_operation_mode[CFG_MAX_CHAR_TIMER] = {'\0'};
+  char solar_activation[CFG_MAX_CHAR_TIMER] = {'\0'};
+  char solar_max[CFG_MAX_CHAR_TIMER] = {'\0'};
+  char solar_min[CFG_MAX_CHAR_TIMER] = {'\0'};
 };
 
 // This struicure contains the alarm message read from the heating controller.
@@ -252,6 +264,10 @@ struct s_km271_config_num {
   uint8_t hc2_holiday_days;
   uint8_t hc1_timer[14];
   uint8_t hc2_timer[14];
+  uint8_t solar_operation_mode;
+  uint8_t solar_activation;
+  uint8_t solar_max;
+  uint8_t solar_min;
 };
 
 // Return values used by the KM271 protocol functions

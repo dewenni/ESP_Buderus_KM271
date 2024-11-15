@@ -141,6 +141,11 @@ constexpr const char *HC2_TIMER12[MAX_LANG] = {"HK2_Timer12", "hc2_timer12"};
 constexpr const char *HC2_TIMER13[MAX_LANG] = {"HK2_Timer13", "hc2_timer13"};
 constexpr const char *HC2_TIMER14[MAX_LANG] = {"HK2_Timer14", "hc2_timer14"};
 constexpr const char *TIME_OFFSET[MAX_LANG] = {"Uhrzeit_Offset", "time_offset"};
+constexpr const char *SOLAR_OPMODE[MAX_LANG] = {"Solar_Betriebsart", "solar_operation_mode"};
+constexpr const char *SOLAR_ENABLE[MAX_LANG] = {"Solar_Aktivierung", "solar_enabled"};
+constexpr const char *SOLAR_TEMP_MAX[MAX_LANG] = {"Solar_Maximaltemperatur", "solar_temp_max"};
+constexpr const char *SOLAR_TEMP_MIN[MAX_LANG] = {"Solar_Minimaltemperatur", "solar_temp_min"};
+
 }; // namespace KM_CFG_TOPIC
 
 // constexpr const char=============================================================================
@@ -275,6 +280,13 @@ constexpr const char *ALARM_BURNER[MAX_LANG] = {"ERR_Alarmstatus_Brenner", "err_
 constexpr const char *ALARM_20[MAX_LANG] = {"ERR_Alarmstatus_20", "err_alarm_20"};
 constexpr const char *ALARM_HC2_FLOW_SENS[MAX_LANG] = {"ERR_Alarmstatus_HK2-Vorlauffuehler", "err_alarm_HK2-flow_sensor"};
 constexpr const char *ALARM_80[MAX_LANG] = {"ERR_Alarmstatus_80", "err_alarm_80"};
+
+constexpr const char *SOLAR_LOAD[MAX_LANG] = {"Solar_Ladung", "solar_load"};
+constexpr const char *SOLAR_WW[MAX_LANG] = {"Solar_Warmwasser", "solar_ww"};
+constexpr const char *SOLAR_COLLECTOR[MAX_LANG] = {"Solar_Kollektor", "solar_collector"};
+constexpr const char *SOLAR_RUNTIME[MAX_LANG] = {"Solar_Laufzeit", "solar_runtime"};
+constexpr const char *SOLAR_9147[MAX_LANG] = {"Solar_9147", "solar_9147"};
+
 }; // namespace KM_STAT_TOPIC
 
 // ======================================================================================
@@ -395,19 +407,21 @@ struct s_err_array {
 // status messages from KM271
 // ======================================================================================
 namespace KM_INFO_MSG {
-  constexpr const char *CMD[MAX_LANG] = {"Befehl", "command"};
-  constexpr const char *RECV[MAX_LANG] = {"empfangen", "received"};
-  constexpr const char *INVALID[MAX_LANG] = {"ungültiger Parameter", "invalid parameter"};
-  constexpr const char *VALUE[MAX_LANG] = {"Wert", "value"};
-  constexpr const char *RESTARTED[MAX_LANG] = {"ESP hat neu gestartet!", "ESP has been restarted!"};
-  constexpr const char *HC1_SUMMER_MODE[MAX_LANG] = {"Heizung hat in Sommerbetrieb gewechselt ☀️", "Heating has changed to summer mode ☀️"};
-  constexpr const char *HC1_WINTER_MODE[MAX_LANG] = {"Heizung hat in Winterbetrieb gewechselt ❄️", "Heating has changed to winter mode ❄️"};
-  constexpr const char *HC2_SUMMER_MODE[MAX_LANG] = {"Heizkreis 2 hat in Sommerbetrieb gewechselt ☀️",
-                                            "Heating Circuit 2 has changed to summer mode ☀️"};
-  constexpr const char *HC2_WINTER_MODE[MAX_LANG] = {"Heizkreis 2 hat in Winterbetrieb gewechselt ❄️",
-                                            "Heating Circuit 2 has changed to winter mode ❄️"};
-  constexpr const char *HC1_FROST_MODE_ON[MAX_LANG] = {"Heizung hat in Frostmodus gewechselt ❄️", "Heating has changed to frost mode ❄️"};
-  constexpr const char *HC2_FROST_MODE_ON[MAX_LANG] = {"Heizkreis 2 hat in Frostmodus gewechselt ❄️", "Heating Circuit 2 has changed to frost mode ❄️"};
-  constexpr const char *HC1_FROST_MODE_OFF[MAX_LANG] = {"Heizung hat den Frostmodus verlassen ❄️", "Heating has exited frost mode ❄️"};
-  constexpr const char *HC2_FROST_MODE_OFF[MAX_LANG] = {"Heizkreis 2 hat den Frostmodus verlassen ❄️", "Heating Circuit 2 has exited frost mode ❄️"};
-};
+constexpr const char *CMD[MAX_LANG] = {"Befehl", "command"};
+constexpr const char *RECV[MAX_LANG] = {"empfangen", "received"};
+constexpr const char *INVALID[MAX_LANG] = {"ungültiger Parameter", "invalid parameter"};
+constexpr const char *VALUE[MAX_LANG] = {"Wert", "value"};
+constexpr const char *RESTARTED[MAX_LANG] = {"ESP hat neu gestartet!", "ESP has been restarted!"};
+constexpr const char *HC1_SUMMER_MODE[MAX_LANG] = {"Heizung hat in Sommerbetrieb gewechselt ☀️", "Heating has changed to summer mode ☀️"};
+constexpr const char *HC1_WINTER_MODE[MAX_LANG] = {"Heizung hat in Winterbetrieb gewechselt ❄️", "Heating has changed to winter mode ❄️"};
+constexpr const char *HC2_SUMMER_MODE[MAX_LANG] = {"Heizkreis 2 hat in Sommerbetrieb gewechselt ☀️",
+                                                   "Heating Circuit 2 has changed to summer mode ☀️"};
+constexpr const char *HC2_WINTER_MODE[MAX_LANG] = {"Heizkreis 2 hat in Winterbetrieb gewechselt ❄️",
+                                                   "Heating Circuit 2 has changed to winter mode ❄️"};
+constexpr const char *HC1_FROST_MODE_ON[MAX_LANG] = {"Heizung hat in Frostmodus gewechselt ❄️", "Heating has changed to frost mode ❄️"};
+constexpr const char *HC2_FROST_MODE_ON[MAX_LANG] = {"Heizkreis 2 hat in Frostmodus gewechselt ❄️",
+                                                     "Heating Circuit 2 has changed to frost mode ❄️"};
+constexpr const char *HC1_FROST_MODE_OFF[MAX_LANG] = {"Heizung hat den Frostmodus verlassen ❄️", "Heating has exited frost mode ❄️"};
+constexpr const char *HC2_FROST_MODE_OFF[MAX_LANG] = {"Heizkreis 2 hat den Frostmodus verlassen ❄️",
+                                                      "Heating Circuit 2 has exited frost mode ❄️"};
+}; // namespace KM_INFO_MSG

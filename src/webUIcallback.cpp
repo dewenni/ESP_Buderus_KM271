@@ -365,6 +365,9 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "cfg_km271_use_ww") == 0) {
     config.km271.use_ww = stringToBool(value);
   }
+  if (strcmp(elementId, "cfg_km271_use_solar") == 0) {
+    config.km271.use_solar = stringToBool(value);
+  }
   if (strcmp(elementId, "cfg_km271_use_alarmMsg") == 0) {
     config.km271.use_alarmMsg = stringToBool(value);
   }

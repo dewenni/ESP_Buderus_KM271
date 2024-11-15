@@ -35,6 +35,7 @@ struct s_cfg_km271 {
   bool use_hc2;
   bool use_ww;
   bool use_alarmMsg;
+  bool use_solar;
 };
 
 struct s_cfg_wifi {

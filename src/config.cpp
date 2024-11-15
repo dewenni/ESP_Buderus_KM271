@@ -18,8 +18,6 @@ static const char *TAG = "CFG"; // LOG TAG
 void configGPIO();
 void configInitValue();
 
-
-
 /**
  * *******************************************************************
  * @brief   Setup for intitial configuration
@@ -211,6 +209,7 @@ void configSaveToFile() {
   doc["km271"]["use_hc1"] = config.km271.use_hc1;
   doc["km271"]["use_hc2"] = config.km271.use_hc2;
   doc["km271"]["use_ww"] = config.km271.use_ww;
+  doc["km271"]["use_solar"] = config.km271.use_solar;
   doc["km271"]["use_alarmMsg"] = config.km271.use_alarmMsg;
 
   doc["auth"]["enable"] = config.auth.enable;
@@ -343,6 +342,7 @@ void configLoadFromFile() {
     config.km271.use_hc1 = doc["km271"]["use_hc1"];
     config.km271.use_hc2 = doc["km271"]["use_hc2"];
     config.km271.use_ww = doc["km271"]["use_ww"];
+    config.km271.use_solar = doc["km271"]["use_solar"];
     config.km271.use_alarmMsg = doc["km271"]["use_alarmMsg"];
 
     config.auth.enable = doc["auth"]["enable"];

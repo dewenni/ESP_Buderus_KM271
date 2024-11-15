@@ -904,6 +904,36 @@ void parseInfo(uint8_t *data, int len) {
     }
     break;
 
+  case 0x01d2:
+    if (config.km271.use_solar) {
+      // Solar Min-Temp => "01d2:6"
+      kmConfigNum.solar_min = data[2 + 3];
+      snprintf(kmConfigStr.solar_min, sizeof(kmConfigStr.solar_min), "%i °C", kmConfigNum.solar_min);
+      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::SOLAR_TEMP_MIN[config.mqtt.lang], kmConfigStr.solar_min);
+
+      // Solar Max-Temp => "01d2:7"
+      kmConfigNum.solar_max = data[2 + 4];
+      snprintf(kmConfigStr.solar_max, sizeof(kmConfigStr.solar_max), "%i °C", kmConfigNum.solar_max);
+      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::SOLAR_TEMP_MAX[config.mqtt.lang], kmConfigStr.solar_max);
+
+      // Solar EIN/AUS => "01d2:8"
+      kmConfigNum.solar_activation = data[2 + 5];
+      snprintf(kmConfigStr.solar_activation, sizeof(kmConfigStr.solar_activation), "%s",
+               KM_CFG_ARRAY::ON_OFF[config.mqtt.lang][limit(0, kmConfigNum.solar_activation, 1)]);
+      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::SOLAR_ENABLE[config.mqtt.lang], kmConfigStr.solar_activation);
+    }
+    break;
+
+  case 0x01d9: // Solar Betriebsart
+    if (config.km271.use_solar) {
+      // "Heizkreis Solar"  => "01d9:5,a"
+      kmConfigNum.solar_operation_mode = data[2 + 2];
+      snprintf(kmConfigStr.solar_operation_mode, sizeof(kmConfigStr.solar_operation_mode), "%s",
+               KM_CFG_ARRAY::OPMODE[config.mqtt.lang][limit(0, kmConfigNum.solar_operation_mode, 2)]);
+      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::SOLAR_OPMODE[config.mqtt.lang], kmConfigStr.solar_operation_mode);
+    }
+    break;
+
   case 0x01e0: // 01e0:1,s Uhrzeit_Offset
     kmConfigNum.time_offset = decode05cTemp(decodeNegValue(data[2 + 1]));
     snprintf(kmConfigStr.time_offset, sizeof(kmConfigStr.time_offset), "%0.1f %s", kmConfigNum.time_offset, MQTT_MSG::HOURS[config.mqtt.lang]);
@@ -1369,6 +1399,58 @@ void parseInfo(uint8_t *data, int len) {
     // this should be the last message => init done
     kmInitDone = true;
     km271RefreshActive = false;
+    break;
+
+  /********************************************************
+   * status values solar
+   ********************************************************/
+  case 0x9142:
+    if (config.km271.use_solar) {
+      kmStatus.SolarLoad = data[2];
+      km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::SOLAR_LOAD[config.mqtt.lang], uint8ToString(kmStatus.SolarLoad));
+    }
+    break;
+
+  case 0x9144:
+    if (config.km271.use_solar) {
+      kmStatus.SolarWW = data[2];
+      km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::SOLAR_WW[config.mqtt.lang], uint8ToString(kmStatus.SolarWW));
+    }
+    break;
+
+  case 0x9146:
+    if (config.km271.use_solar) {
+      kmStatus.SolarCollector = data[2];
+      km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::SOLAR_COLLECTOR[config.mqtt.lang], uint8ToString(kmStatus.SolarCollector));
+    }
+    break;
+
+  case 0x9147:
+    if (config.km271.use_solar) {
+      kmStatus.Solar9147 = data[2];
+      km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::SOLAR_9147[config.mqtt.lang], uint8ToString(kmStatus.Solar9147));
+    }
+    break;
+
+  case 0x9148: // 0x9148 : Minutes (*65536)
+    if (config.km271.use_solar) {
+      kmStatus.SolarOperatingDuration_0 = data[2];
+    }
+    break;
+
+  case 0x9149: // 0x9149 : Minutes (*256)
+    if (config.km271.use_solar) {
+      kmStatus.SolarOperatingDuration_1 = data[2];
+    }
+    break;
+
+  case 0x914a: // 0x914a : Minutes (*1) + calculated sum of all 3 runtime values
+    if (config.km271.use_solar) {
+      kmStatus.SolarOperatingDuration_2 = data[2];
+      kmStatus.SolarOperatingDuration_Sum =
+          kmStatus.SolarOperatingDuration_2 + (kmStatus.SolarOperatingDuration_1 * 256) + (kmStatus.SolarOperatingDuration_0 * 65536);
+      km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::SOLAR_RUNTIME[config.mqtt.lang], uint64ToString(kmStatus.SolarOperatingDuration_Sum));
+    }
     break;
 
   case 0xaa42: // 0xaa42 : Bitfeld
