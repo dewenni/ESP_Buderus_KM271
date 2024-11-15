@@ -68,6 +68,8 @@ const char *errOkString(uint8_t value) {
  * *******************************************************************/
 int logLine, logIdx = 0;
 bool logReadActive = false;
+JsonDocument jsonLog;
+
 bool webLogRefreshActive() { return logReadActive; }
 
 void webReadLogBuffer() {
@@ -77,7 +79,7 @@ void webReadLogBuffer() {
 }
 
 void webReadLogBufferCyclic() {
-  JsonDocument jsonLog;
+
   jsonLog.clear();
   jsonLog["type"] = "logger";
   jsonLog["cmd"] = "add_log";
@@ -111,7 +113,6 @@ void webReadLogBufferCyclic() {
       // end
       updateWebJSON(jsonLog);
       logReadActive = false;
-      Serial.println("exit1");
       return;
     } else {
       if (logData.buffer[logIdx][0] != '\0') {
@@ -120,12 +121,6 @@ void webReadLogBufferCyclic() {
       } else {
         // no more entries
         logReadActive = false;
-        Serial.println("exit2");
-
-        String jsonString;
-        serializeJson(jsonLog, jsonString);
-        Serial.println(jsonString);
-
         updateWebJSON(jsonLog);
         return;
       }
