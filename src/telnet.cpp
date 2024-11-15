@@ -116,6 +116,7 @@ void setupTelnet() {
  * @return  none
  * *******************************************************************/
 void cyclicTelnet() {
+  
   telnet.loop();
 
   // process incoming messages
@@ -349,8 +350,20 @@ void cmdRestart(char param[MAX_PAR][MAX_CHAR]) {
  * @return  none
  * *******************************************************************/
 void cmdSimdata(char param[MAX_PAR][MAX_CHAR]) {
-  startSimData();
-  telnet.println("simdata started");
+  if (!strcmp(param[1], "send")) {
+    if (config.sim.enable) {
+      startSimData();
+      telnet.println("simdata send");
+    } else {
+      telnet.println("not possible - simulation is disabled");
+    }
+  } else if (!strcmp(param[1], "enable")) {
+    config.sim.enable = true;
+    telnet.println("simulation enabled");
+  } else if (!strcmp(param[1], "disable")) {
+    config.sim.enable = false;
+    telnet.println("simulation disabled");
+  }
 }
 
 /**
@@ -527,8 +540,10 @@ void dispatchCommand(char param[MAX_PAR][MAX_CHAR]) {
   for (int i = 0; i < commandsCount; ++i) {
     if (!strcmp(param[0], commands[i].name)) {
       commands[i].function(param);
+      telnetShell();
       return;
     }
   }
   telnet.println("Unknown command");
+  telnetShell();
 }
