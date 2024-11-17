@@ -1,8 +1,10 @@
-# v4.2.9000
+# v5.0.9000
 
 ## what's new
 
-update to the new Arduino Release v3.0.7 based on ESP-IDF v5.1.4+
+This is a major update with some new features and some redesign under the hood.
+
+The Framework is updated to the new Arduino v3 based on ESP-IDF v5.1+
 
 Unfortunately I have to do some breaking changes!
 
@@ -13,6 +15,16 @@ There is a new support for W5500 Ethernet Modules. This brings the possibility t
 This could be useful in situations where the WiFi connection is not available or stable.
 
 For mor details, please have a look at the [documentation](https://github.com/dewenni/ESP_Buderus_KM271?tab=readme-ov-file#optional-ethernet-module-w5500) 
+
+### Solar Support FM244
+
+Support for optional Buderus Solar Module FM244 added. You can activate this in the same way as the heating circuits and hot-water.
+Values are send by mqtt and will be also available in the webUI.
+
+### System Logger
+
+The logging function has been extended. The mode can now also be switched to ‘System log’. In this case, the serial monitor is then redirected to the log and you can see the messages that are normally only visible when you are connected via cable.
+
 
 ### internal communication between ESP and WebUI changed
 
@@ -39,3 +51,6 @@ The maximum number of client connections is monitored and limited to the number 
 - clean unused webUI texts
 - update Descriptions for Ethernet and Exhaust Sensor in README.md
 - add watchdog to automatically reboot if ESP is getting stuck
+- add solar FM244 support #64
+- add status icons for WiFi and Ethernet
+
