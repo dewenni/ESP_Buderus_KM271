@@ -1,3 +1,4 @@
+#include <basics.h>
 #include <language.h>
 #include <main.h>
 #include <message.h>
@@ -287,7 +288,7 @@ void updateSystemInfoElements() {
   }
 
   // MQTT Status
-  addJsonLabelTxt(jsonDoc, "p09_mqtt_status", mqttIsEnabled() ? WEB_TXT::ACTIVE[config.lang] : WEB_TXT::INACTIVE[config.lang]);
+  addJsonLabelTxt(jsonDoc, "p09_mqtt_status", config.mqtt.enable ? WEB_TXT::ACTIVE[config.lang] : WEB_TXT::INACTIVE[config.lang]);
   addJsonLabelTxt(jsonDoc, "p09_mqtt_connection", mqttIsConnected() ? WEB_TXT::CONNECTED[config.lang] : WEB_TXT::NOT_CONNECTED[config.lang]);
 
   if (mqttGetLastError() != nullptr) {
@@ -310,6 +311,11 @@ void updateSystemInfoElements() {
   // actual date and time
   addJsonValueTxt(jsonDoc, "p12_ntp_date", getDateStringWeb());
   addJsonValueTxt(jsonDoc, "p12_ntp_time", getTimeString());
+
+  // KM271 Status
+  addJsonLabelTxt(jsonDoc, "p09_km271_logmode", km271GetLogMode() ? WEB_TXT::CONNECTED[config.lang] : WEB_TXT::NOT_CONNECTED[config.lang]);
+  addJsonLabelInt(jsonDoc, "p09_km271_tx", (float)km271GetTxBytes() / 1024.0);
+  addJsonLabelInt(jsonDoc, "p09_km271_rx", (float)km271GetRxBytes() / 1024.0);
 
   updateWebJSON(jsonDoc);
 }

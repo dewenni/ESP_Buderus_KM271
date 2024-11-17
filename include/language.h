@@ -3,6 +3,10 @@
 
 #define MAX_LANG 2 // increase if you add more languages
 
+#ifndef MYLOG_LEVEL
+#define MYLOG_LEVEL = ESP_LOG_INFO
+#endif
+
 struct s_lang {
   const char *CODE[MAX_LANG] = {"de", "en"};
 };

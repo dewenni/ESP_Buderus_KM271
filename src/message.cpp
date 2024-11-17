@@ -162,7 +162,7 @@ void addLogBuffer(const char *message) {
 void messageSetup() {
   memset(pushoverBuffer, 0, sizeof(pushoverBuffer));
 
-  esp_log_level_set("*", ESP_LOG_INFO); // set log level
+  esp_log_level_set("*", MYLOG_LEVEL);  // set log level
   esp_log_set_vprintf(&custom_vprintf); // set custom vprintf callback function
 
   // Enable serial port
@@ -450,7 +450,7 @@ void messageCyclic() {
   }
 
   // send all km271 values from time to time
-  if (!setupMode && config.mqtt.cyclicSendMin > 0) {
+  if (!setupMode && config.mqtt.cyclicSendMin > 0 && mqttIsConnected()) {
     if (cyclicSendCfgTimer.delayOnTrigger(true, config.mqtt.cyclicSendMin * 60000)) {
       sendAllKmCfgValues();
     }
@@ -462,7 +462,7 @@ void messageCyclic() {
   }
 
   // send cyclic infos
-  if (mainTimer.cycleTrigger(10000) && !setupMode) {
+  if (mainTimer.cycleTrigger(10000) && !setupMode && mqttIsConnected()) {
     sendWiFiInfo();
     sendETHInfo();
     sendKM271Info();

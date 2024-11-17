@@ -23,6 +23,7 @@ bool decodeErrorMsg(char *errorMsg, unsigned int size, uint8_t *data);
 uint8_t getErrorTextIndex(uint8_t errorNr);
 uint8_t limit(uint8_t lower, uint8_t value, uint8_t upper);
 int compareHexValues(const char *filter, uint8_t data[]);
+KmSerialStats kmSerialStats = {0, 0, false};
 
 /* V A R I A B L E S ********************************************************/
 s_err_array errMsgText; // Array of error messages
@@ -68,6 +69,9 @@ void cyclicKM271() {
   // >>>>>>>>> KM271 Main Handling
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   if (Serial2.readBytes(&rxByte, 1)) { // Wait for RX byte, if timeout, just loop and read again
+
+    kmSerialStats.RxBytes++; // increase received bytes
+
     // Protocol handling
     kmRxBcc ^= rxByte; // Calculate BCC
     switch (kmRxStatus) {
@@ -209,6 +213,7 @@ void sendTxBlock(uint8_t *data, int len) {
   if ((len == 1) &&
       ((data[0] == KM_STX) || (data[0] == KM_DLE) || (data[0] == KM_NAK))) { // Shall a single protocol byte be sent? If yes, send it right away.
     Serial2.write(data, 1);
+    kmSerialStats.TxBytes += 1;
     return;
   }
   // Here, we need to send a whole block of data. So prepare data.
@@ -237,6 +242,7 @@ void sendTxBlock(uint8_t *data, int len) {
   txLen++;
 
   Serial2.write(buf, txLen); // Send the complete block
+  kmSerialStats.TxBytes += txLen;
 }
 
 /**
@@ -1629,7 +1635,7 @@ void sendKM271Info() {
  * *******************************************************************/
 void sendKM271Debug() {
   JsonDocument infoJSON;
-  infoJSON["logmode"] = km271LogModeActive;
+  infoJSON["logmode"] = kmSerialStats.logModeActive;
   infoJSON["send_cmd_busy"] = (send_buf[0] != 0);
   infoJSON["sw_version"] = VERSION;
   infoJSON["date-time"] = getDateTimeString();
@@ -2328,7 +2334,9 @@ void km271sendServiceCmd(uint8_t cmdPara[8]) {
  * @param   none
  * @return  bool state of LogModeActive
  * *******************************************************************/
-bool km271GetLogMode() { return km271LogModeActive; }
+bool km271GetLogMode() { return kmSerialStats.logModeActive; }
+unsigned long km271GetTxBytes() { return kmSerialStats.TxBytes; }
+unsigned long km271GetRxBytes() { return kmSerialStats.RxBytes; }
 
 /**
  * *******************************************************************
@@ -2735,6 +2743,14 @@ void sendAllKmStatValues() {
   km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::ALARM_20[config.mqtt.lang], uint8ToString(bitRead(kmStatus.ERR_Alarmstatus, 5)));
   km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::ALARM_HC2_FLOW_SENS[config.mqtt.lang], uint8ToString(bitRead(kmStatus.ERR_Alarmstatus, 6)));
   km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::ALARM_80[config.mqtt.lang], uint8ToString(bitRead(kmStatus.ERR_Alarmstatus, 7)));
+
+  if (config.km271.use_solar) {
+    km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::SOLAR_LOAD[config.mqtt.lang], uint8ToString(kmStatus.SolarLoad));
+    km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::SOLAR_WW[config.mqtt.lang], uint8ToString(kmStatus.SolarWW));
+    km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::SOLAR_COLLECTOR[config.mqtt.lang], uint8ToString(kmStatus.SolarCollector));
+    km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::SOLAR_9147[config.mqtt.lang], uint8ToString(kmStatus.Solar9147));
+    km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::SOLAR_RUNTIME[config.mqtt.lang], uint64ToString(kmStatus.SolarOperatingDuration_Sum));
+  }
 }
 
 void sendAllKmCfgValues() {
@@ -2823,4 +2839,11 @@ void sendAllKmCfgValues() {
   km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::BURNER_MIN_MOD[config.mqtt.lang], kmConfigStr.burner_min_modulation);
   km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::BURNER_MOD_TIME[config.mqtt.lang], kmConfigStr.burner_modulation_runtime);
   km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::TIME_OFFSET[config.mqtt.lang], kmConfigStr.time_offset);
+
+  if (config.km271.use_solar) {
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::SOLAR_TEMP_MIN[config.mqtt.lang], kmConfigStr.solar_min);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::SOLAR_TEMP_MAX[config.mqtt.lang], kmConfigStr.solar_max);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::SOLAR_ENABLE[config.mqtt.lang], kmConfigStr.solar_activation);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::SOLAR_OPMODE[config.mqtt.lang], kmConfigStr.solar_operation_mode);
+  }
 }

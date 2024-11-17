@@ -376,6 +376,7 @@ void configLoadFromFile() {
 
   if (strlen(config.wifi.ssid) == 0) {
     // no valid wifi setting => start AP-Mode
+    MY_LOGW(TAG, "no valid wifi SSID set => enter SetupMode and start AP-Mode");
     setupMode = true;
   }
 

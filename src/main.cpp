@@ -1,6 +1,6 @@
 // includes
 #include <ArduinoOTA.h>
-#include <ESP_DoubleResetDetector.h>
+#include <ESP32_DRD.h>
 #include <basics.h>
 #include <config.h>
 #include <esp_task_wdt.h>
@@ -13,21 +13,21 @@
 #include <telnet.h>
 #include <webUI.h>
 
-/* D E C L A R A T I O N S ****************************************************/
-muTimer heartbeat = muTimer();      // timer for heartbeat signal
+          /* D E C L A R A T I O N S ****************************************************/
+muTimer heartbeat = muTimer();     // timer for heartbeat signal
 muTimer setupModeTimer = muTimer(); // timer for heartbeat signal
 muTimer dstTimer = muTimer();       // timer to check daylight saving time change
 muTimer ntpTimer = muTimer();       // timer to check ntp sync
+muTimer wdtTimer = muTimer();       // timer to reset wdt
 
-DoubleResetDetector *drd; // Double-Reset-Detector
-bool main_reboot = true;  // reboot flag
-int dst_old;              // reminder for change of daylight saving time
-bool dst_ref;             // init flag fpr dst reference
-bool ntpSynced;           // ntp sync flag
-bool ntpInit = false;     // init flag for ntp sync
-bool otaActive = false;   // OTA active flag
-
-esp_task_wdt_config_t twdt_config{timeout_ms : 10000U, idle_core_mask : 0b10, trigger_panic : true};
+DRD32 *drd;                      // Double-Reset-Detector
+bool main_reboot = true;         // reboot flag
+int dst_old;                     // reminder for change of daylight saving time
+bool dst_ref;                    // init flag fpr dst reference
+bool ntpSynced;                  // ntp sync flag
+bool ntpInit = false;            // init flag for ntp sync
+bool otaActive = false;          // OTA active flag
+static const char *TAG = "MAIN"; // LOG TAG
 
 /**
  * *******************************************************************
@@ -57,38 +57,52 @@ void storeData() {
  * *******************************************************************/
 void setup() {
 
-  // setup watchdog timer
-  if (!setupMode) {
-    esp_task_wdt_init(&twdt_config); // Initialize ESP32 Task WDT
-    esp_task_wdt_add(NULL);          // Subscribe to the Task WDT
-  }
-
-  // Message Service Setup
+  // Message Service Setup (before use of MY_LOGx)
   messageSetup();
 
   // check for double reset
-  drd = new DoubleResetDetector(DRD_TIMEOUT, DRD_ADDRESS);
+  drd = new DRD32(DRD_TIMEOUT);
   if (drd->detectDoubleReset()) {
+    MY_LOGI(TAG, "DRD detected - enter SetupMode");
     setupMode = true;
   }
 
-  // initial configuration
+  // initial configuration (can also activate the Setup Mode)
   configSetup();
+
+  // setup watchdog timer
+  if (!setupMode) {
+    esp_task_wdt_config_t twdt_config{timeout_ms : 10000, idle_core_mask : 0b10, trigger_panic : true};
+    if (esp_task_wdt_init(&twdt_config) == ESP_OK) {
+      esp_task_wdt_add(NULL); // add actual Task
+      MY_LOGI(TAG, "Watchdog timer initialized");
+    } else {
+      MY_LOGE(TAG, "Failed to initialize Watchdog timer");
+    }
+  } else {
+    MY_LOGI(TAG, ">>>>>>> SETUP-MODE <<<<<<<<");
+    esp_task_wdt_deinit();
+    esp_task_wdt_delete(NULL);
+    MY_LOGI(TAG, "Watchdog timer de-initialized");
+  }
 
   // basic setup functions
   basicSetup();
 
   // Setup OTA
   ArduinoOTA.onStart([]() {
+    MY_LOGI(TAG, "OTA-started");
     storeData();               // store Data before update
     esp_task_wdt_delete(NULL); // disable watchdog timer
     otaActive = true;
   });
   ArduinoOTA.onEnd([]() {
+    MY_LOGI(TAG, "OTA-finished");
     esp_task_wdt_add(NULL); // re-activate Watchdog
     otaActive = false;
   });
   ArduinoOTA.onError([](ota_error_t error) {
+    MY_LOGI(TAG, "OTA-error");
     esp_task_wdt_add(NULL); // re-activate Watchdog
     otaActive = false;
   });
@@ -124,8 +138,9 @@ void setup() {
 void loop() {
 
   // reset watchdog
-  if (!setupMode) {
+  if (!setupMode && esp_task_wdt_status(NULL) == ESP_OK && wdtTimer.cycleTrigger(1000)) {
     esp_task_wdt_reset();
+    MY_LOGI(TAG, "Freier Heap: %ld Bytes\n", ESP.getFreeHeap());
   }
 
   // OTA Update

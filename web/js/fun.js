@@ -29,6 +29,8 @@ function setupWS() {
       window.location.href = message.url;
     } else if (message.type === "heartbeat") {
       resetHeartbeat();
+    } else if (message.type === "loadConfig") {
+      loadConfig();
     } else if (message.type === "updateText") {
       updateText(message);
     } else if (message.type === "setLanguage") {
@@ -207,7 +209,7 @@ function logger(data) {
   var logOutput = document.getElementById("p10_log_output");
   if (data.cmd === "add_log") {
     logOutput.innerHTML = "";
-    data.entry.forEach(function (entry) {   
+    data.entry.forEach(function (entry) {
       logOutput.innerHTML += entry + "<br>";
     });
   } else if (data.cmd === "clr_log") {
@@ -382,7 +384,6 @@ function updateUI(
     }
   }
 }
-
 
 // Config bei Seitenaufruf laden und UI aktualisieren
 async function loadConfig() {

@@ -48,6 +48,12 @@ struct KmRx_s {               // Rx structure for one rx block
   uint8_t buf[KM_RX_BUF_LEN]; // Received bytes without "10 03 bcc"
 };
 
+struct KmSerialStats {
+  unsigned long TxBytes; // sent Bytes
+  unsigned long RxBytes; // received Bytes
+  bool logModeActive;    // Logging active
+};
+
 // This struicure contains all values read from the heating controller.
 // This structure is kept up-to-date automatically by the km271.cpp.
 struct s_km271_status {
@@ -327,6 +333,8 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int8_t cmdPara);
 void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara);
 void km271sendServiceCmd(uint8_t cmdPara[8]);
 bool km271GetLogMode();
+unsigned long km271GetTxBytes();
+unsigned long km271GetRxBytes();
 void km271SetDateTimeNTP();
 void km271SetDateTimeDTI(tm dti);
 void parseInfo(uint8_t *data, int len);

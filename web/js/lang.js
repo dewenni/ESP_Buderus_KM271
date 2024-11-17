@@ -1122,17 +1122,17 @@ const translations = {
     de: "Solar",
     en: "Solar",
   },
-  enabled: {
-    de: "Aktiviert",
-    en: "activated",
+  on: {
+    de: "EIN",
+    en: "ON",
   },
-  maxtemp: {
-    de: "Maximaltemperatur",
-    en: "max temperature",
+  solar_max: {
+    de: "Max Solar",
+    en: "min Solar",
   },
-  mintemp: {
-    de: "Minimaltemperatur",
-    en: "min temperature",
+  solar_min: {
+    de: "Min Solar",
+    en: "min Solar",
   },
   load: {
     de: "Ladung",
@@ -1141,5 +1141,17 @@ const translations = {
   collector: {
     de: "Kollektor",
     en: "Collector",
+  },
+  km271_info: {
+    de: "KM271 Status",
+    en: "KM271 Status",
+  },
+  sent: {
+    de: "gesendet",
+    en: "sent",
+  },
+  received: {
+    de: "empfangen",
+    en: "received",
   },
 };

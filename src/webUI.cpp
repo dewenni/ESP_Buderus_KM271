@@ -24,7 +24,7 @@ muTimer heartbeatTimer = muTimer();  // timer to refresh other values
 muTimer simulationTimer = muTimer(); // timer to refresh other values
 muTimer logReadTimer = muTimer();    // timer to refresh other values
 muTimer otaUpdateTimer = muTimer();  // timer to refresh other values
-muTimer onLoadTimer = muTimer();  // timer to refresh other values
+muTimer onLoadTimer = muTimer();     // timer to refresh other values
 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
@@ -41,12 +41,6 @@ bool webCallbackAvailable = false;
 unsigned long sendCnt = 0;
 bool onLoadRequest = false;
 
-void sendHeartbeat() {
-  // if (ws.availableForWriteAll()) {
-  ws.textAll("{\"type\":\"heartbeat\"}");
-  // }
-}
-
 void sendWs(JsonDocument &jsonDoc) {
   ws.cleanupClients(MAX_WS_CLIENT);
   if (ws.count()) {
@@ -59,6 +53,19 @@ void sendWs(JsonDocument &jsonDoc) {
   }
 }
 
+void sendHeartbeat() {
+  ws.cleanupClients(MAX_WS_CLIENT);
+  if (ws.count()) {
+    ws.textAll("{\"type\":\"heartbeat\"}");
+  }
+}
+
+void loadConfigWebUI() {
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "loadConfig";
+  sendWs(jsonDoc);
+}
+
 void updateWebLanguage(const char *language) {
   JsonDocument jsonDoc;
   jsonDoc["type"] = "setLanguage";
@@ -66,9 +73,7 @@ void updateWebLanguage(const char *language) {
   sendWs(jsonDoc);
 }
 
-void updateWebJSON(JsonDocument &jsonDoc) {
-  sendWs(jsonDoc);
-}
+void updateWebJSON(JsonDocument &jsonDoc) { sendWs(jsonDoc); }
 
 void updateWebText(const char *id, const char *text, bool isInput) {
   JsonDocument jsonDoc;
@@ -341,13 +346,13 @@ void sendGzipChunkedResponse(AsyncWebServerRequest *request, const uint8_t *cont
       request->beginChunkedResponse(contentType, [content, contentLength, chunkSize](uint8_t *buffer, size_t maxLen, size_t index) -> size_t {
         // Check if we have reached the end of the file
         if (index >= contentLength) {
-          //MY_LOGD(TAG, "finished");
+          // MY_LOGD(TAG, "finished");
           return 0; // End transmission
         }
         // Determine the actual chunk size to send, ensuring we don't exceed maxLen or remaining content length
         size_t actualChunkSize = min(chunkSize, min(maxLen, contentLength - index));
         memcpy(buffer, content + index, actualChunkSize);
-        //MY_LOGD(TAG, "sending: %u", actualChunkSize);
+        // MY_LOGD(TAG, "sending: %u", actualChunkSize);
         return actualChunkSize; // Return the number of bytes sent
       });
 
@@ -459,7 +464,7 @@ void webUISetup() {
             MY_LOGI(TAG, "UploadEnd: %s, %u B\n", filename.c_str(), index + len);
             updateWebText("upload_status_txt", "upload done!", false);
             configLoadFromFile(); // load configuration
-            onLoadRequest = true; // update all webUI elements
+
           } else {
             updateWebText("upload_status_txt", "error on file close!", false);
           }
