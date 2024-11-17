@@ -1,5 +1,6 @@
 #include <basics.h>
 #include <language.h>
+#include <message.h>
 #include <mqtt.h>
 #include <mqttDiscovery.h>
 
@@ -12,12 +13,14 @@ char swVersion[32];
 
 muTimer cyclicTimer = muTimer();
 
-
 bool sendMqttConfig = false;
 bool resetMqttConfig = false;
 
+muTimer sendTimer = muTimer(); // timer to refresh other values
+int mqttSendCnt = 0;
+
 enum OptType { OPT_NULL, OPT_OP_MODE, OPT_RED_MODE, OPT_HC_PRG, OPT_WW_CRC, OPT_SUMMER };
-enum DeviceType { TYP_TEXT, TYP_SLIDER, TYP_NUM, TYP_OPT, TYP_BTN };
+enum DeviceType{TYP_TEXT, TYP_SLIDER, TYP_NUM, TYP_OPT, TYP_BTN};
 enum KmType { KM_CONFIG, KM_STATUS, KM_INFO, KM_WIFI, KM_ETH, KM_ALARM, KM_DEBUG, KM_SENS, KM_OIL, KM_SYSINFO, KM_CMD_BTN };
 enum ValTmpType { VAL_SPLIT, VAL_ON_OFF, VAL_ERR_OK, VAL_WW_CIRC, VAL_SUMMER_THRESHOLD };
 struct DeviceConfig {
@@ -109,44 +112,44 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
   JsonDocument doc;
 
   char configTopic[256];
-  snprintf(configTopic, sizeof(configTopic), "%s/%s/%s/%s/config", discoveryPrefix, component, deviceId, name);
+  sprintf(configTopic, "%s/%s/%s/%s/config", discoveryPrefix, component, deviceId, name);
 
   char stateTopic[256];
   switch (kmType) {
   case KM_CONFIG:
-    snprintf(stateTopic, sizeof(stateTopic), "%s/config/%s", statePrefix, name);
+    sprintf(stateTopic, "%s/config/%s", statePrefix, name);
     doc["stat_t"] = stateTopic;
     break;
   case KM_STATUS:
-    snprintf(stateTopic, sizeof(stateTopic), "%s/status/%s", statePrefix, name);
+    sprintf(stateTopic, "%s/status/%s", statePrefix, name);
     doc["stat_t"] = stateTopic;
     break;
   case KM_SENS:
-    snprintf(stateTopic, sizeof(stateTopic), "%s/sensor/%s", statePrefix, name);
+    sprintf(stateTopic, "%s/sensor/%s", statePrefix, name);
     doc["stat_t"] = stateTopic;
     break;
   case KM_OIL:
-    snprintf(stateTopic, sizeof(stateTopic), "%s/%s", statePrefix, name);
+    sprintf(stateTopic, "%s/%s", statePrefix, name);
     doc["stat_t"] = stateTopic;
     break;
   case KM_WIFI:
-    snprintf(stateTopic, sizeof(stateTopic), "%s/wifi", statePrefix);
+    sprintf(stateTopic, "%s/wifi", statePrefix);
     doc["stat_t"] = stateTopic;
     break;
   case KM_ETH:
-    snprintf(stateTopic, sizeof(stateTopic), "%s/eth", statePrefix);
+    sprintf(stateTopic, "%s/eth", statePrefix);
     doc["stat_t"] = stateTopic;
     break;
   case KM_DEBUG:
-    snprintf(stateTopic, sizeof(stateTopic), "%s/debug", statePrefix);
+    sprintf(stateTopic, "%s/debug", statePrefix);
     doc["stat_t"] = stateTopic;
     break;
   case KM_ALARM:
-    snprintf(stateTopic, sizeof(stateTopic), "%s/alarm/%s", statePrefix, name);
+    sprintf(stateTopic, "%s/alarm/%s", statePrefix, name);
     doc["stat_t"] = stateTopic;
     break;
   case KM_SYSINFO:
-    snprintf(stateTopic, sizeof(stateTopic), "%s/sysinfo", statePrefix);
+    sprintf(stateTopic, "%s/sysinfo", statePrefix);
     doc["stat_t"] = stateTopic;
     break;
   default:
@@ -174,13 +177,13 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
 
   if (devType == TYP_BTN) {
     char cmdTopic[256];
-    snprintf(cmdTopic, sizeof(cmdTopic), "%s/cmd/%s", statePrefix, name);
+    sprintf(cmdTopic, "%s/cmd/%s", statePrefix, name);
     doc["cmd_t"] = cmdTopic;
     doc["payload_press"] = "true";
   } else if (devType != TYP_TEXT) {
     doc["ent_cat"] = "config";
     char cmdTopic[256];
-    snprintf(cmdTopic, sizeof(cmdTopic), "%s/setvalue/%s", statePrefix, name);
+    sprintf(cmdTopic, "%s/setvalue/%s", statePrefix, name);
     doc["cmd_t"] = cmdTopic;
   }
 
@@ -279,7 +282,7 @@ void mqttDiscoveryResetConfig() { resetMqttConfig = true; }
  * @param   none
  * @return  none
  * *******************************************************************/
-void mqttDiscoverySetup() {
+void mqttSendHaCfg_KmCfg() {
 
   // copy config values
   snprintf(discoveryPrefix, sizeof(discoveryPrefix), "%s", config.mqtt.ha_topic);
@@ -288,7 +291,14 @@ void mqttDiscoverySetup() {
   snprintf(deviceId, sizeof(deviceId), "%s", config.mqtt.ha_device);
   snprintf(swVersion, sizeof(swVersion), "%s", VERSION);
 
+  mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC1_MAX_TEMP[config.mqtt.lang], "temperature", "sensor", "°C", valueTmpl(VAL_SPLIT), "mdi:thermometer",
+               TYP_TEXT, textPar());
+
   mqttHaConfig(KM_CMD_BTN, "restart", "restart", "button", NULL, NULL, "mdi:restart", TYP_BTN, textPar());
+
+  // ----------------------------------------------------------------
+  // Config values
+  // ----------------------------------------------------------------
 
   // heating circuit 1 configuration
   if (config.km271.use_hc1) {
@@ -452,10 +462,25 @@ void mqttDiscoverySetup() {
   mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::TIME_OFFSET[config.mqtt.lang], NULL, "sensor", "h", valueTmpl(VAL_SPLIT), "mdi:clock-outline", TYP_TEXT,
                textPar());
 
+  if (config.km271.use_solar) {
+    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::SOLAR_OPMODE[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:cog", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::SOLAR_ENABLE[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:cog", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::SOLAR_TEMP_MAX[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_SPLIT), "mdi:thermometer-alert",
+                 TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::SOLAR_TEMP_MIN[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_SPLIT), "mdi:thermometer-alert",
+                 TYP_TEXT, textPar());
+  }
+}
+void mqttSendHaCfg_KmStat() {
+  // ----------------------------------------------------------------
+  // Status values
+  // ----------------------------------------------------------------
+
   // STATUS VALUES HC1
   if (config.km271.use_hc1) {
     mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::HC1_FLOW_SETPOINT[config.mqtt.lang], "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT,
                  textPar());
+
     mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::HC1_FLOW_TEMP[config.mqtt.lang], "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT,
                  textPar());
     mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::HC1_HEAT_CURVE1[config.mqtt.lang], "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT,
@@ -647,6 +672,23 @@ void mqttDiscoverySetup() {
                textPar());
   mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::EXHAUST_TEMP[config.mqtt.lang], "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT, textPar());
 
+  // solar FM244
+  if (config.km271.use_solar) {
+    mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::SOLAR_LOAD[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ON_OFF), "mdi:information-outline",
+                 TYP_TEXT, textPar());
+    mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::SOLAR_WW[config.mqtt.lang], "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT,
+    textPar()); mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::SOLAR_COLLECTOR[config.mqtt.lang], "temperature", "sensor", "°C", NULL, "mdi:thermometer",
+    TYP_TEXT,
+                 textPar());
+    mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::SOLAR_RUNTIME[config.mqtt.lang], "duration", "sensor", "min", NULL, "mdi:clock-outline", TYP_TEXT,
+                 textPar());
+    mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::SOLAR_9147[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:information-outline", TYP_TEXT,
+    textPar());
+  }
+}
+
+void mqttSendHaCfg_KmMisc() {
+
   // optional Sensors
   if (config.sensor.ch1_enable) {
     char topic1[32];
@@ -671,6 +713,9 @@ void mqttDiscoverySetup() {
     mqttHaConfig(KM_ALARM, KM_ERR_TOPIC::ERR_BUFF_3[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:alert-circle-outline", TYP_TEXT, textPar());
     mqttHaConfig(KM_ALARM, KM_ERR_TOPIC::ERR_BUFF_4[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:alert-circle-outline", TYP_TEXT, textPar());
   }
+}
+
+void mqttSendHaCfg_Sys() {
 
   // DEBUG INFO
   mqttHaConfig(KM_WIFI, "wifi_signal", NULL, "sensor", "%", "{{ value_json.signal }}", "mdi:signal", TYP_TEXT, textPar());
@@ -688,11 +733,6 @@ void mqttDiscoverySetup() {
   mqttHaConfig(KM_SYSINFO, "restart_reason", NULL, "sensor", NULL, "{{ value_json.restart_reason }}", "mdi:information-outline", TYP_TEXT, textPar());
   mqttHaConfig(KM_SYSINFO, "heap", NULL, "sensor", "%", "{{ value_json.heap.split(' ')[0] }}", "mdi:memory", TYP_TEXT, textPar());
   mqttHaConfig(KM_SYSINFO, "flash", NULL, "sensor", "%", "{{ value_json.flash.split(' ')[0] }}", "mdi:harddisk", TYP_TEXT, textPar());
-
-  // reset/delete with next update
-  resetMqttConfig = true;
-  mqttHaConfig(KM_SYSINFO, "uptime", NULL, "sensor", NULL, NULL, NULL, TYP_TEXT, textPar());
-  resetMqttConfig = false;
 }
 
 /**
@@ -703,12 +743,28 @@ void mqttDiscoverySetup() {
  * *******************************************************************/
 void mqttDiscoveryCyclic() {
 
-  if (sendMqttConfig) {
-    mqttDiscoverySetup();
-    sendMqttConfig = false;
-  }
-  if (resetMqttConfig) {
-    mqttDiscoverySetup();
-    resetMqttConfig = false;
+  if (sendTimer.cycleTrigger(500) && (sendMqttConfig || resetMqttConfig)) {
+
+    switch (mqttSendCnt) {
+    case 0:
+      mqttSendHaCfg_KmCfg();
+      break;
+    case 1:
+      mqttSendHaCfg_KmStat();
+      break;
+    case 2:
+      mqttSendHaCfg_KmMisc();
+      break;
+    case 3:
+      mqttSendHaCfg_Sys();
+      sendMqttConfig = false;
+      resetMqttConfig = false;
+      break;
+
+    default:
+      mqttSendCnt = -1;
+      break;
+    }
+    mqttSendCnt = (mqttSendCnt + 1) % 4;
   }
 }

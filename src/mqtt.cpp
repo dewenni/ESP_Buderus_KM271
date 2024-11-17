@@ -6,16 +6,29 @@
 #include <mqtt.h>
 #include <mqttDiscovery.h>
 #include <oilmeter.h>
+#include <queue>
 #include <simulation.h>
 
 /* D E C L A R A T I O N S ****************************************************/
-Mycila::MQTT mqtt_client;
+void processMqttMessage();
+AsyncMqttClient mqtt_client;
 bool bootUpMsgDone, setupDone = false;
 int targetIndex = -1;
 static const char *TAG = "MQTT"; // LOG TAG
 char topicCopy[512];
 char payloadCopy[512];
 bool mqttMsgAvailable = false;
+char lastError[64] = "---";
+int mqtt_retry = 0;
+muTimer mqttReconnectTimer;
+
+/**
+ * *******************************************************************
+ * @brief   mqtt publish wrapper
+ * @param   topic, payload, retained
+ * @return  none
+ * *******************************************************************/
+void mqttPublish(const char *topic, const char *payload, boolean retained) { mqtt_client.publish(topic, 0, retained, payload); }
 
 /**
  * *******************************************************************
@@ -47,7 +60,7 @@ const char *addCfgCmdTopic(const char *suffix) {
  * @param   topic, payload
  * @return  none
  * *******************************************************************/
-void onMqttMessage(const char *topic, const char *payload) {
+void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
   if (topic == NULL) {
     topicCopy[0] = '\0';
   } else {
@@ -65,6 +78,155 @@ void onMqttMessage(const char *topic, const char *payload) {
 
 /**
  * *******************************************************************
+ * @brief   callback function if MQTT gets connected
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void onMqttConnect(bool sessionPresent) {
+  mqtt_retry = 0;
+  MY_LOGI(TAG, "MQTT connected");
+  // Once connected, publish an announcement...
+  sendWiFiInfo();
+  // ... and resubscribe
+  mqtt_client.subscribe(addTopic("/cmd/#"), 0);
+  mqtt_client.subscribe(addTopic("/setvalue/#"), 0);
+  mqtt_client.subscribe("homeassistant/status", 0);
+}
+
+/**
+ * *******************************************************************
+ * @brief   callback function if MQTT gets disconnected
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
+
+  switch (reason) {
+  case AsyncMqttClientDisconnectReason::TCP_DISCONNECTED:
+    snprintf(lastError, sizeof(lastError), "TCP DISCONNECTED");
+    break;
+  case AsyncMqttClientDisconnectReason::MQTT_UNACCEPTABLE_PROTOCOL_VERSION:
+    snprintf(lastError, sizeof(lastError), "MQTT UNACCEPTABLE PROTOCOL VERSION");
+    break;
+  case AsyncMqttClientDisconnectReason::MQTT_IDENTIFIER_REJECTED:
+    snprintf(lastError, sizeof(lastError), "MQTT IDENTIFIER REJECTED");
+    break;
+  case AsyncMqttClientDisconnectReason::MQTT_SERVER_UNAVAILABLE:
+    snprintf(lastError, sizeof(lastError), "MQTT SERVER UNAVAILABLE");
+    break;
+  case AsyncMqttClientDisconnectReason::MQTT_MALFORMED_CREDENTIALS:
+    snprintf(lastError, sizeof(lastError), "MQTT MALFORMED CREDENTIALS");
+    break;
+  case AsyncMqttClientDisconnectReason::MQTT_NOT_AUTHORIZED:
+    snprintf(lastError, sizeof(lastError), "MQTT NOT AUTHORIZED");
+    break;
+  case AsyncMqttClientDisconnectReason::TLS_BAD_FINGERPRINT:
+    snprintf(lastError, sizeof(lastError), "TLS BAD FINGERPRINT");
+    break;
+  default:
+    snprintf(lastError, sizeof(lastError), "UNKNOWN ERROR");
+    break;
+  }
+}
+
+/**
+ * *******************************************************************
+ * @brief   is MQTT connected
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+bool mqttIsConnected() { return mqtt_client.connected(); }
+
+const char *mqttGetLastError() { return lastError; }
+
+/**
+ * *******************************************************************
+ * @brief   Basic MQTT setup
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void mqttSetup() {
+
+  mqtt_client.onConnect(onMqttConnect);
+  mqtt_client.onDisconnect(onMqttDisconnect);
+  mqtt_client.onMessage(onMqttMessage);
+  mqtt_client.setServer(config.mqtt.server, config.mqtt.port);
+  //mqtt_client.setClientId(config.wifi.hostname);
+  mqtt_client.setCredentials(config.mqtt.user, config.mqtt.password);
+  mqtt_client.setWill(addTopic("/status"), 0, true, "offline");
+  mqtt_client.setKeepAlive(10);
+  mqtt_client.connected();
+ 
+  MY_LOGI(TAG, "MQTT setup done!");
+}
+
+/**
+ * *******************************************************************
+ * @brief   MQTT cyclic function
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void mqttCyclic() {
+
+  // process incoming messages
+  if (mqttMsgAvailable) {
+    processMqttMessage();
+    mqttMsgAvailable = false;
+  }
+
+  // call setup when connection is established
+  if (config.mqtt.enable && !setupMode && !setupDone && (eth.connected || wifi.connected)) {
+    mqttSetup();
+    setupDone = true;
+  }
+
+  // automatic reconnect to mqtt broker if connection is lost - try 5 times, then reboot
+  if (!mqtt_client.connected() && (wifi.connected || eth.connected)) {
+    if (mqtt_retry == 0) {
+      mqtt_retry++;
+      mqtt_client.connect();
+      MY_LOGI(TAG, "MQTT - connection attempt: 1/5");
+    } else if (mqttReconnectTimer.delayOnTrigger(true, MQTT_RECONNECT)) {
+      mqttReconnectTimer.delayReset();
+      if (mqtt_retry < 5) {
+        mqtt_retry++;
+        mqtt_client.connect();
+        MY_LOGI(TAG, "MQTT - connection attempt: %i/5", mqtt_retry);
+      } else {
+        MY_LOGI(TAG, "MQTT connection not possible, esp rebooting...");
+        storeData(); // store Data before reboot
+        saveRestartReason("no mqtt connection");
+        yield();
+        delay(1000);
+        yield();
+        ESP.restart();
+      }
+    }
+  }
+
+  // send bootup messages after restart and established mqtt connection
+  if (!bootUpMsgDone && mqtt_client.connected()) {
+    bootUpMsgDone = true;
+    char restartReason[64];
+    char tempMessage[128];
+    getRestartReason(restartReason, sizeof(restartReason));
+    snprintf(tempMessage, sizeof(tempMessage), "%s\n(%s)", KM_INFO_MSG::RESTARTED[config.lang], restartReason);
+    km271Msg(KM_TYP_MESSAGE, tempMessage, "");
+
+    // send initial mqtt discovery messages after restart
+    if (config.mqtt.ha_enable) {
+      mqttDiscoverySendConfig();
+    }
+  }
+
+  // call mqttDiscovery cyclic function if HA is activated
+  if (config.mqtt.ha_enable && mqtt_client.connected()) {
+    mqttDiscoveryCyclic();
+  }
+}
+
+/**
+ * *******************************************************************
  * @brief   MQTT callback function for incoming message
  * @param   topic, payload
  * @return  none
@@ -77,16 +239,8 @@ void processMqttMessage() {
 
   if (len > 0) {
     char *endPtr;
-
     intVal = strtol(payloadCopy, &endPtr, 10);
-    if (*endPtr != '\0') {
-      printf("Invalid integer conversion\n");
-    }
-
     floatVal = strtof(payloadCopy, &endPtr);
-    if (*endPtr != '\0') {
-      printf("Invalid float conversion\n");
-    }
   }
 
   // restart ESP command
@@ -426,117 +580,3 @@ void processMqttMessage() {
     }
   }
 }
-
-/**
- * *******************************************************************
- * @brief   callback function if MQTT gets connected
- * @param   none
- * @return  none
- * *******************************************************************/
-void onMqttConnect() {
-
-  MY_LOGI(TAG, "MQTT connected");
-
-  mqtt_client.subscribe(addTopic("/cmd/#"), [](const String &topic, const String &payload) { onMqttMessage(topic.c_str(), payload.c_str()); });
-
-  mqtt_client.subscribe(addTopic("/setvalue/#"), [](const String &topic, const String &payload) { onMqttMessage(topic.c_str(), payload.c_str()); });
-
-  mqtt_client.subscribe(addTopic("homeassistant/status"),
-                        [](const String &topic, const String &payload) { onMqttMessage(topic.c_str(), payload.c_str()); });
-}
-
-/**
- * *******************************************************************
- * @brief   get last MQTT error message
- * @param   none
- * @return  none
- * *******************************************************************/
-const char *mqttGetLastError() { return mqtt_client.getLastError(); }
-
-/**
- * *******************************************************************
- * @brief   is MQTT enabled
- * @param   none
- * @return  none
- * *******************************************************************/
-bool mqttIsEnabled() { return mqtt_client.isEnabled(); }
-
-/**
- * *******************************************************************
- * @brief   is MQTT connected
- * @param   none
- * @return  none
- * *******************************************************************/
-bool mqttIsConnected() { return mqtt_client.isConnected(); }
-
-/**
- * *******************************************************************
- * @brief   Basic MQTT setup
- * @param   none
- * @return  none
- * *******************************************************************/
-void mqttSetup() {
-
-  mqtt_client.onConnect([]() { onMqttConnect(); });
-
-  Mycila::MQTT::Config mqtt_config;
-  mqtt_config.server = config.mqtt.server;
-  mqtt_config.port = config.mqtt.port;
-  mqtt_config.username = config.mqtt.user;
-  mqtt_config.password = config.mqtt.password;
-  mqtt_config.clientId = config.wifi.hostname;
-  mqtt_config.willTopic = addTopic("/status");
-
-  mqtt_client.setAsync(false);
-  mqtt_client.begin(mqtt_config);
-}
-
-/**
- * *******************************************************************
- * @brief   MQTT cyclic function
- * @param   none
- * @return  none
- * *******************************************************************/
-void mqttCyclic() {
-  
-  // process incoming messages
-  if (mqttMsgAvailable) {
-    processMqttMessage();
-    mqttMsgAvailable = false;
-  }
-
-  // call setup when connection is established
-  if (config.mqtt.enable && !setupMode && !setupDone && (eth.connected || wifi.connected)) {
-    mqttSetup();
-    setupDone = true;
-  }
-
-  // send bootup messages after restart and established mqtt connection
-  if (!bootUpMsgDone && mqtt_client.isConnected()) {
-    bootUpMsgDone = true;
-    char restartReason[64];
-    char tempMessage[128];
-    getRestartReason(restartReason, sizeof(restartReason));
-    snprintf(tempMessage, sizeof(tempMessage), "%s\n(%s)", KM_INFO_MSG::RESTARTED[config.lang], restartReason);
-    km271Msg(KM_TYP_MESSAGE, tempMessage, "");
-
-    // send initial mqtt discovery messages after restart
-    if (config.mqtt.ha_enable) {
-      mqttDiscoverySendConfig();
-    }
-  }
-
-  // call mqttDiscovery cyclic function if HA is activated
-  if (config.mqtt.ha_enable && mqtt_client.isConnected()) {
-    mqttDiscoveryCyclic();
-  }
-
-}
-
-/**
- * *******************************************************************
- * @brief   MQTT Publish function for external use
- * @param   none
- * @return  none
- * *******************************************************************/
-void mqttPublish(const char *sendtopic, const char *payload, boolean retained) { mqtt_client.publish(sendtopic, payload, retained); }
