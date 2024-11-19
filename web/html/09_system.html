@@ -101,16 +101,20 @@
           <!-- Grid 2 -->
 
           <article class="card">
-            <p class="table-header" data-i18n="version_info"></p>
+            <p class="table-header" data-i18n="km271_info"></p>
             <table class="striped">
               <tbody>
                 <tr>
-                  <td data-i18n="sw_version"></td>
-                  <td id="p09_sw_version" class="table-value"></td>
+                  <td data-i18n="connection"></td>
+                  <td id="p09_km271_logmode" class="table-value"></td>
                 </tr>
                 <tr>
-                  <td data-i18n="date"></td>
-                  <td id="p09_sw_date" class="table-value"></td>
+                  <td data-i18n="sent"></td>
+                  <td id="p09_km271_tx" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="received"></td>
+                  <td id="p09_km271_rx" class="table-value"></td>
                 </tr>
               </tbody>
             </table>
@@ -130,6 +134,30 @@
 
           <article class="card">
             <p class="table-header" data-i18n="sysinfo"></p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="sw_version"></td>
+                  <td id="p09_sw_version" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="date"></td>
+                  <td id="p09_sw_date" class="table-value"></td>
+                </tr>
+              </tbody>
+            </table>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="lifetime"></td>
+                  <td id="p09_uptime" class="table-value"></td>
+                </tr>
+                <tr>
+                  <td data-i18n="restart_reason"></td>
+                  <td id="p09_restart_reason" class="table-value"></td>
+                </tr>
+              </tbody>
+            </table>
             <table class="striped">
               <tbody>
                 <tr>
@@ -154,47 +182,9 @@
                 </tr>
               </tbody>
             </table>
-            <table class="striped">
-              <tbody>
-                <tr>
-                  <td data-i18n="lifetime"></td>
-                  <td id="p09_uptime" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="restart_reason"></td>
-                  <td id="p09_restart_reason" class="table-value"></td>
-                </tr>
-              </tbody>
-            </table>
           </article>
         </div>
         <!-- END Grid 2 -->
-        <div class="grid">
-          <!-- Grid 3 -->
-          <article class="card">
-            <p class="table-header" data-i18n="km271_info"></p>
-            <table class="striped">
-              <tbody>
-                <tr>
-                  <td data-i18n="connection"></td>
-                  <td id="p09_km271_logmode" class="table-value"></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td data-i18n="sent"></td>
-                  <td id="p09_km271_tx" class="table-value"></td>
-                  <td>kByte</td>
-                </tr>
-                <tr>
-                  <td data-i18n="received"></td>
-                  <td id="p09_km271_rx" class="table-value"></td>
-                  <td>kByte</td>
-                </tr>
-              </tbody>
-            </table>
-          </article>
-        </div>
-        <!-- END Grid 3 -->
       </div>
       <!--SECTION-END-->
     </main>

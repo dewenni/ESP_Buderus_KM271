@@ -1143,8 +1143,8 @@ const translations = {
     en: "Collector",
   },
   km271_info: {
-    de: "KM271 Status",
-    en: "KM271 Status",
+    de: "KM271 Information",
+    en: "KM271 Information",
   },
   sent: {
     de: "gesendet",

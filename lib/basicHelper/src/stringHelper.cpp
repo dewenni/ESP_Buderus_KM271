@@ -371,3 +371,24 @@ unsigned long hash(void *str, size_t len) {
   }
   return hash;
 }
+
+/**
+ * *******************************************************************
+ * @brief   convert Bytes to fromatted string
+ * @param   bytes
+ * @return  formatted string (Bytes, kBytes, MB, GB)
+ * *******************************************************************/
+const char *formatBytes(unsigned long long bytes) {
+  const char *units[] = {"Byte", "kB", "MB", "GB"};
+  static char formatted[20];
+  double value = bytes;
+  int unitIndex = 0;
+
+  while (value >= 1024 && unitIndex < 3) {
+    value /= 1024.0;
+    unitIndex++;
+  }
+
+  snprintf(formatted, sizeof(formatted), "%.2f %s", value, units[unitIndex]);
+  return formatted;
+}

@@ -304,7 +304,7 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "cfg_mqtt_enable") == 0) {
     config.mqtt.enable = stringToBool(value);
   }
-  if (strcmp(elementId, "cfg_mqtt_cfg_ret") == 0) {
+  if (strcmp(elementId, "cfg_mqtt_config_retain") == 0) {
     config.mqtt.config_retain = stringToBool(value);
   }
   if (strcmp(elementId, "cfg_mqtt_server") == 0) {
@@ -409,6 +409,7 @@ void webCallback(const char *elementId, const char *value) {
       break;
     }
     updateGpioSettings();
+    configGPIO();
   }
   if (strcmp(elementId, "cfg_gpio_km271_RX") == 0) {
     config.gpio.km271_RX = strtoul(value, NULL, 10);
@@ -418,18 +419,23 @@ void webCallback(const char *elementId, const char *value) {
   }
   if (strcmp(elementId, "cfg_gpio_led_heartbeat") == 0) {
     config.gpio.led_heartbeat = strtoul(value, NULL, 10);
+    configGPIO();
   }
   if (strcmp(elementId, "cfg_gpio_led_logmode") == 0) {
     config.gpio.led_logmode = strtoul(value, NULL, 10);
+    configGPIO();
   }
   if (strcmp(elementId, "cfg_gpio_led_wifi") == 0) {
     config.gpio.led_wifi = strtoul(value, NULL, 10);
+    configGPIO();
   }
   if (strcmp(elementId, "cfg_gpio_led_oilcounter") == 0) {
     config.gpio.led_oilcounter = strtoul(value, NULL, 10);
+    configGPIO();
   }
   if (strcmp(elementId, "cfg_gpio_trigger_oilcounter") == 0) {
     config.gpio.trigger_oilcounter = strtoul(value, NULL, 10);
+    configGPIO();
   }
 
   // Oil-Meter

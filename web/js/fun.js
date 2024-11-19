@@ -219,6 +219,7 @@ function logger(data) {
 
 // update ota-progress bar
 function otaProgress(data) {
+  clearTimeout(heartbeatTimeout);
   var progress = data.progress;
   document.getElementById("ota_progress_bar").value = progress;
   document.getElementById(
@@ -273,7 +274,7 @@ function ota_sub_fun(obj) {
 function exportConfig() {
   var a = document.createElement("a");
   a.href = "/config-download";
-  a.download = "";
+  a.download = "config.json";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

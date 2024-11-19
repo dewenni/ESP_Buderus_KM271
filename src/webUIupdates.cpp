@@ -1,6 +1,5 @@
 #include <basics.h>
 #include <language.h>
-#include <main.h>
 #include <message.h>
 #include <stringHelper.h>
 #include <webUI.h>
@@ -36,10 +35,14 @@ int UpdateCntFast = 0;
 int UpdateCntSlow = 0;
 int UpdateCntRefresh = 0;
 unsigned long hashKmCfgNumOld, hashKmCfgStrOld;
-s_lang LANG;
 JsonDocument jsonDoc;
 JsonDocument kmCfgJsonDoc;
 bool jsonDataToSend = false;
+bool otaState = false;
+
+void setOtaActive(bool active) { otaState = active; };
+bool getOtaActive() { return otaState; };
+
 
 // convert minutes to human readable structure
 timeComponents convertMinutes(int totalMinutes) {
@@ -125,7 +128,7 @@ void updateAllElements() {
 
   updateOilmeterElements(true);
   updateSensorElements(true);
-  updateWebLanguage(LANG.CODE[config.lang]);
+  updateWebLanguage(LANG::CODE[config.lang]);
   showElementClass("simModeBar", config.sim.enable);
 
   if (setupMode) {
@@ -314,8 +317,8 @@ void updateSystemInfoElements() {
 
   // KM271 Status
   addJsonLabelTxt(jsonDoc, "p09_km271_logmode", km271GetLogMode() ? WEB_TXT::CONNECTED[config.lang] : WEB_TXT::NOT_CONNECTED[config.lang]);
-  addJsonLabelInt(jsonDoc, "p09_km271_tx", (float)km271GetTxBytes() / 1024.0);
-  addJsonLabelInt(jsonDoc, "p09_km271_rx", (float)km271GetRxBytes() / 1024.0);
+  addJsonLabelTxt(jsonDoc, "p09_km271_rx", formatBytes(km271GetRxBytes()));
+  addJsonLabelTxt(jsonDoc, "p09_km271_tx", formatBytes(km271GetTxBytes()));
 
   updateWebJSON(jsonDoc);
 }
@@ -965,7 +968,7 @@ void webUIupdates() {
   }
 
   // ON-BROWSER-REFRESH: refresh ALL elements - do this step by step not to stress the connection
-  if (refreshTimer3.cycleTrigger(WEBUI_FAST_REFRESH_TIME_MS) && refreshRequest && !otaActiveState()) {
+  if (refreshTimer3.cycleTrigger(WEBUI_FAST_REFRESH_TIME_MS) && refreshRequest && !getOtaActive()) {
     switch (UpdateCntRefresh) {
     case 0:
       updateSystemInfoElementsStatic(); // update static informations (≈ 200 Bytes)
@@ -985,7 +988,7 @@ void webUIupdates() {
   }
 
   // CYCLIC: update elemets every x seconds - do this step by step not to stress the connection
-  if (refreshTimer2.cycleTrigger(WEBUI_SLOW_REFRESH_TIME_MS) && !refreshRequest && !km271GetRefreshState() && !otaActiveState()) {
+  if (refreshTimer2.cycleTrigger(WEBUI_SLOW_REFRESH_TIME_MS) && !refreshRequest && !km271GetRefreshState() && !getOtaActive()) {
     switch (UpdateCntSlow) {
     case 0:
       updateSystemInfoElements(); // refresh all "System" elements as one big JSON update (≈ 570 Bytes)

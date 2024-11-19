@@ -437,7 +437,7 @@ bool setDebugFilter(char *input, size_t input_len, char *errMsg, size_t errMsg_l
  * *******************************************************************/
 void messageCyclic() {
   // send Pushover message if something inside the buffer
-  if (pushoverSendTimer.cycleTrigger(2000) && config.pushover.enable) {
+  if (pushoverSendTimer.cycleTrigger(2000) && config.pushover.enable && (wifi.connected || eth.connected)) {
     if (strlen(pushoverBuffer)) {
       MY_LOGI(TAG, "Pushover Message sent");
       sendPushoverMsg();

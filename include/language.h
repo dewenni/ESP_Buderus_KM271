@@ -7,8 +7,8 @@
 #define MYLOG_LEVEL = ESP_LOG_INFO
 #endif
 
-struct s_lang {
-  const char *CODE[MAX_LANG] = {"de", "en"};
+namespace LANG {
+constexpr const char *CODE[] = {"de", "en"};
 };
 
 // ======================================================================================

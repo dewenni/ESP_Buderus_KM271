@@ -202,12 +202,14 @@ void updateWebBusy(const char *id, bool busy) {
  * *******************************************************************/
 void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final) {
   if (!index) {
-    MY_LOGI(TAG, "OTA-Update started");
+    MY_LOGI(TAG, "webOTA started: %s", filename.c_str());
     storeData(); // store data before updating
+    setOtaActive(true);
     snprintf(otaMessage, sizeof(otaMessage), "Start OTA Update: %s", filename.c_str());
     km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
     content_len = request->contentLength();
     if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) {
+      setOtaActive(false);
       Update.printError(Serial);
       snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
       km271Msg(KM_TYP_MESSAGE, "otaMessage", NULL);
@@ -218,6 +220,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
   }
   // update in progress
   if (Update.write(data, len) != len) {
+    setOtaActive(false);
     Update.printError(Serial);
     snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
     km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
@@ -227,7 +230,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
   } else {
     // calculate progress
     int progress = (Update.progress() * 100) / content_len;
-    if (otaUpdateTimer.cycleTrigger(200)) {
+    if (otaUpdateTimer.cycleTrigger(1000)) {
       JsonDocument jsonDoc;
       jsonDoc["type"] = "otaProgress";
       jsonDoc["progress"] = progress;
@@ -241,6 +244,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
   // update done
   if (final) {
     if (!Update.end(true)) {
+      setOtaActive(false);
       Update.printError(Serial);
       snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
       km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
@@ -258,6 +262,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
       ws.textAll(buffer);
 
       MY_LOGI(TAG, "OTA Update complete");
+      setOtaActive(false);
       Serial.flush();
       updateWebDialog("ota_update_done_dialog", "open");
       km271Msg(KM_TYP_MESSAGE, "OTA Update finished!", NULL);
@@ -464,7 +469,8 @@ void webUISetup() {
             MY_LOGI(TAG, "UploadEnd: %s, %u B\n", filename.c_str(), index + len);
             updateWebText("upload_status_txt", "upload done!", false);
             configLoadFromFile(); // load configuration
-
+            updateWebLanguage(LANG::CODE[config.lang]);
+            loadConfigWebUI(); // update webUI settings
           } else {
             updateWebText("upload_status_txt", "error on file close!", false);
           }
@@ -479,7 +485,7 @@ void webUISetup() {
     (void)len;
     if (type == WS_EVT_CONNECT) {
       if (ws.count() < MAX_WS_CLIENT) {
-        MY_LOGI(TAG, "web-client connected");
+        MY_LOGI(TAG, "web-client connected - IP:%s", client->remoteIP().toString().c_str());
         client->setCloseClientOnQueueFull(false);
         onLoadRequest = true; // update all webUI elements
       } else {

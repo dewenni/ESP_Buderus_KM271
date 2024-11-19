@@ -55,7 +55,6 @@ uint8_t send_cmd;
 uint8_t send_buf[8] = {};
 char kmTmpMsg[256];
 bool kmInitDone = false;
-bool km271LogModeActive = false;
 bool km271RefreshActive = false;
 
 /**
@@ -134,7 +133,7 @@ void cyclicKM271() {
   }   // end-if
 
   // global status logmode active
-  km271LogModeActive = (KmRxBlockState == KM_TSK_LOGGING);
+  kmSerialStats.logModeActive = (KmRxBlockState == KM_TSK_LOGGING);
 }
 
 /**
