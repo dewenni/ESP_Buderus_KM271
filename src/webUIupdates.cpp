@@ -1,10 +1,12 @@
 #include <basics.h>
 #include <language.h>
 #include <message.h>
+#include <ota.h>
 #include <stringHelper.h>
+#include <wdt.h>
 #include <webUI.h>
 #include <webUIupdates.h>
-#include <main.h>
+
 /* S E T T I N G S ****************************************************/
 #define WEBUI_SLOW_REFRESH_TIME_MS 500
 #define WEBUI_FAST_REFRESH_TIME_MS 100
@@ -15,30 +17,29 @@ void updateSensorElements(bool forceUpdate);
 void updateSystemInfoElements();
 
 /* D E C L A R A T I O N S ****************************************************/
-muTimer refreshTimer1 = muTimer();    // timer to refresh other values
-muTimer refreshTimer2 = muTimer();    // timer to refresh other values
-muTimer refreshTimer3 = muTimer();    // timer to refresh other values
-muTimer gitVersionTimer1 = muTimer(); // timer to refresh other values
-muTimer gitVersionTimer2 = muTimer(); // timer to refresh other values
+static muTimer refreshTimer1 = muTimer();    // timer to refresh other values
+static muTimer refreshTimer2 = muTimer();    // timer to refresh other values
+static muTimer refreshTimer3 = muTimer();    // timer to refresh other values
+static muTimer gitVersionTimer1 = muTimer(); // timer to refresh other values
+static muTimer gitVersionTimer2 = muTimer(); // timer to refresh other values
 
-s_km271_status kmStatusCpy;
-s_km271_status *pkmStatus = km271GetStatusValueAdr();
-s_km271_config_str *pkmConfigStr = km271GetConfigStringsAdr();
-s_km271_config_num *pkmConfigNum = km271GetConfigValueAdr();
-s_km271_alarm_str *pkmAlarmStr = km271GetAlarmMsgAdr();
+static s_km271_status kmStatusCpy;
+static s_km271_status *pkmStatus = km271GetStatusValueAdr();
+static s_km271_config_str *pkmConfigStr = km271GetConfigStringsAdr();
+static s_km271_config_num *pkmConfigNum = km271GetConfigValueAdr();
+static s_km271_alarm_str *pkmAlarmStr = km271GetAlarmMsgAdr();
 
-char tmpMessage[300] = {'\0'};
-unsigned int KmAlarmHash[4] = {0};
-bool refreshRequest = false;
-bool km271RefreshActiveOld = false;
-int UpdateCntFast = 0;
-int UpdateCntSlow = 0;
-int UpdateCntRefresh = 0;
-unsigned long hashKmCfgNumOld, hashKmCfgStrOld;
-JsonDocument jsonDoc;
-JsonDocument kmCfgJsonDoc;
-bool jsonDataToSend = false;
-
+static char tmpMessage[300] = {'\0'};
+static unsigned int KmAlarmHash[4] = {0};
+static bool refreshRequest = false;
+static bool km271RefreshActiveOld = false;
+static int UpdateCntSlow = 0;
+static int UpdateCntRefresh = 0;
+static unsigned long hashKmCfgNumOld, hashKmCfgStrOld;
+static JsonDocument jsonDoc;
+static JsonDocument kmCfgJsonDoc;
+static bool jsonDataToSend = false;
+static auto &ota = OTAState::getInstance();
 
 // convert minutes to human readable structure
 timeComponents convertMinutes(int totalMinutes) {
@@ -964,7 +965,7 @@ void webUIupdates() {
   }
 
   // ON-BROWSER-REFRESH: refresh ALL elements - do this step by step not to stress the connection
-  if (refreshTimer3.cycleTrigger(WEBUI_FAST_REFRESH_TIME_MS) && refreshRequest && !getOtaActive()) {
+  if (refreshTimer3.cycleTrigger(WEBUI_FAST_REFRESH_TIME_MS) && refreshRequest && !ota.isActive()) {
     switch (UpdateCntRefresh) {
     case 0:
       updateSystemInfoElementsStatic(); // update static informations (≈ 200 Bytes)
@@ -984,7 +985,7 @@ void webUIupdates() {
   }
 
   // CYCLIC: update SINGLE elemets every x seconds - do this step by step not to stress the connection
-  if (refreshTimer2.cycleTrigger(WEBUI_SLOW_REFRESH_TIME_MS) && !refreshRequest && !km271GetRefreshState() && !getOtaActive()) {
+  if (refreshTimer2.cycleTrigger(WEBUI_SLOW_REFRESH_TIME_MS) && !refreshRequest && !km271GetRefreshState() && !ota.isActive()) {
 
     switch (UpdateCntSlow) {
     case 0:

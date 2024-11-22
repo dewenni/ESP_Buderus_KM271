@@ -8,12 +8,10 @@
 #include <webUI.h>
 #include <webUIupdates.h>
 
-char pushoverMessage[300] = {'\0'};
-long oilmeterSetValue;
-tm dti;
-char gitVersion[16];
-char gitUrl[256];
-char errorMsg[32];
+static tm dti;
+static char gitVersion[16];
+static char gitUrl[256];
+static char errorMsg[32];
 static const char *TAG = "WEB"; // LOG TAG
 
 /**

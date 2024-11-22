@@ -13,19 +13,19 @@
 #define HEAP_SAMPLE_COUNT 3       // sample count for heap leak
 
 // Heap check variables
-uint32_t totalHeap = 0;
-uint32_t heapSamples[HEAP_SAMPLE_COUNT];
-int sampleIndex = 0;
-char pushoverBuffer[MSG_BUF_SIZE]; // Buffer for Pushover messages
+static uint32_t totalHeap = 0;
+static uint32_t heapSamples[HEAP_SAMPLE_COUNT];
+static int sampleIndex = 0;
+static char pushoverBuffer[MSG_BUF_SIZE]; // Buffer for Pushover messages
 static const char *TAG = "MSG";    // LOG TAG
 s_logdata logData;
-HTTPClient http;
-
-muTimer pushoverSendTimer = muTimer();
-muTimer checkHeapTimer = muTimer();
-muTimer mainTimer = muTimer();           // timer for cyclic info
-muTimer cyclicSendStatTimer = muTimer(); // timer to send periodic km271 messages
-muTimer cyclicSendCfgTimer = muTimer();  // timer to send periodic km271 messages
+static HTTPClient http;
+ 
+static muTimer pushoverSendTimer = muTimer();
+static muTimer checkHeapTimer = muTimer();
+static muTimer mainTimer = muTimer();           // timer for cyclic info
+static muTimer cyclicSendStatTimer = muTimer(); // timer to send periodic km271 messages
+static muTimer cyclicSendCfgTimer = muTimer();  // timer to send periodic km271 messages
 
 /**
  * *******************************************************************

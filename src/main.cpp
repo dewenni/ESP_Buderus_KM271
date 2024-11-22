@@ -5,58 +5,34 @@
 #include <config.h>
 #include <esp_task_wdt.h>
 #include <km271.h>
-#include <main.h>
 #include <message.h>
 #include <mqtt.h>
 #include <oilmeter.h>
+#include <ota.h>
 #include <sensor.h>
 #include <simulation.h>
 #include <telnet.h>
+#include <wdt.h>
 #include <webUI.h>
 #include <webUIupdates.h>
 
 /* D E C L A R A T I O N S ****************************************************/
-muTimer heartbeat = muTimer();      // timer for heartbeat signal
-muTimer setupModeTimer = muTimer(); // timer for heartbeat signal
-muTimer dstTimer = muTimer();       // timer to check daylight saving time change
-muTimer ntpTimer = muTimer();       // timer to check ntp sync
-muTimer wdtTimer = muTimer();       // timer to reset wdt
+static muTimer heartbeat = muTimer();      // timer for heartbeat signal
+static muTimer setupModeTimer = muTimer(); // timer for heartbeat signal
+static muTimer dstTimer = muTimer();       // timer to check daylight saving time change
+static muTimer ntpTimer = muTimer();       // timer to check ntp sync
+static muTimer wdtTimer = muTimer();       // timer to reset wdt
 
-DRD32 *drd;                      // Double-Reset-Detector
-bool main_reboot = true;         // reboot flag
-int dst_old;                     // reminder for change of daylight saving time
-bool dst_ref;                    // init flag fpr dst reference
-bool ntpSynced;                  // ntp sync flag
-bool ntpInit = false;            // init flag for ntp sync
+static DRD32 *drd;                      // Double-Reset-Detector
+static bool main_reboot = true;         // reboot flag
+static int dst_old;                     // reminder for change of daylight saving time
+static bool dst_ref;                    // init flag fpr dst reference
+static bool ntpSynced;                  // ntp sync flag
+static bool ntpInit = false;            // init flag for ntp sync
 static const char *TAG = "MAIN"; // LOG TAG
 
-#define WDT_TIMEOUT 30000
-
-static const char *WDT_TAG = "WDT"; // LOG TAG
-bool otaState = false;
-
-void enableWdt() {
-
-  esp_task_wdt_deinit();
-  esp_task_wdt_config_t twdt_config{timeout_ms : WDT_TIMEOUT, idle_core_mask : 0b10, trigger_panic : true};
-
-  if (esp_task_wdt_init(&twdt_config) == ESP_OK) {
-    esp_task_wdt_add(NULL);
-    MY_LOGI(WDT_TAG, "Watchdog timer initialized");
-
-  } else {
-    MY_LOGE(WDT_TAG, "Failed to initialize Watchdog timer");
-  }
-}
-
-void disableWdt() {
-  esp_task_wdt_deinit();
-  esp_task_wdt_delete(NULL);
-  MY_LOGI(WDT_TAG, "Watchdog timer de-initialized");
-}
-
-void setOtaActive(bool active) { otaState = active; };
-bool getOtaActive() { return otaState; };
+static auto &wdt = Watchdog::getInstance();
+static auto &ota = OTAState::getInstance();
 
 /**
  * *******************************************************************
@@ -93,7 +69,7 @@ void setup() {
 
   // setup watchdog timer
   if (!setupMode) {
-    enableWdt();
+    wdt.enable();
   }
 
   // basic setup functions
@@ -102,23 +78,23 @@ void setup() {
   // Setup OTA
   ArduinoOTA.onStart([]() {
     MY_LOGI(TAG, "OTA-started");
-    storeData();  // store Data before update
-    disableWdt(); // disable watchdog timer
-    setOtaActive(true);
+    storeData();   // store Data before update
+    wdt.disable(); // disable watchdog timer
+    ota.setActive(true);
   });
   ArduinoOTA.onEnd([]() {
     MY_LOGI(TAG, "OTA-finished");
     if (!setupMode) {
-      enableWdt();
+      wdt.enable();
     }
-    setOtaActive(false);
+    ota.setActive(false);
   });
   ArduinoOTA.onError([](ota_error_t error) {
     MY_LOGI(TAG, "OTA-error");
     if (!setupMode) {
-      enableWdt();
+      wdt.enable();
     }
-    setOtaActive(false);
+    ota.setActive(false);
   });
   ArduinoOTA.setHostname(config.wifi.hostname);
   ArduinoOTA.begin();
@@ -152,7 +128,7 @@ void setup() {
 void loop() {
 
   // reset watchdog
-  if (esp_task_wdt_status(NULL) == ESP_OK && wdtTimer.cycleTrigger(WDT_TIMEOUT / 4)) {
+  if (wdt.isActive() && wdtTimer.cycleTrigger(2000)) {
     esp_task_wdt_reset();
   }
 

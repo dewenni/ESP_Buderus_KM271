@@ -12,10 +12,10 @@
 #include <oilmeter.h>
 
 /* V A R I A B L E S ********************************************************/
-int addr = 0;         // start address for EEPROM
-int writeCounter = 0; // counter for write to EEPROM
-bool reboot = true;   // flag for reboot
-char tmpMsg[300] = {'\0'};
+static int addr = 0;         // start address for EEPROM
+static int writeCounter = 0; // counter for write to EEPROM
+static bool reboot = true;   // flag for reboot
+static char tmpMsg[300] = {'\0'};
 static const char *TAG = "OIL"; // LOG TAG
 
 #define OILTRIGGER_TIME 1000       // 1.000 = 1sec

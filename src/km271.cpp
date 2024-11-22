@@ -41,21 +41,21 @@ s_km271_alarm_str kmAlarmMsg;   // Alarm Messages
 e_rxBlockState KmRxBlockState = KM_TSK_START; // The RX block state
 
 // known commands to KM271, to be used with KmStartTx()
-uint8_t KmCSTX[] = {KM_STX};               // STX Command
-uint8_t KmCDLE[] = {KM_DLE};               // DLE Response
-uint8_t KmCNAK[] = {KM_NAK};               // NAK Response
-uint8_t KmCLogMode[] = {0xEE, 0x00, 0x00}; // Switch to Log Mode
+static uint8_t KmCSTX[] = {KM_STX};               // STX Command
+static uint8_t KmCDLE[] = {KM_DLE};               // DLE Response
+static uint8_t KmCNAK[] = {KM_NAK};               // NAK Response
+static uint8_t KmCLogMode[] = {0xEE, 0x00, 0x00}; // Switch to Log Mode
 
 // ************************ km271 handling variables ****************************
-uint8_t rxByte;                      // The received character. We are reading byte by byte only.
-e_rxState kmRxStatus = KM_RX_RESYNC; // Status in Rx reception
-uint8_t kmRxBcc = 0;                 // BCC value for Rx Block
-KmRx_s kmRxBuf;                      // Rx block storag
-uint8_t send_cmd;
-uint8_t send_buf[8] = {};
-char kmTmpMsg[256];
-bool kmInitDone = false;
-bool km271RefreshActive = false;
+static uint8_t rxByte;                      // The received character. We are reading byte by byte only.
+static e_rxState kmRxStatus = KM_RX_RESYNC; // Status in Rx reception
+static uint8_t kmRxBcc = 0;                 // BCC value for Rx Block
+static KmRx_s kmRxBuf;                      // Rx block storag
+static uint8_t send_cmd;
+static uint8_t send_buf[8] = {};
+static char kmTmpMsg[256];
+static bool kmInitDone = false;
+static bool km271RefreshActive = false;
 
 /**
  * *******************************************************************

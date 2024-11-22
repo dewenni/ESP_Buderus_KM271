@@ -66,8 +66,8 @@ const char *errOkString(uint8_t value) {
  * @param   none
  * @return  none
  * *******************************************************************/
-int logLine, logIdx = 0;
-bool logReadActive = false;
+static int logLine, logIdx = 0;
+static bool logReadActive = false;
 JsonDocument jsonLog;
 
 bool webLogRefreshActive() { return logReadActive; }

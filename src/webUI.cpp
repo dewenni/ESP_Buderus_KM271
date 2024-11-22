@@ -4,12 +4,13 @@
 #include <favicon.h>
 #include <km271.h>
 #include <language.h>
-#include <main.h>
 #include <message.h>
 #include <oilmeter.h>
+#include <ota.h>
 #include <sensor.h>
 #include <simulation.h>
 #include <stringHelper.h>
+#include <wdt.h>
 #include <webUI.h>
 #include <webUIhelper.h>
 #include <webUIupdates.h>
@@ -21,26 +22,28 @@ const int CHUNK_SIZE = 1024;
 void webCallback(const char *elementId, const char *value);
 
 /* D E C L A R A T I O N S ****************************************************/
-muTimer heartbeatTimer = muTimer();  // timer to refresh other values
-muTimer simulationTimer = muTimer(); // timer to refresh other values
-muTimer logReadTimer = muTimer();    // timer to refresh other values
-muTimer otaUpdateTimer = muTimer();  // timer to refresh other values
-muTimer onLoadTimer = muTimer();     // timer to refresh other values
+static muTimer heartbeatTimer = muTimer();  // timer to refresh other values
+static muTimer simulationTimer = muTimer(); // timer to refresh other values
+static muTimer logReadTimer = muTimer();    // timer to refresh other values
+static muTimer otaUpdateTimer = muTimer();  // timer to refresh other values
+static muTimer onLoadTimer = muTimer();     // timer to refresh other values
 
-AsyncWebServer server(80);
-AsyncWebSocket ws("/ws");
+static AsyncWebServer server(80);
+static AsyncWebSocket ws("/ws");
 
 static const char *TAG = "WEB"; // LOG TAG
-bool webInitDone = false;
-bool simulationInit = false;
-char otaMessage[128];
-size_t content_len;
-const size_t BUFFER_SIZE = 512;
-char webCallbackElementID[32];
-char webCallbackValue[256];
-bool webCallbackAvailable = false;
-unsigned long sendCnt = 0;
-bool onLoadRequest = false;
+static bool webInitDone = false;
+static bool simulationInit = false;
+static char otaMessage[128];
+static size_t content_len;
+static const size_t BUFFER_SIZE = 512;
+static char webCallbackElementID[32];
+static char webCallbackValue[256];
+static bool webCallbackAvailable = false;
+static bool onLoadRequest = false;
+
+static auto &wdt = Watchdog::getInstance();
+static auto &ota = OTAState::getInstance();
 
 void sendWs(JsonDocument &jsonDoc) {
   ws.cleanupClients(MAX_WS_CLIENT);
@@ -64,6 +67,13 @@ void sendHeartbeat() {
 void loadConfigWebUI() {
   JsonDocument jsonDoc;
   jsonDoc["type"] = "loadConfig";
+  sendWs(jsonDoc);
+}
+
+void updateOTAprogress(int progress) {
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "otaProgress";
+  jsonDoc["progress"] = progress;
   sendWs(jsonDoc);
 }
 
@@ -204,17 +214,13 @@ void updateWebBusy(const char *id, bool busy) {
 void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final) {
   if (!index) {
     MY_LOGI(TAG, "webOTA started: %s", filename.c_str());
-    storeData(); // store data before updating
-    setOtaActive(true);
-    disableWdt(); // disable watchdog timer
-    snprintf(otaMessage, sizeof(otaMessage), "Start OTA Update: %s", filename.c_str());
-    km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
+    storeData();
+    ota.setActive(true);
+    wdt.disable();
     content_len = request->contentLength();
     if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) {
-      setOtaActive(false);
-      Update.printError(Serial);
-      snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
-      km271Msg(KM_TYP_MESSAGE, "otaMessage", NULL);
+      ota.setActive(false);
+      wdt.enable();
       updateWebText("p11_ota_upd_err", Update.errorString(), false);
       updateWebDialog("ota_update_failed_dialog", "open");
       return request->send(400, "text/plain", "OTA could not begin");
@@ -222,11 +228,8 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
   }
   // update in progress
   if (Update.write(data, len) != len) {
-    setOtaActive(false);
-    enableWdt(); // enable watchdog timer
-    Update.printError(Serial);
-    snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
-    km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
+    ota.setActive(false);
+    wdt.enable();
     updateWebText("p11_ota_upd_err", Update.errorString(), false);
     updateWebDialog("ota_update_failed_dialog", "open");
     return request->send(400, "text/plain", "OTA could not begin");
@@ -234,43 +237,24 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
     // calculate progress
     int progress = (Update.progress() * 100) / content_len;
     if (otaUpdateTimer.cycleTrigger(1000)) {
-      JsonDocument jsonDoc;
-      jsonDoc["type"] = "otaProgress";
-      jsonDoc["progress"] = progress;
-      const size_t len = measureJson(jsonDoc);
-      AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-      assert(buffer); // optional: check buffer
-      serializeJson(jsonDoc, buffer->get(), len);
-      ws.textAll(buffer);
+      updateOTAprogress(progress);
     }
   }
   // update done
   if (final) {
     if (!Update.end(true)) {
-      setOtaActive(false);
-      enableWdt(); // enable watchdog timer
-      Update.printError(Serial);
-      snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
-      km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
+      MY_LOGI(TAG, "OTA Update failed: %s", Update.errorString());
       updateWebText("p11_ota_upd_err", Update.errorString(), false);
       updateWebDialog("ota_update_failed_dialog", "open");
+      ota.setActive(false);
+      wdt.enable();
       return request->send(400, "text/plain", "Could not end OTA");
     } else {
-      JsonDocument jsonDoc;
-      jsonDoc["type"] = "otaProgress";
-      jsonDoc["progress"] = 100;
-      const size_t len = measureJson(jsonDoc);
-      AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
-      assert(buffer); // optional: check buffer
-      serializeJson(jsonDoc, buffer->get(), len);
-      ws.textAll(buffer);
-
       MY_LOGI(TAG, "OTA Update complete");
-      setOtaActive(false);
-      enableWdt(); // enable watchdog timer
-      Serial.flush();
+      updateOTAprogress(100);
       updateWebDialog("ota_update_done_dialog", "open");
-      km271Msg(KM_TYP_MESSAGE, "OTA Update finished!", NULL);
+      ota.setActive(false);
+      wdt.enable();
       return request->send(200, "text/plain", "OTA Update finished!");
     }
   }

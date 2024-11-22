@@ -11,13 +11,12 @@ char statePrefix[128];
 char deviceId[32];
 char swVersion[32];
 
-muTimer cyclicTimer = muTimer();
+static muTimer cyclicTimer = muTimer();
+static muTimer sendTimer = muTimer();
 
-bool sendMqttConfig = false;
-bool resetMqttConfig = false;
-
-muTimer sendTimer = muTimer(); // timer to refresh other values
-int mqttSendCnt = 0;
+static bool sendMqttConfig = false;
+static bool resetMqttConfig = false;
+static int mqttSendCnt = 0;
 
 enum OptType { OPT_NULL, OPT_OP_MODE, OPT_RED_MODE, OPT_HC_PRG, OPT_WW_CRC, OPT_SUMMER };
 enum DeviceType{TYP_TEXT, TYP_SLIDER, TYP_NUM, TYP_OPT, TYP_BTN};

@@ -12,9 +12,9 @@
 /* D E C L A R A T I O N S ****************************************************/
 ESPTelnet telnet;
 s_telnetIF telnetIF;
-EscapeCodes ansi;
-char param[MAX_PAR][MAX_CHAR];
-bool msgAvailable = false;
+static EscapeCodes ansi;
+static char param[MAX_PAR][MAX_CHAR];
+static bool msgAvailable = false;
 static const char *TAG = "TELNET"; // LOG TAG
 
 /* P R O T O T Y P E S ********************************************************/

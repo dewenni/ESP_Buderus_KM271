@@ -16,10 +16,10 @@ void setup_wifi();
 s_wifi wifi; // global WiFi Informations
 s_eth eth;   // global ETH Informations
 
-muTimer wifiReconnectTimer = muTimer(); // timer for reconnect delay
-int wifi_retry = 0;
-esp_reset_reason_t reset_reason;
-char intRestartReason[64];
+static muTimer wifiReconnectTimer = muTimer(); // timer for reconnect delay
+static int wifi_retry = 0;
+static esp_reset_reason_t reset_reason;
+static char intRestartReason[64];
 static const char *TAG = "SETUP"; // LOG TAG
 
 /**

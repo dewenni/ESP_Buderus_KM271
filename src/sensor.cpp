@@ -13,9 +13,9 @@ DallasTemperature sensor1(&oneWire1);
 DallasTemperature sensor2(&oneWire2);
 
 #define REFRESH_TIME 10000
-muTimer readTimer = muTimer(); // timer to refresh values
-float sens1_old = 0.0;
-float sens2_old = 0.0;
+static  muTimer readTimer = muTimer(); // timer to refresh values
+static  float sens1_old = 0.0;
+static  float sens2_old = 0.0;
 
 /**
  * *******************************************************************

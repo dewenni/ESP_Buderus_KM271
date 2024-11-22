@@ -10,17 +10,17 @@
 #include <simulation.h>
 
 /* D E C L A R A T I O N S ****************************************************/
-void processMqttMessage();
-AsyncMqttClient mqtt_client;
-bool bootUpMsgDone, setupDone = false;
-int targetIndex = -1;
+static void processMqttMessage();
+static AsyncMqttClient mqtt_client;
+static bool bootUpMsgDone, setupDone = false;
+static int targetIndex = -1;
 static const char *TAG = "MQTT"; // LOG TAG
-char topicCopy[512];
-char payloadCopy[512];
-bool mqttMsgAvailable = false;
-char lastError[64] = "---";
-int mqtt_retry = 0;
-muTimer mqttReconnectTimer;
+static char topicCopy[512];
+static char payloadCopy[512];
+static bool mqttMsgAvailable = false;
+static char lastError[64] = "---";
+static int mqtt_retry = 0;
+static muTimer mqttReconnectTimer;
 
 /**
  * *******************************************************************
