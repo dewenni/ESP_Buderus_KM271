@@ -18,5 +18,3 @@ struct timeComponents {
 void updateAllElements();
 void webUIupdates();
 void updateGpioSettings();
-void setOtaActive(bool active);
-bool getOtaActive();

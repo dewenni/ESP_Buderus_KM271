@@ -4,6 +4,7 @@
 #include <favicon.h>
 #include <km271.h>
 #include <language.h>
+#include <main.h>
 #include <message.h>
 #include <oilmeter.h>
 #include <sensor.h>
@@ -205,6 +206,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
     MY_LOGI(TAG, "webOTA started: %s", filename.c_str());
     storeData(); // store data before updating
     setOtaActive(true);
+    disableWdt(); // disable watchdog timer
     snprintf(otaMessage, sizeof(otaMessage), "Start OTA Update: %s", filename.c_str());
     km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
     content_len = request->contentLength();
@@ -221,6 +223,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
   // update in progress
   if (Update.write(data, len) != len) {
     setOtaActive(false);
+    enableWdt(); // enable watchdog timer
     Update.printError(Serial);
     snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
     km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
@@ -245,6 +248,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
   if (final) {
     if (!Update.end(true)) {
       setOtaActive(false);
+      enableWdt(); // enable watchdog timer
       Update.printError(Serial);
       snprintf(otaMessage, sizeof(otaMessage), "OTA Update failed: %s", Update.errorString());
       km271Msg(KM_TYP_MESSAGE, otaMessage, NULL);
@@ -263,6 +267,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
 
       MY_LOGI(TAG, "OTA Update complete");
       setOtaActive(false);
+      enableWdt(); // enable watchdog timer
       Serial.flush();
       updateWebDialog("ota_update_done_dialog", "open");
       km271Msg(KM_TYP_MESSAGE, "OTA Update finished!", NULL);
@@ -388,7 +393,8 @@ void webUISetup() {
   });
 
   server.on("/close_all_ws_clients", HTTP_POST, [](AsyncWebServerRequest *request) {
-    ws.closeAll(); // close all websocket connections
+    ws.cleanupClients();
+    // ws.closeAll(); // causes crash with EspAsyncWebServer 3.3.22
     request->send(200, "application/json", "{\"status\":\"all clients closed\"}");
   });
 

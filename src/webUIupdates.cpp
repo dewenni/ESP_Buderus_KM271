@@ -4,7 +4,7 @@
 #include <stringHelper.h>
 #include <webUI.h>
 #include <webUIupdates.h>
-
+#include <main.h>
 /* S E T T I N G S ****************************************************/
 #define WEBUI_SLOW_REFRESH_TIME_MS 500
 #define WEBUI_FAST_REFRESH_TIME_MS 100
@@ -38,10 +38,6 @@ unsigned long hashKmCfgNumOld, hashKmCfgStrOld;
 JsonDocument jsonDoc;
 JsonDocument kmCfgJsonDoc;
 bool jsonDataToSend = false;
-bool otaState = false;
-
-void setOtaActive(bool active) { otaState = active; };
-bool getOtaActive() { return otaState; };
 
 
 // convert minutes to human readable structure
@@ -987,8 +983,9 @@ void webUIupdates() {
     UpdateCntRefresh = (UpdateCntRefresh + 1) % 3;
   }
 
-  // CYCLIC: update elemets every x seconds - do this step by step not to stress the connection
+  // CYCLIC: update SINGLE elemets every x seconds - do this step by step not to stress the connection
   if (refreshTimer2.cycleTrigger(WEBUI_SLOW_REFRESH_TIME_MS) && !refreshRequest && !km271GetRefreshState() && !getOtaActive()) {
+
     switch (UpdateCntSlow) {
     case 0:
       updateSystemInfoElements(); // refresh all "System" elements as one big JSON update (≈ 570 Bytes)
@@ -1013,14 +1010,14 @@ void webUIupdates() {
       break;
     }
     UpdateCntSlow = (UpdateCntSlow + 1) % 6;
+  }
 
-    // show refresh layer
-    if (km271GetRefreshState()) {
-      updateWebHideElement("refreshBar", false);
-      km271RefreshActiveOld = true;
-    } else if (km271RefreshActiveOld != km271GetRefreshState()) {
-      km271RefreshActiveOld = false;
-      updateWebHideElement("refreshBar", true);
-    }
+  // show refresh layer
+  if (km271GetRefreshState() && !km271RefreshActiveOld) {
+    updateWebHideElement("refreshBar", false);
+    km271RefreshActiveOld = true;
+  } else if (!km271GetRefreshState() && km271RefreshActiveOld) {
+    km271RefreshActiveOld = false;
+    updateWebHideElement("refreshBar", true);
   }
 }

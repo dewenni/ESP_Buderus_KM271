@@ -3,14 +3,15 @@
 #include <ESP32_DRD.h>
 #include <basics.h>
 #include <config.h>
+#include <esp_task_wdt.h>
 #include <km271.h>
+#include <main.h>
 #include <message.h>
 #include <mqtt.h>
 #include <oilmeter.h>
 #include <sensor.h>
 #include <simulation.h>
 #include <telnet.h>
-#include <wdt.h>
 #include <webUI.h>
 #include <webUIupdates.h>
 
@@ -28,6 +29,34 @@ bool dst_ref;                    // init flag fpr dst reference
 bool ntpSynced;                  // ntp sync flag
 bool ntpInit = false;            // init flag for ntp sync
 static const char *TAG = "MAIN"; // LOG TAG
+
+#define WDT_TIMEOUT 30000
+
+static const char *WDT_TAG = "WDT"; // LOG TAG
+bool otaState = false;
+
+void enableWdt() {
+
+  esp_task_wdt_deinit();
+  esp_task_wdt_config_t twdt_config{timeout_ms : WDT_TIMEOUT, idle_core_mask : 0b10, trigger_panic : true};
+
+  if (esp_task_wdt_init(&twdt_config) == ESP_OK) {
+    esp_task_wdt_add(NULL);
+    MY_LOGI(WDT_TAG, "Watchdog timer initialized");
+
+  } else {
+    MY_LOGE(WDT_TAG, "Failed to initialize Watchdog timer");
+  }
+}
+
+void disableWdt() {
+  esp_task_wdt_deinit();
+  esp_task_wdt_delete(NULL);
+  MY_LOGI(WDT_TAG, "Watchdog timer de-initialized");
+}
+
+void setOtaActive(bool active) { otaState = active; };
+bool getOtaActive() { return otaState; };
 
 /**
  * *******************************************************************

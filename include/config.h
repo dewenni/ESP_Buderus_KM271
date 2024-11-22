@@ -4,7 +4,7 @@
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION "v5.0.9000" // internal program version
+#define VERSION "v5.0.9001" // internal program version
 
 #define WIFI_RECONNECT 10000 // Delay between wifi reconnection tries
 #define MQTT_RECONNECT 10000 // Delay between mqtt reconnection tries
@@ -66,18 +66,18 @@ struct s_cfg_eth {
 };
 
 struct s_cfg_mqtt {
-  bool enable;            // Enable or disable the MQTT server
-  char server[128];       // MQTT Server IP
-  char user[128];         // MQTT User Name
-  char password[128];     // MQTT User Password
-  char topic[128];        // MQTT Topic Prefix
-  uint16_t port = 1883;   // MQTT Server Port
-  bool config_retain;     // retain config messages
-  uint16_t cyclicSendMin; // send messages every x minutes
-  int lang;               // MQTT Topic Language
-  bool ha_enable;         // MQTT discovery
-  char ha_topic[64];      // MQTT ha topic
-  char ha_device[32];     // MQTT ha topic
+  bool enable;
+  char server[128];
+  char user[128];
+  char password[128];
+  char topic[128];
+  uint16_t port = 1883;
+  bool config_retain;
+  uint16_t cyclicSendMin;
+  int lang;
+  bool ha_enable;
+  char ha_topic[64];
+  char ha_device[32];
 };
 
 struct s_cfg_ntp {
@@ -126,10 +126,10 @@ struct s_cfg_sensor {
 };
 
 struct s_cfg_pushover {
-  bool enable;       // Enable or disable the Pushover Service
-  char token[64];    // Pushover API-Token
-  char user_key[64]; // Pushover User-Key
-  int filter;        // Messaging filter
+  bool enable;
+  char token[64];
+  char user_key[64];
+  int filter;
 };
 
 struct s_cfg_sim {
