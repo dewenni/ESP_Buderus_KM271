@@ -136,6 +136,46 @@ void webCallback(const char *elementId, const char *value) {
     km271sendCmd(KM271_SENDCMD_HC2_HOLIDAYS, atoi(value));
   }
 
+  // HC1-Day Temp
+  if (strcmp(elementId, "p02_hc1_day_temp") == 0) {
+    km271sendCmdFlt(KM271_SENDCMD_HC1_DAY_SETPOINT, atof(value));
+  }
+
+  // HC2-Day Temp
+  if (strcmp(elementId, "p02_hc2_day_temp") == 0) {
+    km271sendCmdFlt(KM271_SENDCMD_HC2_DAY_SETPOINT, atof(value));
+  }
+
+  // HC1-Night Temp
+  if (strcmp(elementId, "p02_hc1_night_temp") == 0) {
+    km271sendCmdFlt(KM271_SENDCMD_HC1_NIGHT_SETPOINT, atof(value));
+  }
+
+  // HC2-Night Temp
+  if (strcmp(elementId, "p02_hc2_night_temp") == 0) {
+    km271sendCmdFlt(KM271_SENDCMD_HC2_NIGHT_SETPOINT, atof(value));
+  }
+
+  // HC1-Holiday Temp
+  if (strcmp(elementId, "p02_hc1_holiday_temp") == 0) {
+    km271sendCmdFlt(KM271_SENDCMD_HC1_HOLIDAY_SETPOINT, atof(value));
+  }
+
+  // HC2-Holiday Temp
+  if (strcmp(elementId, "p02_hc2_holiday_temp") == 0) {
+    km271sendCmdFlt(KM271_SENDCMD_HC2_HOLIDAY_SETPOINT, atof(value));
+  }
+
+  // HC1-SwitchOn Temp
+  if (strcmp(elementId, "p02_hc1_sw_on_temp") == 0) {
+    km271sendCmd(KM271_SENDCMD_HC1_SWITCH_ON_TEMP, atoi(value));
+  }
+
+  // HC2-SwitchOn Temp
+  if (strcmp(elementId, "p02_hc2_sw_on_temp") == 0) {
+    km271sendCmd(KM271_SENDCMD_HC2_SWITCH_ON_TEMP, atoi(value));
+  }
+
   // WW-Temp
   if (strcmp(elementId, "p02_ww_temp") == 0) {
     km271sendCmd(KM271_SENDCMD_WW_SETPOINT, atoi(value));

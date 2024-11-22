@@ -5,7 +5,8 @@
   <link rel="stylesheet" type="text/css" href="../css/pico.css">
   <link rel="stylesheet" type="text/css" href="../css/custom.css">
    <link rel="stylesheet" type="text/css" href="../css/icons.css"> 
-  <script src="../js/main.js" defer></script>
+  <script src="../js/fun.js" defer></script>
+  <script src="../js/doc.js" defer></script>
   <script src="../js/lang.js" defer></script>
 <script>
 function test() {    
@@ -293,7 +294,111 @@ setInterval(test, 1000);
           </div>
         </article>
 
-        <article class="dash">
+        <article class="dash OPT_HC1">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc1$-$day_temp"></div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_hc1_day_temp_txt" id="p02_hc1_day_temp" min="10" max="30" step="0.5" value="20" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_day_temp_txt"></span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_unit_c"></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dash OPT_HC2">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc2$-$day_temp"></div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_hc2_day_temp_txt" id="p02_hc2_day_temp" min="10" max="30" step="0.5" value="20" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_day_temp_txt"></span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_unit_c"></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dash OPT_HC1">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc1$-$night_temp"></div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_hc1_night_temp_txt" id="p02_hc1_night_temp" min="10" max="30" step="0.5" value="20" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_night_temp_txt"></span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_unit_c"></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dash OPT_HC2">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc2$-$night_temp"></div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_hc2_night_temp_txt" id="p02_hc2_night_temp" min="10" max="30" step="0.5" value="20" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_night_temp_txt"></span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_unit_c"></div>
+            </div>
+          </div>
+        </article>    
+
+        <article class="dash OPT_HC1">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc1$-$holiday_temp"></div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_hc1_holiday_temp_txt" id="p02_hc1_holiday_temp" min="10" max="30" step="0.5" value="20" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_holiday_temp_txt"></span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_unit_c"></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dash OPT_HC2">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc2$-$holiday_temp"></div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_hc2_holiday_temp_txt" id="p02_hc2_holiday_temp" min="10" max="30" step="0.5" value="20" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_holiday_temp_txt"></span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_unit_c"></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dash OPT_HC1">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc1$-$switch_on_temperature"></div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_hc1_sw_on_temp_txt" id="p02_hc1_sw_on_temp" min="0" max="10" value="0" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_sw_on_temp_txt"></span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_unit_c"></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dash OPT_HC2">
+          <div class="dash-main">
+            <div class="dash-header" data-i18n="hc2$-$switch_on_temperature"></div>
+            <div class="dash-content" role="group">
+              <input type="range" class="rangeSlider" data-value-id="p02_hc2_sw_on_temp_txt" id="p02_hc2_sw_on_temp" min="0" max="10" value="0" >
+              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_sw_on_temp_txt"></span>
+            </div>
+            <div class="dash-footer">
+              <div data-i18n="info_unit_c"></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dash OPT_HW">
           <div class="dash-main">
             <div class="dash-header" data-i18n="ww$-$temp"></div>
             <div class="dash-content" role="group">
@@ -309,7 +414,7 @@ setInterval(test, 1000);
           </div>
         </article>
 
-        <article class="dash">
+        <article class="dash OPT_HW">
           <div class="dash-main">
             <div class="dash-header" data-i18n="ww$-$circulation"></div>
             <div class="dash-content" role="group">

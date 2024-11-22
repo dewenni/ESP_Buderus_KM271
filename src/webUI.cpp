@@ -34,7 +34,6 @@ static AsyncWebSocket ws("/ws");
 static const char *TAG = "WEB"; // LOG TAG
 static bool webInitDone = false;
 static bool simulationInit = false;
-static char otaMessage[128];
 static size_t content_len;
 static const size_t BUFFER_SIZE = 512;
 static char webCallbackElementID[32];

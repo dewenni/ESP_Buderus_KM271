@@ -51,7 +51,6 @@ static uint8_t rxByte;                      // The received character. We are re
 static e_rxState kmRxStatus = KM_RX_RESYNC; // Status in Rx reception
 static uint8_t kmRxBcc = 0;                 // BCC value for Rx Block
 static KmRx_s kmRxBuf;                      // Rx block storag
-static uint8_t send_cmd;
 static uint8_t send_buf[8] = {};
 static char kmTmpMsg[256];
 static bool kmInitDone = false;

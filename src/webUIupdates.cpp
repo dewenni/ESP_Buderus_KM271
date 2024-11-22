@@ -94,6 +94,8 @@ void addJsonElement(JsonDocument &jsonBuf, const char *elementID, const char *ty
 
 void addJsonLabelInt(JsonDocument &jsonBuf, const char *elementID, intmax_t value) { addJsonElement(jsonBuf, elementID, "l", int32ToString(value)); };
 
+void addJsonLabelFlt(JsonDocument &jsonBuf, const char *elementID, intmax_t value) { addJsonElement(jsonBuf, elementID, "l", floatToString(value)); };
+
 void addJsonLabelTxt(JsonDocument &jsonBuf, const char *elementID, const char *value) { addJsonElement(jsonBuf, elementID, "l", value); };
 
 void addJsonValueTxt(JsonDocument &jsonBuf, const char *elementID, const char *value) { addJsonElement(jsonBuf, elementID, "v", value); };
@@ -155,8 +157,12 @@ void updateSensorElements(bool forceUpdate) {
     }
     static float ch1_value;
     if (ch1_value != sensor.ch1_temp || forceUpdate) {
-      updateWebTextInt("p01_sens1_value", sensor.ch1_temp, false);
       ch1_value = sensor.ch1_temp;
+      if (sensor.ch1_temp == -127) {
+        updateWebText("p01_sens1_value", "--", false);
+      } else {
+        updateWebTextInt("p01_sens1_value", sensor.ch1_temp, false);
+      }
     }
   }
   if (config.sensor.ch2_enable) {
@@ -172,7 +178,11 @@ void updateSensorElements(bool forceUpdate) {
     }
     static float ch2_value;
     if (ch2_value != sensor.ch2_temp || forceUpdate) {
-      updateWebTextInt("p01_sens2_value", sensor.ch2_temp, false);
+      if (sensor.ch2_temp == -127) {
+        updateWebText("p01_sens2_value", "--", false);
+      } else {
+        updateWebTextInt("p01_sens2_value", sensor.ch2_temp, false);
+      }
       ch2_value = sensor.ch2_temp;
     }
   }
@@ -387,17 +397,25 @@ void generateKm271ConfigJSON() {
     addJsonLabelInt(kmCfgJsonDoc, "p02_hc1_summer_th_txt", pkmConfigNum->hc1_summer_mode_threshold);
     addJsonLabelTxt(kmCfgJsonDoc, "p03_hc1_summer_th", pkmConfigStr->hc1_summer_mode_threshold);
     addJsonLabelTxt(kmCfgJsonDoc, "p03_hc1_night_temp", pkmConfigStr->hc1_night_temp);
+    addJsonValueFlt(kmCfgJsonDoc, "p02_hc1_night_temp", pkmConfigNum->hc1_night_temp);
+    addJsonLabelFlt(kmCfgJsonDoc, "p02_hc1_night_temp_txt", pkmConfigNum->hc1_night_temp);
     addJsonLabelTxt(kmCfgJsonDoc, "p03_hc1_day_temp", pkmConfigStr->hc1_day_temp);
+    addJsonValueFlt(kmCfgJsonDoc, "p02_hc1_day_temp", pkmConfigNum->hc1_day_temp);
+    addJsonLabelFlt(kmCfgJsonDoc, "p02_hc1_day_temp_txt", pkmConfigNum->hc1_day_temp);
+    addJsonLabelTxt(kmCfgJsonDoc, "p03_hc1_hday_temp", pkmConfigStr->hc1_holiday_temp);
+    addJsonValueFlt(kmCfgJsonDoc, "p02_hc1_holiday_temp", pkmConfigNum->hc1_holiday_temp);
+    addJsonLabelFlt(kmCfgJsonDoc, "p02_hc1_holiday_temp_txt", pkmConfigNum->hc1_holiday_temp);
     addJsonState(kmCfgJsonDoc, "p02_hc1_opmode_night", pkmConfigNum->hc1_operation_mode == 0 ? true : false);
     addJsonState(kmCfgJsonDoc, "p02_hc1_opmode_day", pkmConfigNum->hc1_operation_mode == 1 ? true : false);
     addJsonState(kmCfgJsonDoc, "p02_hc1_opmode_auto", pkmConfigNum->hc1_operation_mode == 2 ? true : false);
     addJsonLabelTxt(kmCfgJsonDoc, "p03_hc1_op_mode", pkmConfigStr->hc1_operation_mode);
-    addJsonLabelTxt(kmCfgJsonDoc, "p03_hc1_hday_temp", pkmConfigStr->hc1_holiday_temp);
     addJsonLabelTxt(kmCfgJsonDoc, "p03_hc1_max_temp", pkmConfigStr->hc1_max_temp);
     addJsonValueInt(kmCfgJsonDoc, "p02_hc1_interp", pkmConfigNum->hc1_interpretation);
     addJsonLabelInt(kmCfgJsonDoc, "p02_hc1_interp_txt", pkmConfigNum->hc1_interpretation);
     addJsonLabelTxt(kmCfgJsonDoc, "p03_hc1_interp", pkmConfigStr->hc1_interpretation);
     addJsonLabelTxt(kmCfgJsonDoc, "p03_hc1_sw_on_temp", pkmConfigStr->hc1_switch_on_temperature);
+    addJsonValueInt(kmCfgJsonDoc, "p02_hc1_sw_on_temp", pkmConfigNum->hc1_switch_on_temperature);
+    addJsonLabelInt(kmCfgJsonDoc, "p02_hc1_sw_on_temp_txt", pkmConfigNum->hc1_switch_on_temperature);
     addJsonValueInt(kmCfgJsonDoc, "p02_hc1_sw_off_th", pkmConfigNum->hc1_switch_off_threshold);
     addJsonLabelInt(kmCfgJsonDoc, "p02_hc1_sw_off_th_txt", pkmConfigNum->hc1_switch_off_threshold);
     addJsonLabelTxt(kmCfgJsonDoc, "p03_hc1_sw_off_th", pkmConfigStr->hc1_switch_off_threshold);
@@ -433,17 +451,25 @@ void generateKm271ConfigJSON() {
     addJsonLabelInt(kmCfgJsonDoc, "p02_hc2_summer_th_txt", pkmConfigNum->hc2_summer_mode_threshold);
     addJsonLabelTxt(kmCfgJsonDoc, "p04_hc2_summer_th", pkmConfigStr->hc2_summer_mode_threshold);
     addJsonLabelTxt(kmCfgJsonDoc, "p04_hc2_night_temp", pkmConfigStr->hc2_night_temp);
+    addJsonValueFlt(kmCfgJsonDoc, "p02_hc2_night_temp", pkmConfigNum->hc2_night_temp);
+    addJsonLabelFlt(kmCfgJsonDoc, "p02_hc2_night_temp_txt", pkmConfigNum->hc2_night_temp);
     addJsonLabelTxt(kmCfgJsonDoc, "p04_hc2_day_temp", pkmConfigStr->hc2_day_temp);
+    addJsonValueFlt(kmCfgJsonDoc, "p02_hc2_day_temp", pkmConfigNum->hc2_day_temp);
+    addJsonLabelFlt(kmCfgJsonDoc, "p02_hc2_day_temp_txt", pkmConfigNum->hc2_day_temp);
+    addJsonLabelTxt(kmCfgJsonDoc, "p04_hc2_hday_temp", pkmConfigStr->hc2_holiday_temp);
+    addJsonValueFlt(kmCfgJsonDoc, "p02_hc2_holiday_temp", pkmConfigNum->hc2_holiday_temp);
+    addJsonLabelFlt(kmCfgJsonDoc, "p02_hc2_holiday_temp_txt", pkmConfigNum->hc2_holiday_temp);
     addJsonState(kmCfgJsonDoc, "p02_hc2_opmode_night", pkmConfigNum->hc2_operation_mode == 0 ? true : false);
     addJsonState(kmCfgJsonDoc, "p02_hc2_opmode_day", pkmConfigNum->hc2_operation_mode == 1 ? true : false);
     addJsonState(kmCfgJsonDoc, "p02_hc2_opmode_auto", pkmConfigNum->hc2_operation_mode == 2 ? true : false);
     addJsonLabelTxt(kmCfgJsonDoc, "p04_hc2_op_mode", pkmConfigStr->hc2_operation_mode);
-    addJsonLabelTxt(kmCfgJsonDoc, "p04_hc2_hday_temp", pkmConfigStr->hc2_holiday_temp);
     addJsonLabelTxt(kmCfgJsonDoc, "p04_hc2_max_temp", pkmConfigStr->hc2_max_temp);
     addJsonValueInt(kmCfgJsonDoc, "p02_hc2_interp", pkmConfigNum->hc2_interpretation);
     addJsonLabelInt(kmCfgJsonDoc, "p02_hc2_interp_txt", pkmConfigNum->hc2_interpretation);
     addJsonLabelTxt(kmCfgJsonDoc, "p04_hc2_interp", pkmConfigStr->hc2_interpretation);
     addJsonLabelTxt(kmCfgJsonDoc, "p04_hc2_sw_on_temp", pkmConfigStr->hc2_switch_on_temperature);
+    addJsonValueInt(kmCfgJsonDoc, "p02_hc2_sw_on_temp", pkmConfigNum->hc2_switch_on_temperature);
+    addJsonLabelInt(kmCfgJsonDoc, "p02_hc2_sw_on_temp_txt", pkmConfigNum->hc2_switch_on_temperature);
     addJsonValueInt(kmCfgJsonDoc, "p02_hc2_sw_off_th", pkmConfigNum->hc2_switch_off_threshold);
     addJsonLabelInt(kmCfgJsonDoc, "p02_hc2_sw_off_th_txt", pkmConfigNum->hc2_switch_off_threshold);
     addJsonLabelTxt(kmCfgJsonDoc, "p04_hc2_sw_off_th", pkmConfigStr->hc2_switch_off_threshold);

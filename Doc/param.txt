@@ -38,11 +38,11 @@ topic:      {"setvalue/oilcounter", setvalue/oilcounter"}
 payload:    counter value including decimals (123,45L = 1234) 
 
 command:    heating circuit 1: operation mode 
-topic:      {"setvalue/hk1_betriebsart", setvalue/hc1_opmode"}
+topic:      {"setvalue/hk1_betriebsart", setvalue/hc1_operation_mode"}
 payload:    0=night / 1=day / 2=auto  
 
 command:    heating circuit 2: operation mode 
-topic:      {"setvalue/hk2_betriebsart", setvalue/hc2_opmode"}
+topic:      {"setvalue/hk2_betriebsart", setvalue/hc2_operation_mode"}
 payload:    (0=night / 1=day / 2=auto)
 
 command:    heating circuit 1: program
@@ -61,6 +61,14 @@ command:    heating circuit 2: design temperature for heating curves
 topic:      {"setvalue/hk2_auslegung", setvalue/hc2_interpretation"}
 payload:    Resolution: 1 [°C] - Range: 30 ... 90 [°C]
 
+command:    heating circuit 1: switch on temperature
+topic:      {"setvalue/hk1_aufschalttemperatur", setvalue/hc1_switch_on_temperature"}
+payload:    Resolution: 1 [°C] - Range: 0 ... +10 [°C]
+
+command:    heating circuit 2: switch on temperature
+topic:      {"setvalue/hk1_aufschalttemperatur", setvalue/hc1_switch_on_temperature"}
+payload:    Resolution: 1 [°C] - Range: 0 ... +10 [°C]
+
 command:    heating circuit 1: switch off threshold for reduction mode
 topic:      {"setvalue/hk1_aussenhalt_ab", setvalue/hc1_switch_off_threshold"}
 payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
@@ -70,31 +78,31 @@ topic:      {"setvalue/hk2_aussenhalt_ab", setvalue/hc2_switch_off_threshold"}
 payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
 
 command:    heating circuit 1: day temperature setpoint
-topic:      {"setvalue/HK1_Tagtemperatur", "setvalue/hc1_day_temp"}
+topic:      {"setvalue/hk1_tagtemperatur", "setvalue/hc1_day_temp"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
 command:    heating circuit 2: day temperature setpoint
-topic:      {"setvalue/HK2_Tagtemperatur", "setvalue/hc2_day_temp"}
+topic:      {"setvalue/hk2_tagtemperatur", "setvalue/hc2_day_temp"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
 command:    heating circuit 1: night temperature setpoint
-topic:      {"setvalue/hk1_nacht_soll", setvalue/hc1_night_setpoint"}
+topic:      {"setvalue/hk1_nachttemperatur", setvalue/hc1_night_temp"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
 command:    heating circuit 2: night temperature setpoint
-topic:      {"setvalue/hk2_nacht_soll", setvalue/hc2_night_setpoint"}
+topic:      {"setvalue/hk2_nachttemperatur", setvalue/hc2_night_temp"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
 command:    heating circuit 1: holiday temperature setpoint
-topic:      {"setvalue/hk1_ferien_soll", setvalue/hc1_holiday_setpoint"}
+topic:      {"setvalue/hk1_urlaubtemperatur", setvalue/hc1_holiday_temp"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
 command:    heating circuit 2: holiday temperature setpoint
-topic:      {"setvalue/hk2_ferien_soll", setvalue/hc2_holiday_setpoint"}
+topic:      {"setvalue/hk2_urlaubtemperatur", setvalue/hc2_holiday_temp"}
 payload:    Resolution: 0.5 [°C] - Range: 10 .. 30 [°C] 
 
 command:    warm water: operation mode
-topic:      {"setvalue/ww_betriebsart", setvalue/ww_opmode"}
+topic:      {"setvalue/ww_betriebsart", setvalue/ww_operation_mode"}
 payload:    0=night / 1=day / 2=auto
 
 command:    heating circuit 1: summer mode threshold Temperature
@@ -114,7 +122,7 @@ topic:      {"setvalue/HK2_Frost_ab", "setvalue/hc2_frost_protection_threshold"}
 payload:    Resolution: 1 [°C] - Range: -20 ... +10 [°C]
 
 command:    warm water: setpoint temperature
-topic:      {"setvalue/ww_soll", setvalue/ww_setpoint"}
+topic:      {"setvalue/ww_temperatur", setvalue/ww_temp"}
 payload:    Resolution: 1 [°C] - Range: 30 ... 60 [°C]
 
 command:    heating circuit 1: count of days for holiday mode (Logamatic will decrement every day by one)
@@ -126,16 +134,8 @@ topic:      {"setvalue/HK2_Ferien_Tage", "setvalue/hc2_holiday_days"}
 payload:    count of days 0 .. 99
 
 command:    warm water pump cycles
-topic:      {"setvalue/ww_pumpen_zyklus", setvalue/ww_pump_cycles"}
+topic:      {"setvalue/ww_zirkulation", setvalue/ww_circulation"}
 payload:    Resolution: 1 [cycles/hour] - Range: 0:OFF | 1..6 | 7:ON
-
-command:    heating circuit 1: controller intervention
-topic:      {"setvalue/hk1_reglereingriff", setvalue/hc1_ctrl_intervention"}
-payload:    Resolution: 1 [°C] - Range: 0 ... +10 [°C]
-
-command:    heating circuit 2: controller intervention
-topic:      {"setvalue/hk2_reglereingriff", setvalue/hc2_ctrl_intervention"}
-payload:    Resolution: 1 [°C] - Range: 0 ... +10 [°C]
 
 command:    heating circuit 1: reduction mode
 topic:      {"setvalue/hk1_absenkungsart", setvalue/hc1_reduction_mode"}
