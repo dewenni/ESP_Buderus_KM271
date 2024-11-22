@@ -8,7 +8,7 @@ class Watchdog {
 private:
     esp_task_wdt_config_t twdt_config;
     bool isInitialized;
-    TaskHandle_t loopTaskHandle;
+    TaskHandle_t loopTaskHandle; // Handle der Loop-Task
 
     Watchdog(uint32_t timeout = 10000, uint8_t idle_core_mask = 0b10, bool trigger_panic = true)
         : isInitialized(false), loopTaskHandle(nullptr) {
@@ -31,7 +31,7 @@ public:
         loopTaskHandle = xTaskGetCurrentTaskHandle(); 
     }
 
-    if (isInitialized) {
+    if (esp_task_wdt_status(loopTaskHandle) == ESP_OK) {
         esp_task_wdt_deinit();
     }
 
