@@ -57,8 +57,9 @@ There are some additional information in the status Tab of the web UI
 ## changelog
 
 - update to espressif/arduino-esp32 V3.07
-- update AsyncTCP library to [mathieucarbou/AsyncTCPS](https://github.com/mathieucarbou/AsyncTCP)
-- change communication from SSE to websocket
+- change AsyncTCP library to [mathieucarbou/AsyncTCP](https://github.com/mathieucarbou/AsyncTCP) v3.2.14
+- update ESPAsyncWebServer [mathieucarbou/ESPAsyncWebServer](https://github.com/mathieucarbou/ESPAsyncWebServer) v3.3.22
+- change communication from ServerSentEvents to websockets
 - optimization and reduction of the data sent from the ESP to the web server
 - remove "uptime" from MQTT discovery, because it floods the log #108
 - fix typo "Ferhler" in OTA Dialog #108
@@ -66,8 +67,8 @@ There are some additional information in the status Tab of the web UI
 - clean unused webUI texts
 - direct apply of the settings after import of config.json
 - update Descriptions for Ethernet and Exhaust Sensor in README.md
-- add watchdog to automatically reboot if ESP is getting stuck
-- add solar FM244 support #64
+- add Task Watchdog to automatically reboot if ESP is getting stuck
+- add Solar FM244 support #64
 - add status icons for WiFi and Ethernet
 - add "Mode: SystemLog" to the WebUI Logger function that shows the ESP_LOG messages
 - add Status information about Ethernet connection

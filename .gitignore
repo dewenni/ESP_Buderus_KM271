@@ -8,3 +8,10 @@
 .vscode/c_cpp_properties.json
 .travis.yml
 Todo.txt
+zTemp/DallasTemperature/DallasTemperature.cpp
+zTemp/DallasTemperature/DallasTemperature.h
+zTemp/DallasTemperature/keywords.txt
+zTemp/OneWire/OneWire.cpp
+zTemp/OneWire/OneWire.h
+zTemp/OneWire/util/OneWire_direct_gpio.h
+zTemp/OneWire/util/OneWire_direct_regtype.h
