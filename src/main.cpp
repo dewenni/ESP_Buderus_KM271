@@ -23,12 +23,12 @@ static muTimer dstTimer = muTimer();       // timer to check daylight saving tim
 static muTimer ntpTimer = muTimer();       // timer to check ntp sync
 static muTimer wdtTimer = muTimer();       // timer to reset wdt
 
-static DRD32 *drd;                      // Double-Reset-Detector
-static bool main_reboot = true;         // reboot flag
-static int dst_old;                     // reminder for change of daylight saving time
-static bool dst_ref;                    // init flag fpr dst reference
-static bool ntpSynced;                  // ntp sync flag
-static bool ntpInit = false;            // init flag for ntp sync
+static DRD32 *drd;               // Double-Reset-Detector
+static bool main_reboot = true;  // reboot flag
+static int dst_old;              // reminder for change of daylight saving time
+static bool dst_ref;             // init flag fpr dst reference
+static bool ntpSynced;           // ntp sync flag
+static bool ntpInit = false;     // init flag for ntp sync
 static const char *TAG = "MAIN"; // LOG TAG
 
 static auto &wdt = Watchdog::getInstance();
