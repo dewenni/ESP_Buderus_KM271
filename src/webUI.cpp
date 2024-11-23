@@ -211,6 +211,8 @@ void updateWebBusy(const char *id, bool busy) {
  * @return  none
  * *******************************************************************/
 void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final) {
+  static unsigned long lastUpdateTime = 0;
+  static int lastProgress = -1;
   if (!index) {
     MY_LOGI(TAG, "webOTA started: %s", filename.c_str());
     storeData();
@@ -233,10 +235,15 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
     updateWebDialog("ota_update_failed_dialog", "open");
     return request->send(400, "text/plain", "OTA could not begin");
   } else {
-    // calculate progress
+    // calculate and send progress
     int progress = (Update.progress() * 100) / content_len;
-    if (otaUpdateTimer.cycleTrigger(1000)) {
-      updateOTAprogress(progress);
+    unsigned long currentTime = millis();
+    if (currentTime - lastUpdateTime >= 1000) {
+      lastUpdateTime = currentTime;
+      if (progress != lastProgress) {
+        updateOTAprogress(progress);
+        lastProgress = progress;
+      }
     }
   }
   // update done

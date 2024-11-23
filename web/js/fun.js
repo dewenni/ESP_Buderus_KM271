@@ -113,34 +113,52 @@ function setLanguage(data) {
 
 function updateJSON(data) {
   Object.keys(data).forEach(function (key) {
-    if (key != "type") {
-      // skip the first key
-      let [elementID, typSuffix] = key.split("#");
+    if (key !== "type") {
+      // skip first element "type"
+      let elementID = key;
       let element = document.getElementById(elementID);
       if (!element) {
         console.error("unknown element:", key);
         return;
       }
       let value = data[key];
-      switch (typSuffix) {
-        case "v": // value
-          element.value = value;
-          break;
-        case "c": // checked
+
+      if (element.tagName === "INPUT") {
+        if (element.type === "checkbox" || element.type === "radio") {
           element.checked = value === "true";
-          toggleElementVisibility(
-            element.getAttribute("hideOpt"),
-            element.checked
+        } else if (element.type === "range") {
+          element.value = value;
+          let linkedTextElementId = element.getAttribute("data-value-id");
+          if (linkedTextElementId) {
+            let linkedTextElement =
+              document.getElementById(linkedTextElementId);
+            if (linkedTextElement) {
+              linkedTextElement.innerHTML = value;
+            }
+          }
+        } else {
+          // all other input elements
+          element.value = value;
+        }
+      } else if (element.tagName === "SELECT") {
+        element.value = value;
+        // check if value is valid
+        if (
+          !Array.from(element.options).some((option) => option.value === value)
+        ) {
+          console.warn(
+            `Value "${value}" not found in <select> options for element:`,
+            key
           );
-          break;
-        case "l": // Label = innerHTML
-          element.innerHTML = value;
-          break;
-        case "i": // icon
-          element.className = "svg " + value;
-          break;
-        default:
-          console.error("unknown typ:", typSuffix);
+        }
+      } else if (element.tagName === "I") {
+        // change icons <i>
+        element.className = "svg " + value;
+      } else if ("innerHTML" in element) {
+        // all other elements with `innerHTML` (<td>, <div>, <span>, ...)
+        element.innerHTML = value;
+      } else {
+        console.error("unhandled element type:", element.tagName);
       }
     }
   });
