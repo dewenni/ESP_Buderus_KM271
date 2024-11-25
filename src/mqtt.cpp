@@ -151,12 +151,12 @@ void mqttSetup() {
   mqtt_client.onDisconnect(onMqttDisconnect);
   mqtt_client.onMessage(onMqttMessage);
   mqtt_client.setServer(config.mqtt.server, config.mqtt.port);
-  //mqtt_client.setClientId(config.wifi.hostname);
+  mqtt_client.setClientId(config.wifi.hostname);
   mqtt_client.setCredentials(config.mqtt.user, config.mqtt.password);
   mqtt_client.setWill(addTopic("/status"), 0, true, "offline");
   mqtt_client.setKeepAlive(10);
   mqtt_client.connected();
- 
+
   MY_LOGI(TAG, "MQTT setup done!");
 }
 
@@ -186,7 +186,7 @@ void mqttCyclic() {
       mqtt_retry++;
       mqtt_client.connect();
       MY_LOGI(TAG, "MQTT - connection attempt: 1/5");
-    } else if (mqttReconnectTimer.delayOnTrigger(true, MQTT_RECONNECT)) {
+    } else if (mqttReconnectTimer.delayOnTrigger(true, MQTT_RECONNECT * mqtt_retry)) {
       mqttReconnectTimer.delayReset();
       if (mqtt_retry < 5) {
         mqtt_retry++;
