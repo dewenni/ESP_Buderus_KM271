@@ -50,10 +50,10 @@ void configSetup() {
  * @param   none
  * @return  none
  * *******************************************************************/
-
+#define MAX_GPIO 20
 void checkGPIO() {
-  int usedGPIOs[40];
-  int usedCount = 0;
+  short int usedGPIOs[MAX_GPIO];
+  short int usedCount = 0;
 
   auto isDuplicate = [&usedGPIOs, &usedCount](int gpio) {
     if (gpio == -1)
@@ -63,7 +63,9 @@ void checkGPIO() {
         return true;
       }
     }
-    usedGPIOs[usedCount++] = gpio;
+    if (usedCount < MAX_GPIO - 1) {
+      usedGPIOs[usedCount++] = gpio;
+    }
     return false;
   };
 
