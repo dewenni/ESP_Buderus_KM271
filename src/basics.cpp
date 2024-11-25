@@ -55,13 +55,25 @@ void onWiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
 
 /**
  * *******************************************************************
+ * @brief   callback function if WiFi is disconnected from configured AP
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void onWiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) {
+  wifi.connected = false;
+  MY_LOGI(TAG, "WiFi-Disconnected");
+}
+
+/**
+ * *******************************************************************
  * @brief   callback function if WiFi is connected and client got IP
  * @param   none
  * @return  none
  * *******************************************************************/
 void onWiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info) {
   MY_LOGI(TAG, "WiFi connected");
-  MY_LOGI(TAG, "IP address: %s", WiFi.localIP().toString().c_str());
+  snprintf(wifi.ipAddress, sizeof(wifi.ipAddress), "%s", WiFi.localIP().toString().c_str());
+  MY_LOGI(TAG, "IP address: %s", wifi.ipAddress);
   wifi.connected = true;
 }
 
@@ -73,9 +85,10 @@ void onWiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info) {
  * *******************************************************************/
 void checkWiFi() {
 
-  if (wifiReconnectTimer.delayOnTrigger(!WiFi.isConnected(), WIFI_RECONNECT)) {
-    wifi.connected = false;
+  // Ethernet is also not connected - so we need to establish WiFi
+  if (wifiReconnectTimer.delayOnTrigger((!wifi.connected && !eth.connected), WIFI_RECONNECT)) {
     wifiReconnectTimer.delayReset();
+
     if (wifi_retry < 5) {
       wifi_retry++;
       WiFi.mode(WIFI_STA);
@@ -121,6 +134,7 @@ void setupWiFi() {
   } else {
     // setup callback function
     WiFi.onEvent(onWiFiStationConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_CONNECTED);
+    WiFi.onEvent(onWiFiStationDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
     WiFi.onEvent(onWiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
 
     if (config.wifi.static_ip) {
@@ -138,6 +152,7 @@ void setupWiFi() {
 
     // connect to configured wifi AP
     WiFi.mode(WIFI_STA);
+    WiFi.setAutoReconnect(true);
     WiFi.begin(config.wifi.ssid, config.wifi.password);
     WiFi.hostname(config.wifi.hostname);
     MDNS.begin(config.wifi.hostname);
@@ -232,25 +247,33 @@ void basicSetup() {
  * @return  none
  * *******************************************************************/
 void sendWiFiInfo() {
-  // check  RSSI
-  wifi.rssi = WiFi.RSSI();
 
-  // dBm to Quality:
-  if (wifi.rssi <= -100)
-    wifi.signal = 0;
-  else if (wifi.rssi >= -50)
-    wifi.signal = 100;
-  else
-    wifi.signal = 2 * (wifi.rssi + 100);
-
-  IPAddress localIP = WiFi.localIP();
-  snprintf(wifi.ipAddress, sizeof(wifi.ipAddress), "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);
   JsonDocument wifiJSON;
-  wifiJSON["status"] = "online";
-  wifiJSON["rssi"] = wifi.rssi;
-  wifiJSON["signal"] = wifi.signal;
-  wifiJSON["ip"] = wifi.ipAddress;
-  wifiJSON["date_time"] = getDateTimeString();
+
+  if (wifi.connected) {
+    // check  RSSI
+    wifi.rssi = WiFi.RSSI();
+
+    // dBm to Quality:
+    if (wifi.rssi <= -100)
+      wifi.signal = 0;
+    else if (wifi.rssi >= -50)
+      wifi.signal = 100;
+    else
+      wifi.signal = 2 * (wifi.rssi + 100);
+
+    wifiJSON["status"] = wifi.connected ? "connected" : "disconnected";
+    wifiJSON["rssi"] = wifi.rssi;
+    wifiJSON["signal"] = wifi.signal;
+    wifiJSON["ip"] = wifi.ipAddress;
+    wifiJSON["date_time"] = getDateTimeString();
+  } else {
+    wifiJSON["status"] = "disconnected";
+    wifiJSON["rssi"] = "--";
+    wifiJSON["signal"] = "--";
+    wifiJSON["ip"] = "--";
+    wifiJSON["date_time"] = getDateTimeString();
+  }
 
   char sendWififJSON[255];
   serializeJson(wifiJSON, sendWififJSON);
@@ -284,6 +307,8 @@ void sendETHInfo() {
   char sendEthJSON[255];
   serializeJson(ethJSON, sendEthJSON);
   mqttPublish(addTopic("/eth"), sendEthJSON, false);
+
+  mqttPublish(addTopic("/status"), "online", false);
 }
 
 /**
