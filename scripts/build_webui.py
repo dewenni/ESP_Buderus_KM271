@@ -128,7 +128,7 @@ source_files = [
 ]
 
 # Zielpfad der generierten Datei
-output_file_css = 'web/temp/custom.css'
+output_file_css = 'web/temp/main.css'
 output_c_file = 'include/gzip_css.h'
 
 combined_content = ''

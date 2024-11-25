@@ -17,11 +17,10 @@ void updateSensorElements(bool forceUpdate);
 void updateSystemInfoElements();
 
 /* D E C L A R A T I O N S ****************************************************/
-static muTimer refreshTimer1 = muTimer();    // timer to refresh other values
-static muTimer refreshTimer2 = muTimer();    // timer to refresh other values
-static muTimer refreshTimer3 = muTimer();    // timer to refresh other values
-static muTimer gitVersionTimer1 = muTimer(); // timer to refresh other values
-static muTimer gitVersionTimer2 = muTimer(); // timer to refresh other values
+static muTimer refreshTimerSingle = muTimer(); // timer to refresh other values
+static muTimer refreshTimerAll = muTimer();    // timer to refresh other values
+static muTimer gitVersionTimer1 = muTimer();   // timer to refresh other values
+static muTimer gitVersionTimer2 = muTimer();   // timer to refresh other values
 
 static s_km271_status kmStatusCpy;
 static s_km271_status *pkmStatus = km271GetStatusValueAdr();
@@ -957,7 +956,7 @@ void webUIupdates() {
   }
 
   // ON-BROWSER-REFRESH: refresh ALL elements - do this step by step not to stress the connection
-  if (refreshTimer3.cycleTrigger(WEBUI_FAST_REFRESH_TIME_MS) && refreshRequest && !ota.isActive()) {
+  if (refreshTimerAll.cycleTrigger(WEBUI_FAST_REFRESH_TIME_MS) && refreshRequest && !ota.isActive()) {
     switch (UpdateCntRefresh) {
     case 0:
       updateSystemInfoElementsStatic(); // update static informations (≈ 200 Bytes)
@@ -977,7 +976,7 @@ void webUIupdates() {
   }
 
   // CYCLIC: update SINGLE elemets every x seconds - do this step by step not to stress the connection
-  if (refreshTimer2.cycleTrigger(WEBUI_SLOW_REFRESH_TIME_MS) && !refreshRequest && !km271GetRefreshState() && !ota.isActive()) {
+  if (refreshTimerSingle.cycleTrigger(WEBUI_SLOW_REFRESH_TIME_MS) && !refreshRequest && !km271GetRefreshState() && !ota.isActive()) {
 
     switch (UpdateCntSlow) {
     case 0:
@@ -1005,7 +1004,7 @@ void webUIupdates() {
     UpdateCntSlow = (UpdateCntSlow + 1) % 6;
   }
 
-  // show refresh layer
+  // show refresh layer - KM271 is receiving new data
   if (km271GetRefreshState() && !km271RefreshActiveOld) {
     updateWebHideElement("refreshBar", false);
     km271RefreshActiveOld = true;

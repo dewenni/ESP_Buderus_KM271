@@ -124,7 +124,7 @@ You can order it here: <https://www.tindie.com/products/24664/>
 In this case you only need this DIY interface and nothing more.
 It includes the RS232/TTL Adapter and also an ESP32.  
 
-![KM217_mod](/Doc/board_v005.jpeg)
+![KM217_mod](/Doc/KM271-WiFi.png)
 (this is my board with the customized connector for the oil meter instead of the "USER 1" button)
 
 ## Option 2 - ESP32 with original Buderus KM271
@@ -197,6 +197,8 @@ There is no need to configure the sensor in the software. The logamatic itself w
 
 ## Optional: Ethernet Module W5500
 
+### Option 1 - single W5500 addon
+
 It is also possible to connect a W5500 Ethernet module to the Board or a generic ESP32. For the KM271 Board´s from Daniel you can connect the W5500 to the J7 Connector of the Board.
 
 Board >= 0.0.6
@@ -212,20 +214,15 @@ Board >= 0.0.6
 | INT    |  14           | J7.8     |
 | RST    |  13           | J7.6     |
 
-for the connection you need a cable with 8 wires and a DUPONT connector with 10 Pins
-
-| Connector 1 | Connector 2|
-|-----------|--------------|
-| Pin 2     | Pin 10       |
-| Pin 3     | Pin 4        |
-| Pin 5     | Pin 8        |
-| Pin 6     | Pin 5        |
-| Pin 7     | Pin 6        |
-| Pin 8     | Pin 3        |
-| Pin 9     | Pin 2        |
-| Pin 10    | Pin 7        |
-
 ![W5500](/Doc/w5500.png)
+
+### Option 2 - Board from the78mole
+
+There is also an expansion module in the pipeline that fits perfectly on the KM271 WiFi board.  
+
+https://www.tindie.com/products/the78mole/km271-wifi-ethernet-extension
+
+![W5500-Extention](/Doc/w5500_extention.png)
 
 -----
 
