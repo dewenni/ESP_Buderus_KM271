@@ -17,6 +17,7 @@ static const char *TAG = "CFG"; // LOG TAG
 /* P R O T O T Y P E S ********************************************************/
 void configGPIO();
 void configInitValue();
+void checkGPIO();
 
 /**
  * *******************************************************************
@@ -35,8 +36,150 @@ void configSetup() {
 
   // load config from file
   configLoadFromFile();
+
+  // check GPIO
+  checkGPIO();
+
   // gpio settings
   configGPIO();
+}
+
+/**
+ * *******************************************************************
+ * @brief   check configured gpio
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+
+void checkGPIO() {
+  int usedGPIOs[40];
+  int usedCount = 0;
+
+  auto isDuplicate = [&usedGPIOs, &usedCount](int gpio) {
+    if (gpio == -1)
+      return false; // -1 ignore
+    for (int i = 0; i < usedCount; ++i) {
+      if (usedGPIOs[i] == gpio) {
+        return true;
+      }
+    }
+    usedGPIOs[usedCount++] = gpio;
+    return false;
+  };
+
+  bool invalidKM271 = false;
+  bool invalidETH = false;
+
+  if (config.gpio.km271_RX == 0) {
+    config.gpio.km271_RX = -1;
+    invalidKM271 = true;
+  } else if (isDuplicate(config.gpio.km271_RX)) {
+    MY_LOGE(TAG, "GPIO %d is used multiple times (KM271_RX)", config.gpio.km271_RX);
+  }
+
+  if (config.gpio.km271_TX == 0) {
+    config.gpio.km271_TX = -1;
+    invalidKM271 = true;
+  } else if (isDuplicate(config.gpio.km271_TX)) {
+    MY_LOGE(TAG, "GPIO %d is used multiple times (KM271_TX)", config.gpio.km271_TX);
+  }
+
+  if (config.gpio.led_heartbeat == 0) {
+    config.gpio.led_heartbeat = -1;
+  } else if (isDuplicate(config.gpio.led_heartbeat)) {
+    MY_LOGE(TAG, "GPIO %d is used multiple times (led_heartbeat)", config.gpio.led_heartbeat);
+  }
+
+  if (config.gpio.led_logmode == 0) {
+    config.gpio.led_logmode = -1;
+  } else if (isDuplicate(config.gpio.led_logmode)) {
+    MY_LOGE(TAG, "GPIO %d is used multiple times (led_logmode)", config.gpio.led_logmode);
+  }
+
+  if (config.gpio.led_oilcounter == 0) {
+    config.gpio.led_oilcounter = -1;
+  } else if (isDuplicate(config.gpio.led_oilcounter)) {
+    MY_LOGE(TAG, "GPIO %d is used multiple times (led_oilcounter)", config.gpio.led_oilcounter);
+  }
+
+  if (config.gpio.led_wifi == 0) {
+    config.gpio.led_wifi = -1;
+  } else if (isDuplicate(config.gpio.led_wifi)) {
+    MY_LOGE(TAG, "GPIO %d is used multiple times (led_wifi)", config.gpio.led_wifi);
+  }
+
+  if (config.gpio.trigger_oilcounter == 0) {
+    config.gpio.trigger_oilcounter = -1;
+  } else if (isDuplicate(config.gpio.trigger_oilcounter)) {
+    MY_LOGE(TAG, "GPIO %d is used multiple times (trigger_oilcounter)", config.gpio.trigger_oilcounter);
+  }
+
+  if (config.eth.gpio_cs == 0) {
+    config.eth.gpio_cs = -1;
+    invalidETH = true;
+  } else if (isDuplicate(config.eth.gpio_cs)) {
+    MY_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_cs)", config.eth.gpio_cs);
+  }
+
+  if (config.eth.gpio_irq == 0) {
+    config.eth.gpio_irq = -1;
+    invalidETH = true;
+  } else if (isDuplicate(config.eth.gpio_irq)) {
+    MY_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_irq)", config.eth.gpio_irq);
+  }
+
+  if (config.eth.gpio_miso == 0) {
+    config.eth.gpio_miso = -1;
+    invalidETH = true;
+  } else if (isDuplicate(config.eth.gpio_miso)) {
+    MY_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_miso)", config.eth.gpio_miso);
+  }
+
+  if (config.eth.gpio_mosi == 0) {
+    config.eth.gpio_mosi = -1;
+    invalidETH = true;
+  } else if (isDuplicate(config.eth.gpio_mosi)) {
+    MY_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_mosi)", config.eth.gpio_mosi);
+  }
+
+  if (config.eth.gpio_rst == 0) {
+    config.eth.gpio_rst = -1;
+    invalidETH = true;
+  } else if (isDuplicate(config.eth.gpio_rst)) {
+    MY_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_rst)", config.eth.gpio_rst);
+  }
+
+  if (config.eth.gpio_sck == 0) {
+    config.eth.gpio_sck = -1;
+    invalidETH = true;
+  } else if (isDuplicate(config.eth.gpio_sck)) {
+    MY_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_sck)", config.eth.gpio_sck);
+  }
+
+  if (config.sensor.ch1_gpio == 0) {
+    config.sensor.ch1_gpio = -1;
+    if (config.sensor.ch1_enable) {
+      MY_LOGE(TAG, "invalid GPIO settings for Sensor 1");
+    }
+  } else if (isDuplicate(config.sensor.ch1_gpio)) {
+    MY_LOGE(TAG, "GPIO %d is used multiple times (Sensor 1)", config.sensor.ch1_gpio);
+  }
+
+  if (config.sensor.ch2_gpio == 0) {
+    config.sensor.ch2_gpio = -1;
+    if (config.sensor.ch1_enable) {
+      MY_LOGE(TAG, "invalid GPIO settings for Sensor 2");
+    }
+  } else if (isDuplicate(config.sensor.ch2_gpio)) {
+    MY_LOGE(TAG, "GPIO %d is used multiple times (Sensor 2)", config.sensor.ch2_gpio);
+  }
+
+  if (config.eth.enable && invalidETH) {
+    MY_LOGE(TAG, "invalid GPIO settings for Ethernet");
+  }
+  if (invalidKM271) {
+    MY_LOGE(TAG, "invalid GPIO settings for KM271");
+  }
 }
 
 /**
