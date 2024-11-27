@@ -204,6 +204,9 @@ There is no need to configure the sensor in the software. The logamatic itself w
 
 It is also possible to connect a W5500 Ethernet module to the Board or a generic ESP32. For the KM271 Board´s from Daniel you can connect the W5500 to the J7 Connector of the Board.
 
+> [!IMPORTANT]   
+> The connection cable should be as short as possible (approx 10cm)
+
 Board >= 0.0.6
 
 | Signal | GPIO          | Pin (J7) |
@@ -216,6 +219,18 @@ Board >= 0.0.6
 | CS     |  15           | J7.3     |
 | INT    |  14           | J7.8     |
 | RST    |  13           | J7.6     |
+
+
+Example for generic ESP32-Mini
+
+| Signal| GPIO |
+|-------|------|
+| CLK   | 18   |
+| MOSI  | 23   |
+| MISO  | 19   |
+| CS    | 5    |
+| INT   | 16   |
+| RST   | 17   |
 
 ![W5500](/Doc/w5500.png)
 
