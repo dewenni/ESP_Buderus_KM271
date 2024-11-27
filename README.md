@@ -163,6 +163,9 @@ The Sensor value will shown on the Dashboard and will also be send by mqtt with 
 Depending on the hardware used, an additional resistor may need to be installed. Classically, the OneWire sensors are connected with a resistor of 4.7kOhm between VCC and the sensor cable and operated with 3.3V - 5V.
 Only the GPIO to which the sensor cable is connected is specified in the configuration. The rest is hardware-dependent wiring.
 
+> [!NOTE] 
+> The sensor must be connected when the ESP is started, otherwise it will not be found. Changes to the cabling or the GPIO settings require a restart.
+
 
 <img src="Doc/opt_sensor_dash.png" alt="opt-sensor-dash1" width="75%">
 

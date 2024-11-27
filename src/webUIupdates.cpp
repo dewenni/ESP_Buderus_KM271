@@ -103,7 +103,8 @@ inline void addJson(JsonDocument &jsonBuf, const char *elementID, bool value) { 
  * *******************************************************************/
 void updateAllElements() {
 
-  refreshRequest = true; // start combined json refresh
+  refreshRequest = true;         // start combined json refresh
+  km271RefreshActiveOld = false; // reset reminder for refreshBar
 
   // reset hash values to force updates
   memset((void *)KmAlarmHash, 0, sizeof(KmAlarmHash));
@@ -291,10 +292,10 @@ void updateSystemInfoElements() {
   }
 
   // ESP informations
-  addJson(jsonDoc, "p09_esp_flash_usage", static_cast<float>(ESP.getSketchSize() * 100 / ESP.getFreeSketchSpace()));
-  addJson(jsonDoc, "p09_esp_heap_usage", static_cast<float>(ESP.getHeapSize() - ESP.getFreeHeap() * 100 / ESP.getHeapSize()));
-  addJson(jsonDoc, "p09_esp_maxallocheap", static_cast<float>(ESP.getMaxAllocHeap() / 1000.0));
-  addJson(jsonDoc, "p09_esp_minfreeheap", static_cast<float>(ESP.getMinFreeHeap() / 1000.0));
+  addJson(jsonDoc, "p09_esp_flash_usage", ESP.getSketchSize() * 100.0f / ESP.getFreeSketchSpace());
+  addJson(jsonDoc, "p09_esp_heap_usage", (ESP.getHeapSize() - ESP.getFreeHeap()) * 100.0f / ESP.getHeapSize());
+  addJson(jsonDoc, "p09_esp_maxallocheap", ESP.getMaxAllocHeap() / 1000.0f);
+  addJson(jsonDoc, "p09_esp_minfreeheap", ESP.getMinFreeHeap() / 1000.0f);
 
   // Uptime and restart reason
   char uptimeStr[64];

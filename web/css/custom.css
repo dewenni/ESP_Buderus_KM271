@@ -219,6 +219,17 @@ hr {
   margin-bottom: 6px;
 }
 
+.sidebar li a.active {
+  background: #fff;
+}
+
+.sidebar li a.active .links_name,
+.sidebar li a.active i {
+  pointer-events: auto;
+  transition: all 0.3s ease;
+  filter: invert(1);
+}
+
 .home-section {
   position: relative;
   top: 15px;

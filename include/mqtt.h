@@ -6,10 +6,7 @@
 #include <config.h>
 #include <language.h>
 
-struct MqttMessage {
-  String topic;
-  String payload;
-};
+
 
 /* P R O T O T Y P E S ********************************************************/
 const char *addTopic(const char *suffix);

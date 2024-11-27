@@ -6,12 +6,14 @@
     <link rel="stylesheet" type="text/css" href="../css/pico.css" />
     <link rel="stylesheet" type="text/css" href="../css/custom.css" />
     <link rel="stylesheet" type="text/css" href="../css/icons.css" />
-    <script src="../js/main.js" defer></script>
+    <script src="../js/doc.js" defer></script>
+    <script src="../js/fun.js" defer></script>
     <script src="../js/lang.js" defer></script>
     <style></style>
     <script>
       function test() {
         document.getElementById("tab6").classList.add("active");
+        localizePage("de");
       }
       setInterval(test, 1000);
     </script>
@@ -165,19 +167,19 @@
             <table class="striped">
               <tbody>
                 <tr>
-                  <td data-i18n="$burner $runtime_years"></td>
+                  <td data-i18n="burner$ $runtime_years"></td>
                   <td id="p06_burn_run_years" class="table-value">--</td>
                 </tr>
                 <tr>
-                  <td data-i18n="$burner $runtime_days"></td>
+                  <td data-i18n="burner$ $runtime_days"></td>
                   <td id="p06_burn_run_days" class="table-value">--</td>
                 </tr>
                 <tr>
-                  <td data-i18n="$burner $runtime_hours"></td>
+                  <td data-i18n="burner$ $runtime_hours"></td>
                   <td id="p06_burn_run_hours" class="table-value">--</td>
                 </tr>
                 <tr>
-                  <td data-i18n="$burner $runtime_minutes"></td>
+                  <td data-i18n="burner$ $runtime_minutes"></td>
                   <td id="p06_burn_run_min" class="table-value">--</td>
                 </tr>
               </tbody>
