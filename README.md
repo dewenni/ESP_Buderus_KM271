@@ -251,6 +251,9 @@ The software is created with [Visual Studio Code](https://code.visualstudio.com)
 After installing the software you can clone the project from GitHub or you can download it as zip and open it in PlatformIO.
 Then adapt the `upload_port` and corresponding settings in `platformio.ini` to your USB-to-serial Adapter and upload the code to the ESP.
 
+> [!NOTE]
+> Python must also be installed in order to fully compile the project. The scripts folder contains, for instance, scripts for creating the web pages that are called when the project is compiled.
+
 ## ESP-Flash-Tool
 
 In the releases, you can find also the binary of the Software. If you don´t want to use PlatformIO, you can also use the `buderus_km271_esp32_flash_vx.x.x.bin` file and flash it directly on the ESP. This bin-file is already a merge with bootloader.bin, partitions.bin and the application.bin. You can flash this image an the ESP at address 0x00.  
@@ -279,10 +282,10 @@ here you can choose "Firmware" and select the `buderus_km271_ota_update_vx.x.x.b
 
 ![ota-1](Doc/tools.png)
 
-But it is also possible to download the software wireless with platformio. Therefore there is a new file `platformio_upload.py` that you dont have to change.  
+But it is also possible to download the software wireless with platformio.
 You only have to change the `upload_port` settings in `platformio.ini`
 
-There are 3 predefined Options:
+There are two predefined Options:
 
 - OPTION 1: direct cable upload
 - OPTION 2: wireless OTA Update
@@ -323,8 +326,8 @@ All the parameters are mandatory!
 
 - **Pushover**  
 Parameters for Pushover notifications.  
-(API-Token and User-Key)   
-You can also send a test message here. 
+(API-Token and User-Key)  
+You can also send a test message here.
 
 - **Logamatic**  
 here you can select, which components of your Logamatic should be used.
@@ -354,10 +357,8 @@ The language take effect on the webUI and also on the mqtt messages!
 
 ## Filemanager
 
-there is also a buildin file manager to download (export), upload (imoort) and delete files.
+there is also a builtin file manager to open (show), download (export) and upload (import) the configuration file.
 The configuration is stored in the ```config.json``` file. To backup and restore the configuration you can download and upload this file.
-
-The drd.dat is an internal file to store information for the "double-reset-detection". Do not delete this one.
 
 ![filemanager](/Doc/tools.png)
 
