@@ -125,7 +125,7 @@ In this case you only need this DIY interface and nothing more.
 It includes the RS232/TTL Adapter and also an ESP32.  
 
 ![KM217_mod](/Doc/KM271-WiFi.png)
-(this is my board with the customized connector for the oil meter instead of the "USER 1" button)
+
 
 ## Option 2 - ESP32 with original Buderus KM271
 
@@ -143,6 +143,50 @@ Example configuration:
 ```
 
 ![km271_orig](/Doc/esp32_with_km271.jpeg)
+
+## Optional: Ethernet Module W5500
+
+### Option 1 - single W5500 board
+
+It is also possible to connect a W5500 Ethernet module to the Board or a generic ESP32. For the KM271 Board´s from Daniel you can connect the W5500 to the J7 Connector of the Board.
+
+> [!IMPORTANT]
+> The connection cable should be as short as possible (approx 10cm)
+
+Board >= 0.0.6
+
+| Signal | GPIO          | Pin (J7) |
+|--------|---------------|----------|
+| VCC    |               | J7.2     |
+| GND    |               | J7.10    |
+| CLK    |  18           | J7.9     |
+| MOSI   |  23           | J7.7     |
+| MISO   |  19           | J7.5     |
+| CS     |  15           | J7.3     |
+| INT    |  14           | J7.8     |
+| RST    |  13           | J7.6     |
+
+
+Example for generic ESP32-Mini
+
+| Signal| GPIO |
+|-------|------|
+| CLK   | 18   |
+| MOSI  | 23   |
+| MISO  | 19   |
+| CS    | 5    |
+| INT   | 16   |
+| RST   | 17   |
+
+![W5500](/Doc/w5500.png)
+
+### Option 2 - Board from the78mole
+
+There is also an expansion module in the pipeline that fits perfectly on the KM271 WiFi board.  
+
+https://www.tindie.com/products/the78mole/km271-wifi-ethernet-extension
+
+![W5500-Extention](/Doc/w5500_extention.png)
 
 ## Optional: Hardware Oil Meter
 
@@ -196,51 +240,6 @@ It is also possible to connect a optional exhaust sensor (NTC 100K) to the Conne
 There is no need to configure the sensor in the software. The logamatic itself will automatically detect the sensor and send the value similar to the other values.
 
 ![exhaust-sens](/Doc/exhaust_sens.png)
-
-
-## Optional: Ethernet Module W5500
-
-### Option 1 - single W5500 addon
-
-It is also possible to connect a W5500 Ethernet module to the Board or a generic ESP32. For the KM271 Board´s from Daniel you can connect the W5500 to the J7 Connector of the Board.
-
-> [!IMPORTANT]   
-> The connection cable should be as short as possible (approx 10cm)
-
-Board >= 0.0.6
-
-| Signal | GPIO          | Pin (J7) |
-|--------|---------------|----------|
-| VCC    |               | J7.2     |
-| GND    |               | J7.10    |
-| CLK    |  18           | J7.9     |
-| MOSI   |  23           | J7.7     |
-| MISO   |  19           | J7.5     |
-| CS     |  15           | J7.3     |
-| INT    |  14           | J7.8     |
-| RST    |  13           | J7.6     |
-
-
-Example for generic ESP32-Mini
-
-| Signal| GPIO |
-|-------|------|
-| CLK   | 18   |
-| MOSI  | 23   |
-| MISO  | 19   |
-| CS    | 5    |
-| INT   | 16   |
-| RST   | 17   |
-
-![W5500](/Doc/w5500.png)
-
-### Option 2 - Board from the78mole
-
-There is also an expansion module in the pipeline that fits perfectly on the KM271 WiFi board.  
-
-https://www.tindie.com/products/the78mole/km271-wifi-ethernet-extension
-
-![W5500-Extention](/Doc/w5500_extention.png)
 
 -----
 
@@ -656,6 +655,9 @@ Here are some impressions of what I did with all the information's that comes ou
 If you are interested my dashboard, you can use this export file:
 [grafana.json](/Doc/grafana.json)
 
+> [!NOTE]
+> It is based on InfluxDB 2.0 with query languange "Flux" and uses the german mqtt topics! If you setup your system the same way, it should be more or less a plug and play solution to import my grafana.json
+
 -----
 
 # ❗️ use at own risk ❗️
@@ -664,5 +666,5 @@ If you are interested my dashboard, you can use this export file:
 
 **If you have something to improve, let us all know about you ideas!**
 
-❓ If you have a question, use the Discussions => <https://github.com/dewenni/ESP_Buderus_KM271/discussions>  
-🐞 If there is a issue or bug, use the Issues => <https://github.com/dewenni/ESP_Buderus_KM271/issues>  
+❓ If you have a question, use the [Discussions](https://github.com/dewenni/ESP_Buderus_KM271/discussions)  
+🐞 If there is a issue or bug, use the [Issues](https://github.com/dewenni/ESP_Buderus_KM271/issues)
