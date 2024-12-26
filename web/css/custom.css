@@ -9,29 +9,34 @@
   --pico-switch-checked-background-color: #687899;
 }
 
+@media (min-width: 100px) {
+  :root {
+    --pico-font-size: 85%;
+  }
+}
 @media (min-width: 576px) {
   :root {
-    --pico-font-size: 100%;
+    --pico-font-size: 90%;
   }
 }
 @media (min-width: 768px) {
   :root {
-    --pico-font-size: 105%;
+    --pico-font-size: 95%;
   }
 }
 @media (min-width: 1024px) {
   :root {
-    --pico-font-size: 110%;
+    --pico-font-size: 100%;
   }
 }
 @media (min-width: 1280px) {
   :root {
-    --pico-font-size: 115%;
+    --pico-font-size: 105%;
   }
 }
 @media (min-width: 1536px) {
   :root {
-    --pico-font-size: 120%;
+    --pico-font-size: 110%;
   }
 }
 
@@ -173,6 +178,7 @@ hr {
   height: 100%;
   padding: 0;
   flex: 1;
+  overflow-y: auto;
 }
 
 .sidebar li {
