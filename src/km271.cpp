@@ -17,7 +17,7 @@ void sendTxBlock(uint8_t *data, int len);
 void handleRxBlock(uint8_t *data, int len, uint8_t bcc);
 void parseInfo(uint8_t *data, int len);
 float decode05cTemp(uint8_t data);
-float decodeNegValue(uint8_t data);
+int8_t decodeNegValue(uint8_t data);
 void decodeTimer(char *timerInfo, unsigned int size, uint8_t dateOnOff, uint8_t time);
 bool decodeErrorMsg(char *errorMsg, unsigned int size, uint8_t *data);
 uint8_t getErrorTextIndex(uint8_t errorNr);
@@ -1424,8 +1424,8 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x9146:
     if (config.km271.use_solar) {
-      kmStatus.SolarCollector = data[2];
-      km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::SOLAR_COLLECTOR[config.mqtt.lang], uint8ToString(kmStatus.SolarCollector));
+      kmStatus.SolarCollector = decodeNegValue(data[2]);
+      km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::SOLAR_COLLECTOR[config.mqtt.lang], int8ToString(kmStatus.SolarCollector));
     }
     break;
 
@@ -1492,13 +1492,13 @@ float decode05cTemp(uint8_t data) { return ((float)data) / 2.0f; }
  * @brief   Decodes KM271 values with negative range
  * @details Values >128 are negative
  * @param   data: the receive dat byte
- * @return  the decoded value as float
+ * @return  the decoded value as int8_t
  * ********************************************************************/
-float decodeNegValue(uint8_t data) {
+int8_t decodeNegValue(uint8_t data) {
   if (data > 128) {
-    return (((float)(256 - data)) * -1.0f);
+    return (256 - data) * -1;
   } else {
-    return (float)data;
+    return data;
   }
 }
 

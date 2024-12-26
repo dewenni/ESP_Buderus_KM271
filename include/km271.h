@@ -113,7 +113,7 @@ struct s_km271_status {
   uint8_t ERR_Alarmstatus;               // 0xaa42 : Bitfield
   uint8_t SolarLoad;                     // 0x9142 : on=1 / off=0
   uint8_t SolarWW;                       // 0x9144 : Temperature (1C resolution)
-  uint8_t SolarCollector;                // 0x9146 : Temperature (1C resolution)
+  int8_t SolarCollector;                 // 0x9146 : Temperature (1C resolution)
   uint8_t Solar9147;                     // 0x9147 : unknown
   uint8_t SolarOperatingDuration_2;      // 0x9148 : Minutes (*65536)
   uint8_t SolarOperatingDuration_1;      // 0x9149 : Minutes (*256)
