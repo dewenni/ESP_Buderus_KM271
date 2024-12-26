@@ -9,12 +9,12 @@ private:
   bool isInitialized;
   TaskHandle_t loopTaskHandle; // Handle der Loop-Task
 
-  Watchdog(uint32_t timeout = 10000, uint8_t idle_core_mask = 0b10, bool trigger_panic = true) : isInitialized(false), loopTaskHandle(nullptr) {
+  Watchdog(uint32_t timeout = 10000, uint8_t idle_core_mask = 0, bool trigger_panic = true) : isInitialized(false), loopTaskHandle(nullptr) {
     twdt_config = {timeout_ms : timeout, idle_core_mask : idle_core_mask, trigger_panic : trigger_panic};
   }
 
 public:
-  static Watchdog &getInstance(uint32_t timeout = 10000, uint8_t idle_core_mask = 0b10, bool trigger_panic = true) {
+  static Watchdog &getInstance(uint32_t timeout = 10000, uint8_t idle_core_mask = 0, bool trigger_panic = true) {
     static Watchdog instance(timeout, idle_core_mask, trigger_panic);
     return instance;
   }
