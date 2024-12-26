@@ -96,8 +96,10 @@ void simDataCyclic() {
       if (msgCnt < MAX_MSG_CNT) {
         parseInfo(simData[msgCnt], sizeof(simData[0]));
         msgCnt++;
+        MY_LOGD(TAG, "send simu values: %d/%d", msgCnt, MAX_MSG_CNT - 1);
       } else {
         simDataEnable = false;
+        MY_LOGD(TAG, "send simu finished");
       }
     }
   }
