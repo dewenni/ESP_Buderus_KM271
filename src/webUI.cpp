@@ -15,7 +15,7 @@
 #include <webUIhelper.h>
 #include <webUIupdates.h>
 
-const int MAX_WS_CLIENT = 2;
+const int MAX_WS_CLIENT = 3;
 const int CHUNK_SIZE = 1024;
 
 /* P R O T O T Y P E S ********************************************************/
@@ -45,7 +45,6 @@ static auto &wdt = Watchdog::getInstance();
 static auto &ota = OTAState::getInstance();
 
 void sendWs(JsonDocument &jsonDoc) {
-  ws.cleanupClients(MAX_WS_CLIENT);
   if (ws.count()) {
     const size_t len = measureJson(jsonDoc);
     AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
@@ -378,16 +377,6 @@ void webUISetup() {
     sendGzipChunkedResponse(request, gzip_login_html, gzip_login_html_size, "text/html", false, CHUNK_SIZE);
   });
 
-  server.on("/max_ws", HTTP_GET, [](AsyncWebServerRequest *request) {
-    sendGzipChunkedResponse(request, gzip_max_ws_html, gzip_max_ws_html_size, "text/html", false, CHUNK_SIZE);
-  });
-
-  server.on("/close_all_ws_clients", HTTP_POST, [](AsyncWebServerRequest *request) {
-    ws.cleanupClients();
-    // ws.closeAll(); // causes crash with EspAsyncWebServer 3.3.22
-    request->send(200, "application/json", "{\"status\":\"all clients closed\"}");
-  });
-
   server.on("/login", HTTP_POST, [](AsyncWebServerRequest *request) {
     if (request->hasParam("username", true) && request->hasParam("password", true)) {
       if ((request->getParam("username", true)->value() == String(config.auth.user) &&
@@ -442,11 +431,12 @@ void webUISetup() {
       "/config-upload", HTTP_POST, [](AsyncWebServerRequest *request) { request->send(200, "text/plain", "upload done!"); },
       [](AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final) {
         static File uploadFile;
+        const String targetFilename = "/config.json"; // fix to config.json
 
         if (!index) { // firs call for upload
           updateWebText("upload_status_txt", "uploading...", false);
           MY_LOGI(TAG, "Upload Start: %s\n", filename.c_str());
-          uploadFile = LittleFS.open("/" + filename, "w");
+          uploadFile = LittleFS.open(targetFilename, "w"); // fix to config.json
 
           if (!uploadFile) {
             MY_LOGE(TAG, "Error: file could not be opened");
@@ -516,7 +506,16 @@ void webUISetup() {
     }
   });
 
-  server.addHandler(&ws);
+  server.addHandler(&ws).addMiddleware([](AsyncWebServerRequest *request, ArMiddlewareNext next) {
+    if (ws.count() >= MAX_WS_CLIENT) {
+      // too many clients - answer back immediately and stop processing next middlewares and handler
+      request->send(429, "text/plain", "no more client connection allowed");
+    } else {
+      // process next middleware and at the end the handler
+      next();
+    }
+  });
+
   server.begin();
 
 } // END SETUP

@@ -20,6 +20,10 @@ function setupWS() {
     showReloadBar();
   };
 
+  ws.onerror = function (error) {
+    console.log("WebSocket error:", error);
+  };
+
   ws.onmessage = function (event) {
     let message = JSON.parse(event.data);
     //console.log(message);
