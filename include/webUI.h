@@ -9,7 +9,6 @@
 #include <gzip_js.h>
 #include <gzip_login_html.h>
 #include <gzip_m_html.h>
-#include <gzip_max_ws_html.h>
 #include <gzip_ntp_html.h>
 #include <language.h>
 
