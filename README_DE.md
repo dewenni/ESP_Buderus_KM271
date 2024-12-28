@@ -4,6 +4,9 @@
 <h3 style="text-align: center;">ESP-Buderus-KM271</h3>
 </div>
 
+-----
+
+**[🇬🇧  english version of this description](README.md)**
 
 -----
 
@@ -25,7 +28,7 @@
 <div align="center">
 Wenn dir dieses Projekt gefällt, drücke genre auf den <b>[Stern ⭐️]</b> Button and drücke <b>[Watch 👁]</b> um auf dem Laufenden zu bleiben.
 <br><br>
-Und wenn du meine Arbeit unterstützen möchtest, kannst du auch<p>
+Und wenn du meine Arbeit unterstützen möchtest, kannst auch folgendes nutzen <p>
 
 [![Sponsor](https://img.shields.io/badge/Sponsor%20me%20on-GitHub-%23EA4AAA.svg?style=for-the-badge&logo=github)](https://github.com/sponsors/dewenni)
 
@@ -61,7 +64,7 @@ Die WebUI ist responsiv und bietet auch ein mobiles Layout.
 
 -----
 
-# Table of Contents
+# Inhaltsverzeichnis
 
 - [Überblick](#überblick)
 - [Hardware](#hardware)
@@ -147,7 +150,7 @@ Example configuration:
 
 ### Option 1 - einzelnes W5500 Modul
 
-Es ist auch möglich, ein W5500 Ethernet Modul an das Board oder einen generischen ESP32 anzuschließen. Bei den KM271-Boards von Daniel können Sie das W5500 an den J7-Anschluss des Boards anschließen.
+Es ist auch möglich, ein W5500 Ethernet Modul an das Board oder einen generischen ESP32 anzuschließen. Bei den KM271-Boards von Daniel kann das W5500 an dem J7-Anschluss des Boards angeschlossen werden.
 
 > [!IMPORTANT]
 > Das Anschlusskabel sollte so kurz wie möglich sein (ca. 10 cm).
@@ -166,7 +169,7 @@ Board >= 0.0.6
 | RST    |  13           | J7.6     |
 
 
-Beipsiel für allgemeinen ESP32-Mini
+Beispiel für allgemeinen ESP32-Mini
 
 | Signal| GPIO |
 |-------|------|
@@ -201,8 +204,8 @@ Ich habe einen ohne potentialfreien Kontakt verwendet und nachträglich einen Re
 
 ## Optional: OneWire Sensor
 
-Sie können auch zusätzliche OneWire-Sensoren (z. B. DS18B20) konfigurieren. In der Konfiguration können Sie einen oder zwei Sensoren einrichten.
-Der Sensorwert wird auf dem Dashboard angezeigt und wird auch von mqtt mit dem Topic `sensor` und dem Namen, den Sie konfigurieren können, gesendet.
+Es können auch zusätzliche OneWire-Sensoren (z. B. DS18B20) konfiguriert werden. In der Konfiguration kann man einen oder zwei Sensoren einrichten.
+Der Sensorwert wird auf dem Dashboard angezeigt und wird auch von mqtt mit dem Topic `sensor` und dem Namen, den man konfigurieren kann, gesendet.
 Abhängig von der verwendeten Hardware muss eventuell ein zusätzlicher Widerstand installiert werden. Klassischerweise werden die OneWire-Sensoren mit einem Widerstand von 4,7kOhm zwischen VCC und dem Sensorkabel angeschlossen und mit 3,3V - 5V betrieben.
 In der Konfiguration wird nur der GPIO angegeben, an dem das Sensorkabel angeschlossen ist. Der Rest ist eine hardwareabhängige Verdrahtung.
 
@@ -224,7 +227,7 @@ In der Konfiguration wird nur der GPIO angegeben, an dem das Sensorkabel angesch
 
 ## Optional: Abgas Sensor
 
-Es ist auch möglich, einen optionalen Abgassensor (NTC 100K) an den Anschluss J5 der Platine anzuschließen. In einigen Fällen müssen Sie einige fehlende Komponenten auf der Platine ergänzen.
+Es ist auch möglich, einen optionalen Abgassensor (NTC 100K) an den Anschluss J5 der Platine anzuschließen. In einigen Fällen müssen einige fehlende Komponenten auf der Platine ergänzt werden.
 
 
 | Komponente | Wert        |
@@ -247,9 +250,9 @@ Es besteht keine Notwendigkeit, den Sensor in der Software zu konfigurieren. Die
 
 ## Platform-IO
 
-Die Software wird mit [Visual Studio Code] (https://code.visualstudio.com) und dem [PlatformIO-Plugin] (https://platformio.org) erstellt.  
-Nach der Installation der Software können Sie das Projekt von GitHub klonen oder als zip herunterladen und in PlatformIO öffnen.
-Dann passen Sie den `upload_port` und die entsprechenden Einstellungen in `platformio.ini` an Ihren USB-zu-Seriell-Adapter an und laden den Code auf den ESP hoch.
+Die Software wurde mit [Visual Studio Code] (https://code.visualstudio.com) und dem [PlatformIO-Plugin] (https://platformio.org) erstellt.  
+Nach der Installation der Software kannst du das Projekt von GitHub klonen oder als zip herunterladen und in PlatformIO öffnen.
+Dann noch den `upload_port` und die entsprechenden Einstellungen in `platformio.ini` an deinen USB-zu-Seriell-Adapter anpassen den Code auf den ESP hochladen.
 
 > [!NOTE]
 > Python muss ebenfalls installiert sein, um das Projekt vollständig zu kompilieren. Der Ordner scripts enthält beispielsweise Skripte für die Erstellung der Webseiten, die beim Kompilieren des Projekts aufgerufen werden.
@@ -263,14 +266,14 @@ Es gibt verschiedene Tools, um Binärdateien auf den ESP zu übertragen.
 Eines davon ist [espressif-flash-download-tool](https://www.espressif.com/en/support/download/other-tools)
 
 **macOS/Linux**  
-Für Mac ist es schwierig, ein Tool mit einer grafischen Benutzeroberfläche zu finden, aber Sie können einfach das esptool.py verwenden:
+Für Mac ist es schwierig, ein Tool mit einer grafischen Benutzeroberfläche zu finden, aber es kann einfach das esptool.py verwendet werden:
 
 1. Terminal öffnen
-2. installieren Sie esptool: `pip install esptool`  
+2. esptool installieren: `pip install esptool`  
 3. optional den Installationspfad abfragen: `welches esptool.py`  
 4. Pfad setzen: `export PATH=„$PATH:/<Pfad>/esptool.py“` (<- ändere <Pfad> mit Ergebnis aus 3.)
 5. Gehe zu dem Pfad, in dem sich die bin-Datei befindet
-6. get Device String: `ls /dev/tty* | grep usb` (verwende dies im nächsten Schritt für <UPLOAD-PORT>)
+6. Device String abfragen: `ls /dev/tty* | grep usb` (verwende dies im nächsten Schritt für <UPLOAD-PORT>)
 7. Upload: `esptool.py -p <UPLOAD-PORT> write_flash 0x00 buderus_km271_esp32_flash_vx.x.x.bin`  
 
 ## OTA-Updates
@@ -297,12 +300,12 @@ Der „Setup Mode“ wird auch aktiviert, wenn (zu Beginn) keine WLAN-Verbindung
 
 Wenn der ESP in den „Setup Mode“ geht, erstellt er automatisch einen eigenen Netzwerk Accesspoint mit der ssid  
 📶 `"ESP-Buderus-KM271"`  
-Nachdem du mit diesem Netzwerk verbunden bist, kannst du die WebUI auf ip-address öffnen  
+Nachdem du mit diesem Netzwerk verbunden bist, kannst du die WebUI übernachfolgende Adresse öffnen  
 **"http://192.168.4.1"**
 
 ## Konfiguration
 
-Hier können alle Konfigurationen vorgenommen werden, die zu der Heizungsanlage und Ihrer Infrastruktur passen.
+Hier können alle Konfigurationen vorgenommen werden, die zu der Heizungsanlage und der Infrastruktur passen.
 
 - **WiFi**  
 Gib im Feld „WiFi“ deine WLAN Anmeldedaten ein, um den ESP mit Ihrem Netzwerk zu verbinden.
@@ -321,34 +324,32 @@ Die voreingestellte Zeitzone sollte passen, wenn du dich in Deutschland befindes
 Hier kannst du ein neues Datum und eine neue Uhrzeit in das Logamatic Heizsystem schreiben. (manuell oder aktuelle NTP-Server Zeit)
 
 - **MQTT**  
-hier können Sie die MQTT-Kommunikation aktivieren und obligatorische Parameter eingeben
-Alle Parameter sind obligatorisch!
+hier können Sie die MQTT-Kommunikation aktivieren und obligatorische Parameter eingeben.  
 
 - **Pushover**  
 Parameter für Pushover-Benachrichtigungen.  
 (API-Token und User-Key)  
-Sie können hier auch eine Testnachricht senden.
+Man kann hier auch eine Testnachricht senden.
 
 - **Logamatic**  
 hier kannst du auswählen, welche Komponenten deiner Logamatic verwendet werden sollen.
 
 - **GPIO**  
-Hier kannst du die GPIOs deines ESP-Boards konfigurieren. Sie können die Optionen in der Auswahlliste verwenden, um Standardwerte je nach ausgewähltem Boardtyp zu erhalten.
+Hier kannst du die GPIOs deines ESP-Boards konfigurieren. Du kannst die Optionen in der Auswahlliste verwenden, um Standardwerte je nach ausgewähltem Boardtyp zu erhalten.
 
 - **Ölzähler**  
 hier kannst du den optionalen Hardware- oder virtuellen Ölzähler aktivieren.
-Wenn Sie einen hardwarebasierten Ölzähler verwenden, müssen Sie auch die entsprechenden gpio's konfigurieren.
-Wenn Sie den Verbrauch auf Basis der Laufzeit berechnen wollen, müssen Sie die zusätzlichen Berechnungsparameter konfigurieren.
+Wenn du einen hardwarebasierten Ölzähler verwendest, müssen auch die entsprechenden gpio's konfiguriert werden.
+Wenn du den Verbrauch auf Basis der Laufzeit berechnen willst, müssen Sie die zusätzlichen Berechnungsparameter konfigurieret werden.
 
 - **optionale Sensoren**  
-Aktivierung und Konfiguration des optionalen DS18B20
+Aktivierung und Konfiguration des optionalen DS18B20 Senosrs
 
 - **Simulation**  
 Aktiviere den Simulationsmodus, um Logamatic-Werte zu Testzwecken zu generieren
 
 - **Sprache**  
-Es sind zwei Sprachen verfügbar. Wählen Sie die von Ihnen bevorzugte Sprache.
-Die Sprache wirkt sich auf die WebUI und auch auf die mqtt-Nachrichten aus!
+Es sind zwei Sprachen verfügbar. Wählen deine bevorzugte Sprache.
 
 > [!NOTE]
 > All settings are automatically saved when changes are made
@@ -423,19 +424,19 @@ Topic: esp_heizung/info = {
 
 ### Alarm Meldungen (nur lesend)
 
-hier erhalten Sie die Informationen über die letzten 4 Fehler/Faults, die von der Logamatic registriert wurden. Die Nutzlast der Werte ist ein String.
+hier bekommt man Informationen über die letzten 4 Fehler/Faults, die von der Logamatic registriert wurden. Der Payload der Werte ist ein String.
 
 > [!NOTE]
->Eine vollständige Liste der unterstützten Werte finden Sie in der **[param.txt](Doc/param.txt)**
+>Eine vollständige Liste der unterstützten Werte befindet sich in der **[param.txt](Doc/param.txt)**
 
 Die mqtt-Themen können auch durch Bearbeiten an die eigenen Bedürfnisse angepasst werden: **[language.h](include/language.h)**
 
 ## Kommandos
 
-Um die Werte Ihrer Logamatic zu ändern, können verschiedene `setvalue` Befehle aus der folgenden Liste verwendet werden.
-Ein komplettes Topic könnte sein `esp_heizung/setvalue/setdatetime`
+Um die Werte der Logamatic zu ändern, können verschiedene `setvalue` Befehle aus der folgenden Liste verwendet werden.
+Ein komplettes Topic könnte sein: `esp_heizung/setvalue/setdatetime`
 
-**Man kann die Logamatic mit Befehlen wie diesem steuern:**
+**Man kann die Logamatic mit Befehlen wie diesen steuern:**
 
 ```text
 command:    Neustart ESP
@@ -579,7 +580,7 @@ payload:    Number 0..3 (Abschalt,Reduziert,Raumhalt,Aussenhalt) / {off,fixed,ro
 ## Home Assistant
 
 MQTT Discovery für Home Assistant macht es einfach, alle Werte in Home Assistant zu erhalten.
-Die Logamatic-Werte werden automatisch als mqtt-Gerät im Home Assistant angezeigt.
+Die Logamatic wird automatisch als mqtt-Gerät im Home Assistant angezeigt.
 Es werden die Konfigurationswerte und die Statuswerte angezeigt. Einige Konfigurationswerte können auch wie in der WebUI geändert werden.
 
 siehe auch die offizielle Dokumentation: https://www.home-assistant.io/integrations/mqtt/#discovery-messages
@@ -591,13 +592,13 @@ In den mqtt-Einstellungen kannst du die "Erkennungsfunktion" aktivieren und auch
 
 -----
 
-# Optional Messaging
+# Optionale Kommunikation
 
-Zusätzlich zu mqtt gibt es weitere Optionen für Benachrichtigungen.
+Zusätzlich zu mqtt gibt es weitere Optionen zur Kommunikation.
 
 ## Pushover
 
-Darüber hinaus gibt es auch eine benutzerdefinierte Benachrichtigung als Pushover-Client.
+Es gibt eine benutzerdefinierte Benachrichtigung als Pushover-Client.
 Über den Parameter „Filter“ lässt sich festlegen, welche Art von Nachrichten man erhalten möchte.
 In den Einstellungen befinden sich alle notwendigen Parameter, um den Client einzurichten.
 

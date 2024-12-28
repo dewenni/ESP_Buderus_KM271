@@ -324,7 +324,6 @@ Here you can write a new Date and Time to the Logamatic heating system. (manual 
 
 - **MQTT**  
 here you can activate the MQTT communication and enter mandatory parameters
-All the parameters are mandatory!
 
 - **Pushover**  
 Parameters for Pushover notifications.  
@@ -350,7 +349,6 @@ Activate Simulation-Mode to generate Logamatic values for testing purposes
 
 - **Language**  
 There are two languages available. Choose what you prefer.
-The language take effect on the webUI and also on the mqtt messages!
 
 > [!NOTE]
 > All settings are automatically saved when changes are made
