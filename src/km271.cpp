@@ -1091,8 +1091,8 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x8009: // 0x8009 : Percent
     if (config.km271.use_hc1) {
-      kmStatus.HC1_MixingValue = data[2];
-      km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::HC1_MIXER[config.mqtt.lang], uint8ToString(kmStatus.HC1_MixingValue));
+      kmStatus.HC1_MixingValue = decodeNegValue(data[2]);
+      km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::HC1_MIXER[config.mqtt.lang], int8ToString(kmStatus.HC1_MixingValue));
     }
     break;
 
@@ -1213,8 +1213,8 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x811b: // 0x811b : Percent
     if (config.km271.use_hc2) {
-      kmStatus.HC2_MixingValue = data[2];
-      km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::HC2_MIXER[config.mqtt.lang], uint8ToString(kmStatus.HC2_MixingValue));
+      kmStatus.HC2_MixingValue = decodeNegValue(data[2]);
+      km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::HC2_MIXER[config.mqtt.lang], int8ToString(kmStatus.HC2_MixingValue));
     }
     break;
 
