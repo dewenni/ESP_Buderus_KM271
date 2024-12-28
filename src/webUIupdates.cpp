@@ -399,6 +399,7 @@ void generateKm271ConfigJSON() {
     addJson(kmCfgJsonDoc, "p03_hc1_remotecontrol", pkmConfigStr->hc1_remotecontrol);
     addJson(kmCfgJsonDoc, "p02_hc1_prg", pkmConfigNum->hc1_program);
     addJson(kmCfgJsonDoc, "p02_hc1_holiday_days", pkmConfigNum->hc1_holiday_days);
+    addJson(kmCfgJsonDoc, "p03_hc1_act_prg", KM_CFG_ARRAY::HC_PROGRAM[config.lang][pkmConfigNum->hc1_program]);
     addJson(kmCfgJsonDoc, "p03_hc1_t01", pkmConfigStr->hc1_timer01);
     addJson(kmCfgJsonDoc, "p03_hc1_t02", pkmConfigStr->hc1_timer02);
     addJson(kmCfgJsonDoc, "p03_hc1_t03", pkmConfigStr->hc1_timer03);
@@ -445,6 +446,7 @@ void generateKm271ConfigJSON() {
     addJson(kmCfgJsonDoc, "p04_hc2_remotecontrol", pkmConfigStr->hc2_remotecontrol);
     addJson(kmCfgJsonDoc, "p02_hc2_prg", pkmConfigNum->hc2_program);
     addJson(kmCfgJsonDoc, "p02_hc2_holiday_days", pkmConfigNum->hc2_holiday_days);
+    addJson(kmCfgJsonDoc, "p04_hc2_act_prg", KM_CFG_ARRAY::HC_PROGRAM[config.lang][pkmConfigNum->hc2_program]);
     addJson(kmCfgJsonDoc, "p04_hc2_t01", pkmConfigStr->hc2_timer01);
     addJson(kmCfgJsonDoc, "p04_hc2_t02", pkmConfigStr->hc2_timer02);
     addJson(kmCfgJsonDoc, "p04_hc2_t03", pkmConfigStr->hc2_timer03);

@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>ESP Async Web Server</title>
-    <link rel="stylesheet" type="text/css" href="../css/pico.css" />
-    <link rel="stylesheet" type="text/css" href="../css/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../css/icons.css" />
-    <script src="../js/main.js" defer></script>
-    <script src="../js/lang.js" defer></script>
-    <style></style>
-    <script>
-      function test() {
-        document.getElementById("tab4").classList.add("active");
-      }
-      setInterval(test, 1000);
-    </script>
+  <title>ESP Async Web Server</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" type="text/css" href="../css/pico.css" />
+  <link rel="stylesheet" type="text/css" href="../css/custom.css" />
+  <link rel="stylesheet" type="text/css" href="../css/icons.css" />
+  <script src="../js/doc.js" defer></script>
+  <script src="../js/lang.js" defer></script>
+  <script src="../js/fun.js" defer></script>
+  <script src="../js/events.js" defer></script>
+  <style></style>
+  <script>
+    function test() {
+      document.getElementById("tab4").classList.add("active");
+      localizePage("de");
+    }
+    setInterval(test, 1000);
+  </script>
   </head>
   <body>
     <!-- Layout -->
@@ -242,6 +245,9 @@
         <div class="grid">
           <article class="card">
             <p class="table-header" data-i18n="programs"></p>
+            <h6 data-i18n="act_prg"></h6>
+            <div id="p04_hc2_act_prg"></div>
+            <h6 data-i18n="man_prg_timer"></h6>
             <table class="striped">
               <tbody>
                 <tr>

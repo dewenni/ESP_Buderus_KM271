@@ -20,6 +20,10 @@ function setupWS() {
     showReloadBar();
   };
 
+  ws.onerror = function (error) {
+    console.log("WebSocket error:", error);
+  };
+
   ws.onmessage = function (event) {
     let message = JSON.parse(event.data);
     //console.log(message);
@@ -1823,6 +1827,14 @@ const translations = {
   received: {
     de: "empfangen",
     en: "received",
+  },
+  act_prg: {
+    de: "aktives Programm",
+    en: "active program",
+  },
+  man_prg_timer: {
+    de: "Timer des manuellen Programms",
+    en: "timer of manual program",
   },
 };
 
