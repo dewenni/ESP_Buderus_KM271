@@ -4,33 +4,6 @@
 
 /**
  * *******************************************************************
- * @brief   format build date/time information
- * @param   date input string
- * @return  hash value
- * *******************************************************************/
-void getBuildDateTime(char *formatted_date) {
-  // Monatsnamen für die Umwandlung in Zahlen
-  const char *months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-  char month_text[4] = {0};
-  int day, year;
-  // Extrahiere den Monat, Tag und Jahr aus dem __DATE__ String
-  sscanf(__DATE__, "%s %d %d", month_text, &day, &year);
-
-  // Finde den Monat im Array und konvertiere ihn in eine Zahl
-  int month = 0;
-  for (int i = 0; i < 12; i++) {
-    if (strcmp(month_text, months[i]) == 0) {
-      month = i + 1;
-      break;
-    }
-  }
-
-  // Format das Datum als "DD-MM-YYYY"
-  sprintf(formatted_date, "%02d.%02d.%d - %s", day, month, year, __TIME__);
-}
-
-/**
- * *******************************************************************
  * @brief   create ON/OFF String from integer
  * @param   value as integer
  * @return  pointer to char array - pay attention, it is local static

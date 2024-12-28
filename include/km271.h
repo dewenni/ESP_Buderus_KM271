@@ -27,7 +27,7 @@
 
 // The states to receive a single block of data.
 // First a block iof data is received byte by byte by using this state interpreter.
-// If a full block of data is received, a second level state interopreter is called to handle the blocks.
+// If a full block of data is received, a second level state interpreter is called to handle the blocks.
 enum e_rxState {
   KM_RX_RESYNC, // Unknown state, re-sync by wait for STX
   KM_RX_IDLE,   // Idle state for RX interrupt routine

@@ -335,7 +335,7 @@ void cmdDisconnect(char param[MAX_PAR][MAX_CHAR]) {
  * *******************************************************************/
 void cmdRestart(char param[MAX_PAR][MAX_CHAR]) {
   telnet.println("ESP will restart - you have to reconnect");
-  saveRestartReason("telnet command");
+  EspSysUtil::RestartReason::saveLocal("telnet command");
   yield();
   delay(1000);
   yield();

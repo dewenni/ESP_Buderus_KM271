@@ -4,7 +4,7 @@
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION "v5.2.9001" // internal program version
+#define VERSION "v5.2.0" // internal program version
 
 #define WIFI_RECONNECT 30000 // Delay between wifi reconnection tries
 #define MQTT_RECONNECT 10000 // Delay between mqtt reconnection tries
@@ -160,6 +160,4 @@ void configCyclic();
 void configSaveToFile();
 void configLoadFromFile();
 void configInitValue();
-void saveRestartReason(const char *reason);
-bool readRestartReason(char *buffer, size_t bufferSize);
 void configGPIO();

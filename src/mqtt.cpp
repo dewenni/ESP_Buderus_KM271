@@ -218,7 +218,7 @@ void mqttCyclic() {
       } else {
         MY_LOGI(TAG, "MQTT connection not possible, esp rebooting...");
         storeData(); // store Data before reboot
-        saveRestartReason("no mqtt connection");
+        EspSysUtil::RestartReason::saveLocal("no mqtt connection");
         yield();
         delay(1000);
         yield();
@@ -259,7 +259,7 @@ void processMqttMessage() {
   // restart ESP command
   if (strcasecmp(msgCpy.topic, addTopic(MQTT_CMD::RESTART[config.mqtt.lang])) == 0) {
     km271Msg(KM_TYP_MESSAGE, "restart requested!", "");
-    saveRestartReason("mqtt command");
+    EspSysUtil::RestartReason::saveLocal("mqtt command");
     yield();
     delay(1000);
     yield();

@@ -19,7 +19,6 @@ s_eth eth;   // global ETH Informations
 static muTimer wifiReconnectTimer = muTimer(); // timer for reconnect delay
 static int wifi_retry = 0;
 static esp_reset_reason_t reset_reason;
-static char intRestartReason[64];
 static const char *TAG = "SETUP"; // LOG TAG
 
 /**
@@ -102,7 +101,7 @@ void checkWiFi() {
       MY_LOGI(TAG, "Wifi connection not possible, esp rebooting...");
       MY_LOGI(TAG, "\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
       storeData(); // store Data before reboot
-      saveRestartReason("no wifi connection");
+      EspSysUtil::RestartReason::saveLocal("no wifi connection");
       yield();
       delay(1000);
       yield();
@@ -223,7 +222,7 @@ void setupETH() {
 void basicSetup() {
 
   // check internal restart reason
-  readRestartReason(intRestartReason, sizeof(intRestartReason));
+  EspSysUtil::RestartReason::readLocal();
 
   // WiFi
   setupWiFi();
@@ -373,55 +372,5 @@ void getUptime(char *buffer, size_t bufferSize) {
     snprintf(buffer, bufferSize, "%02luh %02lum %02lus", hours, minutes, seconds);
   } else {
     snprintf(buffer, bufferSize, "%lum %lus", minutes, seconds);
-  }
-}
-
-/**
- * *******************************************************************
- * @brief   get last restart reason as string
- * @param   buffer
- * @param   bufferSize
- * @return  none
- * *******************************************************************/
-void getRestartReason(char *reason, size_t reason_size) {
-
-  if (strlen(intRestartReason) != 0) {
-    snprintf(reason, reason_size, "%s", intRestartReason);
-  } else {
-    switch (reset_reason) {
-    case ESP_RST_POWERON:
-      strncpy(reason, "Power-on reset", reason_size);
-      break;
-    case ESP_RST_EXT:
-      strncpy(reason, "External reset", reason_size);
-      break;
-    case ESP_RST_SW:
-      strncpy(reason, "Software reset via esp_restart", reason_size);
-      break;
-    case ESP_RST_PANIC:
-      strncpy(reason, "Software panic reset", reason_size);
-      break;
-    case ESP_RST_INT_WDT:
-      strncpy(reason, "Interrupt watchdog reset", reason_size);
-      break;
-    case ESP_RST_TASK_WDT:
-      strncpy(reason, "Task watchdog reset", reason_size);
-      break;
-    case ESP_RST_WDT:
-      strncpy(reason, "Other watchdog reset", reason_size);
-      break;
-    case ESP_RST_DEEPSLEEP:
-      strncpy(reason, "Woke up from deep-sleep", reason_size);
-      break;
-    case ESP_RST_BROWNOUT:
-      strncpy(reason, "Brownout reset (voltage dip)", reason_size);
-      break;
-    case ESP_RST_SDIO:
-      strncpy(reason, "Reset over SDIO", reason_size);
-      break;
-    default:
-      strncpy(reason, "unknown Reset", reason_size);
-      break;
-    }
   }
 }
