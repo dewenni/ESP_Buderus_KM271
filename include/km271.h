@@ -67,7 +67,7 @@ struct s_km271_status {
   uint8_t HC1_SwitchOnOptimizationTime;  // 0x8006 : Minutes
   uint8_t HC1_SwitchOffOptimizationTime; // 0x8007 : Minutes
   uint8_t HC1_PumpPower;                 // 0x8008 : Percent
-  uint8_t HC1_MixingValue;               // 0x8009 : Percent
+  int8_t HC1_MixingValue;                // 0x8009 : Percent
   uint8_t HC1_HeatingCurvePlus10;        // 0x800c : Temperature (1C resolution)
   uint8_t HC1_HeatingCurve0;             // 0x800d : Temperature (1C resolution)
   uint8_t HC1_HeatingCurveMinus10;       // 0x800e : Temperature (1C resolution)
@@ -80,7 +80,7 @@ struct s_km271_status {
   uint8_t HC2_SwitchOnOptimizationTime;  // 0x8118 : Minutes
   uint8_t HC2_SwitchOffOptimizationTime; // 0x8119 : Minutes
   uint8_t HC2_PumpPower;                 // 0x811a : Percent
-  uint8_t HC2_MixingValue;               // 0x811b : Percent
+  int8_t HC2_MixingValue;                // 0x811b : Percent
   uint8_t HC2_HeatingCurvePlus10;        // 0x811e : Temperature (1C resolution)
   uint8_t HC2_HeatingCurve0;             // 0x811f : Temperature (1C resolution)
   uint8_t HC2_HeatingCurveMinus10;       // 0x8120 : Temperature (1C resolution)
