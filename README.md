@@ -4,6 +4,9 @@
 <h3 style="text-align: center;">ESP-Buderus-KM271</h3>
 </div>
 
+-----
+
+**[🇩🇪 Deutsche Version der Beschreibung](README_DE.md)**
 
 -----
 
@@ -109,7 +112,6 @@ Feel free to add more languages. The texts are located in: **[language.h](includ
 The project includes also an additional and optional oilcounter implementation. I have installed a Braun HZ-5 Meter to measure the oil consumption.  
 There are different models with (HZ 5R, HZ 5DR) and without pulse output (HZ 5).  
 I have used the normal one without pulse output and modified it with a small reed contact - that works fine and was simple to install.
-If you are not interested in the Oil Meter function you can simple disable it in config.h
 
 -----
 
@@ -275,7 +277,7 @@ for Mac it is hard to find a tool with a graphical UI, but you can simple use th
 
 ## OTA-Updates
 
-since software version 3.0, you can also update the software with the new Elegant OTA web upload.  
+since software version 3.0, you can also update the software with the new OTA web upload.  
 You can find the update function in the "Tools" Tab of the WebUI.
 
 here you can choose "Firmware" and select the `buderus_km271_ota_update_vx.x.x.bin` file from the release section
@@ -293,7 +295,7 @@ There are two predefined Options:
 ## Setup Mode
 
 There is a "Setup Mode" available. The "Setup Mode" is activated, when you press the "reset-button" of the ESP two times within 3 Seconds.
-The "Setup Mode" will also activated if there is no wifi connection configured.
+The "Setup Mode" will also activated if there is no (initial or wrong) wifi connection configured.
 
 If the ESP goes into "Setup Mode", it will automatically create a own network access point with ssid  
 📶 `"ESP-Buderus-KM271"`  
