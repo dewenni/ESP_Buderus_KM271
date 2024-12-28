@@ -1,3 +1,4 @@
+#pragma once
 #include <km271.h>
 #include <mqtt.h>
 

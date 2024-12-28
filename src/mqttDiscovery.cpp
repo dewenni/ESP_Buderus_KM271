@@ -19,7 +19,7 @@ static bool resetMqttConfig = false;
 static int mqttSendCnt = 0;
 
 enum OptType { OPT_NULL, OPT_OP_MODE, OPT_RED_MODE, OPT_HC_PRG, OPT_WW_CRC, OPT_SUMMER };
-enum DeviceType{TYP_TEXT, TYP_SLIDER, TYP_NUM, TYP_OPT, TYP_BTN};
+enum DeviceType { TYP_TEXT, TYP_SLIDER, TYP_NUM, TYP_OPT, TYP_BTN };
 enum KmType { KM_CONFIG, KM_STATUS, KM_INFO, KM_WIFI, KM_ETH, KM_ALARM, KM_DEBUG, KM_SENS, KM_OIL, KM_SYSINFO, KM_CMD_BTN };
 enum ValTmpType { VAL_SPLIT, VAL_ON_OFF, VAL_ERR_OK, VAL_WW_CIRC, VAL_SUMMER_THRESHOLD };
 struct DeviceConfig {
@@ -156,7 +156,7 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
   }
 
   char friendlyName[64];
-  replace_underscores(name, friendlyName, sizeof(friendlyName));
+  EspStrUtil::replace_underscores(name, friendlyName, sizeof(friendlyName));
   doc["name"] = friendlyName;
 
   doc["uniq_id"] = name;
@@ -675,14 +675,12 @@ void mqttSendHaCfg_KmStat() {
   if (config.km271.use_solar) {
     mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::SOLAR_LOAD[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ON_OFF), "mdi:information-outline",
                  TYP_TEXT, textPar());
-    mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::SOLAR_WW[config.mqtt.lang], "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT,
-    textPar()); mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::SOLAR_COLLECTOR[config.mqtt.lang], "temperature", "sensor", "°C", NULL, "mdi:thermometer",
-    TYP_TEXT,
+    mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::SOLAR_WW[config.mqtt.lang], "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT, textPar());
+    mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::SOLAR_COLLECTOR[config.mqtt.lang], "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT,
                  textPar());
     mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::SOLAR_RUNTIME[config.mqtt.lang], "duration", "sensor", "min", NULL, "mdi:clock-outline", TYP_TEXT,
                  textPar());
-    mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::SOLAR_9147[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:information-outline", TYP_TEXT,
-    textPar());
+    mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::SOLAR_9147[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:information-outline", TYP_TEXT, textPar());
   }
 }
 
@@ -691,12 +689,12 @@ void mqttSendHaCfg_KmMisc() {
   // optional Sensors
   if (config.sensor.ch1_enable) {
     char topic1[32];
-    replace_whitespace(config.sensor.ch1_name, topic1, sizeof(topic1));
+    EspStrUtil::EspStrUtil::replace_whitespace(config.sensor.ch1_name, topic1, sizeof(topic1));
     mqttHaConfig(KM_SENS, topic1, "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT, textPar());
   }
   if (config.sensor.ch2_enable) {
     char topic2[32];
-    replace_whitespace(config.sensor.ch2_name, topic2, sizeof(topic2));
+    EspStrUtil::EspStrUtil::replace_whitespace(config.sensor.ch2_name, topic2, sizeof(topic2));
     mqttHaConfig(KM_SENS, topic2, "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT, textPar());
   }
 

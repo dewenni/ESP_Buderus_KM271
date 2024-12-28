@@ -8,7 +8,7 @@ Mycila::DS18 sensor1;
 Mycila::DS18 sensor2;
 
 #define REFRESH_TIME 10000
-static  muTimer readTimer = muTimer(); // timer to refresh values
+static muTimer readTimer = muTimer(); // timer to refresh values
 
 /**
  * *******************************************************************
@@ -35,8 +35,8 @@ void setupSensor(void) {
     sensor1.listen([](float temperature, bool changed) {
       sensor.ch1_temp = temperature;
       char topic1[32];
-      replace_whitespace(config.sensor.ch1_name, topic1, sizeof(topic1));
-      km271Msg(KM_TYP_SENSOR, topic1, floatToString(sensor.ch1_temp));
+      EspStrUtil::EspStrUtil::replace_whitespace(config.sensor.ch1_name, topic1, sizeof(topic1));
+      km271Msg(KM_TYP_SENSOR, topic1, EspStrUtil::floatToString(sensor.ch1_temp,1));
     });
   }
   if (config.sensor.ch2_enable) {
@@ -44,8 +44,8 @@ void setupSensor(void) {
     sensor2.listen([](float temperature, bool changed) {
       sensor.ch2_temp = temperature;
       char topic2[32];
-      replace_whitespace(config.sensor.ch2_name, topic2, sizeof(topic2));
-      km271Msg(KM_TYP_SENSOR, topic2, floatToString(sensor.ch2_temp));
+      EspStrUtil::EspStrUtil::replace_whitespace(config.sensor.ch2_name, topic2, sizeof(topic2));
+      km271Msg(KM_TYP_SENSOR, topic2, EspStrUtil::floatToString(sensor.ch2_temp,1));
     });
   }
 }
@@ -61,7 +61,7 @@ void cyclicSensor(void) {
   if (readTimer.cycleTrigger(REFRESH_TIME)) {
 
     if (config.sensor.ch1_enable) {
-      if (!sensor1.read()){
+      if (!sensor1.read()) {
         sensor.ch1_temp = -127;
       }
     }

@@ -266,13 +266,13 @@ void sendWiFiInfo() {
     wifiJSON["rssi"] = wifi.rssi;
     wifiJSON["signal"] = wifi.signal;
     wifiJSON["ip"] = wifi.ipAddress;
-    wifiJSON["date_time"] = getDateTimeString();
+    wifiJSON["date_time"] = EspStrUtil::getDateTimeString();
   } else {
     wifiJSON["status"] = "disconnected";
     wifiJSON["rssi"] = "--";
     wifiJSON["signal"] = "--";
     wifiJSON["ip"] = "--";
-    wifiJSON["date_time"] = getDateTimeString();
+    wifiJSON["date_time"] = EspStrUtil::getDateTimeString();
   }
 
   char sendWififJSON[255];
@@ -302,7 +302,7 @@ void sendETHInfo() {
   ethJSON["link_up"] = eth.linkUp ? "active" : "inactive";
   ethJSON["link_speed"] = eth.linkSpeed;
   ethJSON["full_duplex"] = eth.linkUp ? "full-duplex" : "---";
-  ethJSON["date_time"] = getDateTimeString();
+  ethJSON["date_time"] = EspStrUtil::getDateTimeString();
 
   char sendEthJSON[255];
   serializeJson(ethJSON, sendEthJSON);
@@ -322,8 +322,6 @@ void sendSysInfo() {
   // Uptime and restart reason
   char uptimeStr[64];
   getUptime(uptimeStr, sizeof(uptimeStr));
-  char restartReason[64];
-  getRestartReason(restartReason, sizeof(restartReason));
   // ESP Heap and Flash usage
   char heap[10];
   snprintf(heap, sizeof(heap), "%.1f %%", (float)(ESP.getHeapSize() - ESP.getFreeHeap()) * 100 / ESP.getHeapSize());
@@ -332,7 +330,7 @@ void sendSysInfo() {
 
   JsonDocument sysInfoJSON;
   sysInfoJSON["uptime"] = uptimeStr;
-  sysInfoJSON["restart_reason"] = restartReason;
+  sysInfoJSON["restart_reason"] = EspSysUtil::RestartReason::get();
   sysInfoJSON["heap"] = heap;
   sysInfoJSON["flash"] = flash;
   char sendInfoJSON[255] = {'\0'};

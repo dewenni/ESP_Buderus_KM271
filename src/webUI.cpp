@@ -6,11 +6,8 @@
 #include <language.h>
 #include <message.h>
 #include <oilmeter.h>
-#include <ota.h>
 #include <sensor.h>
 #include <simulation.h>
-#include <stringHelper.h>
-#include <wdt.h>
 #include <webUI.h>
 #include <webUIhelper.h>
 #include <webUIupdates.h>
@@ -41,8 +38,8 @@ static char webCallbackValue[256];
 static bool webCallbackAvailable = false;
 static bool onLoadRequest = false;
 
-static auto &wdt = Watchdog::getInstance();
-static auto &ota = OTAState::getInstance();
+static auto &wdt = EspSysUtil::Wdt::getInstance();
+static auto &ota = EspSysUtil::OTA::getInstance();
 
 void sendWs(JsonDocument &jsonDoc) {
   if (ws.count()) {

@@ -1,9 +1,6 @@
 #include <basics.h>
 #include <language.h>
 #include <message.h>
-#include <ota.h>
-#include <stringHelper.h>
-#include <wdt.h>
 #include <webUI.h>
 #include <webUIupdates.h>
 
@@ -38,7 +35,7 @@ static unsigned long hashKmCfgNumOld, hashKmCfgStrOld;
 static JsonDocument jsonDoc;
 static JsonDocument kmCfgJsonDoc;
 static bool jsonDataToSend = false;
-static auto &ota = OTAState::getInstance();
+static auto &ota = EspSysUtil::OTA::getInstance();
 
 // convert minutes to human readable structure
 timeComponents convertMinutes(int totalMinutes) {
@@ -86,10 +83,12 @@ void addJsonElement(JsonDocument &jsonBuf, const char *elementID, const char *va
 // add webElement - numeric Type
 template <typename NumericType, typename std::enable_if<std::is_integral<NumericType>::value, NumericType>::type * = nullptr>
 inline void addJson(JsonDocument &jsonBuf, const char *elementID, NumericType value) {
-  addJsonElement(jsonBuf, elementID, int32ToString(static_cast<intmax_t>(value)));
+  addJsonElement(jsonBuf, elementID, EspStrUtil::intToString(static_cast<intmax_t>(value)));
 };
 // add webElement - float Type
-inline void addJson(JsonDocument &jsonBuf, const char *elementID, float value) { addJsonElement(jsonBuf, elementID, floatToString(value)); };
+inline void addJson(JsonDocument &jsonBuf, const char *elementID, float value) {
+  addJsonElement(jsonBuf, elementID, EspStrUtil::floatToString(value,1));
+};
 // add webElement - char Type
 inline void addJson(JsonDocument &jsonBuf, const char *elementID, const char *value) { addJsonElement(jsonBuf, elementID, value); };
 // add webElement - bool Type
@@ -303,13 +302,13 @@ void updateSystemInfoElements() {
   addJson(jsonDoc, "p09_uptime", uptimeStr);
 
   // actual date and time
-  addJson(jsonDoc, "p12_ntp_date", getDateStringWeb());
-  addJson(jsonDoc, "p12_ntp_time", getTimeString());
+  addJson(jsonDoc, "p12_ntp_date", EspStrUtil::getDateStringWeb());
+  addJson(jsonDoc, "p12_ntp_time", EspStrUtil::getTimeString());
 
   // KM271 Status
   addJson(jsonDoc, "p09_km271_logmode", km271GetLogMode() ? WEB_TXT::CONNECTED[config.lang] : WEB_TXT::NOT_CONNECTED[config.lang]);
-  addJson(jsonDoc, "p09_km271_rx", formatBytes(km271GetRxBytes()));
-  addJson(jsonDoc, "p09_km271_tx", formatBytes(km271GetTxBytes()));
+  addJson(jsonDoc, "p09_km271_rx", EspStrUtil::formatBytes(km271GetRxBytes()));
+  addJson(jsonDoc, "p09_km271_tx", EspStrUtil::formatBytes(km271GetTxBytes()));
 
   updateWebJSON(jsonDoc);
 }
@@ -333,9 +332,7 @@ void updateSystemInfoElementsStatic() {
   addJson(jsonDoc, "p09_sw_date", tmpMessage);
 
   // restart reason
-  char restartReason[64];
-  getRestartReason(restartReason, sizeof(restartReason));
-  addJson(jsonDoc, "p09_restart_reason", restartReason);
+  addJson(jsonDoc, "p09_restart_reason", EspSysUtil::RestartReason::get());
 
   updateWebJSON(jsonDoc);
 }
@@ -348,16 +345,16 @@ void updateSystemInfoElementsStatic() {
  * *******************************************************************/
 void updateKm271AlarmElements() {
 
-  if (strDiff(&KmAlarmHash[0], pkmAlarmStr->alarm1)) {
+  if (EspStrUtil::strDiff(&KmAlarmHash[0], pkmAlarmStr->alarm1)) {
     updateWebText("p08_err_msg1", pkmAlarmStr->alarm1, false);
   }
-  if (strDiff(&KmAlarmHash[1], pkmAlarmStr->alarm2)) {
+  if (EspStrUtil::strDiff(&KmAlarmHash[1], pkmAlarmStr->alarm2)) {
     updateWebText("p08_err_msg2", pkmAlarmStr->alarm2, false);
   }
-  if (strDiff(&KmAlarmHash[2], pkmAlarmStr->alarm3)) {
+  if (EspStrUtil::strDiff(&KmAlarmHash[2], pkmAlarmStr->alarm3)) {
     updateWebText("p08_err_msg3", pkmAlarmStr->alarm3, false);
   }
-  if (strDiff(&KmAlarmHash[3], pkmAlarmStr->alarm4)) {
+  if (EspStrUtil::strDiff(&KmAlarmHash[3], pkmAlarmStr->alarm4)) {
     updateWebText("p08_err_msg4", pkmAlarmStr->alarm4, false);
   }
 }
@@ -520,8 +517,8 @@ void generateKm271ConfigJSON() {
  * *******************************************************************/
 void updateKm271ConfigElements(bool forceUpdate) {
 
-  unsigned long hashKmCfgStrNew = hash(pkmConfigStr, sizeof(s_km271_config_str));
-  unsigned long hashKmCfgNumNew = hash(pkmConfigNum, sizeof(s_km271_config_num));
+  unsigned long hashKmCfgStrNew = EspStrUtil::hash(pkmConfigStr, sizeof(s_km271_config_str));
+  unsigned long hashKmCfgNumNew = EspStrUtil::hash(pkmConfigNum, sizeof(s_km271_config_num));
   if ((hashKmCfgStrNew != hashKmCfgStrOld) || (hashKmCfgNumNew != hashKmCfgNumOld)) {
     hashKmCfgStrOld = hashKmCfgStrNew;
     hashKmCfgNumOld = hashKmCfgNumNew;

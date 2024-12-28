@@ -202,7 +202,7 @@ void webCallback(const char *elementId, const char *value) {
     snprintf(config.wifi.password, sizeof(config.wifi.password), value);
   }
   if (strcmp(elementId, "cfg_wifi_static_ip") == 0) {
-    config.wifi.static_ip = stringToBool(value);
+    config.wifi.static_ip = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_wifi_ipaddress") == 0) {
     snprintf(config.wifi.ipaddress, sizeof(config.wifi.ipaddress), value);
@@ -219,7 +219,7 @@ void webCallback(const char *elementId, const char *value) {
 
   // Ethernet
   if (strcmp(elementId, "cfg_eth_enable") == 0) {
-    config.eth.enable = stringToBool(value);
+    config.eth.enable = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_eth_hostname") == 0) {
     snprintf(config.eth.hostname, sizeof(config.eth.hostname), value);
@@ -243,7 +243,7 @@ void webCallback(const char *elementId, const char *value) {
     config.eth.gpio_rst = strtoul(value, NULL, 10);
   }
   if (strcmp(elementId, "cfg_eth_static_ip") == 0) {
-    config.eth.static_ip = stringToBool(value);
+    config.eth.static_ip = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_eth_ipaddress") == 0) {
     snprintf(config.eth.ipaddress, sizeof(config.eth.ipaddress), value);
@@ -260,7 +260,7 @@ void webCallback(const char *elementId, const char *value) {
 
   // Authentication
   if (strcmp(elementId, "cfg_auth_enable") == 0) {
-    config.auth.enable = stringToBool(value);
+    config.auth.enable = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_auth_user") == 0) {
     snprintf(config.auth.user, sizeof(config.auth.user), "%s", value);
@@ -271,7 +271,7 @@ void webCallback(const char *elementId, const char *value) {
 
   // NTP-Server
   if (strcmp(elementId, "cfg_ntp_enable") == 0) {
-    config.ntp.enable = stringToBool(value);
+    config.ntp.enable = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_ntp_server") == 0) {
     snprintf(config.ntp.server, sizeof(config.ntp.server), "%s", value);
@@ -335,15 +335,15 @@ void webCallback(const char *elementId, const char *value) {
     // TODO: check
   }
   if (strcmp(elementId, "cfg_ntp_auto_sync") == 0) {
-    config.ntp.auto_sync = stringToBool(value);
+    config.ntp.auto_sync = EspStrUtil::stringToBool(value);
   }
 
   // MQTT
   if (strcmp(elementId, "cfg_mqtt_enable") == 0) {
-    config.mqtt.enable = stringToBool(value);
+    config.mqtt.enable = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_mqtt_config_retain") == 0) {
-    config.mqtt.config_retain = stringToBool(value);
+    config.mqtt.config_retain = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_mqtt_server") == 0) {
     snprintf(config.mqtt.server, sizeof(config.mqtt.server), "%s", value);
@@ -367,7 +367,7 @@ void webCallback(const char *elementId, const char *value) {
     config.mqtt.cyclicSendMin = strtoul(value, NULL, 10);
   }
   if (strcmp(elementId, "cfg_mqtt_ha_enable") == 0) {
-    config.mqtt.ha_enable = stringToBool(value);
+    config.mqtt.ha_enable = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_mqtt_ha_topic") == 0) {
     snprintf(config.mqtt.ha_topic, sizeof(config.mqtt.ha_topic), "%s", value);
@@ -378,7 +378,7 @@ void webCallback(const char *elementId, const char *value) {
 
   // Pushover
   if (strcmp(elementId, "cfg_pushover_enable") == 0) {
-    config.pushover.enable = stringToBool(value);
+    config.pushover.enable = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_pushover_token") == 0) {
     snprintf(config.pushover.token, sizeof(config.pushover.token), "%s", value);
@@ -395,19 +395,19 @@ void webCallback(const char *elementId, const char *value) {
 
   // Logamatic
   if (strcmp(elementId, "cfg_km271_use_hc1") == 0) {
-    config.km271.use_hc1 = stringToBool(value);
+    config.km271.use_hc1 = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_km271_use_hc2") == 0) {
-    config.km271.use_hc2 = stringToBool(value);
+    config.km271.use_hc2 = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_km271_use_ww") == 0) {
-    config.km271.use_ww = stringToBool(value);
+    config.km271.use_ww = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_km271_use_solar") == 0) {
-    config.km271.use_solar = stringToBool(value);
+    config.km271.use_solar = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_km271_use_alarmMsg") == 0) {
-    config.km271.use_alarmMsg = stringToBool(value);
+    config.km271.use_alarmMsg = EspStrUtil::stringToBool(value);
   }
 
   // Hardware
@@ -478,10 +478,10 @@ void webCallback(const char *elementId, const char *value) {
 
   // Oil-Meter
   if (strcmp(elementId, "cfg_oilmeter_use_hardware_meter") == 0) {
-    config.oilmeter.use_hardware_meter = stringToBool(value);
+    config.oilmeter.use_hardware_meter = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_oilmeter_use_virtual_meter") == 0) {
-    config.oilmeter.use_virtual_meter = stringToBool(value);
+    config.oilmeter.use_virtual_meter = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_oilmeter_consumption_kg_h") == 0) {
     config.oilmeter.consumption_kg_h = strtof(value, NULL);
@@ -492,7 +492,7 @@ void webCallback(const char *elementId, const char *value) {
 
   // Optional Sensor
   if (strcmp(elementId, "cfg_sensor_ch1_enable") == 0) {
-    config.sensor.ch1_enable = stringToBool(value);
+    config.sensor.ch1_enable = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_sensor_ch1_name") == 0) {
     snprintf(config.sensor.ch1_name, sizeof(config.sensor.ch1_name), "%s", value);
@@ -504,7 +504,7 @@ void webCallback(const char *elementId, const char *value) {
     config.sensor.ch1_gpio = strtoul(value, NULL, 10);
   }
   if (strcmp(elementId, "cfg_sensor_ch2_enable") == 0) {
-    config.sensor.ch2_enable = stringToBool(value);
+    config.sensor.ch2_enable = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_sensor_ch2_name") == 0) {
     snprintf(config.sensor.ch2_name, sizeof(config.sensor.ch2_name), "%s", value);
@@ -534,7 +534,7 @@ void webCallback(const char *elementId, const char *value) {
 
   // Logger
   if (strcmp(elementId, "cfg_logger_enable") == 0) {
-    config.log.enable = stringToBool(value);
+    config.log.enable = EspStrUtil::stringToBool(value);
   }
   if (strcmp(elementId, "cfg_logger_filter") == 0) {
     config.log.filter = strtoul(value, NULL, 10);
@@ -555,7 +555,7 @@ void webCallback(const char *elementId, const char *value) {
   }
   // Simulation
   if (strcmp(elementId, "cfg_sim_enable") == 0) {
-    config.sim.enable = stringToBool(value);
+    config.sim.enable = EspStrUtil::stringToBool(value);
     showElementClass("simModeBar", config.sim.enable);
   }
   if (strcmp(elementId, "p12_btn_simdata") == 0) {

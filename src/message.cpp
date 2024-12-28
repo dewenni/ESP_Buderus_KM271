@@ -148,7 +148,7 @@ void clearLogBuffer() {
  * *******************************************************************/
 void addLogBuffer(const char *message) {
   if (strlen(message) != 0) {
-    snprintf(logData.buffer[logData.lastLine], sizeof(logData.buffer[logData.lastLine]), "[%s]  %s", getDateTimeString(), message);
+    snprintf(logData.buffer[logData.lastLine], sizeof(logData.buffer[logData.lastLine]), "[%s]  %s", EspStrUtil::getDateTimeString(), message);
     logData.lastLine = (logData.lastLine + 1) % MAX_LOG_LINES; // update the lastLine index in a circular manner
   }
 }

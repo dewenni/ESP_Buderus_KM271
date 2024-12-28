@@ -434,7 +434,7 @@ But with v3.2.4 you are able to download the config.json in the Tool Section of 
 - fix some typo in param.txt
 - add new system info in WebUI for flash size usage
 - bugfix #67
-- add readJSONstring() to check if parameter is valid
+- add EspStrUtil::readJSONstring() to check if parameter is valid
 
 ---
 

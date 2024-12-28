@@ -1,9 +1,5 @@
-#include <Arduino.h>
-#include <ArduinoJson.h>
-#include <LittleFS.h>
 #include <basics.h>
 #include <config.h>
-#include <stringHelper.h>
 
 /* D E C L A R A T I O N S ****************************************************/
 char filename[24] = {"/config.json"};
@@ -191,7 +187,7 @@ void checkGPIO() {
  * @return  none
  * *******************************************************************/
 void configHashInit() {
-  hashOld = hash(&config, sizeof(s_config));
+  hashOld = EspStrUtil::hash(&config, sizeof(s_config));
   configInitDone = true;
 }
 
@@ -204,7 +200,7 @@ void configHashInit() {
 void configCyclic() {
 
   if (checkTimer.cycleTrigger(1000) && configInitDone) {
-    unsigned long hashNew = hash(&config, sizeof(s_config));
+    unsigned long hashNew = EspStrUtil::hash(&config, sizeof(s_config));
     if (hashNew != hashOld) {
       hashOld = hashNew;
       configSaveToFile();
@@ -434,23 +430,23 @@ void configLoadFromFile() {
 
     config.sim.enable = doc["sim"]["enable"];
 
-    readJSONstring(config.wifi.ssid, sizeof(config.wifi.ssid), doc["wifi"]["ssid"]);
-    readJSONstring(config.wifi.password, sizeof(config.wifi.password), doc["wifi"]["password"]);
-    readJSONstring(config.wifi.hostname, sizeof(config.wifi.hostname), doc["wifi"]["hostname"]);
+    EspStrUtil::readJSONstring(config.wifi.ssid, sizeof(config.wifi.ssid), doc["wifi"]["ssid"]);
+    EspStrUtil::readJSONstring(config.wifi.password, sizeof(config.wifi.password), doc["wifi"]["password"]);
+    EspStrUtil::readJSONstring(config.wifi.hostname, sizeof(config.wifi.hostname), doc["wifi"]["hostname"]);
     config.wifi.static_ip = doc["wifi"]["static_ip"];
-    readJSONstring(config.wifi.ipaddress, sizeof(config.wifi.ipaddress), doc["wifi"]["ipaddress"]);
-    readJSONstring(config.wifi.subnet, sizeof(config.wifi.subnet), doc["wifi"]["subnet"]);
-    readJSONstring(config.wifi.gateway, sizeof(config.wifi.gateway), doc["wifi"]["gateway"]);
-    readJSONstring(config.wifi.dns, sizeof(config.wifi.dns), doc["wifi"]["dns"]);
+    EspStrUtil::readJSONstring(config.wifi.ipaddress, sizeof(config.wifi.ipaddress), doc["wifi"]["ipaddress"]);
+    EspStrUtil::readJSONstring(config.wifi.subnet, sizeof(config.wifi.subnet), doc["wifi"]["subnet"]);
+    EspStrUtil::readJSONstring(config.wifi.gateway, sizeof(config.wifi.gateway), doc["wifi"]["gateway"]);
+    EspStrUtil::readJSONstring(config.wifi.dns, sizeof(config.wifi.dns), doc["wifi"]["dns"]);
 
     config.eth.enable = doc["eth"]["enable"];
-    readJSONstring(config.eth.hostname, sizeof(config.eth.hostname), doc["eth"]["hostname"]);
+    EspStrUtil::readJSONstring(config.eth.hostname, sizeof(config.eth.hostname), doc["eth"]["hostname"]);
     config.eth.static_ip = doc["eth"]["static_ip"];
-    readJSONstring(config.eth.ipaddress, sizeof(config.eth.ipaddress), doc["eth"]["ipaddress"]);
-    readJSONstring(config.eth.ipaddress, sizeof(config.eth.ipaddress), doc["eth"]["ipaddress"]);
-    readJSONstring(config.eth.subnet, sizeof(config.eth.subnet), doc["eth"]["subnet"]);
-    readJSONstring(config.eth.gateway, sizeof(config.eth.gateway), doc["eth"]["gateway"]);
-    readJSONstring(config.eth.dns, sizeof(config.eth.dns), doc["eth"]["dns"]);
+    EspStrUtil::readJSONstring(config.eth.ipaddress, sizeof(config.eth.ipaddress), doc["eth"]["ipaddress"]);
+    EspStrUtil::readJSONstring(config.eth.ipaddress, sizeof(config.eth.ipaddress), doc["eth"]["ipaddress"]);
+    EspStrUtil::readJSONstring(config.eth.subnet, sizeof(config.eth.subnet), doc["eth"]["subnet"]);
+    EspStrUtil::readJSONstring(config.eth.gateway, sizeof(config.eth.gateway), doc["eth"]["gateway"]);
+    EspStrUtil::readJSONstring(config.eth.dns, sizeof(config.eth.dns), doc["eth"]["dns"]);
     config.eth.gpio_sck = doc["eth"]["gpio_sck"];
     config.eth.gpio_mosi = doc["eth"]["gpio_mosi"];
     config.eth.gpio_miso = doc["eth"]["gpio_miso"];
@@ -459,21 +455,21 @@ void configLoadFromFile() {
     config.eth.gpio_rst = doc["eth"]["gpio_rst"];
 
     config.mqtt.enable = doc["mqtt"]["enable"];
-    readJSONstring(config.mqtt.server, sizeof(config.mqtt.server), doc["mqtt"]["server"]);
-    readJSONstring(config.mqtt.user, sizeof(config.mqtt.user), doc["mqtt"]["user"]);
-    readJSONstring(config.mqtt.password, sizeof(config.mqtt.password), doc["mqtt"]["password"]);
-    readJSONstring(config.mqtt.topic, sizeof(config.mqtt.topic), doc["mqtt"]["topic"]);
+    EspStrUtil::readJSONstring(config.mqtt.server, sizeof(config.mqtt.server), doc["mqtt"]["server"]);
+    EspStrUtil::readJSONstring(config.mqtt.user, sizeof(config.mqtt.user), doc["mqtt"]["user"]);
+    EspStrUtil::readJSONstring(config.mqtt.password, sizeof(config.mqtt.password), doc["mqtt"]["password"]);
+    EspStrUtil::readJSONstring(config.mqtt.topic, sizeof(config.mqtt.topic), doc["mqtt"]["topic"]);
     config.mqtt.port = doc["mqtt"]["port"];
     config.mqtt.config_retain = doc["mqtt"]["config_retain"];
     config.mqtt.lang = doc["mqtt"]["language"];
     config.mqtt.cyclicSendMin = doc["mqtt"]["cyclic_send"];
     config.mqtt.ha_enable = doc["mqtt"]["ha_enable"];
-    readJSONstring(config.mqtt.ha_topic, sizeof(config.mqtt.ha_topic), doc["mqtt"]["ha_topic"]);
-    readJSONstring(config.mqtt.ha_device, sizeof(config.mqtt.ha_device), doc["mqtt"]["ha_device"]);
+    EspStrUtil::readJSONstring(config.mqtt.ha_topic, sizeof(config.mqtt.ha_topic), doc["mqtt"]["ha_topic"]);
+    EspStrUtil::readJSONstring(config.mqtt.ha_device, sizeof(config.mqtt.ha_device), doc["mqtt"]["ha_device"]);
 
     config.ntp.enable = doc["ntp"]["enable"];
-    readJSONstring(config.ntp.server, sizeof(config.ntp.server), doc["ntp"]["server"]);
-    readJSONstring(config.ntp.tz, sizeof(config.ntp.tz), doc["ntp"]["tz"]);
+    EspStrUtil::readJSONstring(config.ntp.server, sizeof(config.ntp.server), doc["ntp"]["server"]);
+    EspStrUtil::readJSONstring(config.ntp.tz, sizeof(config.ntp.tz), doc["ntp"]["tz"]);
     config.ntp.auto_sync = doc["ntp"]["auto_sync"];
 
     config.gpio.led_wifi = doc["gpio"]["led_wifi"];
@@ -491,27 +487,27 @@ void configLoadFromFile() {
     config.km271.use_alarmMsg = doc["km271"]["use_alarmMsg"];
 
     config.auth.enable = doc["auth"]["enable"];
-    readJSONstring(config.auth.user, sizeof(config.auth.user), doc["auth"]["user"]);
-    readJSONstring(config.auth.password, sizeof(config.auth.password), doc["auth"]["password"]);
+    EspStrUtil::readJSONstring(config.auth.user, sizeof(config.auth.user), doc["auth"]["user"]);
+    EspStrUtil::readJSONstring(config.auth.password, sizeof(config.auth.password), doc["auth"]["password"]);
 
     config.debug.enable = doc["debug"]["enable"];
-    readJSONstring(config.debug.filter, sizeof(config.debug.filter), doc["debug"]["filter"]);
+    EspStrUtil::readJSONstring(config.debug.filter, sizeof(config.debug.filter), doc["debug"]["filter"]);
     if (strlen(config.debug.filter) == 0) {
       strcpy(config.debug.filter, "XX_XX_XX_XX_XX_XX_XX_XX_XX_XX_XX");
     }
 
     config.sensor.ch1_enable = doc["sensor"]["ch1_enable"];
-    readJSONstring(config.sensor.ch1_name, sizeof(config.sensor.ch1_name), doc["sensor"]["ch1_name"]);
-    readJSONstring(config.sensor.ch1_description, sizeof(config.sensor.ch1_description), doc["sensor"]["ch1_description"]);
+    EspStrUtil::readJSONstring(config.sensor.ch1_name, sizeof(config.sensor.ch1_name), doc["sensor"]["ch1_name"]);
+    EspStrUtil::readJSONstring(config.sensor.ch1_description, sizeof(config.sensor.ch1_description), doc["sensor"]["ch1_description"]);
     config.sensor.ch1_gpio = doc["sensor"]["ch1_gpio"];
     config.sensor.ch2_enable = doc["sensor"]["ch2_enable"];
-    readJSONstring(config.sensor.ch2_name, sizeof(config.sensor.ch2_name), doc["sensor"]["ch2_name"]);
-    readJSONstring(config.sensor.ch2_description, sizeof(config.sensor.ch2_description), doc["sensor"]["ch2_description"]);
+    EspStrUtil::readJSONstring(config.sensor.ch2_name, sizeof(config.sensor.ch2_name), doc["sensor"]["ch2_name"]);
+    EspStrUtil::readJSONstring(config.sensor.ch2_description, sizeof(config.sensor.ch2_description), doc["sensor"]["ch2_description"]);
     config.sensor.ch2_gpio = doc["sensor"]["ch2_gpio"];
 
     config.pushover.enable = doc["pushover"]["enable"];
-    readJSONstring(config.pushover.token, sizeof(config.pushover.token), doc["pushover"]["token"]);
-    readJSONstring(config.pushover.user_key, sizeof(config.pushover.user_key), doc["pushover"]["user_key"]);
+    EspStrUtil::readJSONstring(config.pushover.token, sizeof(config.pushover.token), doc["pushover"]["token"]);
+    EspStrUtil::readJSONstring(config.pushover.user_key, sizeof(config.pushover.user_key), doc["pushover"]["user_key"]);
     config.pushover.filter = doc["pushover"]["filter"];
 
     config.log.enable = doc["logger"]["enable"];

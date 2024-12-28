@@ -230,10 +230,8 @@ void mqttCyclic() {
   // send bootup messages after restart and established mqtt connection
   if (!bootUpMsgDone && mqtt_client.connected()) {
     bootUpMsgDone = true;
-    char restartReason[64];
     char tempMessage[128];
-    getRestartReason(restartReason, sizeof(restartReason));
-    snprintf(tempMessage, sizeof(tempMessage), "%s\n(%s)", KM_INFO_MSG::RESTARTED[config.lang], restartReason);
+    snprintf(tempMessage, sizeof(tempMessage), "%s\n(%s)", KM_INFO_MSG::RESTARTED[config.lang], EspSysUtil::RestartReason::get());
     km271Msg(KM_TYP_MESSAGE, tempMessage, "");
 
     // send initial mqtt discovery messages after restart
@@ -352,7 +350,7 @@ void processMqttMessage() {
 
   // HK1 Betriebsart
   else if (strcasecmp(msgCpy.topic, addCfgCmdTopic(KM_CFG_TOPIC::HC1_OPMODE[config.mqtt.lang])) == 0) {
-    if (isNumber(msgCpy.payload)) {
+    if (EspStrUtil::isNumber(msgCpy.payload)) {
       km271sendCmd(KM271_SENDCMD_HC1_OPMODE, msgCpy.intVal);
     } else if (msgCpy.len > 0) {
       targetIndex = -1;
@@ -370,7 +368,7 @@ void processMqttMessage() {
   }
   // HK2 Betriebsart
   else if (strcasecmp(msgCpy.topic, addCfgCmdTopic(KM_CFG_TOPIC::HC2_OPMODE[config.mqtt.lang])) == 0) {
-    if (isNumber(msgCpy.payload)) {
+    if (EspStrUtil::isNumber(msgCpy.payload)) {
       km271sendCmd(KM271_SENDCMD_HC2_OPMODE, msgCpy.intVal);
     } else if (msgCpy.len > 0) {
       targetIndex = -1;
@@ -388,7 +386,7 @@ void processMqttMessage() {
   }
   // HK1 Programm
   else if (strcasecmp(msgCpy.topic, addCfgCmdTopic(KM_CFG_TOPIC::HC1_PROGRAM[config.mqtt.lang])) == 0) {
-    if (isNumber(msgCpy.payload)) {
+    if (EspStrUtil::isNumber(msgCpy.payload)) {
       km271sendCmd(KM271_SENDCMD_HC1_PROGRAMM, msgCpy.intVal);
     } else if (msgCpy.len > 0) {
       targetIndex = -1;
@@ -406,7 +404,7 @@ void processMqttMessage() {
   }
   // HK2 Programm
   else if (strcasecmp(msgCpy.topic, addCfgCmdTopic(KM_CFG_TOPIC::HC2_PROGRAM[config.mqtt.lang])) == 0) {
-    if (isNumber(msgCpy.payload)) {
+    if (EspStrUtil::isNumber(msgCpy.payload)) {
       km271sendCmd(KM271_SENDCMD_HC2_PROGRAMM, msgCpy.intVal);
     } else if (msgCpy.len > 0) {
       targetIndex = -1;
@@ -464,7 +462,7 @@ void processMqttMessage() {
   }
   // WW Betriebsart
   else if (strcasecmp(msgCpy.topic, addCfgCmdTopic(KM_CFG_TOPIC::WW_OPMODE[config.mqtt.lang])) == 0) {
-    if (isNumber(msgCpy.payload)) {
+    if (EspStrUtil::isNumber(msgCpy.payload)) {
       km271sendCmd(KM271_SENDCMD_WW_OPMODE, msgCpy.intVal);
     } else if (msgCpy.len > 0) {
       targetIndex = -1;
@@ -482,7 +480,7 @@ void processMqttMessage() {
   }
   // HK1 Sommer-Ab Temperatur
   else if (strcasecmp(msgCpy.topic, addCfgCmdTopic(KM_CFG_TOPIC::HC1_SUMMER_THRESHOLD[config.mqtt.lang])) == 0) {
-    if (isNumber(msgCpy.payload)) {
+    if (EspStrUtil::isNumber(msgCpy.payload)) {
       km271sendCmd(KM271_SENDCMD_HC1_SUMMER, msgCpy.intVal);
     } else if (msgCpy.len > 0) {
       targetIndex = -1;
@@ -504,7 +502,7 @@ void processMqttMessage() {
   }
   // HK2 Sommer-Ab Temperatur
   else if (strcasecmp(msgCpy.topic, addCfgCmdTopic(KM_CFG_TOPIC::HC2_SUMMER_THRESHOLD[config.mqtt.lang])) == 0) {
-    if (isNumber(msgCpy.payload)) {
+    if (EspStrUtil::isNumber(msgCpy.payload)) {
       km271sendCmd(KM271_SENDCMD_HC2_SUMMER, msgCpy.intVal);
     } else if (msgCpy.len > 0) {
       targetIndex = -1;
@@ -538,7 +536,7 @@ void processMqttMessage() {
   }
   // WW Pump Cycles
   else if (strcasecmp(msgCpy.topic, addCfgCmdTopic(KM_CFG_TOPIC::WW_CIRCULATION[config.mqtt.lang])) == 0) {
-    if (isNumber(msgCpy.payload)) {
+    if (EspStrUtil::isNumber(msgCpy.payload)) {
       km271sendCmd(KM271_SENDCMD_WW_PUMP_CYCLES, msgCpy.intVal);
     } else if (msgCpy.len > 0) {
       targetIndex = -1;
@@ -564,7 +562,7 @@ void processMqttMessage() {
   }
   // HK1 Absenkungsart
   else if (strcasecmp(msgCpy.topic, addCfgCmdTopic(KM_CFG_TOPIC::HC1_REDUCTION_MODE[config.mqtt.lang])) == 0) {
-    if (isNumber(msgCpy.payload)) {
+    if (EspStrUtil::isNumber(msgCpy.payload)) {
       km271sendCmd(KM271_SENDCMD_HC1_REDUCTION_MODE, msgCpy.intVal);
     } else {
       targetIndex = -1;
@@ -580,7 +578,7 @@ void processMqttMessage() {
   }
   // HK2 Absenkungsart
   else if (strcasecmp(msgCpy.topic, addCfgCmdTopic(KM_CFG_TOPIC::HC2_REDUCTION_MODE[config.mqtt.lang])) == 0) {
-    if (isNumber(msgCpy.payload)) {
+    if (EspStrUtil::isNumber(msgCpy.payload)) {
       km271sendCmd(KM271_SENDCMD_HC2_REDUCTION_MODE, msgCpy.intVal);
     } else {
       targetIndex = -1;

@@ -32,7 +32,7 @@ muTimer oilCyclicInfo = muTimer(); // timer for cyclic information
  * *******************************************************************/
 void sendOilmeter() {
   // publish actual value
-  mqttPublish(addTopic("/oilcounter"), uint64ToString(data.oilcounter), true);
+  mqttPublish(addTopic("/oilcounter"), EspStrUtil::intToString(data.oilcounter), true);
 }
 
 /**

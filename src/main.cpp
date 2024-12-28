@@ -1,6 +1,5 @@
 // includes
 #include <ArduinoOTA.h>
-#include <ESP32_DRD.h>
 #include <basics.h>
 #include <config.h>
 #include <esp_task_wdt.h>
@@ -8,11 +7,9 @@
 #include <message.h>
 #include <mqtt.h>
 #include <oilmeter.h>
-#include <ota.h>
 #include <sensor.h>
 #include <simulation.h>
 #include <telnet.h>
-#include <wdt.h>
 #include <webUI.h>
 #include <webUIupdates.h>
 
@@ -23,7 +20,7 @@ static muTimer dstTimer = muTimer();       // timer to check daylight saving tim
 static muTimer ntpTimer = muTimer();       // timer to check ntp sync
 static muTimer wdtTimer = muTimer();       // timer to reset wdt
 
-static DRD32 *drd;               // Double-Reset-Detector
+static EspSysUtil::DRD32 *drd;   // Double-Reset-Detector
 static bool main_reboot = true;  // reboot flag
 static int dst_old;              // reminder for change of daylight saving time
 static bool dst_ref;             // init flag fpr dst reference
@@ -31,8 +28,8 @@ static bool ntpSynced;           // ntp sync flag
 static bool ntpInit = false;     // init flag for ntp sync
 static const char *TAG = "MAIN"; // LOG TAG
 
-static auto &wdt = Watchdog::getInstance();
-static auto &ota = OTAState::getInstance();
+static auto &wdt = EspSysUtil::Wdt::getInstance();
+static auto &ota = EspSysUtil::OTA::getInstance();
 
 /**
  * *******************************************************************
@@ -58,7 +55,7 @@ void setup() {
   messageSetup();
 
   // check for double reset
-  drd = new DRD32(DRD_TIMEOUT);
+  drd = new EspSysUtil::DRD32(DRD_TIMEOUT);
   if (drd->detectDoubleReset()) {
     MY_LOGI(TAG, "DRD detected - enter SetupMode");
     setupMode = true;
