@@ -352,7 +352,7 @@ Aktiviere den Simulationsmodus, um Logamatic-Werte zu Testzwecken zu generieren
 Es sind zwei Sprachen verfügbar. Wählen deine bevorzugte Sprache.
 
 > [!NOTE]
-> All settings are automatically saved when changes are made
+> Alle Einstellungen werden automatisch gespeichert, wenn Änderungen vorgenommen werden.
 
 ![weubui-settings](Doc/weubui_setting.png)
 

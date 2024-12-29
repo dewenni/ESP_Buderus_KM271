@@ -2,7 +2,6 @@
 #include <ArduinoOTA.h>
 #include <basics.h>
 #include <config.h>
-#include <esp_task_wdt.h>
 #include <km271.h>
 #include <message.h>
 #include <mqtt.h>

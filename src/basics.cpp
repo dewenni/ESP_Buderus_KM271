@@ -18,7 +18,6 @@ s_eth eth;   // global ETH Informations
 
 static muTimer wifiReconnectTimer = muTimer(); // timer for reconnect delay
 static int wifi_retry = 0;
-static esp_reset_reason_t reset_reason;
 static const char *TAG = "SETUP"; // LOG TAG
 
 /**
@@ -28,17 +27,12 @@ static const char *TAG = "SETUP"; // LOG TAG
  * @return  none
  * *******************************************************************/
 void ntpSetup() {
-#ifdef ARDUINO_ARCH_ESP32
   // ESP32 seems to be a little more complex:
   configTime(0, 0,
              config.ntp.server); // 0, 0 because we will use TZ in the next line
   setenv("TZ", config.ntp.tz,
          1); // Set environment variable with your time zone
   tzset();
-#else
-  // ESP8266
-  configTime(NTP_TZ, NTP_SERVER); // --> for the ESP8266 only
-#endif
 }
 
 /**
@@ -234,9 +228,6 @@ void basicSetup() {
 
   // NTP
   ntpSetup();
-
-  // Bestimme den Grund für den letzten Neustart
-  reset_reason = esp_reset_reason();
 }
 
 /**
@@ -347,17 +338,15 @@ void sendSysInfo() {
 void getUptime(char *buffer, size_t bufferSize) {
   static unsigned long previousMillis = 0;
   static unsigned long overflowCounter = 0;
-  const unsigned long overflowThreshold = 4294967295; // Maximalwert von millis() bevor es zum Überlauf kommt
+  const unsigned long overflowThreshold = 4294967295; // maximum value of an unsigned long
 
   unsigned long currentMillis = millis();
   if (currentMillis < previousMillis) {
-    // Ein Überlauf wurde detektiert
     overflowCounter++;
   }
   previousMillis = currentMillis;
 
-  // Berechne die gesamte Uptime in Sekunden unter Berücksichtigung des
-  // Überlaufs
+  // calculate total seconds
   unsigned long long totalSeconds = overflowCounter * (overflowThreshold / 1000ULL) + (currentMillis / 1000ULL);
 
   unsigned long days = totalSeconds / 86400;
@@ -365,7 +354,6 @@ void getUptime(char *buffer, size_t bufferSize) {
   unsigned long minutes = (totalSeconds % 3600) / 60;
   unsigned long seconds = totalSeconds % 60;
 
-  // Verwende snprintf zum Formatieren der Ausgabe
   if (days > 0) {
     snprintf(buffer, bufferSize, "%lud %02luh %02lum %02lus", days, hours, minutes, seconds);
   } else if (hours > 0) {

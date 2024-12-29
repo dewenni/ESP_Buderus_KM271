@@ -13,8 +13,9 @@ some minor bugfixes, updates and changes
 - update AsyncTCP @ 3.3.1
 - update ESPAsyncWebServer @ 3.4.5
 - update to Arduino core 3.1.0 based on IDF 5.3.2.241210
-- reduced font sizes across viewports by 10% for a cleaner and less cluttered appearance.
 - added a scrollbar to the sidebar navigation to ensure accessibility for content exceeding the viewport height.
+- added information about actual used HCx programs
+- added command queue for incoming mqtt messages to ensure that no message get lost even if they are received in a very short time
 - uploaded files via "config-upload" are now automatically renamed to config.json, regardless of the original filename.
 - reorganize internal Libraries with new Libraries EspStrUtil and EspSysUtil
-- added information about actual used HCx programs
+- reduced font sizes across viewports by 10% for a cleaner and less cluttered appearance.
