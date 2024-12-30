@@ -278,12 +278,24 @@ Für Mac ist es schwierig, ein Tool mit einer grafischen Benutzeroberfläche zu 
 
 ## OTA-Updates
 
-Seit der Softwareversion 3.0 kannst du die Software auch mit dem neuen OTA Web-Upload aktualisieren.  
-Du findest die Update-Funktion im Tab „Tools“ der WebUI.
+### lokales Web OTA-Update
+
+Eine Möglichkeit ist, die OTA-Update-Datei von der neuesten Version auf GitHub herunterzuladen.
+Nachdem man diese auf seinen Computer heruntergeladen hat, kann man ein Update mit dem eingebetteten WebUI OTA-Update durchführen.
+Die Update Funktion befindet sich auf der Registerkarte „Tools“ der WebUI.
 
 Hier kannst du einfach die Datei `buderus_km271_ota_update_vx.x.x.bin` aus dem Release-Bereich auswählen und das Update starten.
 
 ![ota-1](Doc/tools.png)
+
+### GitHub OTA-Update
+
+Seit Version 1.4.0 ist es auch möglich, den Controller direkt in der WebUI zu aktualisieren, ohne vorher die .bin-Datei herunterzuladen.
+Wenn man auf die Versionsinfo unten links klickt, öffnet sich ein Dialog. Wenn eine neue Version verfügbar ist, kann man das Update hier direkt anstoßen. Es wird dann automatisch die neueste Version von github heruntergeladen und installiert!
+
+![ota-2](Doc/github_ota.gif)
+
+### PlatformIO OTA-Update
 
 Aber es ist auch möglich, die Software drahtlos mit Platformio herunterzuladen.
 Du musst nur die `upload_port` Einstellungen in der `platformio.ini` ändern.
