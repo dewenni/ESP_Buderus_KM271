@@ -12,11 +12,11 @@
 #include <gzip_ntp_html.h>
 #include <language.h>
 
-
 /* P R O T O T Y P E S ********************************************************/
 void webUISetup();
 void webUICyclic();
 void webReadLogBuffer();
+void sendHeartbeat();
 
 void updateWebLog(const char *entry, const char *cmd);
 void updateWebLanguage(const char *language);
@@ -33,5 +33,6 @@ void updateWebSetIcon(const char *elementID, const char *icon);
 void updateWebJSON(JsonDocument &jsonDoc);
 void updateWebHref(const char *elementID, const char *href);
 void updateWebBusy(const char *elementID, bool busy);
+void updateWebDisabled(const char *id, bool disabled);
 void updateWebHideElement(const char *id, bool show);
 void updateWebTooltip(const char *id, const char *tooltip);

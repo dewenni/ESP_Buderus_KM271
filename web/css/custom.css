@@ -366,23 +366,24 @@ table td {
   display: inline-block;
 }
 
-/* Verstecke die originalen Radiobuttons */
 .button-like {
   display: none;
 }
 
-/* Style für die Labels, die wie Buttons aussehen */
 .button-like-label {
   display: inline-block;
   padding: 5px 10px;
   margin: 5px;
-  background-color: transparent; /* Kein Hintergrundfarbe standardmäßig */
+  background-color: transparent;
   cursor: pointer;
 }
 
-/* Ändere das Aussehen, wenn der Radiobutton ausgewählt ist */
 .button-like:checked + .button-like-label {
   background-color: var(--pico-card-sectioning-background-color);
-  color: #fff; /* Weiße Textfarbe */
+  color: #fff;
   border-radius: 10px;
+}
+
+a {
+  cursor: pointer;
 }
