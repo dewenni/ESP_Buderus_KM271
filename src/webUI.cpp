@@ -200,6 +200,14 @@ void updateWebBusy(const char *id, bool busy) {
   sendWs(jsonDoc);
 }
 
+void updateWebDisabled(const char *id, bool disabled) {
+  JsonDocument jsonDoc;
+  jsonDoc["type"] = "updateDisabled";
+  jsonDoc["id"] = id;
+  jsonDoc["disabled"] = disabled;
+  sendWs(jsonDoc);
+}
+
 /**
  * *******************************************************************
  * @brief   function to process the firmware update
@@ -218,7 +226,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
     if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) {
       ota.setActive(false);
       wdt.enable();
-      updateWebText("p11_ota_upd_err", Update.errorString(), false);
+      updateWebText("p00_ota_upd_err", Update.errorString(), false);
       updateWebDialog("ota_update_failed_dialog", "open");
       return request->send(400, "text/plain", "OTA could not begin");
     }
@@ -227,7 +235,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
   if (Update.write(data, len) != len) {
     ota.setActive(false);
     wdt.enable();
-    updateWebText("p11_ota_upd_err", Update.errorString(), false);
+    updateWebText("p00_ota_upd_err", Update.errorString(), false);
     updateWebDialog("ota_update_failed_dialog", "open");
     return request->send(400, "text/plain", "OTA could not begin");
   } else {
@@ -246,7 +254,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
   if (final) {
     if (!Update.end(true)) {
       MY_LOGI(TAG, "OTA Update failed: %s", Update.errorString());
-      updateWebText("p11_ota_upd_err", Update.errorString(), false);
+      updateWebText("p00_ota_upd_err", Update.errorString(), false);
       updateWebDialog("ota_update_failed_dialog", "open");
       ota.setActive(false);
       wdt.enable();

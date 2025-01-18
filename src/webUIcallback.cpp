@@ -4,14 +4,10 @@
 #include <message.h>
 #include <oilmeter.h>
 #include <simulation.h>
-#include <version.h>
 #include <webUI.h>
 #include <webUIupdates.h>
 
 static tm dti;
-static char gitVersion[16];
-static char gitUrl[256];
-static char errorMsg[32];
 static const char *TAG = "WEB"; // LOG TAG
 
 /**
@@ -25,18 +21,26 @@ void webCallback(const char *elementId, const char *value) {
 
   MY_LOGD(TAG, "Received - Element ID: %s = %s", elementId, value);
 
-  // check for new version on github
+  // ------------------------------------------------------------------
+  // GitHub / Version
+  // ------------------------------------------------------------------
+
+  // Github Check Version
   if (strcmp(elementId, "check_git_version") == 0) {
-    int result = checkGithubUpdates("dewenni", "ESP_Buderus_KM271", gitVersion, sizeof(gitVersion), gitUrl, sizeof(gitUrl));
-    if (result == HTTP_CODE_OK) {
-      updateWebBusy("p00_dialog_git_version", false);
-      updateWebText("p00_dialog_git_version", gitVersion, false);
-      updateWebHref("p00_dialog_git_version", gitUrl);
-    } else {
-      sniprintf(errorMsg, sizeof(errorMsg), "error (%i)", result);
-      updateWebBusy("p00_dialog_git_version", false);
-      updateWebText("p00_dialog_git_version", errorMsg, false);
-    }
+    requestGitHubVersion();
+  }
+  // Github Update
+  if (strcmp(elementId, "p00_update_btn") == 0) {
+    requestGitHubUpdate();
+  }
+  // OTA-Confirm
+  if (strcmp(elementId, "p00_ota_confirm_btn") == 0) {
+    updateWebDialog("ota_update_done_dialog", "close");
+    EspSysUtil::RestartReason::saveLocal("ota update");
+    yield();
+    delay(1000);
+    yield();
+    ESP.restart();
   }
 
   // HC1-OPMODE
@@ -560,15 +564,5 @@ void webCallback(const char *elementId, const char *value) {
   }
   if (strcmp(elementId, "p12_btn_simdata") == 0) {
     startSimData();
-  }
-  // OTA-Confirm
-  if (strcmp(elementId, "p11_ota_confirm_btn") == 0) {
-    updateWebDialog("ota_update_done_dialog", "close");
-    EspSysUtil::RestartReason::saveLocal("ota update");
-    storeData();
-    yield();
-    delay(1000);
-    yield();
-    ESP.restart();
   }
 }

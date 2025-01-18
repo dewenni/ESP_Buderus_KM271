@@ -1079,8 +1079,8 @@ const translations = {
     en: "actual version",
   },
   github_version: {
-    de: "neustes Release",
-    en: "newest release",
+    de: "letztes Release",
+    en: "latest release",
   },
   select_template: {
     de: "wähle Vorlage...",

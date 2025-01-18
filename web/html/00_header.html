@@ -26,6 +26,15 @@
             <a id="p00_dialog_git_version" aria-busy="true"></a>
           </div>
           <br />
+          <div
+            id="p00_update_btn_hide"
+            class="dash-footer"
+            style="display: none">
+            <button
+              id="p00_update_btn"
+              style="width: 75%"
+              aria-busy="false"></button>
+          </div>
           <div class="dash-footer">
             <button
               id="close_version_Dialog_btn"
@@ -35,6 +44,50 @@
         </div>
         <div class="dash-icon">
           <div class="svg i_github"></div>
+        </div>
+      </article>
+    </dialog>
+    <!-- Dialog OTA-FAILED -->
+    <dialog id="ota_update_failed_dialog">
+      <article class="dash">
+        <div class="dash-main">
+          <div class="dash-header" data-i18n="update_failed"></div>
+          <div style="text-align: center">
+            <span data-i18n="error_text"></span>
+            <span id="p00_ota_upd_err"></span>
+          </div>
+          <div class="dash-content">
+            <p data-i18n="update_error_info"></p>
+          </div>
+          <div class="dash-footer">
+            <button
+              id="p00_ota_failed_btn"
+              data-i18n="ok"
+              style="width: 75%"></button>
+          </div>
+        </div>
+        <div class="dash-icon">
+          <div class="svg i_alarm"></div>
+        </div>
+      </article>
+    </dialog>
+    <!-- Dialog OTA-Done -->
+    <dialog id="ota_update_done_dialog">
+      <article class="dash">
+        <div class="dash-main">
+          <div class="dash-header" data-i18n="update_done"></div>
+          <div class="dash-content">
+            <p data-i18n="update_info"></p>
+          </div>
+          <div class="dash-footer">
+            <button
+              id="p00_ota_confirm_btn"
+              data-i18n="restart"
+              style="width: 75%"></button>
+          </div>
+        </div>
+        <div class="dash-icon">
+          <div class="svg i_update_done"></div>
         </div>
       </article>
     </dialog>

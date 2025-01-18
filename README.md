@@ -277,12 +277,22 @@ for Mac it is hard to find a tool with a graphical UI, but you can simple use th
 
 ## OTA-Updates
 
-since software version 3.0, you can also update the software with the new OTA web upload.  
+### local Web OTA-Update
+
+The first option is, to download the ota Update File from the latest release at GitHub.
+After you have downloaded this to your computer, you can perform a update with the embedded WebUI OTA-Update.
 You can find the update function in the "Tools" Tab of the WebUI.
 
-here you can choose "Firmware" and select the `buderus_km271_ota_update_vx.x.x.bin` file from the release section
-
 ![ota-1](Doc/tools.png)
+
+### GitHub OTA-Update
+
+since Version 5.3.0 it is also possible to update the controller directly in the WebUI without downloading the .bin file before.
+If you click on the Version info on the bottom left, a dialog will open. If there is a new version available, you can directly initiate the update here. It will then automatically download and install the latest release from github!
+
+![ota-2](Doc/github_ota.gif)
+
+### PlatformIO OTA-Update
 
 But it is also possible to download the software wireless with platformio.
 You only have to change the `upload_port` settings in `platformio.ini`

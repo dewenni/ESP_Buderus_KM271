@@ -53,6 +53,8 @@ function setupWS() {
       updateHref(message);
     } else if (message.type === "updateBusy") {
       updateBusy(message);
+    } else if (message.type === "updateDisabled") {
+      updateDisabled(message);
     } else if (message.type === "showElementClass") {
       showElementClass(message);
     } else if (message.type === "logger") {
@@ -215,6 +217,14 @@ function updateBusy(data) {
   var element = document.getElementById(data.id);
   if (element) {
     element.setAttribute("aria-busy", data.busy);
+  }
+}
+
+// disable/enable element
+function updateDisabled(data) {
+  var element = document.getElementById(data.id);
+  if (element) {
+    element.disabled = data.disabled;
   }
 }
 

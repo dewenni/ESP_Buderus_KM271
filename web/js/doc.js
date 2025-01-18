@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // OTA: close ota-failed dialog on button click
   document
-    .getElementById("p11_ota_failed_btn")
+    .getElementById("p00_ota_failed_btn")
     .addEventListener("click", function () {
       document.getElementById("ota_update_failed_dialog").close();
     });
