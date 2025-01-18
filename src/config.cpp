@@ -2,6 +2,9 @@
 #include <config.h>
 
 /* D E C L A R A T I O N S ****************************************************/
+
+const int CFG_VERSION = 1;
+
 char filename[24] = {"/config.json"};
 bool setupMode;
 bool configInitDone = false;
@@ -9,6 +12,9 @@ unsigned long hashOld;
 s_config config;
 muTimer checkTimer = muTimer(); // timer to refresh other values
 static const char *TAG = "CFG"; // LOG TAG
+char encrypted[256] = {0};
+char decrypted[128] = {0};
+const unsigned char key[16] = {0x6d, 0x79, 0x5f, 0x73, 0x65, 0x63, 0x75, 0x72, 0x65, 0x5f, 0x6b, 0x65, 0x79, 0x31, 0x32, 0x33};
 
 /* P R O T O T Y P E S ********************************************************/
 void configGPIO();
@@ -289,6 +295,8 @@ void configSaveToFile() {
 
   JsonDocument doc; // reserviert 2048 Bytes für das JSON-Objekt
 
+  doc["version"] = CFG_VERSION;
+
   doc["lang"] = (config.lang);
 
   doc["sim"]["enable"] = config.sim.enable;
@@ -299,7 +307,13 @@ void configSaveToFile() {
   doc["oilmeter"]["oil_density_kg_l"] = config.oilmeter.oil_density_kg_l;
 
   doc["wifi"]["ssid"] = config.wifi.ssid;
-  doc["wifi"]["password"] = config.wifi.password;
+
+  if (EspStrUtil::encryptPassword(config.wifi.password, key, encrypted, sizeof(encrypted))) {
+    doc["wifi"]["password"] = encrypted;
+  } else {
+    MY_LOGE(TAG, "error encrypting WiFi Password");
+  }
+
   doc["wifi"]["hostname"] = config.wifi.hostname;
   doc["wifi"]["static_ip"] = config.wifi.static_ip;
   doc["wifi"]["ipaddress"] = config.wifi.ipaddress;
@@ -324,7 +338,13 @@ void configSaveToFile() {
   doc["mqtt"]["enable"] = config.mqtt.enable;
   doc["mqtt"]["server"] = config.mqtt.server;
   doc["mqtt"]["user"] = config.mqtt.user;
-  doc["mqtt"]["password"] = config.mqtt.password;
+
+  if (EspStrUtil::encryptPassword(config.mqtt.password, key, encrypted, sizeof(encrypted))) {
+    doc["mqtt"]["password"] = encrypted;
+  } else {
+    MY_LOGE(TAG, "error encrypting mqtt Password");
+  }
+
   doc["mqtt"]["topic"] = config.mqtt.topic;
   doc["mqtt"]["port"] = config.mqtt.port;
   doc["mqtt"]["config_retain"] = config.mqtt.config_retain;
@@ -355,7 +375,12 @@ void configSaveToFile() {
 
   doc["auth"]["enable"] = config.auth.enable;
   doc["auth"]["user"] = config.auth.user;
-  doc["auth"]["password"] = config.auth.password;
+
+  if (EspStrUtil::encryptPassword(config.auth.password, key, encrypted, sizeof(encrypted))) {
+    doc["auth"]["password"] = encrypted;
+  } else {
+    MY_LOGE(TAG, "error encrypting auth Password");
+  }
 
   doc["debug"]["enable"] = config.debug.enable;
   doc["debug"]["filter"] = config.debug.filter;
@@ -370,8 +395,19 @@ void configSaveToFile() {
   doc["sensor"]["ch2_gpio"] = config.sensor.ch2_gpio;
 
   doc["pushover"]["enable"] = config.pushover.enable;
-  doc["pushover"]["token"] = config.pushover.token;
-  doc["pushover"]["user_key"] = config.pushover.user_key;
+
+  if (EspStrUtil::encryptPassword(config.pushover.token, key, encrypted, sizeof(encrypted))) {
+    doc["pushover"]["token"] = encrypted;
+  } else {
+    MY_LOGE(TAG, "error encrypting pushover token");
+  }
+
+  if (EspStrUtil::encryptPassword(config.pushover.user_key, key, encrypted, sizeof(encrypted))) {
+    doc["pushover"]["user_key"] = encrypted;
+  } else {
+    MY_LOGE(TAG, "error encrypting pushover user_key");
+  }
+
   doc["pushover"]["filter"] = config.pushover.filter;
 
   doc["logger"]["enable"] = config.log.enable;
@@ -392,7 +428,7 @@ void configSaveToFile() {
   if (serializeJson(doc, file) == 0) {
     MY_LOGE(TAG, "Failed to write to file");
   } else {
-    MY_LOGI(TAG, "config successfully saved to file: %s", filename);
+    MY_LOGI(TAG, "config successfully saved to file: %s - Version: %i", filename, CFG_VERSION);
   }
 
   // Close the file
@@ -421,6 +457,9 @@ void configLoadFromFile() {
 
   } else {
     // Copy values from the JsonDocument to the Config structure
+
+    config.version = doc["version"];
+
     config.oilmeter.use_hardware_meter = doc["oilmeter"]["use_hardware_meter"];
     config.oilmeter.use_virtual_meter = doc["oilmeter"]["use_virtual_meter"];
     config.oilmeter.consumption_kg_h = doc["oilmeter"]["consumption_kg_h"];
@@ -431,7 +470,18 @@ void configLoadFromFile() {
     config.sim.enable = doc["sim"]["enable"];
 
     EspStrUtil::readJSONstring(config.wifi.ssid, sizeof(config.wifi.ssid), doc["wifi"]["ssid"]);
-    EspStrUtil::readJSONstring(config.wifi.password, sizeof(config.wifi.password), doc["wifi"]["password"]);
+
+    if (config.version == 0) {
+      EspStrUtil::readJSONstring(config.wifi.password, sizeof(config.wifi.password), doc["wifi"]["password"]);
+    } else {
+      EspStrUtil::readJSONstring(encrypted, sizeof(encrypted), doc["wifi"]["password"]);
+      if (EspStrUtil::decryptPassword(encrypted, key, config.wifi.password, sizeof(config.wifi.password))) {
+        // MY_LOGD(TAG, "decrypted WiFi password: %s", config.wifi.password);
+      } else {
+        MY_LOGE(TAG, "error decrypting WiFi password");
+      }
+    }
+
     EspStrUtil::readJSONstring(config.wifi.hostname, sizeof(config.wifi.hostname), doc["wifi"]["hostname"]);
     config.wifi.static_ip = doc["wifi"]["static_ip"];
     EspStrUtil::readJSONstring(config.wifi.ipaddress, sizeof(config.wifi.ipaddress), doc["wifi"]["ipaddress"]);
@@ -457,7 +507,18 @@ void configLoadFromFile() {
     config.mqtt.enable = doc["mqtt"]["enable"];
     EspStrUtil::readJSONstring(config.mqtt.server, sizeof(config.mqtt.server), doc["mqtt"]["server"]);
     EspStrUtil::readJSONstring(config.mqtt.user, sizeof(config.mqtt.user), doc["mqtt"]["user"]);
-    EspStrUtil::readJSONstring(config.mqtt.password, sizeof(config.mqtt.password), doc["mqtt"]["password"]);
+
+    if (config.version == 0) {
+      EspStrUtil::readJSONstring(config.mqtt.password, sizeof(config.mqtt.password), doc["mqtt"]["password"]);
+    } else {
+      EspStrUtil::readJSONstring(encrypted, sizeof(encrypted), doc["mqtt"]["password"]);
+      if (EspStrUtil::decryptPassword(encrypted, key, config.mqtt.password, sizeof(config.mqtt.password))) {
+        // MY_LOGD(TAG, "decrypted mqtt password: %s", config.mqtt.password);
+      } else {
+        MY_LOGE(TAG, "error decrypting mqtt password");
+      }
+    }
+
     EspStrUtil::readJSONstring(config.mqtt.topic, sizeof(config.mqtt.topic), doc["mqtt"]["topic"]);
     config.mqtt.port = doc["mqtt"]["port"];
     config.mqtt.config_retain = doc["mqtt"]["config_retain"];
@@ -488,7 +549,17 @@ void configLoadFromFile() {
 
     config.auth.enable = doc["auth"]["enable"];
     EspStrUtil::readJSONstring(config.auth.user, sizeof(config.auth.user), doc["auth"]["user"]);
-    EspStrUtil::readJSONstring(config.auth.password, sizeof(config.auth.password), doc["auth"]["password"]);
+
+    if (config.version == 0) {
+      EspStrUtil::readJSONstring(config.auth.password, sizeof(config.auth.password), doc["auth"]["password"]);
+    } else {
+      EspStrUtil::readJSONstring(encrypted, sizeof(encrypted), doc["auth"]["password"]);
+      if (EspStrUtil::decryptPassword(encrypted, key, config.auth.password, sizeof(config.auth.password))) {
+        // MY_LOGD(TAG, "decrypted auth password: %s", config.auth.password);
+      } else {
+        MY_LOGE(TAG, "error decrypting auth password");
+      }
+    }
 
     config.debug.enable = doc["debug"]["enable"];
     EspStrUtil::readJSONstring(config.debug.filter, sizeof(config.debug.filter), doc["debug"]["filter"]);
@@ -506,9 +577,29 @@ void configLoadFromFile() {
     config.sensor.ch2_gpio = doc["sensor"]["ch2_gpio"];
 
     config.pushover.enable = doc["pushover"]["enable"];
-    EspStrUtil::readJSONstring(config.pushover.token, sizeof(config.pushover.token), doc["pushover"]["token"]);
-    EspStrUtil::readJSONstring(config.pushover.user_key, sizeof(config.pushover.user_key), doc["pushover"]["user_key"]);
     config.pushover.filter = doc["pushover"]["filter"];
+
+    if (config.version == 0) {
+      EspStrUtil::readJSONstring(config.pushover.token, sizeof(config.pushover.token), doc["pushover"]["token"]);
+    } else {
+      EspStrUtil::readJSONstring(encrypted, sizeof(encrypted), doc["pushover"]["token"]);
+      if (EspStrUtil::decryptPassword(encrypted, key, config.pushover.token, sizeof(config.pushover.token))) {
+        // MY_LOGD(TAG, "decrypted pushover token: %s", config.pushover.token);
+      } else {
+        MY_LOGE(TAG, "error decrypting pushover token");
+      }
+    }
+
+    if (config.version == 0) {
+      EspStrUtil::readJSONstring(config.pushover.user_key, sizeof(config.pushover.user_key), doc["pushover"]["user_key"]);
+    } else {
+      EspStrUtil::readJSONstring(encrypted, sizeof(encrypted), doc["pushover"]["user_key"]);
+      if (EspStrUtil::decryptPassword(encrypted, key, config.pushover.user_key, sizeof(config.pushover.user_key))) {
+        // MY_LOGD(TAG, "decrypted pushover user_key: %s", config.pushover.user_key);
+      } else {
+        MY_LOGE(TAG, "error decrypting pushover user_key");
+      }
+    }
 
     config.log.enable = doc["logger"]["enable"];
     config.log.filter = doc["logger"]["filter"];
@@ -530,4 +621,12 @@ void configLoadFromFile() {
 
   file.close();     // Close the file (Curiously, File's destructor doesn't close the file)
   configHashInit(); // init hash value
+
+  // save config if version is different
+  if (config.version != CFG_VERSION) {
+    configSaveToFile();
+    MY_LOGI(TAG, "config file was updated from version %i to version: %i", config.version, CFG_VERSION);
+  } else {
+    MY_LOGI(TAG, "config file version %i was successfully loaded", config.version);
+  }
 }

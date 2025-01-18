@@ -87,7 +87,30 @@ function attemptReconnect() {
   }, reconnectDelay);
 }
 
+function restartFunction() {
+  const activeElement = document.activeElement;
+  if (activeElement && ["INPUT", "TEXTAREA"].includes(activeElement.tagName)) {
+    activeElement.blur(); // save last active input
+  }
+  // add a delay to be sure the last input is complete
+  setTimeout(function () {
+    sendData("restartAction", "true");
+  }, 1000);
+}
+
 function sendData(elementId, value) {
+  // Find the element by its ID
+  const element = document.getElementById(elementId);
+
+  // Check if the element exists and is a password field
+  if (element && element.type === "password") {
+    // Only send the data if the value is not "XxXxXxXxXxX"
+    if (value === "XxXxXxXxXxX") {
+      console.log(`Password field (${elementId}) not updated, skipping send.`);
+      return;
+    }
+  }
+
   if (ws.readyState === WebSocket.OPEN) {
     const message = {
       type: "sendData",
@@ -374,7 +397,7 @@ function hideReloadBar() {
 function updateUI(
   config,
   prefix = "cfg",
-  ignoreKeys = ["debug", "webUI_enable"]
+  ignoreKeys = ["debug", "webUI_enable", "version"]
 ) {
   for (const key in config) {
     if (config.hasOwnProperty(key)) {
@@ -406,6 +429,9 @@ function updateUI(
           } else if (element.type === "radio") {
             // Setze das "checked"-Attribut für Radio-Buttons
             element.checked = element.value === value.toString();
+          } else if (element.type === "password") {
+            // Always set password fields to "XxXxXxXxXxX" as a placeholder
+            element.value = "XxXxXxXxXxX";
           } else {
             // Setze das "value"-Attribut für andere Eingabetypen (z.B. text, number)
             element.value = value;
