@@ -137,6 +137,7 @@ struct s_cfg_sim {
 };
 
 struct s_config {
+  int version;
   int lang;
   s_cfg_sim sim;
   s_cfg_oilmeter oilmeter;
