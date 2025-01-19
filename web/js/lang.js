@@ -1162,4 +1162,8 @@ const translations = {
     de: "Timer des manuellen Programms",
     en: "timer of manual program",
   },
+  check_github: {
+    de: "Prüfe GitHub OTA Update",
+    en: "Check for GitHub OTA Update",
+  },
 };

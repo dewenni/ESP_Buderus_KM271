@@ -26,7 +26,7 @@ void webCallback(const char *elementId, const char *value) {
   // ------------------------------------------------------------------
 
   // Github Check Version
-  if (strcmp(elementId, "check_git_version") == 0) {
+  if (strcmp(elementId, "check_git_version") == 0 || strcmp(elementId, "p11_check_git_btn") == 0) {
     requestGitHubVersion();
   }
   // Github Update

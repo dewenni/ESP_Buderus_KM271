@@ -14,11 +14,18 @@ document.addEventListener("DOMContentLoaded", function () {
       window.location.reload();
     });
 
-  // VERSION: is called when version dialog is opened
+  // VERSION: is called when version hyperlink is clicked
   document.getElementById("p00_version").addEventListener("click", function () {
     document.getElementById("version_dialog").showModal();
     sendData("check_git_version", "");
   });
+
+  // VERSION: is called when github ota button is clicked
+  document
+    .getElementById("p11_check_git_btn")
+    .addEventListener("click", function () {
+      document.getElementById("version_dialog").showModal();
+    });
 
   // VERSION: close version dialog on button click
   document
