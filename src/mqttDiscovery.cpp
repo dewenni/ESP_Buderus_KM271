@@ -190,6 +190,10 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
     doc["ent_cat"] = "diagnostic";
   }
 
+  if (kmType == KM_STATUS) {
+    doc["state_class"] = "measurement";
+  }
+
   if (devType == TYP_SLIDER) {
     doc["mode"] = "slider";
     doc["min"] = devCfg.min;
