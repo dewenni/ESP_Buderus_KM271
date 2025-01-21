@@ -53,6 +53,8 @@ function setupWS() {
       updateHref(message);
     } else if (message.type === "updateBusy") {
       updateBusy(message);
+    } else if (message.type === "updateDisabled") {
+      updateDisabled(message);
     } else if (message.type === "showElementClass") {
       showElementClass(message);
     } else if (message.type === "logger") {
@@ -85,7 +87,30 @@ function attemptReconnect() {
   }, reconnectDelay);
 }
 
+function restartFunction() {
+  const activeElement = document.activeElement;
+  if (activeElement && ["INPUT", "TEXTAREA"].includes(activeElement.tagName)) {
+    activeElement.blur(); // save last active input
+  }
+  // add a delay to be sure the last input is complete
+  setTimeout(function () {
+    sendData("restartAction", "true");
+  }, 1000);
+}
+
 function sendData(elementId, value) {
+  // Find the element by its ID
+  const element = document.getElementById(elementId);
+
+  // Check if the element exists and is a password field
+  if (element && element.type === "password") {
+    // Only send the data if the value is not "XxXxXxXxXxX"
+    if (value === "XxXxXxXxXxX") {
+      console.log(`Password field (${elementId}) not updated, skipping send.`);
+      return;
+    }
+  }
+
   if (ws.readyState === WebSocket.OPEN) {
     const message = {
       type: "sendData",
@@ -215,6 +240,14 @@ function updateBusy(data) {
   var element = document.getElementById(data.id);
   if (element) {
     element.setAttribute("aria-busy", data.busy);
+  }
+}
+
+// disable/enable element
+function updateDisabled(data) {
+  var element = document.getElementById(data.id);
+  if (element) {
+    element.disabled = data.disabled;
   }
 }
 
@@ -364,7 +397,7 @@ function hideReloadBar() {
 function updateUI(
   config,
   prefix = "cfg",
-  ignoreKeys = ["debug", "webUI_enable"]
+  ignoreKeys = ["debug", "webUI_enable", "version"]
 ) {
   for (const key in config) {
     if (config.hasOwnProperty(key)) {
@@ -396,6 +429,9 @@ function updateUI(
           } else if (element.type === "radio") {
             // Setze das "checked"-Attribut für Radio-Buttons
             element.checked = element.value === value.toString();
+          } else if (element.type === "password") {
+            // Always set password fields to "XxXxXxXxXxX" as a placeholder
+            element.value = "XxXxXxXxXxX";
           } else {
             // Setze das "value"-Attribut für andere Eingabetypen (z.B. text, number)
             element.value = value;
@@ -440,11 +476,18 @@ document.addEventListener("DOMContentLoaded", function () {
       window.location.reload();
     });
 
-  // VERSION: is called when version dialog is opened
+  // VERSION: is called when version hyperlink is clicked
   document.getElementById("p00_version").addEventListener("click", function () {
     document.getElementById("version_dialog").showModal();
     sendData("check_git_version", "");
   });
+
+  // VERSION: is called when github ota button is clicked
+  document
+    .getElementById("p11_check_git_btn")
+    .addEventListener("click", function () {
+      document.getElementById("version_dialog").showModal();
+    });
 
   // VERSION: close version dialog on button click
   document
@@ -455,7 +498,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // OTA: close ota-failed dialog on button click
   document
-    .getElementById("p11_ota_failed_btn")
+    .getElementById("p00_ota_failed_btn")
     .addEventListener("click", function () {
       document.getElementById("ota_update_failed_dialog").close();
     });
@@ -1753,8 +1796,8 @@ const translations = {
     en: "actual version",
   },
   github_version: {
-    de: "neustes Release",
-    en: "newest release",
+    de: "letztes Release",
+    en: "latest release",
   },
   select_template: {
     de: "wähle Vorlage...",
@@ -1835,6 +1878,10 @@ const translations = {
   man_prg_timer: {
     de: "Timer des manuellen Programms",
     en: "timer of manual program",
+  },
+  check_github: {
+    de: "Prüfe GitHub OTA Update",
+    en: "Check for GitHub OTA Update",
   },
 };
 
