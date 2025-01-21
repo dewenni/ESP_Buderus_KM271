@@ -18,6 +18,14 @@ Simply click on the version info in the bottom left corner, and a dialog will op
 Passwords are now better protected and stored in encrypted form in the config.json
 When updating, the existing passwords are automatically encrypted and saved again.
 
+effected config elements:
+
+- WiFi Password
+- Web Authentication Password
+- MQTT Password
+- Pushover API_Key
+- Pushover User_Key
+
 > [!CAUTION]
 > As the passwords are stored in encrypted form after this update, it is no longer possible to switch to an older version without re-entering the passwords after the downgrade
 
@@ -27,5 +35,6 @@ When updating, the existing passwords are automatically encrypted and saved agai
 - [UPDATE] mathieucarbou/AsyncTCP @ 3.3.2
 - [UPDATE] mathieucarbou/ESPAsyncWebServer @ 3.6.0
 - [FEATURE] new feature to update directly from GitHub
+- [FEATURE] Home Assistant: `state_class: measurement` added for Logamatic Status values #138
 - [IMPROVE] Improved behavior when the restart button is pressed immediately after a change in the settings.
 - [IMPROVE] Passwords are better protected and are stored in encrypted form
