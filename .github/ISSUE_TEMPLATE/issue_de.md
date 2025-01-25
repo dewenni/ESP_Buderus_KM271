@@ -8,8 +8,9 @@ assignees: ''
 
 ### Wurde der Fehler in der neuesten Version getestet?
 
-- [ ] Ich nutze die **neueste Version**.
-- [ ] Ich nutze nicht die neueste Version (bitte zuerst aktualisieren und erneut testen, bevor der Fehler gemeldet wird).
+- [ ] Ich nutze die **neueste Version**. (bitte zuerst aktualisieren und erneut testen, bevor der Fehler gemeldet wird)
+- [ ] Ich habe die verfügbare Dokumentation gelesen und keine Hinweise auf mein Problem gefunden
+- [ ] Ich habe mögliche Hinweise in den aktuellen Release Notes gelesen und keine Hinweise auf mein Problem gefunden
 
 ### Hardware-Informationen
 

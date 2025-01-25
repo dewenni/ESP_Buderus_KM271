@@ -8,8 +8,9 @@ assignees: ''
 
 ### Is this bug present in the latest release?
 
-- [ ] I am using the **latest release**.
-- [ ] I am not using the latest release (please update and retest before reporting the bug).
+- [ ] I am using the **latest release** (please update and test before reporting the bug)
+- [ ] I have read the available documentation and have not found any references to my problem
+- [ ] I have read possible notes in the current release notes and have not found any references to my problem
 
 ### Hardware Information
 
