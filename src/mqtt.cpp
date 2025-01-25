@@ -27,6 +27,10 @@ static const char *TAG = "MQTT"; // LOG TAG
 static char lastError[64] = "---";
 static int mqtt_retry = 0;
 static muTimer mqttReconnectTimer;
+static char haStatusTopic[128];
+static bool km271sendRequest = false;
+static int km271sendCnt = 0;
+static muTimer km271sendTimer;
 std::queue<s_MqttMessage> mqttCmdQueue;
 
 /**
@@ -131,9 +135,7 @@ void onMqttConnect(bool sessionPresent) {
   mqtt_client.subscribe(addTopic("/setvalue/#"), 0);
 
   if (config.mqtt.ha_enable) {
-    char ha_topic[128];
-    snprintf(ha_topic, sizeof(ha_topic), "%s/status", config.mqtt.ha_topic);
-    mqtt_client.subscribe(ha_topic, 0);
+    mqtt_client.subscribe(haStatusTopic, 0);
   }
 }
 
@@ -201,6 +203,10 @@ void mqttSetup() {
   mqtt_client.setKeepAlive(10);
   mqtt_client.connected();
 
+  if (config.mqtt.ha_enable) {
+    snprintf(haStatusTopic, sizeof(haStatusTopic), "%s/status", config.mqtt.ha_topic);
+  }
+
   MY_LOGI(TAG, "MQTT setup done!");
 }
 
@@ -263,6 +269,26 @@ void mqttCyclic() {
   // call mqttDiscovery cyclic function if HA is activated
   if (config.mqtt.ha_enable && mqtt_client.connected()) {
     mqttDiscoveryCyclic();
+  }
+
+  // on request send HA-Discovery config and all km271 config and status values
+  if (km271sendTimer.cycleTrigger(3000) && km271sendRequest) {
+    switch (km271sendCnt) {
+    case 0:
+      mqttDiscoverySendConfig(); // send discovery configuration
+      break;
+    case 1:
+      sendAllKmCfgValues(); // send all config values
+      break;
+    case 2:
+      sendAllKmStatValues(); // send all status values
+      km271sendRequest = false;
+      break;
+    default:
+      km271sendCnt = -1;
+      break;
+    }
+    km271sendCnt = (km271sendCnt + 1) % 3;
   }
 }
 
@@ -371,10 +397,10 @@ void processMqttMessage() {
     cmdSetOilmeter(intVal);
   }
   // homeassistant/status
-  else if (strcmp(msgCpy.topic, "homeassistant/status") == 0) {
+  else if (config.mqtt.ha_enable && strcmp(msgCpy.topic, haStatusTopic) == 0) {
     if (config.mqtt.ha_enable && strcmp(msgCpy.payload, "online") == 0) {
       km271Msg(KM_TYP_MESSAGE, "send discovery configuration", "");
-      mqttDiscoverySendConfig(); // send discovery configuration
+      km271sendRequest = true;
     }
   }
 
