@@ -190,7 +190,7 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
     doc["ent_cat"] = "diagnostic";
   }
 
-  if (kmType == KM_STATUS) {
+  if (kmType == KM_STATUS && unit != NULL) {
     doc["state_class"] = "measurement";
   }
 
@@ -293,9 +293,6 @@ void mqttSendHaCfg_KmCfg() {
   snprintf(deviceName, sizeof(deviceName), "%s", config.mqtt.ha_device);
   snprintf(deviceId, sizeof(deviceId), "%s", config.mqtt.ha_device);
   snprintf(swVersion, sizeof(swVersion), "%s", VERSION);
-
-  mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC1_MAX_TEMP[config.mqtt.lang], "temperature", "sensor", "°C", valueTmpl(VAL_SPLIT), "mdi:thermometer",
-               TYP_TEXT, textPar());
 
   mqttHaConfig(KM_CMD_BTN, "restart", "restart", "button", NULL, NULL, "mdi:restart", TYP_BTN, textPar());
 
@@ -499,8 +496,8 @@ void mqttSendHaCfg_KmStat() {
                  "mdi:information-outline", TYP_TEXT, textPar());
     mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::HC1_OV1_FROST[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ON_OFF), "mdi:information-outline",
                  TYP_TEXT, textPar());
-    mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::HC1_OV1_HOLIDAY[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ON_OFF), "mdi:information-outline",
-                 TYP_TEXT, textPar());
+    mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::HC1_OV1_HOLIDAY[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ON_OFF),
+                 "mdi:information-outline", TYP_TEXT, textPar());
     mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::HC1_OV1_MANUAL[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ON_OFF), "mdi:information-outline",
                  TYP_TEXT, textPar());
     mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::HC1_OV1_OFFTIME_OPT[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ON_OFF),
