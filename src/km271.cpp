@@ -2895,4 +2895,15 @@ void sendAllKmCfgValues() {
     km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::SOLAR_ENABLE[config.mqtt.lang], kmConfigStr.solar_activation);
     km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::SOLAR_OPMODE[config.mqtt.lang], kmConfigStr.solar_operation_mode);
   }
+
+  if (config.km271.use_alarmMsg) {
+    km271Msg(KM_TYP_ALARM_H, KM_ERR_TOPIC::ERR_BUFF_1[config.mqtt.lang],
+             kmAlarmMsg.alarm1); // acknowledged alarm (History)
+    km271Msg(KM_TYP_ALARM_H, KM_ERR_TOPIC::ERR_BUFF_2[config.mqtt.lang],
+             kmAlarmMsg.alarm2); // acknowledged alarm (History)
+    km271Msg(KM_TYP_ALARM_H, KM_ERR_TOPIC::ERR_BUFF_3[config.mqtt.lang],
+             kmAlarmMsg.alarm3); // acknowledged alarm (History)
+    km271Msg(KM_TYP_ALARM_H, KM_ERR_TOPIC::ERR_BUFF_4[config.mqtt.lang],
+             kmAlarmMsg.alarm4); // acknowledged alarm (History)
+  }
 }
