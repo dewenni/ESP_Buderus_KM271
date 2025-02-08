@@ -9,15 +9,17 @@
 #include <config.h>
 #include <message.h>
 #include <mqtt.h>
+#include <nvs.h>
+#include <nvs_flash.h>
 #include <oilmeter.h>
 
 /* V A R I A B L E S ********************************************************/
-static int addr = 0;         // start address for EEPROM
-static int writeCounter = 0; // counter for write to EEPROM
+static int writeCounter = 0; // counter for write to NVS
 static bool reboot = true;   // flag for reboot
 static char tmpMsg[300] = {'\0'};
 static const char *TAG = "OIL"; // LOG TAG
 
+#define NVS_NAMESPACE "oilmeter_data"
 #define OILTRIGGER_TIME 1000       // 1.000 = 1sec
 #define OILCYCLICINFO_TIME 3600000 // 360.000 = 1 hour
 
@@ -67,8 +69,44 @@ void cmdSetOilmeter(long setvalue) {
  * @return  none
  * *******************************************************************/
 void cmdStoreOilmeter() {
-  EEPROM.put(addr, data);
-  EEPROM.commit();
+
+  nvs_handle_t nvs_handle;
+  esp_err_t err = nvs_open(NVS_NAMESPACE, NVS_READWRITE, &nvs_handle);
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to open NVS");
+    return;
+  }
+
+  nvs_set_u32(nvs_handle, "oilcounter", data.oilcounter);
+  nvs_commit(nvs_handle);
+  nvs_close(nvs_handle);
+}
+
+// ####################################################################
+//  get Device Counter
+// ####################################################################
+void cmdLoadOilmeter() {
+  nvs_handle_t nvs_handle;
+  esp_err_t err = nvs_open(NVS_NAMESPACE, NVS_READWRITE, &nvs_handle);
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to open NVS");
+    return;
+  }
+
+  err = nvs_get_i32(nvs_handle, "oilcounter", &data.oilcounter);
+
+  if (err == ESP_ERR_NVS_NOT_FOUND) {
+    // try to read from EEPROM if not found in NVS (migration)
+    EEPROM.get(0, data);
+
+    // save to NVS for future use
+    nvs_set_i32(nvs_handle, "oilcounter", data.oilcounter);
+    nvs_commit(nvs_handle);
+    ESP_LOGI(TAG, "Migrated oilcounter=%lu from EEPROM to NVS", data.oilcounter);
+  }
+
+  nvs_close(nvs_handle);
+  return;
 }
 
 /**
@@ -79,13 +117,11 @@ void cmdStoreOilmeter() {
  * *******************************************************************/
 void setupOilmeter() {
 
-  // a byte-array cache in RAM
-  EEPROM.begin(sizeof(data));
-  EEPROM.get(addr, data);
+  cmdLoadOilmeter(); // load oilcounter from NVS
 
-  ESP_LOGI(TAG, "restored value from Flash: %ld", data.oilcounter);
+  ESP_LOGI(TAG, "restored value from Flash: %lu", data.oilcounter);
 
-  snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %ld", data.oilcounter);
+  snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %lu", data.oilcounter);
   km271Msg(KM_TYP_MESSAGE, tmpMsg, "");
 }
 
@@ -110,7 +146,7 @@ void cyclicOilmeter() {
     }
   }
 
-  if (writeCounter >= 50) // save water meter every 50 counts = 1 liter)
+  if (writeCounter >= 25) // save value every 25 counts = 0,5 liter)
   {
     writeCounter = 0;
     cmdStoreOilmeter(); // store new value in flash
