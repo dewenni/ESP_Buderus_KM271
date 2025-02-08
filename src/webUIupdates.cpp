@@ -80,7 +80,7 @@ bool dataInJsonBuffer() { return jsonDataToSend; }
 
 // add JSON Element to JSON-Buffer
 void addJsonElement(JsonDocument &jsonBuf, const char *elementID, const char *value) {
-  jsonBuf[elementID].set((char *)value); // make sure value is handled as a copy not as pointer
+  jsonBuf[elementID] = value;
   jsonDataToSend = true;
 };
 
