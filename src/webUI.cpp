@@ -48,7 +48,7 @@ void sendWs(JsonDocument &jsonDoc) {
     assert(buffer); // optional: check buffer
     serializeJson(jsonDoc, buffer->get(), len);
     ws.textAll(buffer);
-    MY_LOGD(TAG, "sendWS - JSON elements: %u", jsonDoc.size());
+    ESP_LOGD(TAG, "sendWS - JSON elements: %u", jsonDoc.size());
   }
 }
 
@@ -218,7 +218,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
   static unsigned long lastUpdateTime = 0;
   static int lastProgress = -1;
   if (!index) {
-    MY_LOGI(TAG, "webOTA started: %s", filename.c_str());
+    ESP_LOGI(TAG, "webOTA started: %s", filename.c_str());
     storeData();
     ota.setActive(true);
     wdt.disable();
@@ -253,14 +253,14 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String &filename, size
   // update done
   if (final) {
     if (!Update.end(true)) {
-      MY_LOGI(TAG, "OTA Update failed: %s", Update.errorString());
+      ESP_LOGI(TAG, "OTA Update failed: %s", Update.errorString());
       updateWebText("p00_ota_upd_err", Update.errorString(), false);
       updateWebDialog("ota_update_failed_dialog", "open");
       ota.setActive(false);
       wdt.enable();
       return request->send(400, "text/plain", "Could not end OTA");
     } else {
-      MY_LOGI(TAG, "OTA Update complete");
+      ESP_LOGI(TAG, "OTA Update complete");
       updateOTAprogress(100);
       updateWebDialog("ota_update_done_dialog", "open");
       ota.setActive(false);
@@ -334,7 +334,7 @@ void sendGzipChunkedResponse(AsyncWebServerRequest *request, const uint8_t *cont
   // Check if the client already has the current version in cache
   if (request->header("If-None-Match") == etag) {
     request->send(304); // 304 Not Modified
-    MY_LOGD(TAG, "contend not changed: %s", request->url().c_str());
+    ESP_LOGD(TAG, "contend not changed: %s", request->url().c_str());
     return;
   }
 
@@ -344,19 +344,19 @@ void sendGzipChunkedResponse(AsyncWebServerRequest *request, const uint8_t *cont
     return;
   }
 
-  MY_LOGD(TAG, "sending: %s", request->url().c_str());
+  ESP_LOGD(TAG, "sending: %s", request->url().c_str());
   // Create a chunked response with the specified chunk size
   AsyncWebServerResponse *response =
       request->beginChunkedResponse(contentType, [content, contentLength, chunkSize](uint8_t *buffer, size_t maxLen, size_t index) -> size_t {
         // Check if we have reached the end of the file
         if (index >= contentLength) {
-          // MY_LOGD(TAG, "finished");
+          // ESP_LOGD(TAG, "finished");
           return 0; // End transmission
         }
         // Determine the actual chunk size to send, ensuring we don't exceed maxLen or remaining content length
         size_t actualChunkSize = min(chunkSize, min(maxLen, contentLength - index));
         memcpy(buffer, content + index, actualChunkSize);
-        // MY_LOGD(TAG, "sending: %u", actualChunkSize);
+        // ESP_LOGD(TAG, "sending: %u", actualChunkSize);
         return actualChunkSize; // Return the number of bytes sent
       });
 
@@ -440,11 +440,11 @@ void webUISetup() {
 
         if (!index) { // firs call for upload
           updateWebText("upload_status_txt", "uploading...", false);
-          MY_LOGI(TAG, "Upload Start: %s\n", filename.c_str());
+          ESP_LOGI(TAG, "Upload Start: %s\n", filename.c_str());
           uploadFile = LittleFS.open(targetFilename, "w"); // fix to config.json
 
           if (!uploadFile) {
-            MY_LOGE(TAG, "Error: file could not be opened");
+            ESP_LOGE(TAG, "Error: file could not be opened");
             updateWebText("upload_status_txt", "error on file close!", false);
             return;
           }
@@ -457,7 +457,7 @@ void webUISetup() {
         if (final) {
           if (uploadFile) {
             uploadFile.close();
-            MY_LOGI(TAG, "UploadEnd: %s, %u B\n", filename.c_str(), index + len);
+            ESP_LOGI(TAG, "UploadEnd: %s, %u B\n", filename.c_str(), index + len);
             updateWebText("upload_status_txt", "upload done!", false);
             configLoadFromFile(); // load configuration
             updateWebLanguage(LANG::CODE[config.lang]);
@@ -476,18 +476,18 @@ void webUISetup() {
     (void)len;
     if (type == WS_EVT_CONNECT) {
       if (ws.count() < MAX_WS_CLIENT) {
-        MY_LOGI(TAG, "web-client connected - IP:%s", client->remoteIP().toString().c_str());
+        ESP_LOGI(TAG, "web-client connected - IP:%s", client->remoteIP().toString().c_str());
         client->setCloseClientOnQueueFull(false);
         onLoadRequest = true; // update all webUI elements
       } else {
-        MY_LOGI(TAG, "max web-client reached");
+        ESP_LOGI(TAG, "max web-client reached");
         client->text("{\"type\":\"redirect\",\"url\":\"/max_ws\"}");
         client->close(1008, "max client reached");
       }
     } else if (type == WS_EVT_DISCONNECT) {
-      MY_LOGI(TAG, "web-client disconnected");
+      ESP_LOGI(TAG, "web-client disconnected");
     } else if (type == WS_EVT_ERROR) {
-      MY_LOGI(TAG, "web-client error");
+      ESP_LOGI(TAG, "web-client error");
     } else if (type == WS_EVT_PONG) {
       // Serial.println("ws pong");
     } else if (type == WS_EVT_DATA) {
@@ -498,7 +498,7 @@ void webUISetup() {
           JsonDocument jsonDoc;
           DeserializationError error = deserializeJson(jsonDoc, data);
           if (error) {
-            MY_LOGW(TAG, "Failed to parse WebSocket message as JSON");
+            ESP_LOGW(TAG, "Failed to parse WebSocket message as JSON");
             return;
           }
           const char *elementId = jsonDoc["elementId"];
@@ -542,7 +542,7 @@ void webUICyclic() {
   if (onLoadRequest && onLoadTimer.cycleTrigger(1000)) {
     updateAllElements();
     onLoadRequest = false;
-    MY_LOGD(TAG, "updateAllElements()");
+    ESP_LOGD(TAG, "updateAllElements()");
   }
 
   // handling of update webUI elements

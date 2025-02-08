@@ -19,7 +19,7 @@ static const char *TAG = "WEB"; // LOG TAG
  * *******************************************************************/
 void webCallback(const char *elementId, const char *value) {
 
-  MY_LOGD(TAG, "Received - Element ID: %s = %s", elementId, value);
+  ESP_LOGD(TAG, "Received - Element ID: %s = %s", elementId, value);
 
   // ------------------------------------------------------------------
   // GitHub / Version

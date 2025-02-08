@@ -50,7 +50,7 @@ void storeData() {
  * *******************************************************************/
 void setup() {
 
-  // Message Service Setup (before use of MY_LOGx)
+  // Message Service Setup (before use of ESP_LOGx)
   messageSetup();
 
   // check for multiple reset
@@ -73,20 +73,20 @@ void setup() {
 
   // Setup OTA
   ArduinoOTA.onStart([]() {
-    MY_LOGI(TAG, "OTA-started");
+    ESP_LOGI(TAG, "OTA-started");
     storeData();   // store Data before update
     wdt.disable(); // disable watchdog timer
     ota.setActive(true);
   });
   ArduinoOTA.onEnd([]() {
-    MY_LOGI(TAG, "OTA-finished");
+    ESP_LOGI(TAG, "OTA-finished");
     if (!setupMode) {
       wdt.enable();
     }
     ota.setActive(false);
   });
   ArduinoOTA.onError([](ota_error_t error) {
-    MY_LOGI(TAG, "OTA-error");
+    ESP_LOGI(TAG, "OTA-error");
     if (!setupMode) {
       wdt.enable();
     }

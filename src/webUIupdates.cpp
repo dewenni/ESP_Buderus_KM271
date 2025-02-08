@@ -1016,7 +1016,7 @@ void processGitHubUpdate() {
       updateWebText("p00_update_btn", "updating: 100%", false);
       updateWebDialog("version_dialog", "close");
       updateWebDialog("ota_update_done_dialog", "open");
-      MY_LOGI(TAG, "GitHub OTA-Update successful");
+      ESP_LOGI(TAG, "GitHub OTA-Update successful");
     } else {
       char errMsg[32];
       switch (result) {
@@ -1042,7 +1042,7 @@ void processGitHubUpdate() {
       updateWebText("p00_ota_upd_err", errMsg, false);
       updateWebDialog("version_dialog", "close");
       updateWebDialog("ota_update_failed_dialog", "open");
-      MY_LOGE(TAG, "GitHub OTA-Update failed: %s", errMsg);
+      ESP_LOGE(TAG, "GitHub OTA-Update failed: %s", errMsg);
     }
     ota.setActive(false);
     wdt.enable();

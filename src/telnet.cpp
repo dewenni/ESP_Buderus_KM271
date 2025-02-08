@@ -62,7 +62,7 @@ void telnetShell() {
 }
 
 void onTelnetConnect(String ip) {
-  MY_LOGI(TAG, "Telnet: %s connected", ip.c_str());
+  ESP_LOGI(TAG, "Telnet: %s connected", ip.c_str());
   telnet.println(ansi.setFG(ANSI_BRIGHT_GREEN));
   telnet.println("\n----------------------------------------------------------------------");
   telnet.println("\nESP Buderus KM271");
@@ -73,11 +73,11 @@ void onTelnetConnect(String ip) {
   telnetShell();
 }
 
-void onTelnetDisconnect(String ip) { MY_LOGI(TAG, "Telnet: %s disconnected", ip.c_str()); }
+void onTelnetDisconnect(String ip) { ESP_LOGI(TAG, "Telnet: %s disconnected", ip.c_str()); }
 
-void onTelnetReconnect(String ip) { MY_LOGI(TAG, "Telnet: %s reconnected", ip.c_str()); }
+void onTelnetReconnect(String ip) { ESP_LOGI(TAG, "Telnet: %s reconnected", ip.c_str()); }
 
-void onTelnetConnectionAttempt(String ip) { MY_LOGI(TAG, "Telnet: %s tried to connect", ip.c_str()); }
+void onTelnetConnectionAttempt(String ip) { ESP_LOGI(TAG, "Telnet: %s tried to connect", ip.c_str()); }
 
 void onTelnetInput(String str) {
   if (!extractMessage(str, param)) {
@@ -103,9 +103,9 @@ void setupTelnet() {
   telnet.onInputReceived(onTelnetInput);
 
   if (telnet.begin(23, false)) {
-    MY_LOGI(TAG, "Telnet Server running!");
+    ESP_LOGI(TAG, "Telnet Server running!");
   } else {
-    MY_LOGI(TAG, "Telnet Server error!");
+    ESP_LOGI(TAG, "Telnet Server error!");
   }
 }
 
@@ -274,8 +274,8 @@ void cmdInfo(char param[MAX_PAR][MAX_CHAR]) {
   telnet.print(ansi.setFG(ANSI_BRIGHT_WHITE));
   telnet.println("ESP-INFO");
   telnet.print(ansi.reset());
-  telnet.printf("ESP Flash Usage: %s %%\n", EspStrUtil::floatToString((float)ESP.getSketchSize() * 100 / ESP.getFreeSketchSpace() ,1));
-  telnet.printf("ESP Heap Usage: %s %%\n", EspStrUtil::floatToString((float)ESP.getFreeHeap() * 100 / ESP.getHeapSize(),1));
+  telnet.printf("ESP Flash Usage: %s %%\n", EspStrUtil::floatToString((float)ESP.getSketchSize() * 100 / ESP.getFreeSketchSpace(), 1));
+  telnet.printf("ESP Heap Usage: %s %%\n", EspStrUtil::floatToString((float)ESP.getFreeHeap() * 100 / ESP.getHeapSize(), 1));
   telnet.printf("ESP MAX Alloc Heap: %s KB\n", EspStrUtil::floatToString((float)ESP.getMaxAllocHeap() / 1000.0, 1));
   telnet.printf("ESP MAX Alloc Heap: %s KB\n", EspStrUtil::floatToString((float)ESP.getMinFreeHeap() / 1000.0, 1));
 

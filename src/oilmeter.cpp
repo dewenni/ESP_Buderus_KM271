@@ -83,7 +83,7 @@ void setupOilmeter() {
   EEPROM.begin(sizeof(data));
   EEPROM.get(addr, data);
 
-  MY_LOGI(TAG, "restored value from Flash: %ld", data.oilcounter);
+  ESP_LOGI(TAG, "restored value from Flash: %ld", data.oilcounter);
 
   snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %ld", data.oilcounter);
   km271Msg(KM_TYP_MESSAGE, tmpMsg, "");
