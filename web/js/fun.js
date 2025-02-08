@@ -355,6 +355,17 @@ function validateInputs() {
 dateInput.addEventListener("input", validateInputs);
 timeInput.addEventListener("input", validateInputs);
 
+function validateIP(input) {
+  // IPv4-Validation
+  const ipPattern =
+    /^((25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$/;
+  if (!ipPattern.test(input.value.trim())) {
+    input.setAttribute("aria-invalid", "true");
+  } else {
+    input.setAttribute("aria-invalid", "false");
+  }
+}
+
 // localization of web texts
 function localizePage(lang = "en") {
   document.querySelectorAll("[data-i18n]").forEach((elem) => {
