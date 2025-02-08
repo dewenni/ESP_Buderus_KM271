@@ -19,7 +19,7 @@ static muTimer dstTimer = muTimer();       // timer to check daylight saving tim
 static muTimer ntpTimer = muTimer();       // timer to check ntp sync
 static muTimer wdtTimer = muTimer();       // timer to reset wdt
 
-static EspSysUtil::DRD32 *drd;   // Double-Reset-Detector
+static EspSysUtil::MRD32 *mrd;   // Double-Reset-Detector
 static bool main_reboot = true;  // reboot flag
 static int dst_old;              // reminder for change of daylight saving time
 static bool dst_ref;             // init flag fpr dst reference
@@ -53,10 +53,10 @@ void setup() {
   // Message Service Setup (before use of MY_LOGx)
   messageSetup();
 
-  // check for double reset
-  drd = new EspSysUtil::DRD32(DRD_TIMEOUT);
-  if (drd->detectDoubleReset()) {
-    MY_LOGI(TAG, "DRD detected - enter SetupMode");
+  // check for multiple reset
+  mrd = new EspSysUtil::MRD32(MRD_TIMEOUT, MRD_RETRIES);
+  if (mrd->detectMultipleResets()) {
+    ESP_LOGI(TAG, "SETUP-MODE-REASON: MRD detected");
     setupMode = true;
   }
 
@@ -132,7 +132,7 @@ void loop() {
   ArduinoOTA.handle();
 
   // double reset detector
-  drd->loop();
+  mrd->loop();
 
   // webUI Cyclic
   webUICyclic();
