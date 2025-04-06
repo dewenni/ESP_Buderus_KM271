@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeVisibilityBasedOnSwitches();
   localizePage("de");
   loadConfig();
+  initLogType();
 
   // Event Listener for Reload-Button
   document

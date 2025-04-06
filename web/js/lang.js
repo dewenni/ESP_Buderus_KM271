@@ -1014,9 +1014,29 @@ const translations = {
     de: "Modus: debug Datagramme",
     en: "Mode: debug datagramms",
   },
-  log_mode_6: {
-    de: "Modus: SystemLog",
-    en: "Mode: SystemLog",
+  log_type_1: {
+    de: "Logbuch: SYSTEM",
+    en: "Logbook: SYSTEM",
+  },
+  log_type_2: {
+    de: "Logbuch: KM271",
+    en: "Logbook: KM271",
+  },
+  log_level_1: {
+    de: "Level: FEHLER",
+    en: "Level: ERROR",
+  },
+  log_level_2: {
+    de: "Level: WARNUNG",
+    en: "Level: WARNING",
+  },
+  log_level_3: {
+    de: "Level: INFO",
+    en: "Level: INFO",
+  },
+  log_level_4: {
+    de: "Level: DEBUG",
+    en: "Level: DEBUG",
   },
   import: {
     de: "import (config.json)",

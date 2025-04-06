@@ -18,7 +18,7 @@ static bool msgAvailable = false;
 static const char *TAG = "TELNET"; // LOG TAG
 
 /* P R O T O T Y P E S ********************************************************/
-void readLogger();
+void readLogger(e_logTyp typ);
 void dispatchCommand(char param[MAX_PAR][MAX_CHAR]);
 bool extractMessage(String str, char param[MAX_PAR][MAX_CHAR]);
 void cmdHelp(char param[MAX_PAR][MAX_CHAR]);
@@ -143,20 +143,22 @@ void cmdLog(char param[MAX_PAR][MAX_CHAR]) {
     // log: disable
   } else if (!strcmp(param[1], "disable") && strlen(param[2]) == 0) {
     config.log.enable = false;
-    clearLogBuffer();
     // updateSettingsValues();
     telnet.println("disabled");
     // log enable
   } else if (!strcmp(param[1], "enable") && strlen(param[2]) == 0) {
     config.log.enable = true;
-    clearLogBuffer();
     telnet.println("enabled");
     // log: read buffer
-  } else if (!strcmp(param[1], "read") && strlen(param[2]) == 0) {
-    readLogger();
+  } else if (!strcmp(param[1], "read") && !strcmp(param[2], "syslog") && strlen(param[3]) == 0) {
+    readLogger(SYSLOG);
+  } else if (!strcmp(param[1], "read") && !strcmp(param[2], "kmlog") && strlen(param[3]) == 0) {
+    readLogger(KMLOG);
     // log clear buffer
-  } else if (!strcmp(param[1], "clear") && strlen(param[2]) == 0) {
-    clearLogBuffer();
+  } else if (!strcmp(param[1], "clear") && !strcmp(param[2], "syslog") && strlen(param[3]) == 0) {
+    clearLogBuffer(SYSLOG);
+  } else if (!strcmp(param[1], "clear") && !strcmp(param[2], "kmlog") && strlen(param[3]) == 0) {
+    clearLogBuffer(KMLOG);
     // log mode read
   } else if (!strcmp(param[1], "mode") && strlen(param[2]) == 0) {
     telnet.println(KM_CFG_ARRAY::LOG_FILTER[config.lang][config.log.filter]);
@@ -165,7 +167,7 @@ void cmdLog(char param[MAX_PAR][MAX_CHAR]) {
     int mode = atoi(param[2]);
     if (mode > 0 && mode < 7) {
       config.log.filter = mode - 1;
-      clearLogBuffer();
+      clearLogBuffer(KMLOG);
       telnet.println(KM_CFG_ARRAY::LOG_FILTER[config.lang][config.log.filter]);
     } else {
       telnet.println("invalid mode - mode must be between 1 and 6");
@@ -191,12 +193,12 @@ void cmdDebug(char param[MAX_PAR][MAX_CHAR]) {
     // debug: disable
   } else if (!strcmp(param[1], "disable") && strlen(param[2]) == 0) {
     config.debug.enable = false;
-    clearLogBuffer();
+    clearLogBuffer(KMLOG);
     telnet.println("disabled");
     // debug: enable
   } else if (!strcmp(param[1], "enable") && strlen(param[2]) == 0) {
     config.debug.enable = true;
-    clearLogBuffer();
+    clearLogBuffer(KMLOG);
     telnet.println("enabled");
     // debug: get filter
   } else if (!strcmp(param[1], "filter") && strlen(param[2]) == 0) {
@@ -459,17 +461,25 @@ void cmdHelp(char param[MAX_PAR][MAX_CHAR]) {
  * @param   none
  * @return  none
  * *******************************************************************/
-void readLogger() {
+void readLogger(e_logTyp typ) {
+
+  s_logdata *pLogData;
+  if (typ == SYSLOG) {
+    pLogData = getLogBuffer(SYSLOG);
+  } else {
+    pLogData = getLogBuffer(KMLOG);
+  }
+
   int line = 0;
   while (line < MAX_LOG_LINES) {
     int lineIndex;
-    if (line == 0 && logData.lastLine == 0) {
+    if (line == 0 && pLogData->lastLine == 0) {
       telnet.println("log empty");
       break;
-    } else if (logData.buffer[logData.lastLine][0] == '\0') {
+    } else if (pLogData->buffer[pLogData->lastLine][0] == '\0') {
       lineIndex = line % MAX_LOG_LINES; // buffer is not full - start reading at element index 0
     } else {
-      lineIndex = (logData.lastLine + line) % MAX_LOG_LINES; // buffer is full - start reading at element index "logData.lastLine"
+      lineIndex = (pLogData->lastLine + line) % MAX_LOG_LINES; // buffer is full - start reading at element index "logData.lastLine"
     }
     if (lineIndex < 0) {
       lineIndex += MAX_LOG_LINES;
@@ -478,14 +488,14 @@ void readLogger() {
       lineIndex = 0;
     }
     if (line == 0) {
-      telnet.printf("<LOG-Begin>\n%s\n", logData.buffer[lineIndex]); // add header
+      telnet.printf("<LOG-Begin>\n%s\n", pLogData->buffer[lineIndex]); // add header
       line++;
     } else if (line == MAX_LOG_LINES - 1) {
-      telnet.printf("%s\n<LOG-END>\n", logData.buffer[lineIndex]); // add footer
+      telnet.printf("%s\n<LOG-END>\n", pLogData->buffer[lineIndex]); // add footer
       line++;
     } else {
-      if (logData.buffer[lineIndex][0] != '\0') {
-        telnet.printf("%s\n", logData.buffer[lineIndex]); // add messages
+      if (pLogData->buffer[lineIndex][0] != '\0') {
+        telnet.printf("%s\n", pLogData->buffer[lineIndex]); // add messages
         line++;
       } else {
         telnet.printf("<LOG-END>\n");

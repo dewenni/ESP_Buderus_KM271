@@ -19,7 +19,7 @@ static int sampleIndex = 0;
 static char pushoverBuffer[MSG_BUF_SIZE]; // Buffer for Pushover messages
 static const char *TAG = "MSG";           // LOG TAG
 esp_log_level_t logLevel = ESP_LOG_INFO;
-s_logdata logData;
+s_logdata kmLog, sysLog;
 static HTTPClient http;
 
 static muTimer pushoverSendTimer = muTimer();
@@ -27,6 +27,28 @@ static muTimer checkHeapTimer = muTimer();
 static muTimer mainTimer = muTimer();           // timer for cyclic info
 static muTimer cyclicSendStatTimer = muTimer(); // timer to send periodic km271 messages
 static muTimer cyclicSendCfgTimer = muTimer();  // timer to send periodic km271 messages
+
+
+
+/**
+ * *******************************************************************
+ * @brief   get LogBuffer
+ * @param   typ
+ * @return  s_logdata
+ * *******************************************************************/
+s_logdata *getLogBuffer(e_logTyp typ) {
+  switch (typ) {
+  case SYSLOG:
+    return &sysLog;
+    break;
+  case KMLOG:
+    return &kmLog;
+    break;
+  default:
+    return NULL;
+    break;
+  }
+}
 
 /**
  * *******************************************************************
@@ -155,10 +177,8 @@ int custom_vprintf(const char *format, va_list args) {
     strncpy(cleaned_message, raw_message, sizeof(cleaned_message));
   }
 
-  // add to log buffer
-  if (config.log.filter == LOG_FILTER_SYSTEM) {
-    addLogBuffer(cleaned_message);
-  }
+  // add to sysLog buffer
+  addLogBuffer(SYSLOG, cleaned_message);
 
   // forward to telnet stream
   if (telnetIF.serialStream) {
@@ -178,10 +198,23 @@ int custom_vprintf(const char *format, va_list args) {
  * @param   none
  * @return  none
  * *******************************************************************/
-void clearLogBuffer() {
-  logData.lastLine = 0;
-  for (int i = 0; i < MAX_LOG_LINES; i++) {
-    memset(logData.buffer[i], 0, sizeof(logData.buffer[i]));
+void clearLogBuffer(e_logTyp typ) {
+
+  switch (typ) {
+  case SYSLOG:
+    sysLog.lastLine = 0;
+    for (int i = 0; i < MAX_LOG_LINES; i++) {
+      memset(sysLog.buffer[i], 0, sizeof(sysLog.buffer[i]));
+    }
+    break;
+  case KMLOG:
+    kmLog.lastLine = 0;
+    for (int i = 0; i < MAX_LOG_LINES; i++) {
+      memset(kmLog.buffer[i], 0, sizeof(kmLog.buffer[i]));
+    }
+    break;
+  default:
+    break;
   }
 }
 
@@ -191,10 +224,23 @@ void clearLogBuffer() {
  * @param   none
  * @return  none
  * *******************************************************************/
-void addLogBuffer(const char *message) {
-  if (strlen(message) != 0) {
-    snprintf(logData.buffer[logData.lastLine], sizeof(logData.buffer[logData.lastLine]), "[%s]  %s", EspStrUtil::getDateTimeString(), message);
-    logData.lastLine = (logData.lastLine + 1) % MAX_LOG_LINES; // update the lastLine index in a circular manner
+void addLogBuffer(e_logTyp typ, const char *message) {
+
+  switch (typ) {
+  case SYSLOG:
+    if (strlen(message) != 0) {
+      snprintf(sysLog.buffer[sysLog.lastLine], sizeof(sysLog.buffer[sysLog.lastLine]), "[%s]  %s", EspStrUtil::getDateTimeString(), message);
+      sysLog.lastLine = (sysLog.lastLine + 1) % MAX_LOG_LINES; // update the lastLine index in a circular manner
+    }
+    break;
+  case KMLOG:
+    if (strlen(message) != 0) {
+      snprintf(kmLog.buffer[kmLog.lastLine], sizeof(kmLog.buffer[kmLog.lastLine]), "[%s]  %s", EspStrUtil::getDateTimeString(), message);
+      kmLog.lastLine = (kmLog.lastLine + 1) % MAX_LOG_LINES; // update the lastLine index in a circular manner
+    }
+    break;
+  default:
+    break;
   }
 }
 
@@ -236,7 +282,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value) {
     }
     if (config.log.enable && config.log.filter == LOG_FILTER_VALUES) {
       snprintf(tmpMsg, sizeof(tmpMsg), "Config: %s = %s", desc, value);
-      addLogBuffer(tmpMsg);
+      addLogBuffer(KMLOG, tmpMsg);
     }
     if (telnetIF.km271Stream && config.log.filter == LOG_FILTER_VALUES) {
       snprintf(tmpMsg, sizeof(tmpMsg), "Config: %s = %s", desc, value);
@@ -253,7 +299,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value) {
     }
     if (config.log.enable && config.log.filter == LOG_FILTER_VALUES) {
       snprintf(tmpMsg, sizeof(tmpMsg), "Status: %s = %s", desc, value);
-      addLogBuffer(tmpMsg);
+      addLogBuffer(KMLOG, tmpMsg);
     }
     if (telnetIF.km271Stream && config.log.filter == LOG_FILTER_VALUES) {
       snprintf(tmpMsg, sizeof(tmpMsg), "Status: %s = %s", desc, value);
@@ -270,7 +316,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value) {
     }
     if (config.log.enable && config.log.filter == LOG_FILTER_VALUES) {
       snprintf(tmpMsg, sizeof(tmpMsg), "Sensor: %s = %s", desc, value);
-      addLogBuffer(tmpMsg);
+      addLogBuffer(KMLOG, tmpMsg);
     }
     if (telnetIF.km271Stream && config.log.filter == LOG_FILTER_VALUES) {
       snprintf(tmpMsg, sizeof(tmpMsg), "Sensor: %s = %s", desc, value);
@@ -291,7 +337,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value) {
     }
     if (config.log.enable && config.log.filter == LOG_FILTER_ALARM) {
       snprintf(tmpMsg, sizeof(tmpMsg), "%s = %s", desc, value);
-      addLogBuffer(tmpMsg);
+      addLogBuffer(KMLOG, tmpMsg);
     }
     if (telnetIF.km271Stream && config.log.filter == LOG_FILTER_ALARM) {
       snprintf(tmpMsg, sizeof(tmpMsg), "%s = %s", desc, value);
@@ -317,7 +363,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value) {
     }
     if (config.log.enable && config.log.filter == LOG_FILTER_DEBUG) {
       snprintf(tmpMsg, sizeof(tmpMsg), "debug : %s", desc);
-      addLogBuffer(tmpMsg);
+      addLogBuffer(KMLOG, tmpMsg);
     }
     if (telnetIF.km271Stream && config.log.filter == LOG_FILTER_DEBUG) {
       snprintf(tmpMsg, sizeof(tmpMsg), "debug : %s", desc);
@@ -338,7 +384,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value) {
     }
     if (config.log.enable && config.log.filter == LOG_FILTER_INFO) {
       snprintf(tmpMsg, sizeof(tmpMsg), "Message : %s", desc);
-      addLogBuffer(tmpMsg);
+      addLogBuffer(KMLOG, tmpMsg);
     }
     if (telnetIF.km271Stream && config.log.filter == LOG_FILTER_INFO) {
       snprintf(tmpMsg, sizeof(tmpMsg), "Message : %s", desc);
@@ -373,7 +419,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value) {
     }
     if (config.log.enable && config.log.filter == LOG_FILTER_UNKNOWN) {
       snprintf(tmpMsg, sizeof(tmpMsg), "undef msg : %s", desc);
-      addLogBuffer(tmpMsg);
+      addLogBuffer(KMLOG, tmpMsg);
     }
     if (telnetIF.km271Stream && config.log.filter == LOG_FILTER_UNKNOWN) {
       snprintf(tmpMsg, sizeof(tmpMsg), "undef msg : %s", desc);

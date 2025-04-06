@@ -538,9 +538,17 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "cfg_logger_enable") == 0) {
     config.log.enable = EspStrUtil::stringToBool(value);
   }
+  if (strcmp(elementId, "p10_logger_type") == 0) {
+    if (strtoul(value, NULL, 10) == 0) {
+      webSetLogType(SYSLOG);
+    }else{
+      webSetLogType(KMLOG);
+    }
+    updateWebLog("", "clr_log"); // clear log
+  }
   if (strcmp(elementId, "cfg_logger_filter") == 0) {
     config.log.filter = strtoul(value, NULL, 10);
-    clearLogBuffer();
+    clearLogBuffer(KMLOG);
     updateWebLog("", "clr_log"); // clear log
   }
   if (strcmp(elementId, "cfg_logger_order") == 0) {
@@ -549,7 +557,7 @@ void webCallback(const char *elementId, const char *value) {
     webReadLogBuffer();
   }
   if (strcmp(elementId, "p10_log_clr_btn") == 0) {
-    clearLogBuffer();
+    webClearLog();
     updateWebLog("", "clr_log"); // clear log
   }
   if (strcmp(elementId, "p10_log_refresh_btn") == 0) {
