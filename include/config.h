@@ -112,6 +112,7 @@ struct s_cfg_log {
   bool enable = true;
   int filter;
   int order;
+  int syslevel;
 };
 
 struct s_cfg_sensor {

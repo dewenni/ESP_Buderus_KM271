@@ -15,6 +15,11 @@ enum e_kmMsgTyp {
   KM_TYP_UNDEF_MSG, // undefined Message
 };
 
+enum e_logTyp {
+  SYSLOG,
+  KMLOG,
+};
+
 #define MAX_LOG_LINES 200 // max log lines
 #define MAX_LOG_ENTRY 128 // max length of one entry
 
@@ -23,13 +28,13 @@ struct s_logdata {
   char buffer[MAX_LOG_LINES][MAX_LOG_ENTRY];
 };
 
-extern s_logdata logData;
 
 /* P R O T O T Y P E S ********************************************************/
 void addPushoverMsg(const char *str);
 void messageSetup();
 void messageCyclic();
 void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value);
-void addLogBuffer(const char *message);
-void clearLogBuffer();
+void addLogBuffer(e_logTyp typ, const char *message);
+void clearLogBuffer(e_logTyp typ);
 bool setDebugFilter(char *input, size_t input_len, char *errMsg, size_t errMsg_len);
+s_logdata *getLogBuffer(e_logTyp typ);
