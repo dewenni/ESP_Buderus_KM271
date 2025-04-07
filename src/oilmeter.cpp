@@ -14,8 +14,7 @@
 #include <oilmeter.h>
 
 /* V A R I A B L E S ********************************************************/
-static int writeCounter = 0; // counter for write to NVS
-static bool reboot = true;   // flag for reboot
+static bool reboot = true; // flag for reboot
 static char tmpMsg[300] = {'\0'};
 static const char *TAG = "OIL"; // LOG TAG
 
@@ -56,7 +55,7 @@ void cmdSetOilmeter(long setvalue) {
   data.oilcounter = setvalue;
   cmdStoreOilmeter();
 
-  snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %ld", data.oilcounter);
+  snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %ld = %.2f", data.oilcounter, ((float)data.oilcounter) / 100.0);
   km271Msg(KM_TYP_MESSAGE, tmpMsg, "");
 
   sendOilmeter();
@@ -132,31 +131,53 @@ void setupOilmeter() {
  * @return  none
  * *******************************************************************/
 void cyclicOilmeter() {
+  // LED indication: toggle onboard LED with every impulse
   if (config.gpio.led_oilcounter != -1) {
-    digitalWrite(config.gpio.led_oilcounter, digitalRead(config.gpio.trigger_oilcounter)); // signal for every incoming impulse with Onboard LED
+    digitalWrite(config.gpio.led_oilcounter, digitalRead(config.gpio.trigger_oilcounter));
   }
 
-  if (config.gpio.trigger_oilcounter != -1) {
-    // debounce input trigger with timer function
-    bool statusTrigger = oilTrigger.delayOnOffTrigger(!digitalRead(config.gpio.trigger_oilcounter), 0, OILTRIGGER_TIME) == 1;
-    if (statusTrigger && !reboot) {
-      data.oilcounter = data.oilcounter + 2; // one impulse = 0,02 litre
-      writeCounter++;                        // increase counter for writing to EEPROM
-      sendOilmeter();                        // send new Countervalue via MQTT
+  if (config.gpio.trigger_oilcounter == -1) {
+    ESP_LOGE(TAG, "trigger_oilcounter is not set");
+    return;
+  }
+  if (config.oilmeter.pulse_per_liter == 0) {
+    ESP_LOGE(TAG, "pulse_per_liter is not set");
+    return;
+  }
+
+  // Debounce the input trigger using a timer function
+  bool statusTrigger = oilTrigger.delayOnOffTrigger(!digitalRead(config.gpio.trigger_oilcounter), 0, OILTRIGGER_TIME) == 1;
+
+  // Static accumulator for the fractional part (the remaining hundredths per liter)
+  static int oil_remainder = 0;
+
+  if (statusTrigger && !reboot) {
+    // Objective: 1 liter = 100 hundredths, so each impulse should add (100 / pulse_per_liter) hundredths.
+    // Since (100 / pulse_per_liter) may not be an integer,
+    // we add the integer part directly and accumulate the remainder.
+    int baseIncrement = 100 / config.oilmeter.pulse_per_liter;      // Integer part increment
+    int remainderIncrement = 100 % config.oilmeter.pulse_per_liter; // Remainder to accumulate
+
+    data.oilcounter += baseIncrement;
+    oil_remainder += remainderIncrement;
+
+    // When the accumulated remainder reaches or exceeds the threshold,
+    // add one additional hundredth to the counter and subtract the threshold.
+    if (oil_remainder >= config.oilmeter.pulse_per_liter) {
+      data.oilcounter += 1;
+      oil_remainder -= config.oilmeter.pulse_per_liter;
+      sendOilmeter(); // Send new counter value via MQTT
     }
   }
 
-  if (writeCounter >= 25) // save value every 25 counts = 0,5 liter)
-  {
-    writeCounter = 0;
-    cmdStoreOilmeter(); // store new value in flash
+  if ((data.oilcounter % 50) == 0) { // store new value in flash every (0.5 liter)
+    cmdStoreOilmeter();
   }
 
-  // send cyclic infos
-  if (oilCyclicInfo.cycleTrigger(OILCYCLICINFO_TIME)) // send actual information every x seconds
-  {
-    sendOilmeter(); // send new Countervalue via MQTT
+  // Send cyclic information periodically
+  if (oilCyclicInfo.cycleTrigger(OILCYCLICINFO_TIME)) {
+    sendOilmeter();
   }
 
-  reboot = false; // reset reboot flag
+  reboot = false; // Reset the reboot flag
 }

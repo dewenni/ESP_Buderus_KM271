@@ -28,6 +28,7 @@ struct s_cfg_oilmeter {
   bool use_virtual_meter = false;
   float consumption_kg_h = 2.0;
   float oil_density_kg_l = 0.85;
+  int pulse_per_liter = 50;
 };
 
 struct s_cfg_km271 {

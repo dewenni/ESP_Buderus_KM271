@@ -493,6 +493,9 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "cfg_oilmeter_oil_density_kg_l") == 0) {
     config.oilmeter.oil_density_kg_l = strtof(value, NULL);
   }
+  if (strcmp(elementId, "cfg_oilmeter_pulse_per_liter") == 0) {
+    config.oilmeter.pulse_per_liter = strtoul(value, NULL, 10);
+  }
 
   // Optional Sensor
   if (strcmp(elementId, "cfg_sensor_ch1_enable") == 0) {
@@ -541,7 +544,7 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "p10_logger_type") == 0) {
     if (strtoul(value, NULL, 10) == 0) {
       webSetLogType(SYSLOG);
-    }else{
+    } else {
       webSetLogType(KMLOG);
     }
     updateWebLog("", "clr_log"); // clear log
