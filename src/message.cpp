@@ -19,7 +19,7 @@ static int sampleIndex = 0;
 static char pushoverBuffer[MSG_BUF_SIZE]; // Buffer for Pushover messages
 static const char *TAG = "MSG";           // LOG TAG
 esp_log_level_t logLevel = ESP_LOG_INFO;
-s_logdata kmLog, sysLog;
+static s_logdata kmLog, sysLog;
 static HTTPClient http;
 
 static muTimer pushoverSendTimer = muTimer();
