@@ -458,6 +458,10 @@ const translations = {
     de: "Impule pro Liter",
     en: "pulses per liter",
   },
+  virtual_calc_offset: {
+    de: "Berechnungskorrekturwert für virtuellen Verbrauch",
+    en: "Calculation Correction Value for Virtual Consumption",
+  },
   oil_unit_info_set: {
     de: "Die Eingabe erfolgt als Ganzzahl in 100stel Liter\n(12345 = 123,45 Liter)",
     en: "The input is a whole number in 100th of a liter\n(12345 = 123.45 liters)",

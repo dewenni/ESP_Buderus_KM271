@@ -306,6 +306,7 @@ void configSaveToFile() {
   doc["oilmeter"]["consumption_kg_h"] = config.oilmeter.consumption_kg_h;
   doc["oilmeter"]["oil_density_kg_l"] = config.oilmeter.oil_density_kg_l;
   doc["oilmeter"]["pulse_per_liter"] = config.oilmeter.pulse_per_liter;
+  doc["oilmeter"]["virtual_calc_offset"] = config.oilmeter.virtual_calc_offset;
 
   doc["wifi"]["ssid"] = config.wifi.ssid;
 
@@ -466,6 +467,7 @@ void configLoadFromFile() {
     config.oilmeter.consumption_kg_h = doc["oilmeter"]["consumption_kg_h"];
     config.oilmeter.oil_density_kg_l = doc["oilmeter"]["oil_density_kg_l"];
     config.oilmeter.pulse_per_liter = doc["oilmeter"]["pulse_per_liter"];
+    config.oilmeter.virtual_calc_offset = doc["oilmeter"]["virtual_calc_offset"];
 
     config.lang = doc["lang"];
 
