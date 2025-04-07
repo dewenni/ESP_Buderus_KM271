@@ -20,8 +20,8 @@ enum e_logTyp {
   KMLOG,
 };
 
-#define MAX_LOG_LINES 200 // max log lines
-#define MAX_LOG_ENTRY 128 // max length of one entry
+#define MAX_LOG_LINES 150 // max log lines
+#define MAX_LOG_ENTRY 100 // max length of one entry
 
 struct s_logdata {
   int lastLine;
