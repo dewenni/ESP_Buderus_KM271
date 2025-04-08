@@ -16,7 +16,9 @@
 /* V A R I A B L E S ********************************************************/
 static bool reboot = true; // flag for reboot
 static char tmpMsg[300] = {'\0'};
-static const char *TAG = "OIL"; // LOG TAG
+static const char *TAG = "OIL";             // LOG TAG
+static bool errTriggerGpioNotSet = false;   // flag for error message
+static bool errPulsePerLiterNotSet = false; // flag for error message
 
 #define NVS_NAMESPACE "oilmeter_data"
 #define OILTRIGGER_TIME 1000       // 1.000 = 1sec
@@ -117,11 +119,8 @@ void cmdLoadOilmeter() {
 void setupOilmeter() {
 
   cmdLoadOilmeter(); // load oilcounter from NVS
-
   ESP_LOGI(TAG, "restored value from Flash: %lu", data.oilcounter);
-
-  snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %lu", data.oilcounter);
-  km271Msg(KM_TYP_MESSAGE, tmpMsg, "");
+  
 }
 
 /**
@@ -137,13 +136,22 @@ void cyclicOilmeter() {
   }
 
   if (config.gpio.trigger_oilcounter == -1) {
-    ESP_LOGE(TAG, "trigger_oilcounter is not set");
+    if (!errTriggerGpioNotSet) {
+      ESP_LOGE(TAG, "trigger_oilcounter is not set");
+      errTriggerGpioNotSet = true;
+    }
     return;
   }
   if (config.oilmeter.pulse_per_liter == 0) {
-    ESP_LOGE(TAG, "pulse_per_liter is not set");
+    if (!errPulsePerLiterNotSet) {
+      ESP_LOGE(TAG, "pulse_per_liter is not set");
+      errPulsePerLiterNotSet = true;
+    }
     return;
   }
+
+  errTriggerGpioNotSet = false;
+  errPulsePerLiterNotSet = false;
 
   // Debounce the input trigger using a timer function
   bool statusTrigger = oilTrigger.delayOnOffTrigger(!digitalRead(config.gpio.trigger_oilcounter), 0, OILTRIGGER_TIME) == 1;

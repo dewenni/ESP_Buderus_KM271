@@ -35,7 +35,7 @@ void webCallback(const char *elementId, const char *value) {
   }
   // OTA-Confirm
   if (strcmp(elementId, "p00_ota_confirm_btn") == 0) {
-    updateWebDialog("ota_update_done_dialog", "close");
+    webUI.wsUpdateWebDialog("ota_update_done_dialog", "close");
     EspSysUtil::RestartReason::saveLocal("ota update");
     yield();
     delay(1000);
@@ -496,6 +496,9 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "cfg_oilmeter_pulse_per_liter") == 0) {
     config.oilmeter.pulse_per_liter = strtoul(value, NULL, 10);
   }
+  if (strcmp(elementId, "cfg_oilmeter_virt_calc_offset") == 0) {
+    config.oilmeter.virt_calc_offset = strtod(value, NULL);
+  }
 
   // Optional Sensor
   if (strcmp(elementId, "cfg_sensor_ch1_enable") == 0) {
@@ -547,21 +550,27 @@ void webCallback(const char *elementId, const char *value) {
     } else {
       webSetLogType(KMLOG);
     }
-    updateWebLog("", "clr_log"); // clear log
+    webUI.wsUpdateWebLog("", "clr_log"); // clear log
   }
   if (strcmp(elementId, "cfg_logger_filter") == 0) {
     config.log.filter = strtoul(value, NULL, 10);
     clearLogBuffer(KMLOG);
-    updateWebLog("", "clr_log"); // clear log
+    webUI.wsUpdateWebLog("", "clr_log"); // clear log
+  }
+  if (strcmp(elementId, "cfg_logger_level") == 0) {
+    config.log.level = strtoul(value, NULL, 10);
+    clearLogBuffer(KMLOG);
+    webUI.wsUpdateWebLog("", "clr_log"); // clear log
+    setLogLevel(config.log.level);
   }
   if (strcmp(elementId, "cfg_logger_order") == 0) {
     config.log.order = strtoul(value, NULL, 10);
-    updateWebLog("", "clr_log"); // clear log
+    webUI.wsUpdateWebLog("", "clr_log"); // clear log
     webReadLogBuffer();
   }
   if (strcmp(elementId, "p10_log_clr_btn") == 0) {
     webClearLog();
-    updateWebLog("", "clr_log"); // clear log
+    webUI.wsUpdateWebLog("", "clr_log"); // clear log
   }
   if (strcmp(elementId, "p10_log_refresh_btn") == 0) {
     webReadLogBuffer();
@@ -569,7 +578,7 @@ void webCallback(const char *elementId, const char *value) {
   // Simulation
   if (strcmp(elementId, "cfg_sim_enable") == 0) {
     config.sim.enable = EspStrUtil::stringToBool(value);
-    showElementClass("simModeBar", config.sim.enable);
+    webUI.wsShowElementClass("simModeBar", config.sim.enable);
   }
   if (strcmp(elementId, "p12_btn_simdata") == 0) {
     startSimData();

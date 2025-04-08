@@ -102,7 +102,7 @@ void webReadLogBufferCyclic() {
     }
     if (logLine == MAX_LOG_LINES - 1) {
       // end
-      updateWebJSON(jsonLog);
+      webUI.wsUpdateWebJSON(jsonLog);
       logReadActive = false;
       return;
     } else {
@@ -112,7 +112,7 @@ void webReadLogBufferCyclic() {
       } else {
         // no more entries
         logReadActive = false;
-        updateWebJSON(jsonLog);
+        webUI.wsUpdateWebJSON(jsonLog);
         return;
       }
     }

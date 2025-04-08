@@ -38,3 +38,4 @@ void addLogBuffer(e_logTyp typ, const char *message);
 void clearLogBuffer(e_logTyp typ);
 bool setDebugFilter(char *input, size_t input_len, char *errMsg, size_t errMsg_len);
 s_logdata *getLogBuffer(e_logTyp typ);
+void setLogLevel(uint8_t level);

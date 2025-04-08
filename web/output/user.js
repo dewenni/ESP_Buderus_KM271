@@ -1,4 +1,55 @@
 // --------------------------------------
+// --------------------------------------
+document.addEventListener("DOMContentLoaded", function () {
+  // call user functions
+  initLogType();
+
+  // ETH: open dialog to show w5500 configuration
+  document
+    .getElementById("p12_eth_open_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("p12_eth_dialog").showModal();
+    });
+
+  // ETH: close dialog to show w5500 configuration
+  document
+    .getElementById("p12_eth_close_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("p12_eth_dialog").close();
+    });
+
+  // GPIO: open dialog to show GPIO configuration
+  document
+    .getElementById("p12_gpio_open_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("p12_gpio_dialog").showModal();
+    });
+
+  // GPIO: close dialog to show GPIO configuration
+  document
+    .getElementById("p12_gpio_close_dialog_btn")
+    .addEventListener("click", function () {
+      document.getElementById("p12_gpio_dialog").close();
+    });
+
+  // Event-Listener for pushover test-message
+  document
+    .getElementById("p12_pushover_test_btn")
+    .addEventListener("click", function () {
+      var text = document.getElementById("p12_pushover_test_msg").value;
+      sendData("p12_pushover_test_msg_cmd", text);
+    });
+
+  // Event-Listener for oilcounter set value
+  document
+    .getElementById("p02_oilmeter_btn")
+    .addEventListener("click", function () {
+      var text = document.getElementById("p02_oilmeter_set").value;
+      sendData("p02_oilmeter_set_cmd", text);
+    });
+});
+
+// --------------------------------------
 // localization texts
 // --------------------------------------
 const user_translations = {
@@ -903,3 +954,26 @@ const user_translations = {
     en: "timer of manual program",
   },
 };
+
+function initLogType() {
+  var typeSelect = document.getElementById("p10_logger_type");
+  changeLogType(typeSelect);
+}
+
+function changeLogType(selectElem) {
+  // get log type
+  var selectedValue = selectElem.value;
+
+  // get element-id of logger-level and logger-filter
+  var levelSelect = document.getElementById("cfg_logger_level");
+  var filterSelect = document.getElementById("cfg_logger_filter");
+
+  if (selectedValue === "0") {
+    levelSelect.style.display = "inline-block";
+    filterSelect.style.display = "none";
+  } else if (selectedValue === "1") {
+    levelSelect.style.display = "none";
+    filterSelect.style.display = "inline-block";
+  }
+}
+

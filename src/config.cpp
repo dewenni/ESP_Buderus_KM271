@@ -1,5 +1,6 @@
 #include <basics.h>
 #include <config.h>
+#include <message.h>
 
 /* D E C L A R A T I O N S ****************************************************/
 
@@ -44,6 +45,9 @@ void configSetup() {
 
   // gpio settings
   configGPIO();
+
+  // set log level
+  setLogLevel(config.log.level);
 }
 
 /**
@@ -306,7 +310,7 @@ void configSaveToFile() {
   doc["oilmeter"]["consumption_kg_h"] = config.oilmeter.consumption_kg_h;
   doc["oilmeter"]["oil_density_kg_l"] = config.oilmeter.oil_density_kg_l;
   doc["oilmeter"]["pulse_per_liter"] = config.oilmeter.pulse_per_liter;
-  doc["oilmeter"]["virtual_calc_offset"] = config.oilmeter.virtual_calc_offset;
+  doc["oilmeter"]["virt_calc_offset"] = config.oilmeter.virt_calc_offset;
 
   doc["wifi"]["ssid"] = config.wifi.ssid;
 
@@ -415,6 +419,7 @@ void configSaveToFile() {
   doc["logger"]["enable"] = config.log.enable;
   doc["logger"]["filter"] = config.log.filter;
   doc["logger"]["order"] = config.log.order;
+  doc["logger"]["level"] = config.log.level;
 
   // Delete existing file, otherwise the configuration is appended to the file
   LittleFS.remove(filename);
@@ -467,7 +472,7 @@ void configLoadFromFile() {
     config.oilmeter.consumption_kg_h = doc["oilmeter"]["consumption_kg_h"];
     config.oilmeter.oil_density_kg_l = doc["oilmeter"]["oil_density_kg_l"];
     config.oilmeter.pulse_per_liter = doc["oilmeter"]["pulse_per_liter"];
-    config.oilmeter.virtual_calc_offset = doc["oilmeter"]["virtual_calc_offset"];
+    config.oilmeter.virt_calc_offset = doc["oilmeter"]["virt_calc_offset"];
 
     config.lang = doc["lang"];
 
@@ -608,6 +613,7 @@ void configLoadFromFile() {
     config.log.enable = doc["logger"]["enable"];
     config.log.filter = doc["logger"]["filter"];
     config.log.order = doc["logger"]["order"];
+    config.log.level = doc["logger"]["level"];
   }
 
   if (strlen(config.wifi.ssid) == 0) {

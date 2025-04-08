@@ -29,7 +29,7 @@ struct s_cfg_oilmeter {
   float consumption_kg_h = 2.0;
   float oil_density_kg_l = 0.85;
   int pulse_per_liter = 50;
-  long virtual_calc_offset = 0;
+  double virt_calc_offset = 0;
 };
 
 struct s_cfg_km271 {
@@ -114,7 +114,7 @@ struct s_cfg_log {
   bool enable = true;
   int filter;
   int order;
-  int syslevel;
+  int level;
 };
 
 struct s_cfg_sensor {

@@ -313,6 +313,28 @@ function initializeVisibilityBasedOnSwitches() {
     });
 }
 
+function initLogType() {
+  var typeSelect = document.getElementById("p10_logger_type");
+  changeLogType(typeSelect);
+}
+
+function changeLogType(selectElem) {
+  // get log type
+  var selectedValue = selectElem.value;
+
+  // get element-id of logger-level and logger-filter
+  var levelSelect = document.getElementById("cfg_logger_level");
+  var filterSelect = document.getElementById("cfg_logger_filter");
+
+  if (selectedValue === "0") {
+    levelSelect.style.display = "inline-block";
+    filterSelect.style.display = "none";
+  } else if (selectedValue === "1") {
+    levelSelect.style.display = "none";
+    filterSelect.style.display = "inline-block";
+  }
+}
+
 // OTA: function is called when the ota-file is selected
 function ota_sub_fun(obj) {
   var a = obj.value;
@@ -479,6 +501,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeVisibilityBasedOnSwitches();
   localizePage("de");
   loadConfig();
+  initLogType();
 
   // Event Listener for Reload-Button
   document
@@ -729,7 +752,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // --------------------------------------
 // localization texts
 // --------------------------------------
-const translations = {
+const user_translations = {
   system: {
     de: "System",
     en: "System",
@@ -1181,6 +1204,18 @@ const translations = {
   oil_par2_kg_l: {
     de: "\u00d6l-Dichte Kg/L",
     en: "oil density Kg/L",
+  },
+  pulse_per_liter: {
+    de: "Impule pro Liter",
+    en: "pulses per liter",
+  },
+  virtual_calc_offset: {
+    de: "Berechnungskorrekturwert für virtuellen Verbrauch",
+    en: "Calculation Correction Value for Virtual Consumption",
+  },
+  oil_unit_info_set: {
+    de: "Die Eingabe erfolgt als Ganzzahl in 100stel Liter\n(12345 = 123,45 Liter)",
+    en: "The input is a whole number in 100th of a liter\n(12345 = 123.45 liters)",
   },
   ota: {
     de: "OTA Firmware Update",
@@ -1742,9 +1777,29 @@ const translations = {
     de: "Modus: debug Datagramme",
     en: "Mode: debug datagramms",
   },
-  log_mode_6: {
-    de: "Modus: SystemLog",
-    en: "Mode: SystemLog",
+  log_type_1: {
+    de: "Logbuch: SYSTEM",
+    en: "Logbook: SYSTEM",
+  },
+  log_type_2: {
+    de: "Logbuch: KM271",
+    en: "Logbook: KM271",
+  },
+  log_level_1: {
+    de: "Level: FEHLER",
+    en: "Level: ERROR",
+  },
+  log_level_2: {
+    de: "Level: WARNUNG",
+    en: "Level: WARNING",
+  },
+  log_level_3: {
+    de: "Level: INFO",
+    en: "Level: INFO",
+  },
+  log_level_4: {
+    de: "Level: DEBUG",
+    en: "Level: DEBUG",
   },
   import: {
     de: "import (config.json)",
