@@ -3,6 +3,7 @@
 document.addEventListener("DOMContentLoaded", function () {
   // call user functions
   initLogType();
+  loadSimulatedData();
 
   // ETH: open dialog to show w5500 configuration
   document
