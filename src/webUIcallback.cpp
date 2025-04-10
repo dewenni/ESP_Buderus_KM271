@@ -19,7 +19,7 @@ static const char *TAG = "WEB"; // LOG TAG
  * *******************************************************************/
 void webCallback(const char *elementId, const char *value) {
 
-  MY_LOGD(TAG, "Received - Element ID: %s = %s", elementId, value);
+  ESP_LOGD(TAG, "Received - Element ID: %s = %s", elementId, value);
 
   // ------------------------------------------------------------------
   // GitHub / Version
@@ -35,7 +35,7 @@ void webCallback(const char *elementId, const char *value) {
   }
   // OTA-Confirm
   if (strcmp(elementId, "p00_ota_confirm_btn") == 0) {
-    updateWebDialog("ota_update_done_dialog", "close");
+    webUI.wsUpdateWebDialog("ota_update_done_dialog", "close");
     EspSysUtil::RestartReason::saveLocal("ota update");
     yield();
     delay(1000);
@@ -265,12 +265,15 @@ void webCallback(const char *elementId, const char *value) {
   // Authentication
   if (strcmp(elementId, "cfg_auth_enable") == 0) {
     config.auth.enable = EspStrUtil::stringToBool(value);
+    webUI.setAuthentication(config.auth.enable);
   }
   if (strcmp(elementId, "cfg_auth_user") == 0) {
     snprintf(config.auth.user, sizeof(config.auth.user), "%s", value);
+    webUI.setCredentials(config.auth.user, config.auth.password);
   }
   if (strcmp(elementId, "cfg_auth_password") == 0) {
     snprintf(config.auth.password, sizeof(config.auth.password), "%s", value);
+    webUI.setCredentials(config.auth.user, config.auth.password);
   }
 
   // NTP-Server
@@ -493,6 +496,12 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "cfg_oilmeter_oil_density_kg_l") == 0) {
     config.oilmeter.oil_density_kg_l = strtof(value, NULL);
   }
+  if (strcmp(elementId, "cfg_oilmeter_pulse_per_liter") == 0) {
+    config.oilmeter.pulse_per_liter = strtoul(value, NULL, 10);
+  }
+  if (strcmp(elementId, "cfg_oilmeter_virt_calc_offset") == 0) {
+    config.oilmeter.virt_calc_offset = strtod(value, NULL);
+  }
 
   // Optional Sensor
   if (strcmp(elementId, "cfg_sensor_ch1_enable") == 0) {
@@ -538,19 +547,33 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "cfg_logger_enable") == 0) {
     config.log.enable = EspStrUtil::stringToBool(value);
   }
+  if (strcmp(elementId, "p10_logger_type") == 0) {
+    if (strtoul(value, NULL, 10) == 0) {
+      webSetLogType(SYSLOG);
+    } else {
+      webSetLogType(KMLOG);
+    }
+    webUI.wsUpdateWebLog("", "clr_log"); // clear log
+  }
   if (strcmp(elementId, "cfg_logger_filter") == 0) {
     config.log.filter = strtoul(value, NULL, 10);
-    clearLogBuffer();
-    updateWebLog("", "clr_log"); // clear log
+    clearLogBuffer(KMLOG);
+    webUI.wsUpdateWebLog("", "clr_log"); // clear log
+  }
+  if (strcmp(elementId, "cfg_logger_level") == 0) {
+    config.log.level = strtoul(value, NULL, 10);
+    clearLogBuffer(KMLOG);
+    webUI.wsUpdateWebLog("", "clr_log"); // clear log
+    setLogLevel(config.log.level);
   }
   if (strcmp(elementId, "cfg_logger_order") == 0) {
     config.log.order = strtoul(value, NULL, 10);
-    updateWebLog("", "clr_log"); // clear log
+    webUI.wsUpdateWebLog("", "clr_log"); // clear log
     webReadLogBuffer();
   }
   if (strcmp(elementId, "p10_log_clr_btn") == 0) {
-    clearLogBuffer();
-    updateWebLog("", "clr_log"); // clear log
+    webClearLog();
+    webUI.wsUpdateWebLog("", "clr_log"); // clear log
   }
   if (strcmp(elementId, "p10_log_refresh_btn") == 0) {
     webReadLogBuffer();
@@ -558,7 +581,7 @@ void webCallback(const char *elementId, const char *value) {
   // Simulation
   if (strcmp(elementId, "cfg_sim_enable") == 0) {
     config.sim.enable = EspStrUtil::stringToBool(value);
-    showElementClass("simModeBar", config.sim.enable);
+    webUI.wsShowElementClass("simModeBar", config.sim.enable);
   }
   if (strcmp(elementId, "p12_btn_simdata") == 0) {
     startSimData();

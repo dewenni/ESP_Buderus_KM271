@@ -4,7 +4,7 @@
 /*-------------------------------------------------------------------------------
 General Configuration
 --------------------------------------------------------------------------------*/
-#define VERSION "v5.3.1" // internal program version
+#define VERSION "v5.4.0" // internal program version
 
 #define WIFI_RECONNECT 30000 // Delay between wifi reconnection tries
 #define MQTT_RECONNECT 10000 // Delay between mqtt reconnection tries
@@ -28,6 +28,8 @@ struct s_cfg_oilmeter {
   bool use_virtual_meter = false;
   float consumption_kg_h = 2.0;
   float oil_density_kg_l = 0.85;
+  int pulse_per_liter = 50;
+  double virt_calc_offset = 0;
 };
 
 struct s_cfg_km271 {
@@ -112,6 +114,7 @@ struct s_cfg_log {
   bool enable = true;
   int filter;
   int order;
+  int level;
 };
 
 struct s_cfg_sensor {

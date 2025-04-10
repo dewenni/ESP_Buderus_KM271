@@ -28,7 +28,7 @@ bool ghGetLatestRelease(GithubRelease *release, GithubReleaseInfo *info) {
 
   snprintf(info->tag, sizeof(info->tag), "%s", release->tag_name);
   snprintf(info->url, sizeof(info->url), "%s", release->html_url);
-  MY_LOGI(TAG, "GitHb latest Release: %s", info->tag);
+  ESP_LOGI(TAG, "GitHb latest Release: %s", info->tag);
 
   // search for the first asset that contains "ota" in its name
   const char *otaAssetName = NULL;
@@ -41,11 +41,11 @@ bool ghGetLatestRelease(GithubRelease *release, GithubReleaseInfo *info) {
 
   // copy the asset name to the info struct
   if (otaAssetName != NULL) {
-    MY_LOGI(TAG, "OTA Asset found: %s", otaAssetName);
+    ESP_LOGI(TAG, "OTA Asset found: %s", otaAssetName);
     snprintf(info->asset, sizeof(info->asset), "%s", otaAssetName);
     return true;
   } else {
-    MY_LOGE(TAG, "No OTA Asset found!");
+    ESP_LOGE(TAG, "No OTA Asset found!");
     return false;
   }
 }
@@ -54,9 +54,9 @@ int ghStartOtaUpdate(GithubRelease release, const char *asset) {
   int result = ota.flashFirmware(release, asset);
 
   if (result == 0) {
-    MY_LOGI(TAG, "Firmware updated successfully");
+    ESP_LOGI(TAG, "Firmware updated successfully");
   } else {
-    MY_LOGE(TAG, "Firmware update failed: %i", result);
+    ESP_LOGE(TAG, "Firmware update failed: %i", result);
     ota.freeRelease(release);
   }
   return result;

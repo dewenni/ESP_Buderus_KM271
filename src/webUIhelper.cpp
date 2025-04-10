@@ -42,6 +42,17 @@ const char *errOkString(uint8_t value) {
 static int logLine, logIdx = 0;
 static bool logReadActive = false;
 JsonDocument jsonLog;
+e_logTyp logType;
+
+void webClearLog() {
+  if (logType == SYSLOG) {
+    clearLogBuffer(SYSLOG);
+  } else {
+    clearLogBuffer(KMLOG);
+  }
+}
+
+void webSetLogType(e_logTyp typ) { logType = typ; };
 
 bool webLogRefreshActive() { return logReadActive; }
 
@@ -58,22 +69,29 @@ void webReadLogBufferCyclic() {
   jsonLog["cmd"] = "add_log";
   JsonArray entryArray = jsonLog["entry"].to<JsonArray>();
 
+  s_logdata *pLogData;
+  if (logType == SYSLOG) {
+    pLogData = getLogBuffer(SYSLOG);
+  } else {
+    pLogData = getLogBuffer(KMLOG);
+  }
+
   while (logReadActive) {
 
-    if (logLine == 0 && logData.lastLine == 0) {
+    if (logLine == 0 && pLogData->lastLine == 0) {
       // log empty
       logReadActive = false;
       return;
     }
     if (config.log.order == 1) {
-      logIdx = (logData.lastLine - logLine - 1) % MAX_LOG_LINES;
+      logIdx = (pLogData->lastLine - logLine - 1) % MAX_LOG_LINES;
     } else {
-      if (logData.buffer[logData.lastLine][0] == '\0') {
+      if (pLogData->buffer[pLogData->lastLine][0] == '\0') {
         // buffer is not full - start reading at element index 0
         logIdx = logLine % MAX_LOG_LINES;
       } else {
-        // buffer is full - start reading at element index "logData.lastLine"
-        logIdx = (logData.lastLine + logLine) % MAX_LOG_LINES;
+        // buffer is full - start reading at element index "pLogData->lastLine"
+        logIdx = (pLogData->lastLine + logLine) % MAX_LOG_LINES;
       }
     }
     if (logIdx < 0) {
@@ -84,17 +102,17 @@ void webReadLogBufferCyclic() {
     }
     if (logLine == MAX_LOG_LINES - 1) {
       // end
-      updateWebJSON(jsonLog);
+      webUI.wsUpdateWebJSON(jsonLog);
       logReadActive = false;
       return;
     } else {
-      if (logData.buffer[logIdx][0] != '\0') {
-        entryArray.add(logData.buffer[logIdx]);
+      if (pLogData->buffer[logIdx][0] != '\0') {
+        entryArray.add(pLogData->buffer[logIdx]);
         logLine++;
       } else {
         // no more entries
         logReadActive = false;
-        updateWebJSON(jsonLog);
+        webUI.wsUpdateWebJSON(jsonLog);
         return;
       }
     }

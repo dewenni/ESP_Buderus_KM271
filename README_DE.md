@@ -21,6 +21,8 @@
 ![GitHub watchers](https://img.shields.io/github/watchers/dewenni/ESP_Buderus_KM271?style=social)
 [![GitHub stars](https://img.shields.io/github/stars/dewenni/ESP_Buderus_KM271.svg?style=social&label=Star)](https://github.com/dewenni/ESP_Buderus_KM271/stargazers/)
 
+[![Stargazers over time](https://starchart.cc/dewenni/ESP_Buderus_KM271.svg?variant=adaptive)](https://github.com/dewenni/ESP_Buderus_KM271/stargazers/)
+
 </div>
 
 -----

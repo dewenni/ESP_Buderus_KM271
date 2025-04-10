@@ -17,15 +17,38 @@ static uint32_t totalHeap = 0;
 static uint32_t heapSamples[HEAP_SAMPLE_COUNT];
 static int sampleIndex = 0;
 static char pushoverBuffer[MSG_BUF_SIZE]; // Buffer for Pushover messages
-static const char *TAG = "MSG";    // LOG TAG
-s_logdata logData;
+static const char *TAG = "MSG";           // LOG TAG
+esp_log_level_t logLevel = ESP_LOG_INFO;
+static s_logdata kmLog, sysLog;
 static HTTPClient http;
- 
+
 static muTimer pushoverSendTimer = muTimer();
 static muTimer checkHeapTimer = muTimer();
 static muTimer mainTimer = muTimer();           // timer for cyclic info
 static muTimer cyclicSendStatTimer = muTimer(); // timer to send periodic km271 messages
 static muTimer cyclicSendCfgTimer = muTimer();  // timer to send periodic km271 messages
+
+
+
+/**
+ * *******************************************************************
+ * @brief   get LogBuffer
+ * @param   typ
+ * @return  s_logdata
+ * *******************************************************************/
+s_logdata *getLogBuffer(e_logTyp typ) {
+  switch (typ) {
+  case SYSLOG:
+    return &sysLog;
+    break;
+  case KMLOG:
+    return &kmLog;
+    break;
+  default:
+    return NULL;
+    break;
+  }
+}
 
 /**
  * *******************************************************************
@@ -67,7 +90,7 @@ void checkHeapStatus() {
 
   // Check if totalHeap has been initialized properly to avoid division by zero
   if (totalHeap == 0) {
-    MY_LOGW(TAG, "Error: totalHeap is 0, make sure initHeapMonitoring() was called.");
+    ESP_LOGW(TAG, "Error: totalHeap is 0, make sure initHeapMonitoring() was called.");
     return;
   }
 
@@ -89,11 +112,36 @@ void checkHeapStatus() {
 
   // Check if the free heap is below 10% of the total heap
   if ((averageHeap * 100 / totalHeap) < HEAP_LOW_PERCENTAGE) {
-    MY_LOGW(TAG, "Warning: Heap memory below %i %%!", HEAP_LOW_PERCENTAGE);
+    ESP_LOGW(TAG, "Warning: Heap memory below %i %%!", HEAP_LOW_PERCENTAGE);
     if (config.pushover.enable) {
       addPushoverMsg("Warning: free Heap memory is critical!");
     }
   }
+}
+
+/**
+ * *******************************************************************
+ * @brief   set Log Level for ESP_LOG messages
+ * @param   level
+ * @return  none
+ * *******************************************************************/
+void setLogLevel(uint8_t level) {
+
+  if (level == 1) {
+    logLevel = ESP_LOG_ERROR;
+    ESP_LOGI(TAG, "LogLevel: ESP_LOG_ERROR");
+  } else if (level == 2) {
+    logLevel = ESP_LOG_WARN;
+    ESP_LOGI(TAG, "LogLevel: ESP_LOG_WARN");
+  } else if (level == 3) {
+    logLevel = ESP_LOG_INFO;
+    ESP_LOGI(TAG, "LogLevel: ESP_LOG_INFO");
+  } else {
+    logLevel = ESP_LOG_DEBUG;
+    ESP_LOGI(TAG, "LogLevel: ESP_LOG_DEBUG");
+  }
+  esp_log_level_set("*", logLevel);
+  esp_log_level_set("ARDUINO", ESP_LOG_WARN);
 }
 
 /**
@@ -103,25 +151,42 @@ void checkHeapStatus() {
  * @return  vprintf(format, args)
  * *******************************************************************/
 int custom_vprintf(const char *format, va_list args) {
-
-  // create a copy
+  // create a copy of va_list
   va_list args_copy;
   va_copy(args_copy, args);
 
-  // add to buffer
-  if (config.log.filter == LOG_FILTER_SYSTEM) {
-    char testMessage[MAX_LOG_ENTRY];
-    vsnprintf(testMessage, sizeof(testMessage), format, args_copy);
-    addLogBuffer(testMessage);
+  char raw_message[MAX_LOG_ENTRY];
+  char cleaned_message[MAX_LOG_ENTRY];
+
+  // copy message to raw_message
+  vsnprintf(raw_message, sizeof(raw_message), format, args_copy);
+
+  // remove timestamp from message
+  const char *start = strchr(raw_message, '(');
+  const char *end = strchr(raw_message, ')');
+  if (start != NULL && end != NULL && end > start) {
+    // copy the part before '('
+    size_t prefix_len = start - raw_message;
+    strncpy(cleaned_message, raw_message, prefix_len);
+    cleaned_message[prefix_len] = '\0';
+
+    // copy the part after ')'
+    strncat(cleaned_message, end + 1, sizeof(cleaned_message) - prefix_len - 1);
+  } else {
+    // no timestamp found
+    strncpy(cleaned_message, raw_message, sizeof(cleaned_message));
   }
 
-  // send to telnet stream
-  if (telnetIF.serialStream) { // Provide to Telnet stream (if active)
-    telnet.printf(format, args_copy);
+  // add to sysLog buffer
+  addLogBuffer(SYSLOG, cleaned_message);
+
+  // forward to telnet stream
+  if (telnetIF.serialStream) {
+    telnet.printf("%s", cleaned_message);
     telnetShell();
   }
 
-  // free copy of va_list
+  // release copy of va_list
   va_end(args_copy);
 
   return vprintf(format, args);
@@ -133,10 +198,23 @@ int custom_vprintf(const char *format, va_list args) {
  * @param   none
  * @return  none
  * *******************************************************************/
-void clearLogBuffer() {
-  logData.lastLine = 0;
-  for (int i = 0; i < MAX_LOG_LINES; i++) {
-    memset(logData.buffer[i], 0, sizeof(logData.buffer[i]));
+void clearLogBuffer(e_logTyp typ) {
+
+  switch (typ) {
+  case SYSLOG:
+    sysLog.lastLine = 0;
+    for (int i = 0; i < MAX_LOG_LINES; i++) {
+      memset(sysLog.buffer[i], 0, sizeof(sysLog.buffer[i]));
+    }
+    break;
+  case KMLOG:
+    kmLog.lastLine = 0;
+    for (int i = 0; i < MAX_LOG_LINES; i++) {
+      memset(kmLog.buffer[i], 0, sizeof(kmLog.buffer[i]));
+    }
+    break;
+  default:
+    break;
   }
 }
 
@@ -146,10 +224,23 @@ void clearLogBuffer() {
  * @param   none
  * @return  none
  * *******************************************************************/
-void addLogBuffer(const char *message) {
-  if (strlen(message) != 0) {
-    snprintf(logData.buffer[logData.lastLine], sizeof(logData.buffer[logData.lastLine]), "[%s]  %s", EspStrUtil::getDateTimeString(), message);
-    logData.lastLine = (logData.lastLine + 1) % MAX_LOG_LINES; // update the lastLine index in a circular manner
+void addLogBuffer(e_logTyp typ, const char *message) {
+
+  switch (typ) {
+  case SYSLOG:
+    if (strlen(message) != 0) {
+      snprintf(sysLog.buffer[sysLog.lastLine], sizeof(sysLog.buffer[sysLog.lastLine]), "[%s]  %s", EspStrUtil::getDateTimeString(), message);
+      sysLog.lastLine = (sysLog.lastLine + 1) % MAX_LOG_LINES; // update the lastLine index in a circular manner
+    }
+    break;
+  case KMLOG:
+    if (strlen(message) != 0) {
+      snprintf(kmLog.buffer[kmLog.lastLine], sizeof(kmLog.buffer[kmLog.lastLine]), "[%s]  %s", EspStrUtil::getDateTimeString(), message);
+      kmLog.lastLine = (kmLog.lastLine + 1) % MAX_LOG_LINES; // update the lastLine index in a circular manner
+    }
+    break;
+  default:
+    break;
   }
 }
 
@@ -162,7 +253,7 @@ void addLogBuffer(const char *message) {
 void messageSetup() {
   memset(pushoverBuffer, 0, sizeof(pushoverBuffer));
 
-  esp_log_level_set("*", MYLOG_LEVEL);  // set log level
+  setLogLevel(ESP_LOG_INFO);            // inital log level - will be changed after config setup
   esp_log_set_vprintf(&custom_vprintf); // set custom vprintf callback function
 
   // Enable serial port
@@ -191,7 +282,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value) {
     }
     if (config.log.enable && config.log.filter == LOG_FILTER_VALUES) {
       snprintf(tmpMsg, sizeof(tmpMsg), "Config: %s = %s", desc, value);
-      addLogBuffer(tmpMsg);
+      addLogBuffer(KMLOG, tmpMsg);
     }
     if (telnetIF.km271Stream && config.log.filter == LOG_FILTER_VALUES) {
       snprintf(tmpMsg, sizeof(tmpMsg), "Config: %s = %s", desc, value);
@@ -208,7 +299,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value) {
     }
     if (config.log.enable && config.log.filter == LOG_FILTER_VALUES) {
       snprintf(tmpMsg, sizeof(tmpMsg), "Status: %s = %s", desc, value);
-      addLogBuffer(tmpMsg);
+      addLogBuffer(KMLOG, tmpMsg);
     }
     if (telnetIF.km271Stream && config.log.filter == LOG_FILTER_VALUES) {
       snprintf(tmpMsg, sizeof(tmpMsg), "Status: %s = %s", desc, value);
@@ -225,7 +316,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value) {
     }
     if (config.log.enable && config.log.filter == LOG_FILTER_VALUES) {
       snprintf(tmpMsg, sizeof(tmpMsg), "Sensor: %s = %s", desc, value);
-      addLogBuffer(tmpMsg);
+      addLogBuffer(KMLOG, tmpMsg);
     }
     if (telnetIF.km271Stream && config.log.filter == LOG_FILTER_VALUES) {
       snprintf(tmpMsg, sizeof(tmpMsg), "Sensor: %s = %s", desc, value);
@@ -246,7 +337,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value) {
     }
     if (config.log.enable && config.log.filter == LOG_FILTER_ALARM) {
       snprintf(tmpMsg, sizeof(tmpMsg), "%s = %s", desc, value);
-      addLogBuffer(tmpMsg);
+      addLogBuffer(KMLOG, tmpMsg);
     }
     if (telnetIF.km271Stream && config.log.filter == LOG_FILTER_ALARM) {
       snprintf(tmpMsg, sizeof(tmpMsg), "%s = %s", desc, value);
@@ -272,7 +363,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value) {
     }
     if (config.log.enable && config.log.filter == LOG_FILTER_DEBUG) {
       snprintf(tmpMsg, sizeof(tmpMsg), "debug : %s", desc);
-      addLogBuffer(tmpMsg);
+      addLogBuffer(KMLOG, tmpMsg);
     }
     if (telnetIF.km271Stream && config.log.filter == LOG_FILTER_DEBUG) {
       snprintf(tmpMsg, sizeof(tmpMsg), "debug : %s", desc);
@@ -293,7 +384,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value) {
     }
     if (config.log.enable && config.log.filter == LOG_FILTER_INFO) {
       snprintf(tmpMsg, sizeof(tmpMsg), "Message : %s", desc);
-      addLogBuffer(tmpMsg);
+      addLogBuffer(KMLOG, tmpMsg);
     }
     if (telnetIF.km271Stream && config.log.filter == LOG_FILTER_INFO) {
       snprintf(tmpMsg, sizeof(tmpMsg), "Message : %s", desc);
@@ -328,7 +419,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value) {
     }
     if (config.log.enable && config.log.filter == LOG_FILTER_UNKNOWN) {
       snprintf(tmpMsg, sizeof(tmpMsg), "undef msg : %s", desc);
-      addLogBuffer(tmpMsg);
+      addLogBuffer(KMLOG, tmpMsg);
     }
     if (telnetIF.km271Stream && config.log.filter == LOG_FILTER_UNKNOWN) {
       snprintf(tmpMsg, sizeof(tmpMsg), "undef msg : %s", desc);
@@ -355,7 +446,7 @@ void addPushoverMsg(const char *str) {
   } else if (remainingSpace >= (strlen(bufferFullMsg) + 1)) {
     snprintf(pushoverBuffer + strlen(pushoverBuffer), remainingSpace + 1, "%s\n", bufferFullMsg);
   } else {
-    MY_LOGE(TAG, "Pushover send buffer full!");
+    ESP_LOGE(TAG, "Pushover send buffer full!");
   }
 }
 
@@ -439,7 +530,7 @@ void messageCyclic() {
   // send Pushover message if something inside the buffer
   if (pushoverSendTimer.cycleTrigger(2000) && config.pushover.enable && (wifi.connected || eth.connected)) {
     if (strlen(pushoverBuffer)) {
-      MY_LOGI(TAG, "Pushover Message sent");
+      ESP_LOGI(TAG, "Pushover Message sent");
       sendPushoverMsg();
     }
   }

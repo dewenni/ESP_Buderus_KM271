@@ -6,7 +6,8 @@
     <link rel="stylesheet" type="text/css" href="../css/pico.css" />
     <link rel="stylesheet" type="text/css" href="../css/custom.css" />
     <link rel="stylesheet" type="text/css" href="../css/icons.css" />
-    <script src="../js/main.js" defer></script>
+    <script src="../js/fun.js" defer></script>
+    <script src="../js/doc.js" defer></script>
     <script src="../js/lang.js" defer></script>
     <style></style>
     <script>
@@ -36,18 +37,36 @@
           <article style="width: 100%">
             <div
               class="dash-content"
-              style="margin-bottom: 0px; flex-wrap: wrap">
+              style="gap: 5px; margin-bottom: 5px; flex-wrap: wrap">
               <button id="p10_log_clr_btn" data-i18n="clear"></button>
               <button id="p10_log_refresh_btn" data-i18n="refresh"></button>
-              <select id="cfg_logger_filter" style="max-width: 390px; margin: 0px">
+              <select
+                id="p10_logger_type"
+                onchange="changeLogType(this)"
+                style="max-width: 210px; margin: 0px">
+                <option value="0" data-i18n="log_type_1"></option>
+                <option value="1" data-i18n="log_type_2"></option>
+              </select>
+              <select
+                id="cfg_logger_level"
+                style="max-width: 200px; margin: 0px">
+                <option value="1" data-i18n="log_level_1"></option>
+                <option value="2" data-i18n="log_level_2"></option>
+                <option value="3" data-i18n="log_level_3"></option>
+                <option value="4" data-i18n="log_level_4"></option>
+              </select>
+              <select
+                id="cfg_logger_filter"
+                style="max-width: 300px; margin: 0px">
                 <option value="0" data-i18n="log_mode_1"></option>
                 <option value="1" data-i18n="log_mode_2"></option>
                 <option value="2" data-i18n="log_mode_3"></option>
                 <option value="3" data-i18n="log_mode_4"></option>
                 <option value="4" data-i18n="log_mode_5"></option>
-                <option value="5" data-i18n="log_mode_6"></option>
               </select>
-              <select id="cfg_logger_order" style="max-width: 220px; margin: 0px">
+              <select
+                id="cfg_logger_order"
+                style="max-width: 200px; margin: 0px">
                 <option value="0" data-i18n="sort_down"></option>
                 <option value="1" data-i18n="sort_up"></option>
               </select>

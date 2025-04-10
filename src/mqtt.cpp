@@ -51,9 +51,9 @@ void addMqttCmd(const char *topic, const char *payload, int len) {
     message.len = len;
 
     mqttCmdQueue.push(message);
-    MY_LOGD(TAG, "add msg to buffer: %s, %s", topic, payload);
+    ESP_LOGD(TAG, "add msg to buffer: %s, %s", topic, payload);
   } else {
-    MY_LOGE(TAG, "too many commands within too short time");
+    ESP_LOGE(TAG, "too many commands within too short time");
   }
 }
 
@@ -116,7 +116,7 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
 
   addMqttCmd(msgCpy.topic, msgCpy.payload, msgCpy.len);
 
-  MY_LOGI(TAG, "msg received | topic: %s | payload: %s", msgCpy.topic, msgCpy.payload);
+  ESP_LOGI(TAG, "msg received | topic: %s | payload: %s", msgCpy.topic, msgCpy.payload);
 }
 
 /**
@@ -127,7 +127,7 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
  * *******************************************************************/
 void onMqttConnect(bool sessionPresent) {
   mqtt_retry = 0;
-  MY_LOGI(TAG, "MQTT connected");
+  ESP_LOGI(TAG, "MQTT connected");
   // Once connected, publish an announcement...
   sendWiFiInfo();
   // ... and resubscribe
@@ -207,7 +207,7 @@ void mqttSetup() {
     snprintf(haStatusTopic, sizeof(haStatusTopic), "%s/status", config.mqtt.ha_topic);
   }
 
-  MY_LOGI(TAG, "MQTT setup done!");
+  ESP_LOGI(TAG, "MQTT setup done!");
 }
 
 /**
@@ -234,15 +234,15 @@ void mqttCyclic() {
     if (mqtt_retry == 0) {
       mqtt_retry++;
       mqtt_client.connect();
-      MY_LOGI(TAG, "MQTT - connection attempt: 1/5");
+      ESP_LOGI(TAG, "MQTT - connection attempt: 1/5");
     } else if (mqttReconnectTimer.delayOnTrigger(true, MQTT_RECONNECT * mqtt_retry)) {
       mqttReconnectTimer.delayReset();
       if (mqtt_retry < 5) {
         mqtt_retry++;
         mqtt_client.connect();
-        MY_LOGI(TAG, "MQTT - connection attempt: %i/5", mqtt_retry);
+        ESP_LOGI(TAG, "MQTT - connection attempt: %i/5", mqtt_retry);
       } else {
-        MY_LOGI(TAG, "MQTT connection not possible, esp rebooting...");
+        ESP_LOGI(TAG, "MQTT connection not possible, esp rebooting...");
         storeData(); // store Data before reboot
         EspSysUtil::RestartReason::saveLocal("no mqtt connection");
         yield();
@@ -302,7 +302,7 @@ void processMqttMessage() {
 
   s_MqttMessage msgCpy = mqttCmdQueue.front();
 
-  MY_LOGD(TAG, "process msg from buffer: %s, %s", msgCpy.topic, msgCpy.payload);
+  ESP_LOGD(TAG, "process msg from buffer: %s, %s", msgCpy.topic, msgCpy.payload);
 
   // payload as number
   int16_t intVal = 0;

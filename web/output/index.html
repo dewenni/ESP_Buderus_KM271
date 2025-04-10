@@ -5,8 +5,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>ESP-Buderus-KM271</title>
     <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
-    <link rel="stylesheet" type="text/css" href="main.css" />
-    <script defer src="main.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="lib.css" />
+    <link rel="stylesheet" type="text/css" href="user.css" />
+    <script defer src="lib.js" defer></script>
+    <script defer src="user.js" defer></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
   <body>
@@ -1700,90 +1702,6 @@
         </div>
         <!-- END Grid 2 -->
       </div>
-<div id="tab13" class="tab-content">
-        <div class="grid">
-          <!-- Grid 1 -->
-          <article class="card">
-            <p class="table-header" data-i18n="config"></p>
-            <table class="striped">
-              <tbody>
-                <tr>
-                  <td data-i18n="solar$ $on"></td>
-                  <td id="p13_solar_enable" class="table-value">--</td>
-                </tr>
-                <tr>
-                  <td data-i18n="solar$ $opmode"></td>
-                  <td id="p13_solar_opmode" class="table-value">--</td>
-                </tr>
-                <tr>
-                  <td data-i18n="solar_min"></td>
-                  <td id="p13_solar_min" class="table-value">--</td>
-                </tr>
-                <tr>
-                  <td data-i18n="solar_max"></td>
-                  <td id="p13_solar_max" class="table-value">--</td>
-                </tr>
-              </tbody>
-            </table>
-          </article>
-
-          <article class="card">
-            <p class="table-header" data-i18n="status"></p>
-            <table class="striped">
-              <tbody>
-                <tr>
-                  <td data-i18n="solar$ $load"></td>
-                  <td id="p13_solar_load" class="table-value">--</td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td data-i18n="solar$ $hot_water"></td>
-                  <td id="p13_solar_ww" class="table-value">--</td>
-                  <td>°C</td>
-                </tr>
-                <tr>
-                  <td data-i18n="solar$ $collector"></td>
-                  <td id="p13_solar_collector" class="table-value">--</td>
-                  <td>°C</td>
-                </tr>
-                <tr>
-                  <td data-i18n="solar++ 9147"></td>
-                  <td id="p13_solar_9147" class="table-value">--</td>
-                  <td></td>
-                </tr>
-              </tbody>
-            </table>
-          </article>
-        </div>
-        <!-- END Grid 1 -->
-        <div class="grid">
-          <!-- Grid 2 -->
-          <article class="card">
-            <p class="table-header" data-i18n="lifetimes"></p>
-            <table class="striped">
-              <tbody>
-                <tr>
-                  <td data-i18n="solar$ $runtime_years"></td>
-                  <td id="p13_solar_run_years" class="table-value">--</td>
-                </tr>
-                <tr>
-                  <td data-i18n="solar$ $runtime_days"></td>
-                  <td id="p13_solar_run_days" class="table-value">--</td>
-                </tr>
-                <tr>
-                  <td data-i18n="solar$ $runtime_hours"></td>
-                  <td id="p13_solar_run_hours" class="table-value">--</td>
-                </tr>
-                <tr>
-                  <td data-i18n="solar$ $runtime_minutes"></td>
-                  <td id="p13_solar_run_min" class="table-value">--</td>
-                </tr>
-              </tbody>
-            </table>
-          </article>
-        </div>
-        <!--END GRID-->
-      </div>
 <div id="tab6" class="tab-content">
         <div class="grid">
           <!-- Grid 1 -->
@@ -2222,17 +2140,17 @@
               <select
                 id="p10_logger_type"
                 onchange="changeLogType(this)"
-                style="max-width: 200px; margin: 0px">
+                style="max-width: 210px; margin: 0px">
                 <option value="0" data-i18n="log_type_1"></option>
                 <option value="1" data-i18n="log_type_2"></option>
               </select>
               <select
                 id="cfg_logger_level"
                 style="max-width: 200px; margin: 0px">
-                <option value="0" data-i18n="log_level_1"></option>
-                <option value="1" data-i18n="log_level_2"></option>
-                <option value="2" data-i18n="log_level_3"></option>
-                <option value="3" data-i18n="log_level_4"></option>
+                <option value="1" data-i18n="log_level_1"></option>
+                <option value="2" data-i18n="log_level_2"></option>
+                <option value="3" data-i18n="log_level_3"></option>
+                <option value="4" data-i18n="log_level_4"></option>
               </select>
               <select
                 id="cfg_logger_filter"
@@ -2278,9 +2196,9 @@
                   enctype="multipart/form-data"
                   id="ota_upload_form">
                   <button
-                  id="p11_check_git_btn"
-                  class="svgbtn i_github"
-                  data-i18n="check_github"></button>
+                    id="p11_check_git_btn"
+                    class="svgbtn2 i_github"
+                    data-i18n="check_github"></button>
                   <br />
                   <input
                     type="file"
@@ -3039,13 +2957,13 @@
                 id="cfg_oilmeter_oil_density_kg_l" />
               <label
                 class="OPT_V_OIL"
-                for="virtual_calc_offset"
-                data-i18n="virtual_calc_offset"></label>
+                for="virt_calc_offset"
+                data-i18n="virt_calc_offset"></label>
               <input
                 class="OPT_V_OIL"
-                name="virtual_calc_offset"
+                name="virt_calc_offset"
                 type="number"
-                id="cfg_oilmeter_virtual_calc_offset" />
+                id="cfg_oilmeter_virt_calc_offset" />
             </details>
             <hr />
             <!-- Optional Sensors -->
@@ -3137,6 +3055,90 @@
               style="width: 100%; margin-bottom: 10px"></button>
           </div>
         </div>
+      </div>
+<div id="tab13" class="tab-content">
+        <div class="grid">
+          <!-- Grid 1 -->
+          <article class="card">
+            <p class="table-header" data-i18n="config"></p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="solar$ $on"></td>
+                  <td id="p13_solar_enable" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="solar$ $opmode"></td>
+                  <td id="p13_solar_opmode" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="solar_min"></td>
+                  <td id="p13_solar_min" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="solar_max"></td>
+                  <td id="p13_solar_max" class="table-value">--</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+
+          <article class="card">
+            <p class="table-header" data-i18n="status"></p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="solar$ $load"></td>
+                  <td id="p13_solar_load" class="table-value">--</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td data-i18n="solar$ $hot_water"></td>
+                  <td id="p13_solar_ww" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="solar$ $collector"></td>
+                  <td id="p13_solar_collector" class="table-value">--</td>
+                  <td>°C</td>
+                </tr>
+                <tr>
+                  <td data-i18n="solar++ 9147"></td>
+                  <td id="p13_solar_9147" class="table-value">--</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!-- END Grid 1 -->
+        <div class="grid">
+          <!-- Grid 2 -->
+          <article class="card">
+            <p class="table-header" data-i18n="lifetimes"></p>
+            <table class="striped">
+              <tbody>
+                <tr>
+                  <td data-i18n="solar$ $runtime_years"></td>
+                  <td id="p13_solar_run_years" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="solar$ $runtime_days"></td>
+                  <td id="p13_solar_run_days" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="solar$ $runtime_hours"></td>
+                  <td id="p13_solar_run_hours" class="table-value">--</td>
+                </tr>
+                <tr>
+                  <td data-i18n="solar$ $runtime_minutes"></td>
+                  <td id="p13_solar_run_min" class="table-value">--</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+        <!--END GRID-->
       </div>
 </main>
       <footer>

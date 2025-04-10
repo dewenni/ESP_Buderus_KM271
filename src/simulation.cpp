@@ -87,7 +87,7 @@ static const char *TAG = "SIM"; // LOG TAG
 void startSimData() {
   simDataEnable = true;
   msgCnt = 0;
-  MY_LOGI(TAG, "send simulated Logamatic values...");
+  ESP_LOGI(TAG, "send simulated Logamatic values...");
 }
 
 void simDataCyclic() {
@@ -96,10 +96,10 @@ void simDataCyclic() {
       if (msgCnt < MAX_MSG_CNT) {
         parseInfo(simData[msgCnt], sizeof(simData[0]));
         msgCnt++;
-        MY_LOGD(TAG, "send simu values: %d/%d", msgCnt, MAX_MSG_CNT - 1);
+        ESP_LOGD(TAG, "send simu values: %d/%d", msgCnt, MAX_MSG_CNT - 1);
       } else {
         simDataEnable = false;
-        MY_LOGD(TAG, "send simu finished");
+        ESP_LOGD(TAG, "send simu finished");
       }
     }
   }

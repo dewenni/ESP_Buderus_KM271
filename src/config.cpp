@@ -1,5 +1,6 @@
 #include <basics.h>
 #include <config.h>
+#include <message.h>
 
 /* D E C L A R A T I O N S ****************************************************/
 
@@ -31,9 +32,9 @@ void configSetup() {
 
   // start Filesystem
   if (LittleFS.begin(true)) {
-    MY_LOGI(TAG, "LittleFS successfully started");
+    ESP_LOGI(TAG, "LittleFS successfully started");
   } else {
-    MY_LOGE(TAG, "LittleFS error");
+    ESP_LOGE(TAG, "LittleFS error");
   }
 
   // load config from file
@@ -44,6 +45,9 @@ void configSetup() {
 
   // gpio settings
   configGPIO();
+
+  // set log level
+  setLogLevel(config.log.level);
 }
 
 /**
@@ -78,111 +82,111 @@ void checkGPIO() {
     config.gpio.km271_RX = -1;
     invalidKM271 = true;
   } else if (isDuplicate(config.gpio.km271_RX)) {
-    MY_LOGE(TAG, "GPIO %d is used multiple times (KM271_RX)", config.gpio.km271_RX);
+    ESP_LOGE(TAG, "GPIO %d is used multiple times (KM271_RX)", config.gpio.km271_RX);
   }
 
   if (config.gpio.km271_TX == 0) {
     config.gpio.km271_TX = -1;
     invalidKM271 = true;
   } else if (isDuplicate(config.gpio.km271_TX)) {
-    MY_LOGE(TAG, "GPIO %d is used multiple times (KM271_TX)", config.gpio.km271_TX);
+    ESP_LOGE(TAG, "GPIO %d is used multiple times (KM271_TX)", config.gpio.km271_TX);
   }
 
   if (config.gpio.led_heartbeat == 0) {
     config.gpio.led_heartbeat = -1;
   } else if (isDuplicate(config.gpio.led_heartbeat)) {
-    MY_LOGE(TAG, "GPIO %d is used multiple times (led_heartbeat)", config.gpio.led_heartbeat);
+    ESP_LOGE(TAG, "GPIO %d is used multiple times (led_heartbeat)", config.gpio.led_heartbeat);
   }
 
   if (config.gpio.led_logmode == 0) {
     config.gpio.led_logmode = -1;
   } else if (isDuplicate(config.gpio.led_logmode)) {
-    MY_LOGE(TAG, "GPIO %d is used multiple times (led_logmode)", config.gpio.led_logmode);
+    ESP_LOGE(TAG, "GPIO %d is used multiple times (led_logmode)", config.gpio.led_logmode);
   }
 
   if (config.gpio.led_oilcounter == 0) {
     config.gpio.led_oilcounter = -1;
   } else if (isDuplicate(config.gpio.led_oilcounter)) {
-    MY_LOGE(TAG, "GPIO %d is used multiple times (led_oilcounter)", config.gpio.led_oilcounter);
+    ESP_LOGE(TAG, "GPIO %d is used multiple times (led_oilcounter)", config.gpio.led_oilcounter);
   }
 
   if (config.gpio.led_wifi == 0) {
     config.gpio.led_wifi = -1;
   } else if (isDuplicate(config.gpio.led_wifi)) {
-    MY_LOGE(TAG, "GPIO %d is used multiple times (led_wifi)", config.gpio.led_wifi);
+    ESP_LOGE(TAG, "GPIO %d is used multiple times (led_wifi)", config.gpio.led_wifi);
   }
 
   if (config.gpio.trigger_oilcounter == 0) {
     config.gpio.trigger_oilcounter = -1;
   } else if (isDuplicate(config.gpio.trigger_oilcounter)) {
-    MY_LOGE(TAG, "GPIO %d is used multiple times (trigger_oilcounter)", config.gpio.trigger_oilcounter);
+    ESP_LOGE(TAG, "GPIO %d is used multiple times (trigger_oilcounter)", config.gpio.trigger_oilcounter);
   }
 
   if (config.eth.gpio_cs == 0) {
     config.eth.gpio_cs = -1;
     invalidETH = true;
   } else if (isDuplicate(config.eth.gpio_cs)) {
-    MY_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_cs)", config.eth.gpio_cs);
+    ESP_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_cs)", config.eth.gpio_cs);
   }
 
   if (config.eth.gpio_irq == 0) {
     config.eth.gpio_irq = -1;
     invalidETH = true;
   } else if (isDuplicate(config.eth.gpio_irq)) {
-    MY_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_irq)", config.eth.gpio_irq);
+    ESP_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_irq)", config.eth.gpio_irq);
   }
 
   if (config.eth.gpio_miso == 0) {
     config.eth.gpio_miso = -1;
     invalidETH = true;
   } else if (isDuplicate(config.eth.gpio_miso)) {
-    MY_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_miso)", config.eth.gpio_miso);
+    ESP_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_miso)", config.eth.gpio_miso);
   }
 
   if (config.eth.gpio_mosi == 0) {
     config.eth.gpio_mosi = -1;
     invalidETH = true;
   } else if (isDuplicate(config.eth.gpio_mosi)) {
-    MY_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_mosi)", config.eth.gpio_mosi);
+    ESP_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_mosi)", config.eth.gpio_mosi);
   }
 
   if (config.eth.gpio_rst == 0) {
     config.eth.gpio_rst = -1;
     invalidETH = true;
   } else if (isDuplicate(config.eth.gpio_rst)) {
-    MY_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_rst)", config.eth.gpio_rst);
+    ESP_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_rst)", config.eth.gpio_rst);
   }
 
   if (config.eth.gpio_sck == 0) {
     config.eth.gpio_sck = -1;
     invalidETH = true;
   } else if (isDuplicate(config.eth.gpio_sck)) {
-    MY_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_sck)", config.eth.gpio_sck);
+    ESP_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_sck)", config.eth.gpio_sck);
   }
 
   if (config.sensor.ch1_gpio == 0) {
     config.sensor.ch1_gpio = -1;
     if (config.sensor.ch1_enable) {
-      MY_LOGE(TAG, "invalid GPIO settings for Sensor 1");
+      ESP_LOGE(TAG, "invalid GPIO settings for Sensor 1");
     }
   } else if (isDuplicate(config.sensor.ch1_gpio)) {
-    MY_LOGE(TAG, "GPIO %d is used multiple times (Sensor 1)", config.sensor.ch1_gpio);
+    ESP_LOGE(TAG, "GPIO %d is used multiple times (Sensor 1)", config.sensor.ch1_gpio);
   }
 
   if (config.sensor.ch2_gpio == 0) {
     config.sensor.ch2_gpio = -1;
     if (config.sensor.ch1_enable) {
-      MY_LOGE(TAG, "invalid GPIO settings for Sensor 2");
+      ESP_LOGE(TAG, "invalid GPIO settings for Sensor 2");
     }
   } else if (isDuplicate(config.sensor.ch2_gpio)) {
-    MY_LOGE(TAG, "GPIO %d is used multiple times (Sensor 2)", config.sensor.ch2_gpio);
+    ESP_LOGE(TAG, "GPIO %d is used multiple times (Sensor 2)", config.sensor.ch2_gpio);
   }
 
   if (config.eth.enable && invalidETH) {
-    MY_LOGE(TAG, "invalid GPIO settings for Ethernet");
+    ESP_LOGE(TAG, "invalid GPIO settings for Ethernet");
   }
   if (invalidKM271) {
-    MY_LOGE(TAG, "invalid GPIO settings for KM271");
+    ESP_LOGE(TAG, "invalid GPIO settings for KM271");
   }
 }
 
@@ -210,7 +214,7 @@ void configCyclic() {
     if (hashNew != hashOld) {
       hashOld = hashNew;
       configSaveToFile();
-      MY_LOGD(TAG, "config saved to file");
+      ESP_LOGD(TAG, "config saved to file");
     }
   }
 }
@@ -305,13 +309,15 @@ void configSaveToFile() {
   doc["oilmeter"]["use_virtual_meter"] = config.oilmeter.use_virtual_meter;
   doc["oilmeter"]["consumption_kg_h"] = config.oilmeter.consumption_kg_h;
   doc["oilmeter"]["oil_density_kg_l"] = config.oilmeter.oil_density_kg_l;
+  doc["oilmeter"]["pulse_per_liter"] = config.oilmeter.pulse_per_liter;
+  doc["oilmeter"]["virt_calc_offset"] = config.oilmeter.virt_calc_offset;
 
   doc["wifi"]["ssid"] = config.wifi.ssid;
 
   if (EspStrUtil::encryptPassword(config.wifi.password, key, encrypted, sizeof(encrypted))) {
     doc["wifi"]["password"] = encrypted;
   } else {
-    MY_LOGE(TAG, "error encrypting WiFi Password");
+    ESP_LOGE(TAG, "error encrypting WiFi Password");
   }
 
   doc["wifi"]["hostname"] = config.wifi.hostname;
@@ -342,7 +348,7 @@ void configSaveToFile() {
   if (EspStrUtil::encryptPassword(config.mqtt.password, key, encrypted, sizeof(encrypted))) {
     doc["mqtt"]["password"] = encrypted;
   } else {
-    MY_LOGE(TAG, "error encrypting mqtt Password");
+    ESP_LOGE(TAG, "error encrypting mqtt Password");
   }
 
   doc["mqtt"]["topic"] = config.mqtt.topic;
@@ -379,7 +385,7 @@ void configSaveToFile() {
   if (EspStrUtil::encryptPassword(config.auth.password, key, encrypted, sizeof(encrypted))) {
     doc["auth"]["password"] = encrypted;
   } else {
-    MY_LOGE(TAG, "error encrypting auth Password");
+    ESP_LOGE(TAG, "error encrypting auth Password");
   }
 
   doc["debug"]["enable"] = config.debug.enable;
@@ -399,13 +405,13 @@ void configSaveToFile() {
   if (EspStrUtil::encryptPassword(config.pushover.token, key, encrypted, sizeof(encrypted))) {
     doc["pushover"]["token"] = encrypted;
   } else {
-    MY_LOGE(TAG, "error encrypting pushover token");
+    ESP_LOGE(TAG, "error encrypting pushover token");
   }
 
   if (EspStrUtil::encryptPassword(config.pushover.user_key, key, encrypted, sizeof(encrypted))) {
     doc["pushover"]["user_key"] = encrypted;
   } else {
-    MY_LOGE(TAG, "error encrypting pushover user_key");
+    ESP_LOGE(TAG, "error encrypting pushover user_key");
   }
 
   doc["pushover"]["filter"] = config.pushover.filter;
@@ -413,6 +419,7 @@ void configSaveToFile() {
   doc["logger"]["enable"] = config.log.enable;
   doc["logger"]["filter"] = config.log.filter;
   doc["logger"]["order"] = config.log.order;
+  doc["logger"]["level"] = config.log.level;
 
   // Delete existing file, otherwise the configuration is appended to the file
   LittleFS.remove(filename);
@@ -420,15 +427,15 @@ void configSaveToFile() {
   // Open file for writing
   File file = LittleFS.open(filename, FILE_WRITE);
   if (!file) {
-    MY_LOGE(TAG, "Failed to create file");
+    ESP_LOGE(TAG, "Failed to create file");
     return;
   }
 
   // Serialize JSON to file
   if (serializeJson(doc, file) == 0) {
-    MY_LOGE(TAG, "Failed to write to file");
+    ESP_LOGE(TAG, "Failed to write to file");
   } else {
-    MY_LOGI(TAG, "config successfully saved to file: %s - Version: %i", filename, CFG_VERSION);
+    ESP_LOGI(TAG, "config successfully saved to file: %s - Version: %i", filename, CFG_VERSION);
   }
 
   // Close the file
@@ -451,7 +458,7 @@ void configLoadFromFile() {
   // Deserialize the JSON document
   DeserializationError error = deserializeJson(doc, file);
   if (error) {
-    MY_LOGE(TAG, "Failed to read file, using default configuration and start wifi-AP");
+    ESP_LOGE(TAG, "Failed to read file, using default configuration and start wifi-AP");
     configInitValue();
     setupMode = true;
 
@@ -464,6 +471,8 @@ void configLoadFromFile() {
     config.oilmeter.use_virtual_meter = doc["oilmeter"]["use_virtual_meter"];
     config.oilmeter.consumption_kg_h = doc["oilmeter"]["consumption_kg_h"];
     config.oilmeter.oil_density_kg_l = doc["oilmeter"]["oil_density_kg_l"];
+    config.oilmeter.pulse_per_liter = doc["oilmeter"]["pulse_per_liter"];
+    config.oilmeter.virt_calc_offset = doc["oilmeter"]["virt_calc_offset"];
 
     config.lang = doc["lang"];
 
@@ -476,9 +485,9 @@ void configLoadFromFile() {
     } else {
       EspStrUtil::readJSONstring(encrypted, sizeof(encrypted), doc["wifi"]["password"]);
       if (EspStrUtil::decryptPassword(encrypted, key, config.wifi.password, sizeof(config.wifi.password))) {
-        // MY_LOGD(TAG, "decrypted WiFi password: %s", config.wifi.password);
+        // ESP_LOGD(TAG, "decrypted WiFi password: %s", config.wifi.password);
       } else {
-        MY_LOGE(TAG, "error decrypting WiFi password");
+        ESP_LOGE(TAG, "error decrypting WiFi password");
       }
     }
 
@@ -513,9 +522,9 @@ void configLoadFromFile() {
     } else {
       EspStrUtil::readJSONstring(encrypted, sizeof(encrypted), doc["mqtt"]["password"]);
       if (EspStrUtil::decryptPassword(encrypted, key, config.mqtt.password, sizeof(config.mqtt.password))) {
-        // MY_LOGD(TAG, "decrypted mqtt password: %s", config.mqtt.password);
+        // ESP_LOGD(TAG, "decrypted mqtt password: %s", config.mqtt.password);
       } else {
-        MY_LOGE(TAG, "error decrypting mqtt password");
+        ESP_LOGE(TAG, "error decrypting mqtt password");
       }
     }
 
@@ -555,9 +564,9 @@ void configLoadFromFile() {
     } else {
       EspStrUtil::readJSONstring(encrypted, sizeof(encrypted), doc["auth"]["password"]);
       if (EspStrUtil::decryptPassword(encrypted, key, config.auth.password, sizeof(config.auth.password))) {
-        // MY_LOGD(TAG, "decrypted auth password: %s", config.auth.password);
+        // ESP_LOGD(TAG, "decrypted auth password: %s", config.auth.password);
       } else {
-        MY_LOGE(TAG, "error decrypting auth password");
+        ESP_LOGE(TAG, "error decrypting auth password");
       }
     }
 
@@ -584,9 +593,9 @@ void configLoadFromFile() {
     } else {
       EspStrUtil::readJSONstring(encrypted, sizeof(encrypted), doc["pushover"]["token"]);
       if (EspStrUtil::decryptPassword(encrypted, key, config.pushover.token, sizeof(config.pushover.token))) {
-        // MY_LOGD(TAG, "decrypted pushover token: %s", config.pushover.token);
+        // ESP_LOGD(TAG, "decrypted pushover token: %s", config.pushover.token);
       } else {
-        MY_LOGE(TAG, "error decrypting pushover token");
+        ESP_LOGE(TAG, "error decrypting pushover token");
       }
     }
 
@@ -595,20 +604,21 @@ void configLoadFromFile() {
     } else {
       EspStrUtil::readJSONstring(encrypted, sizeof(encrypted), doc["pushover"]["user_key"]);
       if (EspStrUtil::decryptPassword(encrypted, key, config.pushover.user_key, sizeof(config.pushover.user_key))) {
-        // MY_LOGD(TAG, "decrypted pushover user_key: %s", config.pushover.user_key);
+        // ESP_LOGD(TAG, "decrypted pushover user_key: %s", config.pushover.user_key);
       } else {
-        MY_LOGE(TAG, "error decrypting pushover user_key");
+        ESP_LOGE(TAG, "error decrypting pushover user_key");
       }
     }
 
     config.log.enable = doc["logger"]["enable"];
     config.log.filter = doc["logger"]["filter"];
     config.log.order = doc["logger"]["order"];
+    config.log.level = doc["logger"]["level"];
   }
 
   if (strlen(config.wifi.ssid) == 0) {
     // no valid wifi setting => start AP-Mode
-    MY_LOGW(TAG, "no valid wifi SSID set => enter SetupMode and start AP-Mode");
+    ESP_LOGW(TAG, "no valid wifi SSID set => enter SetupMode and start AP-Mode");
     setupMode = true;
   }
 
@@ -625,8 +635,8 @@ void configLoadFromFile() {
   // save config if version is different
   if (config.version != CFG_VERSION) {
     configSaveToFile();
-    MY_LOGI(TAG, "config file was updated from version %i to version: %i", config.version, CFG_VERSION);
+    ESP_LOGI(TAG, "config file was updated from version %i to version: %i", config.version, CFG_VERSION);
   } else {
-    MY_LOGI(TAG, "config file version %i was successfully loaded", config.version);
+    ESP_LOGI(TAG, "config file version %i was successfully loaded", config.version);
   }
 }

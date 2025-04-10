@@ -61,13 +61,33 @@
               <br />
               <div class="WIFI_STATIC_IP">
                 <label for="ip_adr" data-i18n="ip_adr"></label>
-                <input type="text" id="cfg_wifi_ipaddress" name="ip_adr" />
+                <input
+                  type="url"
+                  data-type="ip"
+                  oninput="validateIP(this)"
+                  id="cfg_wifi_ipaddress"
+                  name="ip_adr" />
                 <label for="ip_subnet" data-i18n="ip_subnet"></label>
-                <input type="text" id="cfg_wifi_subnet" name="ip_subnet" />
+                <input
+                  type="url"
+                  data-type="ip"
+                  oninput="validateIP(this)"
+                  id="cfg_wifi_subnet"
+                  name="ip_subnet" />
                 <label for="ip_gateway" data-i18n="ip_gateway"></label>
-                <input type="text" id="cfg_wifi_gateway" name="ip_gateway" />
+                <input
+                  type="url"
+                  data-type="ip"
+                  oninput="validateIP(this)"
+                  id="cfg_wifi_gateway"
+                  name="ip_gateway" />
                 <label for="ip_dns" data-i18n="ip_dns"></label>
-                <input type="text" id="cfg_wifi_dns" name="ip_dns" />
+                <input
+                  type="url"
+                  data-type="ip"
+                  oninput="validateIP(this)"
+                  id="cfg_wifi_dns"
+                  name="ip_dns" />
               </div>
             </details>
             <hr />
@@ -129,13 +149,33 @@
               <br />
               <div class="ETH_STATIC_IP">
                 <label for="ip_adr" data-i18n="ip_adr"></label>
-                <input type="text" id="cfg_eth_ipaddress" name="ip_adr" />
+                <input
+                  type="url"
+                  data-type="ip"
+                  oninput="validateIP(this)"
+                  id="cfg_eth_ipaddress"
+                  name="ip_adr" />
                 <label for="ip_subnet" data-i18n="ip_subnet"></label>
-                <input type="text" id="cfg_eth_subnet" name="ip_subnet" />
+                <input
+                  type="url"
+                  data-type="ip"
+                  oninput="validateIP(this)"
+                  id="cfg_eth_subnet"
+                  name="ip_subnet" />
                 <label for="ip_gateway" data-i18n="ip_gateway"></label>
-                <input type="text" id="cfg_eth_gateway" name="ip_gateway" />
+                <input
+                  type="url"
+                  data-type="ip"
+                  oninput="validateIP(this)"
+                  id="cfg_eth_gateway"
+                  name="ip_gateway" />
                 <label for="ip_dns" data-i18n="ip_dns"></label>
-                <input type="text" id="cfg_eth_dns" name="ip_dns" />
+                <input
+                  type="url"
+                  data-type="ip"
+                  oninput="validateIP(this)"
+                  id="cfg_eth_dns"
+                  name="ip_dns" />
               </div>
             </details>
             <!-- Dialog OPEN-ETH-HELP -->
@@ -352,7 +392,12 @@
               </div>
               <br />
               <label for="mqtt_server" data-i18n="server"></label>
-              <input type="text" id="cfg_mqtt_server" name="mqtt_server" />
+              <input
+                type="url"
+                data-type="ip"
+                oninput="validateIP(this)"
+                id="cfg_mqtt_server"
+                name="mqtt_server" />
               <label for="mqtt_port" data-i18n="port"></label>
               <input type="text" id="cfg_mqtt_port" name="mqtt_port" />
               <label for="mqtt_topic" data-i18n="topic"></label>
@@ -620,6 +665,16 @@
                   hideOpt="OPT_HW_OIL"
                   id="cfg_oilmeter_use_hardware_meter" />
               </div>
+              <br />
+              <label
+                class="OPT_HW_OIL"
+                for="pulse_per_liter"
+                data-i18n="pulse_per_liter"></label>
+              <input
+                class="OPT_HW_OIL"
+                name="pulse_per_liter"
+                type="number"
+                id="cfg_oilmeter_pulse_per_liter" />
               <div class="section-header">
                 <h6 for="oil_virtual" data-i18n="oil_virtual"></h6>
                 <input
@@ -648,6 +703,15 @@
                 name="oil_par2_kg_l"
                 type="number"
                 id="cfg_oilmeter_oil_density_kg_l" />
+              <label
+                class="OPT_V_OIL"
+                for="virt_calc_offset"
+                data-i18n="virt_calc_offset"></label>
+              <input
+                class="OPT_V_OIL"
+                name="virt_calc_offset"
+                type="number"
+                id="cfg_oilmeter_virt_calc_offset" />
             </details>
             <hr />
             <!-- Optional Sensors -->

@@ -1,3 +1,393 @@
+/* custom css definitions */
+[data-theme="dark"] {
+  --pico-card-sectioning-background-color: #3d475c;
+  --pico-card-background-color: #202632;
+  --pico-range-border-color: #3d475c;
+  --pico-range-active-border-color: #cfd5e2;
+  --pico-table-row-stripped-background-color: #2a3140;
+  --pico-switch-background-color: #3d475c;
+  --pico-switch-checked-background-color: #687899;
+}
+
+@media (min-width: 100px) {
+  :root {
+    --pico-font-size: 85%;
+  }
+}
+@media (min-width: 576px) {
+  :root {
+    --pico-font-size: 90%;
+  }
+}
+@media (min-width: 768px) {
+  :root {
+    --pico-font-size: 95%;
+  }
+}
+@media (min-width: 1024px) {
+  :root {
+    --pico-font-size: 100%;
+  }
+}
+@media (min-width: 1280px) {
+  :root {
+    --pico-font-size: 105%;
+  }
+}
+@media (min-width: 1536px) {
+  :root {
+    --pico-font-size: 110%;
+  }
+}
+
+details > summary {
+  font-size: 1.125rem;
+}
+
+details[open] > summary {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+details[open] {
+  background-color: #202632;
+  padding: 20px;
+}
+
+hr {
+  border-top: 2px solid #646b79;
+  margin-top: 4%;
+  margin-bottom: 4%;
+}
+
+.topMenu {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 50px;
+  background-color: #3d475c;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+  z-index: 999;
+}
+
+#topMenuDropdown {
+  width: 70px;
+  height: 35px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.footerBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 75px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+}
+
+.simModeBar {
+  display: none;
+  background-color: #9b8904;
+  font-weight: bold;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 5px;
+  text-align: center;
+}
+
+.setupModeBar {
+  display: none;
+  background-color: #4650df;
+  font-weight: bold;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+  padding: 5px;
+}
+
+/* Basis Flexbox-Layout */
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* Standard: 1 Elemente pro Zeile */
+.grid .dash {
+  flex-basis: 99%;
+  padding: 10px;
+  min-width: 300px;
+}
+
+/* Breitere Bildschirme: 2 Elemente pro Zeile */
+@media (min-width: 768) {
+  .grid .dash {
+    flex-basis: 48%;
+  }
+}
+
+/* Breitere Bildschirme: 3 Elemente pro Zeile */
+@media (min-width: 800px) {
+  .grid .dash {
+    flex-basis: 32%;
+  }
+}
+
+.leftright {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 5px;
+}
+
+.sidebar {
+  display: flex;
+  color: #fff;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 250px;
+  background: var(--pico-card-background-color);
+  padding: 6px 14px;
+  z-index: 99;
+  transition: all 0.5s ease;
+  flex-direction: column;
+}
+
+.sidebar i {
+  height: 60px;
+  min-width: 50px;
+  font-size: 28px;
+  text-align: center;
+  line-height: 60px;
+}
+
+.sidebar .nav-list {
+  margin-top: 20px;
+  height: 100%;
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.sidebar li {
+  position: relative;
+  margin: 6px 0;
+  list-style: none;
+}
+
+.sidebar li a {
+  color: #fff;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  border-radius: 6px;
+  align-items: center;
+  text-decoration: none;
+  transition: all 0.4s ease;
+  background: var(--pico-card-sectioning-background-color);
+}
+
+.sidebar li a:hover {
+  background: #fff;
+}
+
+.sidebar li a:hover .links_name,
+.sidebar li a:hover i {
+  pointer-events: auto;
+  transition: all 0.5s ease;
+  filter: invert(1);
+}
+
+.sidebar li i {
+  height: 50px;
+  line-height: 50px;
+  font-size: 18px;
+  border-radius: 12px;
+}
+
+.sidebar .nav-list li .svg {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.3s ease;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.sidebar li a.active {
+  background: #fff;
+}
+
+.sidebar li a.active .links_name,
+.sidebar li a.active i {
+  pointer-events: auto;
+  transition: all 0.3s ease;
+  filter: invert(1);
+}
+
+.home-section {
+  position: relative;
+  top: 15px;
+  left: 250px;
+  width: calc(100% - 250px);
+  transition: all 0.5s ease;
+}
+
+/* Media Query für kleinere Bildschirme */
+@media (max-width: 768px) {
+  .topMenu {
+    display: flex;
+  }
+  .sidebar {
+    display: none;
+  }
+  .home-section {
+    top: 70px;
+    left: 10px;
+    width: calc(100% - 20px);
+  }
+}
+
+.tab-content {
+  display: none;
+}
+.tab-content.active {
+  display: block;
+}
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+.section-title {
+  flex: 1;
+}
+.section-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+.switch-container {
+  margin-left: 20px;
+}
+.grid {
+  margin-bottom: 5%;
+}
+.tools {
+  width: 500px;
+}
+.dash {
+  display: flex;
+  align-items: stretch;
+  margin: 0;
+  padding: 0;
+  max-width: 512px;
+  min-width: 200px;
+}
+.dash-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+.dash-icon {
+  width: 20%;
+  min-width: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--pico-card-sectioning-background-color);
+}
+.dash-header {
+  text-align: center;
+  margin-bottom: 0.5em;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.dash-content,
+.dash-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  text-align: center;
+  margin: 2%;
+}
+.dash-content .value,
+.dash-footer {
+  flex: 1;
+  margin-left: 2%;
+  margin-right: 2%;
+  font-size: 0.75rem;
+}
+.dash-content .value {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+.dash-footer {
+  font-size: 0.75rem;
+}
+.table-header {
+  font-size: 1rem;
+  font-weight: 700;
+}
+.table-value {
+  text-align: right;
+}
+input[type="number"] {
+  text-align: right;
+}
+table td {
+  background-color: var(--pico-table-row-stripped-background-color);
+  font-size: 0.75rem;
+}
+.radio-buttons {
+  padding-bottom: 5px;
+  margin-top: 5px;
+  border-radius: 15px;
+  border: #3d475c;
+  border-style: solid;
+  border-width: 1px;
+}
+
+.button-group {
+  display: inline-block;
+}
+
+.button-like {
+  display: none;
+}
+
+.button-like-label {
+  display: inline-block;
+  padding: 5px 10px;
+  margin: 5px;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.button-like:checked + .button-like-label {
+  background-color: var(--pico-card-sectioning-background-color);
+  color: #fff;
+  border-radius: 10px;
+}
+
+a {
+  cursor: pointer;
+}
+
 .i_flame {
   background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path fill="%23ffffff" d="M20 15c0 4.255-2.618 6.122-4.641 6.751-.432.134-.715-.369-.457-.74.88-1.265 1.898-3.195 1.898-5.01 0-1.951-1.644-4.254-2.928-5.675-.293-.324-.805-.11-.821.328-.053 1.45-.282 3.388-1.268 4.908a.412.412 0 0 1-.677.036c-.308-.39-.616-.871-.924-1.252-.166-.204-.466-.207-.657-.026-.747.707-1.792 1.809-1.792 3.18 0 .93.36 1.905.767 2.69.224.43-.174.95-.604.724C6.113 19.98 4 18.084 4 15c0-3.146 4.31-7.505 5.956-11.623.26-.65 1.06-.955 1.617-.531C14.943 5.414 20 10.378 20 15Z"/></svg>');
 }
@@ -31,3 +421,4 @@
 .i_solar {
   background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" fill="%23fff" viewBox="0 0 260 196"><path d="M98 54v-8H73.153a23.062 23.062 0 0 0-3.86-9.306l17.806-17.806-5.657-5.657L63.64 31.032A23.071 23.071 0 0 0 54 27.097V2h-8v25.207a23.064 23.064 0 0 0-9.021 3.82l-17.78-17.779-5.656 5.657 17.781 17.78A23.083 23.083 0 0 0 27.457 46H2v8h25.457a23.063 23.063 0 0 0 3.88 9.334L13.56 81.112l5.657 5.657 17.782-17.782A23.076 23.076 0 0 0 46 72.793V98h8V72.903a23.069 23.069 0 0 0 9.62-3.921l17.804 17.805 5.657-5.656-17.802-17.805A23.068 23.068 0 0 0 73.153 54H98zM50.305 34.8c8.381 0 15.2 6.819 15.2 15.2s-6.818 15.2-15.2 15.2-15.2-6.819-15.2-15.2 6.819-15.2 15.2-15.2zM242 178v-64h-20v44l-36-36H74L2 194h128l56-56 56 56h16l-16-16zM71.529 153H88.51l-10 10H61.529l10-10zm22.638 0h16.982l-10 10H84.166l10.001-10zm22.638 0h16.982l-10 10h-16.982l10-10zm20.982-4h-16.982l11-11h16.982l-11 11zm-22.639 0H98.167l11-11h16.981l-11 11zm-22.638 0H75.529l11-11h16.981l-11 11zm-34.981 18H74.51l-11 11H46.529l11-11zm22.637 0h16.982l-11 11H69.166l11-11zm22.638 0h16.982l-11 11H91.804l11-11z"/></svg>');
 }
+
