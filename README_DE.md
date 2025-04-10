@@ -21,8 +21,6 @@
 ![GitHub watchers](https://img.shields.io/github/watchers/dewenni/ESP_Buderus_KM271?style=social)
 [![GitHub stars](https://img.shields.io/github/stars/dewenni/ESP_Buderus_KM271.svg?style=social&label=Star)](https://github.com/dewenni/ESP_Buderus_KM271/stargazers/)
 
-[![Stargazers over time](https://starchart.cc/dewenni/ESP_Buderus_KM271.svg?variant=adaptive)](https://github.com/dewenni/ESP_Buderus_KM271/stargazers/)
-
 </div>
 
 -----
@@ -63,6 +61,9 @@ Die WebUI ist responsiv und bietet auch ein mobiles Layout.
   margin-left: auto;
   width: 200px;" src="./Doc/webui_mobile_3.png">   
 (Mobile Version)
+
+Um sich einen ersten Eindruck von den Funktionen und der WebUI zu verschaffen, steht auch eine eingeschränkte Demo zur Verfügung.
+Diese kann über den folgenden Link aufgerufen werden: [WebUI-DEMO](https://dewenni.github.io/ESP_Buderus_KM271/)
 
 -----
 
