@@ -19,3 +19,22 @@ function changeLogType(selectElem) {
     filterSelect.style.display = "inline-block";
   }
 }
+
+async function loadSimulatedData() {
+  if (!isGitHubPages()) {
+    return; // Kein Simulationsmodus, wenn nicht auf GitHub Pages
+  }
+
+  console.log("GitHub Pages erkannt – Simulationsdaten werden geladen.");
+
+  try {
+    const response = await fetch("sim.json");
+    if (!response.ok)
+      throw new Error("Fehler beim Abrufen der Simulationsdaten");
+
+    const simData = await response.json();
+    updateJSON(simData); // Aktualisiert die UI mit den Simulationsdaten
+  } catch (error) {
+    console.error("Fehler beim Laden von sim.json:", error);
+  }
+}
