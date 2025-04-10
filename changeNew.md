@@ -20,12 +20,14 @@ Example: restart 1/5 - wait 2s - restart 2/5 - wait 2s - restart 3/5 - wait 2s -
 
 The Logger source is now split into "System" and "Logamatic" log source.
 System and Logamatic is recorded in parallel. You can switch between this two sources without deleting the buffer.
-But the buffer will be deleted if you change the log filter.
+But the buffer will be deleted if you change the log filter for the Logamatic log.
 
 ## changelog
 
 - [UPDATE]  ESP32Async/AsyncTCP @ 3.3.5
 - [UPDATE]  ESP32Async/ESPAsyncWebServer @ 3.7.0
+- [UPDATE]  update ArduinoJSON @ 7.4.0
+- [CHANGE] Basic WebUI functions were outsourced to a separate [EspWebUI](https://github.com/dewenni/EspWebUI) library
 - [IMPROVE] rework internal logging functions
 - [IMPROVE] Added validation for IP input fields in the setup area to avoid wrong syntax
 - [IMPROVE] Conversion of the storage of the oil counter from EEPROM to NVS

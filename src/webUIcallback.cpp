@@ -265,12 +265,15 @@ void webCallback(const char *elementId, const char *value) {
   // Authentication
   if (strcmp(elementId, "cfg_auth_enable") == 0) {
     config.auth.enable = EspStrUtil::stringToBool(value);
+    webUI.setAuthentication(config.auth.enable);
   }
   if (strcmp(elementId, "cfg_auth_user") == 0) {
     snprintf(config.auth.user, sizeof(config.auth.user), "%s", value);
+    webUI.setCredentials(config.auth.user, config.auth.password);
   }
   if (strcmp(elementId, "cfg_auth_password") == 0) {
     snprintf(config.auth.password, sizeof(config.auth.password), "%s", value);
+    webUI.setCredentials(config.auth.user, config.auth.password);
   }
 
   // NTP-Server

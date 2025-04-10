@@ -48,7 +48,7 @@ long getOilmeter() { return data.oilcounter; }
 
 /**
  * *******************************************************************
- * @brief   Set new value for Oilcounter and safe to EEPROM
+ * @brief   Set new value for Oilcounter and safe to FLASH
  * @param   setvalue  new setvalue
  * @return  none
  * *******************************************************************/
@@ -57,7 +57,7 @@ void cmdSetOilmeter(long setvalue) {
   data.oilcounter = setvalue;
   cmdStoreOilmeter();
 
-  snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %ld = %.2f", data.oilcounter, ((float)data.oilcounter) / 100.0);
+  snprintf(tmpMsg, sizeof(tmpMsg), "oilcounter was set to: %ld = %.2f L", data.oilcounter, ((float)data.oilcounter) / 100.0);
   km271Msg(KM_TYP_MESSAGE, tmpMsg, "");
 
   sendOilmeter();
@@ -65,7 +65,7 @@ void cmdSetOilmeter(long setvalue) {
 
 /**
  * *******************************************************************
- * @brief   store actual Oilcountervalue to EEPROM
+ * @brief   store actual Oilcountervalue to FLASH
  * @param   none
  * @return  none
  * *******************************************************************/
@@ -78,14 +78,17 @@ void cmdStoreOilmeter() {
     return;
   }
 
-  nvs_set_u32(nvs_handle, "oilcounter", data.oilcounter);
+  nvs_set_i32(nvs_handle, "oilcounter", data.oilcounter);
   nvs_commit(nvs_handle);
   nvs_close(nvs_handle);
 }
 
-// ####################################################################
-//  get Device Counter
-// ####################################################################
+/**
+ * *******************************************************************
+ * @brief   load Oilcountervalue from FLASH
+ * @param   none
+ * @return  none
+ * *******************************************************************/
 void cmdLoadOilmeter() {
   nvs_handle_t nvs_handle;
   esp_err_t err = nvs_open(NVS_NAMESPACE, NVS_READWRITE, &nvs_handle);
@@ -120,7 +123,6 @@ void setupOilmeter() {
 
   cmdLoadOilmeter(); // load oilcounter from NVS
   ESP_LOGI(TAG, "restored value from Flash: %lu", data.oilcounter);
-  
 }
 
 /**
