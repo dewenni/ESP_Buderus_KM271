@@ -29,6 +29,7 @@ struct s_cfg_oilmeter {
   float consumption_kg_h = 2.0;
   float oil_density_kg_l = 0.85;
   int pulse_per_liter = 50;
+  int debounce_time = 500;
   double virt_calc_offset = 0;
 };
 

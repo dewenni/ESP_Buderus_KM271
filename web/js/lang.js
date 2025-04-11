@@ -330,6 +330,10 @@ const user_translations = {
     de: "Impule pro Liter",
     en: "pulses per liter",
   },
+  debounce_time: {
+    de: "Entprellzeit (ms)",
+    en: "debounce time (ms)",
+  },
   virt_calc_offset: {
     de: "Berechnungskorrekturwert für virtuellen Verbrauch",
     en: "Calculation Correction Value for Virtual Consumption",

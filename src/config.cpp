@@ -21,6 +21,7 @@ const unsigned char key[16] = {0x6d, 0x79, 0x5f, 0x73, 0x65, 0x63, 0x75, 0x72, 0
 void configGPIO();
 void configInitValue();
 void checkGPIO();
+void configFinalCheck();
 
 /**
  * *******************************************************************
@@ -46,8 +47,17 @@ void configSetup() {
   // gpio settings
   configGPIO();
 
+  configFinalCheck();
+}
+
+void configFinalCheck() {
+
   // set log level
   setLogLevel(config.log.level);
+
+  if (config.oilmeter.use_hardware_meter && config.oilmeter.debounce_time == 0) {
+    config.oilmeter.debounce_time = 500;
+  }
 }
 
 /**
@@ -311,6 +321,7 @@ void configSaveToFile() {
   doc["oilmeter"]["oil_density_kg_l"] = config.oilmeter.oil_density_kg_l;
   doc["oilmeter"]["pulse_per_liter"] = config.oilmeter.pulse_per_liter;
   doc["oilmeter"]["virt_calc_offset"] = config.oilmeter.virt_calc_offset;
+  doc["oilmeter"]["debounce_time"] = config.oilmeter.debounce_time;
 
   doc["wifi"]["ssid"] = config.wifi.ssid;
 
@@ -473,6 +484,7 @@ void configLoadFromFile() {
     config.oilmeter.oil_density_kg_l = doc["oilmeter"]["oil_density_kg_l"];
     config.oilmeter.pulse_per_liter = doc["oilmeter"]["pulse_per_liter"];
     config.oilmeter.virt_calc_offset = doc["oilmeter"]["virt_calc_offset"];
+    config.oilmeter.debounce_time = doc["oilmeter"]["debounce_time"];
 
     config.lang = doc["lang"];
 

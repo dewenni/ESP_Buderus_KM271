@@ -502,6 +502,9 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "cfg_oilmeter_virt_calc_offset") == 0) {
     config.oilmeter.virt_calc_offset = strtod(value, NULL);
   }
+  if (strcmp(elementId, "cfg_oilmeter_debounce_time") == 0) {
+    config.oilmeter.debounce_time = strtoul(value, NULL, 10);
+  }
 
   // Optional Sensor
   if (strcmp(elementId, "cfg_sensor_ch1_enable") == 0) {

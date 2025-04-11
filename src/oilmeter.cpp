@@ -19,9 +19,9 @@ static char tmpMsg[300] = {'\0'};
 static const char *TAG = "OIL";             // LOG TAG
 static bool errTriggerGpioNotSet = false;   // flag for error message
 static bool errPulsePerLiterNotSet = false; // flag for error message
+static bool bootState = false;              // flag for boot state
 
 #define NVS_NAMESPACE "oilmeter_data"
-#define OILTRIGGER_TIME 1000       // 1.000 = 1sec
 #define OILCYCLICINFO_TIME 3600000 // 360.000 = 1 hour
 
 muTimer oilTrigger = muTimer();    // timer for debouncing trigger input
@@ -123,6 +123,10 @@ void setupOilmeter() {
 
   cmdLoadOilmeter(); // load oilcounter from NVS
   ESP_LOGI(TAG, "restored value from Flash: %lu", data.oilcounter);
+
+  // flag to ignore the gpio state at startup
+  bootState = !digitalRead(config.gpio.trigger_oilcounter);
+  reboot = true;
 }
 
 /**
@@ -156,7 +160,13 @@ void cyclicOilmeter() {
   errPulsePerLiterNotSet = false;
 
   // Debounce the input trigger using a timer function
-  bool statusTrigger = oilTrigger.delayOnOffTrigger(!digitalRead(config.gpio.trigger_oilcounter), 0, OILTRIGGER_TIME) == 1;
+  bool currentInput = !digitalRead(config.gpio.trigger_oilcounter);
+  bool statusTrigger = oilTrigger.delayOnOffTrigger(currentInput, config.oilmeter.debounce_time, config.oilmeter.debounce_time) == 1;
+
+  // reset the reboot flag if the trigger has changed once
+  if (currentInput != bootState) {
+    reboot = false;
+  }
 
   // Static accumulator for the fractional part (the remaining hundredths per liter)
   static int oil_remainder = 0;
@@ -188,6 +198,4 @@ void cyclicOilmeter() {
   if (oilCyclicInfo.cycleTrigger(OILCYCLICINFO_TIME)) {
     sendOilmeter();
   }
-
-  reboot = false; // Reset the reboot flag
 }
