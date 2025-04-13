@@ -37,6 +37,7 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "p00_ota_confirm_btn") == 0) {
     webUI.wsUpdateWebDialog("ota_update_done_dialog", "close");
     EspSysUtil::RestartReason::saveLocal("ota update");
+    cmdStoreOilmeter();
     yield();
     delay(1000);
     yield();
@@ -542,7 +543,9 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "restartAction") == 0) {
     EspSysUtil::RestartReason::saveLocal("webUI command");
     configSaveToFile();
-    delay(1000);
+    delay(500);
+    cmdStoreOilmeter();
+    delay(500);
     ESP.restart();
   }
 
