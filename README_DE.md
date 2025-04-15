@@ -714,6 +714,12 @@ Es passiert leider öfters mal, dass ein OTA Update über das WebUI nicht erfolg
 Meisten klappt es dann aber nach ein paar weiteren Versuchen.
 Wenn ihr das Board über WiFi und über Ethernet verbunden habt, dann auch mal über beide Verbindungen testen. Manchmal klappt es über die eine Verbindung nicht, über die andere dann sofort.
 
+## Logbuch
+
+generell empfiehlt es sich, bei Fehlern und Problemen den Logger im WebUI zu prüfen.  
+Hier werden z.B. Fehler eingetragen wenn GPIO Einstellungen nicht gültig sind.  
+(Logbuch: System)
+
 -----
 
 # ❗️ Benutzung auf eigene Gefahr ❗️
