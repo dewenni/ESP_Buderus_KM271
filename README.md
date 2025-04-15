@@ -21,6 +21,8 @@
 ![GitHub watchers](https://img.shields.io/github/watchers/dewenni/ESP_Buderus_KM271?style=social)
 [![GitHub stars](https://img.shields.io/github/stars/dewenni/ESP_Buderus_KM271.svg?style=social&label=Star)](https://github.com/dewenni/ESP_Buderus_KM271/stargazers/)
 
+[![Stargazers over time](http://starchart.cc/dewenni/ESP_Buderus_KM271.svg?background=%23ffffff00&axis=%236c81a6&line=%236c81a6)](https://github.com/dewenni/ESP_Buderus_KM271/stargazers/)
+
 </div>
 
 
@@ -33,13 +35,7 @@ And if you'd like to support my work, you can also<p>
 
 [![Sponsor](https://img.shields.io/badge/Sponsor%20me%20on-GitHub-%23EA4AAA.svg?style=for-the-badge&logo=github)](https://github.com/sponsors/dewenni)
 
-
-</div>
-
 -----
-
-[![Stargazers repo roster for @dewenni/ESP_Buderus_KM271](https://reporoster.com/stars/dewenni/ESP_Buderus_KM271)](https://github.com/dewenni/ESP_Buderus_KM271/stargazers)
-
 
 Control your Buderus Logamatic R2107 / HS 2105 with ESP and MQTT
 
