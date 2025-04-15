@@ -79,7 +79,6 @@ Diese kann über den folgenden Link aufgerufen werden: [WebUI-DEMO](https://dewe
   - [Optional: OneWire Sensor](#optional-onewire-sensor)
   - [Optional: Abgas Sensor](#optional-abgas-sensor)
   - [Optional: Ethernet Modul W5500](#optional-ethernet-modul-w5500)
-
 - [Erste Schritte](#erste-schritte)
   - [Platform-IO](#platform-io)
   - [ESP-Flash-Tool](#esp-flash-tool)
@@ -87,21 +86,17 @@ Diese kann über den folgenden Link aufgerufen werden: [WebUI-DEMO](https://dewe
   - [Setup-Mode](#setup-mode)
   - [Konfiguration](#konfiguration)
   - [Filemanager](#filemanager)
-
 - [MQTT](#mqtt)
   - [Config and Status Werte](#config-and-status-values)
   - [Kommandos](#commands)
   - [Home Assistant](#home-assistant)
-
 - [Optional Messaging](#optional-messaging)
   - [Pushover](#pushover)
   - [WebUI-Logger](#webui-logger)
   - [Telnet](#telnet)
-
 - [Optionale Komponenten](#optionale-komponenten)
   - [node-red](#node-red)
   - [grafana](#grafana)
-
 - [FAQ](#faq)
 
 -----

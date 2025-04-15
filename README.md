@@ -72,7 +72,6 @@ This can be accessed via the following link: [WebUI-DEMO](https://dewenni.github
 # Table of Contents
 
 - [Overview](#overview)
-
 - [Hardware](#hardware)
   - [Option 1 - Board from the78mole](#option-1---board-from-the78mole)
   - [Option 2 - ESP32 with original Buderus KM271](#option-2---esp32-with-original-buderus-km271)
@@ -80,7 +79,6 @@ This can be accessed via the following link: [WebUI-DEMO](https://dewenni.github
   - [Optional: OneWire Sensor](#optional-onewire-sensor)
   - [Optional: Exhaust Sensor](#optional-exhaust-sensor)
   - [Optional: Ethernet Module W5500](#optional-ethernet-module-w5500)
-
 - [Getting started](#getting-started)
   - [Platform-IO](#platform-io)
   - [ESP-Flash-Tool](#esp-flash-tool)
@@ -88,21 +86,17 @@ This can be accessed via the following link: [WebUI-DEMO](https://dewenni.github
   - [Setup-Mode](#setup-mode)
   - [Configuration](#configuration)
   - [Filemanager](#filemanager)
-
 - [MQTT](#mqtt)
   - [Config and Status values](#config-and-status-values)
   - [Commands](#commands)
   - [Home Assistant](#home-assistant)
-
 - [Optional Messaging](#optional-messaging)
   - [Pushover](#pushover)
   - [WebUI-Logger](#webui-logger)
   - [Telnet](#telnet)
-
 - [Optional Components](#optional-components)
   - [node-red](#node-red)
   - [grafana](#grafana)
-
 - [FAQ](#faq)
 
 -----
