@@ -35,6 +35,8 @@ And if you'd like to support my work, you can also<p>
 
 [![Sponsor](https://img.shields.io/badge/Sponsor%20me%20on-GitHub-%23EA4AAA.svg?style=for-the-badge&logo=github)](https://github.com/sponsors/dewenni)
 
+</div>
+
 -----
 
 Control your Buderus Logamatic R2107 / HS 2105 with ESP and MQTT

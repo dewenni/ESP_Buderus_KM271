@@ -34,7 +34,6 @@ Und wenn du meine Arbeit unterstützen möchtest, kannst auch folgendes nutzen <
 
 [![Sponsor](https://img.shields.io/badge/Sponsor%20me%20on-GitHub-%23EA4AAA.svg?style=for-the-badge&logo=github)](https://github.com/sponsors/dewenni)
 
-
 </div>
 
 -----
