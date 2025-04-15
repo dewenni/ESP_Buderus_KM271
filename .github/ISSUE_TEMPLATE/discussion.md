@@ -11,6 +11,8 @@ assignees: ''
 **Please do not open an issue for general questions or feature requests.**  
 Use the [Discussions](https://github.com/dewenni/ESP_Buderus_KM271/discussions) section instead.  
 
+=> [read the FAQ](https://github.com/dewenni/ESP_Buderus_KM271#faq)
+
 ---
 
 ## DEUTSCH
@@ -18,3 +20,4 @@ Use the [Discussions](https://github.com/dewenni/ESP_Buderus_KM271/discussions) 
 **Bitte öffne kein Issue für allgemeine Fragen oder Feature-Anfragen.**  
 Verwende stattdessen den Bereich [Diskussionen](https://github.com/dewenni/ESP_Buderus_KM271/discussions).  
 
+=> [FAQ lesen](https://github.com/dewenni/ESP_Buderus_KM271#faq)

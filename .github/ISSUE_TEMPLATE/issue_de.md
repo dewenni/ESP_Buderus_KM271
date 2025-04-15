@@ -11,6 +11,7 @@ assignees: ''
 - [ ] Ich nutze die **neueste Version**. (bitte zuerst aktualisieren und erneut testen, bevor der Fehler gemeldet wird)
 - [ ] Ich habe die verfügbare Dokumentation gelesen und keine Hinweise auf mein Problem gefunden
 - [ ] Ich habe mögliche Hinweise in den aktuellen Release Notes gelesen und keine Hinweise auf mein Problem gefunden
+- [ ] Ich habe die [FAQ](https://github.com/dewenni/ESP_Buderus_KM271#faq) gelesen
 
 ### Hardware-Informationen
 

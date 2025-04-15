@@ -23,6 +23,7 @@
 
 </div>
 
+
 -----
 
 <div align="center">
@@ -36,6 +37,9 @@ And if you'd like to support my work, you can also<p>
 </div>
 
 -----
+
+[![Stargazers repo roster for @dewenni/ESP_Buderus_KM271](https://reporoster.com/stars/dewenni/ESP_Buderus_KM271)](https://github.com/dewenni/ESP_Buderus_KM271/stargazers)
+
 
 Control your Buderus Logamatic R2107 / HS 2105 with ESP and MQTT
 
@@ -70,6 +74,7 @@ This can be accessed via the following link: [WebUI-DEMO](https://dewenni.github
 # Table of Contents
 
 - [Overview](#overview)
+
 - [Hardware](#hardware)
   - [Option 1 - Board from the78mole](#option-1---board-from-the78mole)
   - [Option 2 - ESP32 with original Buderus KM271](#option-2---esp32-with-original-buderus-km271)
@@ -78,7 +83,6 @@ This can be accessed via the following link: [WebUI-DEMO](https://dewenni.github
   - [Optional: Exhaust Sensor](#optional-exhaust-sensor)
   - [Optional: Ethernet Module W5500](#optional-ethernet-module-w5500)
 
-
 - [Getting started](#getting-started)
   - [Platform-IO](#platform-io)
   - [ESP-Flash-Tool](#esp-flash-tool)
@@ -86,17 +90,22 @@ This can be accessed via the following link: [WebUI-DEMO](https://dewenni.github
   - [Setup-Mode](#setup-mode)
   - [Configuration](#configuration)
   - [Filemanager](#filemanager)
+
 - [MQTT](#mqtt)
   - [Config and Status values](#config-and-status-values)
   - [Commands](#commands)
   - [Home Assistant](#home-assistant)
+
 - [Optional Messaging](#optional-messaging)
   - [Pushover](#pushover)
   - [WebUI-Logger](#webui-logger)
   - [Telnet](#telnet)
+
 - [Optional Components](#optional-components)
   - [node-red](#node-red)
   - [grafana](#grafana)
+
+- [FAQ](#faq)
 
 -----
 
@@ -671,6 +680,43 @@ If you are interested my dashboard, you can use this export file:
 
 > [!NOTE]
 > It is based on InfluxDB 2.0 with query languange "Flux" and uses the german mqtt topics! If you setup your system the same way, it should be more or less a plug and play solution to import my grafana.json
+
+# FAQ
+
+## No connection to the Logamatic / No values from the Logamatic
+
+1) Check the GPIO setting for your setup. When using the78mole boards, at least the following must be set:
+`KM271-RX = 4` and `KM271-2X = 2`
+
+2) Check that the resistance between pin 4 and pin 8 on the pin header where the board is plugged in is approx. 10kOhm.
+This resistance is important for the Logamatic to recognise the board.
+
+## ESP restarts automatically
+
+1) WiFi connection is unstable
+If the board is not also connected via Ethernet, a WiFi connection is essential. Therefore, if the connection is lost, an attempt is automatically made to re-establish the connection 5 times at intervals of 30 seconds. If this fails, the ESP restarts and tries again.
+The reason for the last restart is entered in the WebUI on the ‘System’ page.
+
+2) MQTT activated but no connection possible
+If MQTT is activated but the connection is lost, the connection is automatically tried to be re-established 5 times (interval 10s, 20s, 30s, 40s, 50s). If this fails, the ESP restarts and tries again.
+The reason for the last restart is entered in the WebUI on the ‘System’ page.
+
+## Use with ioBroker
+
+Please note that there are different topics for reading and writing values. When the ESP is started, the Logamatic automatically sends all config and status values and these are then also sent via MQTT. However, these are all read values that cannot be written via the same topic.
+The topics for writing are always ../setvalue/..  
+Possible commands can be found here, for example: [Commands](#commands)
+
+You should also deactivate the following settings in ioBroker:
+
+- "Publish states on subscribe"
+- "Publish own states when connecting"
+
+## OTA firmware update has failed
+
+Unfortunately, it often happens that an OTA update via the WebUI is not successful. Unfortunately, I do not know the reasons for this.
+However, it usually works after a few more attempts.
+If you have connected the board via WiFi and Ethernet, try both connections. Sometimes it doesn't work via one connection, but then immediately via the other.
 
 -----
 

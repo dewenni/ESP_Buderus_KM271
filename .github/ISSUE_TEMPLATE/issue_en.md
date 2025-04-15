@@ -11,6 +11,7 @@ assignees: ''
 - [ ] I am using the **latest release** (please update and test before reporting the bug)
 - [ ] I have read the available documentation and have not found any references to my problem
 - [ ] I have read possible notes in the current release notes and have not found any references to my problem
+- [ ] I have read the [FAQ](https://github.com/dewenni/ESP_Buderus_KM271#faq)
 
 ### Hardware Information
 

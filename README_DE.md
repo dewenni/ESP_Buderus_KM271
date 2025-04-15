@@ -70,6 +70,7 @@ Diese kann über den folgenden Link aufgerufen werden: [WebUI-DEMO](https://dewe
 # Inhaltsverzeichnis
 
 - [Überblick](#überblick)
+
 - [Hardware](#hardware)
   - [Option 1 - Board von the78mole](#option-1---board-von-the78mole)
   - [Option 2 - ESP32 mit original Buderus KM271](#option-2---esp32-mit-original-buderus-km271)
@@ -85,17 +86,22 @@ Diese kann über den folgenden Link aufgerufen werden: [WebUI-DEMO](https://dewe
   - [Setup-Mode](#setup-mode)
   - [Konfiguration](#konfiguration)
   - [Filemanager](#filemanager)
+
 - [MQTT](#mqtt)
   - [Config and Status Werte](#config-and-status-values)
   - [Kommandos](#commands)
   - [Home Assistant](#home-assistant)
+
 - [Optional Messaging](#optional-messaging)
   - [Pushover](#pushover)
   - [WebUI-Logger](#webui-logger)
   - [Telnet](#telnet)
+
 - [Optionale Komponenten](#optionale-komponenten)
   - [node-red](#node-red)
   - [grafana](#grafana)
+
+- [FAQ](#faq)
 
 -----
 
@@ -674,6 +680,43 @@ Wenn Sie an meinem Dashboard interessiert sind, können Sie diese Exportdatei ve
 
 > [!NOTE]
 > Es basiert auf InfluxDB 2.0 mit der Abfragesprache „Flux“ und verwendet die deutschen mqtt topics! Wenn du dein System auf die gleiche Weise einrichtest, sollte es mehr oder weniger eine Plug-and-Play-Lösung sein, meine grafana.json zu importieren
+
+# FAQ
+
+## Keine Verbindung zur Logamatic / Keine Werte von der Logamatic
+
+1) prüfe die GPIO Einstellung für dein Setup. Bei verwendung der Boards von the78mole muss mindestens folgendes eingestellt sein:
+`KM271-RX = 4` und `KM271-2X = 2`
+
+2) prüfe ob der Widerstand zwischen Pin 4 und Pin 8 an der Stiftleiste wo das Board eingesteckt wird, ca. 10kOhm beträgt.
+Dieser Widerstand ist wichtig, damit die Logamatic das Board erkennt.
+
+## ESP startet automatisch neu
+
+1) WiFi Verbindung ist instabil
+Wenn das Board nicht zusätzlich auch über Ethernet verbunden ist, dann ist eine WiFi Verbindung essentiell. Daher wird bei einem Verbindungsabbruch automatisch 5 mal in einem Intervall von 30 Sekunden versucht die Verbindung wieder aufzubauen. Gelingt dies nicht, startet der ESP neu und versucht es erneut.
+Im WebUI auf der Seite "System" ist der Grund für den letzten Neustart eingetragen.
+
+2) MQTT aktiviert aber keine Verbindung möglich
+Wenn MQTT aktiviert ist, es aber zu einem Verbindungsabbruch kommt, wird automatisch 5 mal versucht die Verbindung wieder aufzubauen (Intervall 10s, 20s, 30s, 40s, 50s). Gelingt dies nicht, startet der ESP neu und versucht es erneut.
+Im WebUI auf der Seite "System" ist der Grund für den letzten Neustart eingetragen.
+
+## Verwendung mit ioBroker
+
+Hier ist zu beachten, dass es unterscheidliche Topics für das lesen und schreiben von Werten gibt. Beim Start des ESP sendet die Logamatic automatisch alle Config und Status Werte und diese werden dann auch per MQTT gesendet. Dies sind aber alles lesende Werte die nicht über das gleiche Topic geschrieben werden können.
+Die Topics zum Schreiben lauten immer ../setvalue/..  
+Mögliche Kommandos stehen z.B. hier: [Kommandos](#commands)
+
+Zusätzlich sollte man im ioBroker folgende Einstellungen deaktivieren:
+
+- "States bei subscribe publizieren"
+- "Eigene States beim Verbinden publizieren"
+
+## OTA Firmware Update ist fehlgeschlagen
+
+Es passiert leider öfters mal, dass ein OTA Update über das WebUI nicht erfolgreich ist. Die Gründe dafür sind mir leider nicht bekannt.
+Meisten klappt es dann aber nach ein paar weiteren Versuchen.
+Wenn ihr das Board über WiFi und über Ethernet verbunden habt, dann auch mal über beide Verbindungen testen. Manchmal klappt es über die eine Verbindung nicht, über die andere dann sofort.
 
 -----
 
