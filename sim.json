@@ -1,8 +1,8 @@
 {
     "type": "updateJSON",
-    "p00_version": "v5.4.0",
-    "p09_sw_version": "v5.4.0",
-    "p00_dialog_version": "v5.4.0",
+    "p00_version": "v5.4.1",
+    "p09_sw_version": "v5.4.1",
+    "p00_dialog_version": "v5.4.1",
     "p02_oilmeter_act": "112233.44",
     "p02_oilmeter_set": "11223344",
     "p01_hw_oilmeter": "112233.44  L",
