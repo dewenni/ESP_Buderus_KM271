@@ -530,14 +530,40 @@ function showElementClass(data) {
 
 // add log message
 function logger(data) {
-  var logOutput = document.getElementById("p10_log_output");
+  const logOutput = document.getElementById("p10_log_output");
+
   if (data.cmd === "add_log") {
-    logOutput.innerHTML = "";
+    // delete old log messages
+    logOutput.textContent = "";
+
     data.entry.forEach(function (entry) {
-      logOutput.innerHTML += entry + "<br>";
+      // extract log level from entry
+      const match = entry.match(/]\s*([IDWE])\s/);
+      const level = match ? match[1] : "I";
+
+      let cssClass;
+      switch (level) {
+        case "D":
+          cssClass = "log-debug";
+          break;
+        case "W":
+          cssClass = "log-warning";
+          break;
+        case "E":
+          cssClass = "log-error";
+          break;
+        default:
+          cssClass = "log-info";
+      }
+
+      // create a new log line
+      const line = document.createElement("div");
+      line.textContent = entry;
+      line.classList.add(cssClass);
+      logOutput.appendChild(line);
     });
   } else if (data.cmd === "clr_log") {
-    logOutput.innerHTML = "";
+    logOutput.textContent = "";
   }
 }
 

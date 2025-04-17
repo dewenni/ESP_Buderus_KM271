@@ -490,18 +490,22 @@ void webCallback(const char *elementId, const char *value) {
   }
   if (strcmp(elementId, "cfg_oilmeter_use_virtual_meter") == 0) {
     config.oilmeter.use_virtual_meter = EspStrUtil::stringToBool(value);
+    km271calcBurnerCalcOilConsumption();
   }
   if (strcmp(elementId, "cfg_oilmeter_consumption_kg_h") == 0) {
     config.oilmeter.consumption_kg_h = strtof(value, NULL);
+    km271calcBurnerCalcOilConsumption();
   }
   if (strcmp(elementId, "cfg_oilmeter_oil_density_kg_l") == 0) {
     config.oilmeter.oil_density_kg_l = strtof(value, NULL);
+    km271calcBurnerCalcOilConsumption();
   }
   if (strcmp(elementId, "cfg_oilmeter_pulse_per_liter") == 0) {
     config.oilmeter.pulse_per_liter = strtoul(value, NULL, 10);
   }
   if (strcmp(elementId, "cfg_oilmeter_virt_calc_offset") == 0) {
     config.oilmeter.virt_calc_offset = strtod(value, NULL);
+    km271calcBurnerCalcOilConsumption();
   }
   if (strcmp(elementId, "cfg_oilmeter_debounce_time") == 0) {
     config.oilmeter.debounce_time = strtoul(value, NULL, 10);
@@ -581,7 +585,7 @@ void webCallback(const char *elementId, const char *value) {
     webClearLog();
     webUI.wsUpdateWebLog("", "clr_log"); // clear log
   }
-  if (strcmp(elementId, "p10_log_refresh_btn") == 0) {
+  if (strcmp(elementId, "refresh_log") == 0 || strcmp(elementId, "p10_log_refresh_btn") == 0) {
     webReadLogBuffer();
   }
   // Simulation

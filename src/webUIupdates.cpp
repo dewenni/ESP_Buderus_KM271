@@ -1051,7 +1051,7 @@ void webUIupdates() {
   }
 
   // CYCLIC: update SINGLE elemets every x seconds - do this step by step not to stress the connection
-  if (refreshTimerSingle.cycleTrigger(WEBUI_SLOW_REFRESH_TIME_MS) && !refreshRequest && !km271GetRefreshState() && !ota.isActive()) {
+  if (refreshTimerSingle.cycleTrigger(WEBUI_SLOW_REFRESH_TIME_MS) && !refreshRequest && !ota.isActive()) {
 
     switch (UpdateCntSlow) {
     case 0:
@@ -1064,13 +1064,19 @@ void webUIupdates() {
       updateSensorElements(false); // send update of sensor elements
       break;
     case 3:
-      updateKm271ConfigElements(false); // check and send if Km271 config values has changed (≈ 4 kB)
+      if (!km271GetRefreshState()) {
+        updateKm271ConfigElements(false); // check and send if Km271 config values has changed (≈ 4 kB)
+      }
       break;
     case 4:
-      updateKm271AlarmElements(); // check if one or more "Alarm" elements have changed
+      if (!km271GetRefreshState()) {
+        updateKm271AlarmElements(); // check if one or more "Alarm" elements have changed
+      }
       break;
     case 5:
-      updateKm271StatusElements(false); // check if one or more "Status" elements have changed
+      if (!km271GetRefreshState()) {
+        updateKm271StatusElements(false); // check if one or more "Status" elements have changed
+      }
       break;
     default:
       UpdateCntSlow = -1;

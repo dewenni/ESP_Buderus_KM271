@@ -1402,10 +1402,8 @@ void parseInfo(uint8_t *data, int len) {
     km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::BOILER_LIFETIME_3[config.mqtt.lang], EspStrUtil::intToString(kmStatus.BurnerOperatingDuration_2));
     km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::BOILER_LIFETIME_4[config.mqtt.lang], EspStrUtil::intToString(kmStatus.BurnerOperatingDuration_Sum));
 
-    if (config.oilmeter.use_virtual_meter && config.oilmeter.oil_density_kg_l != 0) {
-      kmStatus.BurnerCalcOilConsumption =
-          ((double)kmStatus.BurnerOperatingDuration_Sum / 60 * config.oilmeter.consumption_kg_h / config.oilmeter.oil_density_kg_l) -
-          config.oilmeter.virt_calc_offset;
+    if (config.oilmeter.use_virtual_meter) {
+      km271calcBurnerCalcOilConsumption();
       km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::BOILER_CONSUMPTION[config.mqtt.lang], EspStrUtil::floatToString(kmStatus.BurnerCalcOilConsumption, 1));
     }
     break;
@@ -2639,6 +2637,20 @@ int compareHexValues(const char *filter, uint8_t data[]) {
 
 /**
  * *******************************************************************
+ * @brief   calculate the virtual oil consumption
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void km271calcBurnerCalcOilConsumption() {
+  if (config.oilmeter.use_virtual_meter && config.oilmeter.oil_density_kg_l != 0) {
+    kmStatus.BurnerCalcOilConsumption =
+        ((double)kmStatus.BurnerOperatingDuration_Sum / 60 * config.oilmeter.consumption_kg_h / config.oilmeter.oil_density_kg_l) -
+        config.oilmeter.virt_calc_offset;
+  }
+}
+
+/**
+ * *******************************************************************
  * @brief   send all km271 status values
  * @param   noen
  * @return  none
@@ -2773,10 +2785,8 @@ void sendAllKmStatValues() {
   km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::BOILER_LIFETIME_3[config.mqtt.lang], EspStrUtil::intToString(kmStatus.BurnerOperatingDuration_2));
   km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::BOILER_LIFETIME_4[config.mqtt.lang], EspStrUtil::intToString(kmStatus.BurnerOperatingDuration_Sum));
 
-  if (config.oilmeter.use_virtual_meter && config.oilmeter.oil_density_kg_l != 0) {
-    kmStatus.BurnerCalcOilConsumption =
-        ((double)kmStatus.BurnerOperatingDuration_Sum / 60 * config.oilmeter.consumption_kg_h / config.oilmeter.oil_density_kg_l) -
-        config.oilmeter.virt_calc_offset;
+  if (config.oilmeter.use_virtual_meter) {
+    km271calcBurnerCalcOilConsumption();
     km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::BOILER_CONSUMPTION[config.mqtt.lang], EspStrUtil::floatToString(kmStatus.BurnerCalcOilConsumption, 1));
   }
 

@@ -504,6 +504,23 @@ a {
   cursor: pointer;
 }
 
+/* Debug = zartes Grau-Blau */
+.log-debug {
+  color: #9ca3af; /* slate‑400 */
+}
+/* Info = Basis‑Farbe (helles Grau) */
+.log-info {
+  color: inherit;
+}
+/* Warning = warmes Pastell-Orange */
+.log-warning {
+  color: #fbbf24; /* yellow‑400 */
+}
+/* Error = dezentes Koralle-Rot */
+.log-error {
+  color: #f87171; /* red‑400 */
+}
+
 .svg {
   width: 80%;
   height: 80%;

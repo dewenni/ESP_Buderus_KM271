@@ -341,3 +341,4 @@ void parseInfo(uint8_t *data, int len);
 bool km271GetRefreshState();
 void sendAllKmCfgValues();
 void sendAllKmStatValues();
+void km271calcBurnerCalcOilConsumption();

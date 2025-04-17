@@ -48,4 +48,13 @@ document.addEventListener("DOMContentLoaded", function () {
       var text = document.getElementById("p02_oilmeter_set").value;
       sendData("p02_oilmeter_set_cmd", text);
     });
+
+  // refresh log when tab10 is clicked
+  document.querySelectorAll('a[data-tab="tab10"]').forEach(function (el) {
+    el.addEventListener("click", function (e) {
+      e.preventDefault();
+      console.log("refresh log");
+      sendData("refresh_log", "");
+    });
+  });
 });
