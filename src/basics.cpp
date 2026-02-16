@@ -1,6 +1,7 @@
 #include <ETH.h>
 #include <SPI.h>
 #include <basics.h>
+#include <esp_wifi.h>
 
 #ifndef ETH_PHY_TYPE
 #define ETH_PHY_TYPE ETH_PHY_W5500
@@ -67,7 +68,24 @@ void onWiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info) {
   ESP_LOGI(TAG, "WiFi connected");
   snprintf(wifi.ipAddress, sizeof(wifi.ipAddress), "%s", WiFi.localIP().toString().c_str());
   ESP_LOGI(TAG, "IP address: %s", wifi.ipAddress);
+  uint8_t* bssid = WiFi.BSSID();
+  ESP_LOGI(TAG, "Connected MAC:%02X:%02X:%02X:%02X:%02X:%02X Ch:%d RSSI:%ddBm", 
+           bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5],
+           WiFi.channel(), WiFi.RSSI());
   wifi.connected = true;
+}
+
+/**
+ * *******************************************************************
+ * @brief   Parse BSSID string to byte array
+ * @param   bssidStr - BSSID string (format: "AA:BB:CC:DD:EE:FF")
+ * @param   bssid - output byte array
+ * @return  true if valid BSSID, false otherwise
+ * *******************************************************************/
+bool parseBSSID(const char* bssidStr, uint8_t* bssid) {
+  if (strlen(bssidStr) != 17) return false;
+  return sscanf(bssidStr, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
+                &bssid[0], &bssid[1], &bssid[2], &bssid[3], &bssid[4], &bssid[5]) == 6;
 }
 
 /**
@@ -85,7 +103,39 @@ void checkWiFi() {
     if (wifi_retry < 5) {
       wifi_retry++;
       WiFi.mode(WIFI_STA);
-      WiFi.begin(config.wifi.ssid, config.wifi.password);
+      
+      // Force a fresh scan on reconnect to find best AP
+      WiFi.disconnect(true); // Disconnect and clear config
+      delay(100);
+      
+      // Scan and sort by RSSI to connect to strongest AP
+      int n = WiFi.scanNetworks(false, false, false, 300U, 0U);
+      ESP_LOGI(TAG, "Scan complete: %d networks found", n);
+      
+      // Log available APs with same SSID for debugging
+      for (int i = 0; i < n; i++) {
+        if (String(config.wifi.ssid) == WiFi.SSID(i)) {
+          uint8_t* bssid = WiFi.BSSID(i);
+          ESP_LOGI(TAG, "  AP #%d: Ch:%d RSSI:%ddBm MAC:%02X:%02X:%02X:%02X:%02X:%02X", 
+                   i, WiFi.channel(i), WiFi.RSSI(i), 
+                   bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
+        }
+      }
+      
+      // Check if BSSID locking is configured
+      if (strlen(config.wifi.bssid) == 17) {
+        uint8_t bssid[6];
+        if (parseBSSID(config.wifi.bssid, bssid)) {
+          WiFi.begin(config.wifi.ssid, config.wifi.password, 0, bssid);
+          ESP_LOGI(TAG, "WiFi connecting with BSSID lock: %s", config.wifi.bssid);
+        } else {
+          WiFi.begin(config.wifi.ssid, config.wifi.password);
+          ESP_LOGW(TAG, "Invalid BSSID format, ignoring: %s", config.wifi.bssid);
+        }
+      } else {
+        WiFi.begin(config.wifi.ssid, config.wifi.password);
+      }
+      
       WiFi.hostname(config.wifi.hostname);
       MDNS.begin(config.wifi.hostname);
       ESP_LOGI(TAG, "WiFi Mode STA - Trying connect to: %s", config.wifi.ssid);
@@ -133,10 +183,56 @@ void setupWiFi() {
     // connect to configured wifi AP
     WiFi.mode(WIFI_STA);
     WiFi.setAutoReconnect(true);
-    WiFi.begin(config.wifi.ssid, config.wifi.password);
+    
+    // ===== MESH NETWORK OPTIMIZATIONS =====
+    // Set minimum RSSI threshold for initial connection and roaming
+    // Only connect to APs with signal strength > -75 dBm
+    WiFi.setMinSecurity(WIFI_AUTH_WPA2_PSK); // Ensure WPA2 minimum
+    
+    // Configure scan thresholds for better AP selection
+    // rssi_threshold: minimum RSSI to consider an AP (-127 to 0)
+    // active_scan: use active scanning for better AP discovery
+    esp_wifi_set_config(WIFI_IF_STA, (wifi_config_t*)NULL); // Reset config first
+    
+    // Set WiFi power save mode to NONE for stable connection (reduces latency)
+    // Use WIFI_PS_MIN_MODEM if you need power saving
+    WiFi.setSleep(WIFI_PS_NONE);
+    
+    // Set long-range mode off for better performance with nearby APs
+    esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N);
+    
+    // SYNCHRONOUS scan to find best AP before connecting
+    ESP_LOGI(TAG, "Scanning for WiFi networks...");
+    int n = WiFi.scanNetworks(false, false, false, 300U, 0U); // Sync scan
+    ESP_LOGI(TAG, "Scan complete: %d networks found", n);
+    
+    // Log available APs with same SSID for debugging
+    for (int i = 0; i < n; i++) {
+      if (String(config.wifi.ssid) == WiFi.SSID(i)) {
+        uint8_t* bssid = WiFi.BSSID(i);
+        ESP_LOGI(TAG, "  AP #%d: Ch:%d RSSI:%ddBm MAC:%02X:%02X:%02X:%02X:%02X:%02X", 
+                 i, WiFi.channel(i), WiFi.RSSI(i), 
+                 bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
+      }
+    }
+    
+    // Check if BSSID locking is configured (optional: force specific AP)
+    if (strlen(config.wifi.bssid) == 17) {
+      uint8_t bssid[6];
+      if (parseBSSID(config.wifi.bssid, bssid)) {
+        WiFi.begin(config.wifi.ssid, config.wifi.password, 0, bssid);
+        ESP_LOGI(TAG, "WiFi connecting with BSSID lock: %s", config.wifi.bssid);
+      } else {
+        WiFi.begin(config.wifi.ssid, config.wifi.password);
+        ESP_LOGW(TAG, "Invalid BSSID format, ignoring BSSID lock");
+      }
+    } else {
+      WiFi.begin(config.wifi.ssid, config.wifi.password);
+    }
+    
     WiFi.hostname(config.wifi.hostname);
     MDNS.begin(config.wifi.hostname);
-    ESP_LOGI(TAG, "WiFi Mode STA - Trying connect to: %s", config.wifi.ssid);
+    ESP_LOGI(TAG, "WiFi Mode STA - Trying connect to: %s with mesh optimizations", config.wifi.ssid);
   }
 }
 

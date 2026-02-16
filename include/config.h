@@ -50,6 +50,7 @@ struct s_cfg_wifi {
   char subnet[17];
   char gateway[17];
   char dns[17];
+  char bssid[18] = ""; // Optional: lock to specific AP MAC (format: "AA:BB:CC:DD:EE:FF")
 };
 
 struct s_cfg_eth {
