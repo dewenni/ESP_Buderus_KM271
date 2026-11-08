@@ -9,6 +9,7 @@
 #include <oilmeter.h>
 #include <queue>
 #include <simulation.h>
+#include <stdint.h>
 
 #define PAYLOAD_LEN 512
 #define MAX_MQTT_CMD 20
@@ -367,6 +368,27 @@ void mqttCyclic() {
   }
 }
 
+// Oil counters are stored as signed 32-bit hundredths of a litre in NVS.
+// Do not use atol(): invalid text such as a retained "offline" becomes zero.
+static bool parseOilmeterCounter(const char *payload, int len, long &value) {
+  if (len <= 0 || len >= PAYLOAD_LEN || payload[len] != '\0') {
+    return false;
+  }
+  long parsed = 0;
+  for (int i = 0; i < len; ++i) {
+    if (payload[i] < '0' || payload[i] > '9') {
+      return false;
+    }
+    const int digit = payload[i] - '0';
+    if (parsed > (INT32_MAX - digit) / 10) {
+      return false;
+    }
+    parsed = parsed * 10 + digit;
+  }
+  value = parsed;
+  return true;
+}
+
 /**
  * *******************************************************************
  * @brief   MQTT callback function for incoming message
@@ -389,7 +411,8 @@ void processMqttMessage() {
   long intVal = 0;
   float floatVal = 0.0;
   if (msgCpy.len > 0) {
-    intVal = atol(msgCpy.payload);
+    // strtol() has defined overflow behaviour; atol() does not.
+    intVal = strtol(msgCpy.payload, nullptr, 10);
     floatVal = atoff(msgCpy.payload);
   }
 
@@ -490,7 +513,12 @@ void processMqttMessage() {
   }
   // set oilmeter
   else if (strcasecmp(msgCpy.topic, addTopic(MQTT_CMD::OILCNT[config.mqtt.lang])) == 0) {
-    cmdSetOilmeter(intVal);
+    long counter;
+    if (parseOilmeterCounter(msgCpy.payload, msgCpy.len, counter)) {
+      cmdSetOilmeter(counter);
+    } else {
+      ESP_LOGW(TAG, "Ignored invalid oilcounter command: '%s'", msgCpy.payload);
+    }
   }
   // homeassistant/status
   else if (config.mqtt.ha_enable && strcmp(msgCpy.topic, haStatusTopic) == 0) {
