@@ -1,5 +1,6 @@
 // includes
 #include <ArduinoOTA.h>
+#include <esp_ota_ops.h>
 #include <basics.h>
 #include <config.h>
 #include <km271.h>
@@ -29,6 +30,57 @@ static const char *TAG = "MAIN"; // LOG TAG
 
 static auto &wdt = EspSysUtil::Wdt::getInstance();
 static auto &ota = EspSysUtil::OTA::getInstance();
+
+// The bootloader is built with rollback enabled, but the Arduino core cancels
+// it inside initArduino() - before setup() runs - by marking the freshly
+// flashed image valid immediately. That means rollback only ever caught images
+// that fail to boot at all, not the far more likely case of an image that
+// boots and then cannot reach the network or dies later in startup. Since OTA
+// is the only update channel to this device, that is the difference between
+// "reboots into the previous firmware" and "someone has to travel to it with a
+// USB cable".
+//
+// Overriding this weak symbol defers the decision to us; markAppValid() below
+// makes it once the device has proven it actually works.
+bool verifyRollbackLater() { return true; }
+
+#define OTA_VALIDATE_MIN_UPTIME 120000  // healthy for 2 min with a network
+#define OTA_VALIDATE_MAX_UPTIME 600000  // ... or 10 min regardless, see below
+static bool otaImageValidated = false;
+
+/**
+ * *******************************************************************
+ * @brief   confirm the running image once it has proven itself, so the
+ *          bootloader stops considering it for rollback
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+static void markAppValid() {
+  if (otaImageValidated) {
+    return;
+  }
+
+  // Normal case: the network came up and we have been alive for a while, so
+  // the image is good. The fallback on uptime alone covers a device that is
+  // legitimately offline - in setup/AP mode, or with no WiFi configured yet -
+  // which must not be rolled back just for having no network.
+  bool healthy = (millis() > OTA_VALIDATE_MIN_UPTIME) && (wifi.connected || eth.connected);
+  if (!healthy && millis() < OTA_VALIDATE_MAX_UPTIME) {
+    return;
+  }
+
+  otaImageValidated = true;
+
+  const esp_partition_t *running = esp_ota_get_running_partition();
+  esp_ota_img_states_t state;
+  if (esp_ota_get_state_partition(running, &state) == ESP_OK && state == ESP_OTA_IMG_PENDING_VERIFY) {
+    if (esp_ota_mark_app_valid_cancel_rollback() == ESP_OK) {
+      ESP_LOGI(TAG, "OTA image confirmed - rollback cancelled");
+    } else {
+      ESP_LOGE(TAG, "failed to confirm OTA image");
+    }
+  }
+}
 
 /**
  * *******************************************************************
@@ -93,6 +145,11 @@ void setup() {
     ota.setActive(false);
   });
   ArduinoOTA.setHostname(config.wifi.hostname);
+  // Without a password ArduinoOTA skips its challenge-response entirely, so
+  // anyone on the network could push arbitrary firmware (espota.py -i <ip>)
+  // with no credentials at all - a second flash path that bypasses the auth
+  // on the web UI's /update route. Guard it with the same device password.
+  ArduinoOTA.setPassword(devicePassword());
   ArduinoOTA.begin();
 
   // setup for km271
@@ -133,6 +190,9 @@ void loop() {
 
   // double reset detector
   mrd->loop();
+
+  // confirm a freshly flashed image once it has proven itself
+  markAppValid();
 
   // webUI Cyclic
   webUICyclic();

@@ -100,8 +100,13 @@ void cmdLoadOilmeter() {
   err = nvs_get_i32(nvs_handle, "oilcounter", &data.oilcounter);
 
   if (err == ESP_ERR_NVS_NOT_FOUND) {
-    // try to read from EEPROM if not found in NVS (migration)
+    // Try to read from EEPROM if not found in NVS (migration from an old
+    // firmware). EEPROM.begin() has to be called first - without it the read
+    // returns an uninitialised buffer, which was then committed to NVS as the
+    // starting oil counter on every fresh device.
+    EEPROM.begin(sizeof(data));
     EEPROM.get(0, data);
+    EEPROM.end();
 
     // save to NVS for future use
     nvs_set_i32(nvs_handle, "oilcounter", data.oilcounter);
@@ -186,12 +191,21 @@ void cyclicOilmeter() {
     if (oil_remainder >= config.oilmeter.pulse_per_liter) {
       data.oilcounter += 1;
       oil_remainder -= config.oilmeter.pulse_per_liter;
-      sendOilmeter(); // Send new counter value via MQTT
     }
-  }
 
-  if ((data.oilcounter % 50) == 0) { // store new value in flash every (0.5 liter)
-    cmdStoreOilmeter();
+    // Publish on every pulse. This used to sit inside the remainder branch
+    // above, which never runs when pulse_per_liter divides 100 evenly (the
+    // documented Braun HZ5 default of 50 gives a remainder of 0), so the live
+    // value only ever updated once an hour from the cyclic timer below.
+    sendOilmeter();
+
+    // Persist roughly every 0.5 litre. This has to stay inside the pulse
+    // branch: the counter is a level, not an edge, so at the top level it
+    // stayed on a multiple of 50 between pulses - for months over summer - and
+    // rewrote NVS on every single loop iteration.
+    if ((data.oilcounter % 50) == 0) {
+      cmdStoreOilmeter();
+    }
   }
 
   // Send cyclic information periodically

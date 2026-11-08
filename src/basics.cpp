@@ -19,6 +19,7 @@ s_eth eth;   // global ETH Informations
 static muTimer wifiReconnectTimer = muTimer(); // timer for reconnect delay
 static int wifi_retry = 0;
 static const char *TAG = "SETUP"; // LOG TAG
+static auto &ota = EspSysUtil::OTA::getInstance();
 
 /**
  * *******************************************************************
@@ -82,16 +83,23 @@ void checkWiFi() {
   if (wifiReconnectTimer.delayOnTrigger((!wifi.connected && !eth.connected), WIFI_RECONNECT)) {
     wifiReconnectTimer.delayReset();
 
-    if (wifi_retry < 5) {
-      wifi_retry++;
-      WiFi.mode(WIFI_STA);
-      WiFi.begin(config.wifi.ssid, config.wifi.password);
-      WiFi.hostname(config.wifi.hostname);
-      MDNS.begin(config.wifi.hostname);
-      ESP_LOGI(TAG, "WiFi Mode STA - Trying connect to: %s", config.wifi.ssid);
-      ESP_LOGI(TAG, " - attempt: %i/5", wifi_retry);
-    } else {
-      ESP_LOGI(TAG, "Wifi connection not possible, esp rebooting...");
+    wifi_retry++;
+
+    // Keep retrying indefinitely instead of rebooting after a handful of
+    // attempts. A router reboot, an access point being replaced or an ISP
+    // outage is not this device's fault, and restarting drops the decoded
+    // boiler state, both log ring buffers and the NTP sync while fixing
+    // nothing - the boiler itself keeps running regardless. The old
+    // behaviour turned any outage longer than 2.5 minutes into a permanent
+    // reboot loop, which also made it nearly impossible to push an OTA
+    // update during the outage.
+    //
+    // The exception is a last-resort restart: the ESP32 WiFi stack can end
+    // up in a state that reconnecting alone does not clear, and by then
+    // nothing is working anyway, so a reboot costs nothing and may be the
+    // only way back without physical access to the device.
+    if (wifi_retry >= WIFI_RETRY_REBOOT && !ota.isActive()) {
+      ESP_LOGI(TAG, "no WiFi after %i attempts - rebooting as a last resort", wifi_retry);
       storeData(); // store Data before reboot
       EspSysUtil::RestartReason::saveLocal("no wifi connection");
       yield();
@@ -99,6 +107,22 @@ void checkWiFi() {
       yield();
       ESP.restart();
     }
+
+    // Periodically tear the stack down completely before reconnecting; this
+    // clears most wedged states without needing a restart.
+    if ((wifi_retry % WIFI_RETRY_HARD_RESET) == 0) {
+      ESP_LOGI(TAG, "WiFi - resetting the stack before retry %i", wifi_retry);
+      WiFi.disconnect(true);
+      WiFi.mode(WIFI_OFF);
+      delay(100);
+    }
+
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(config.wifi.ssid, config.wifi.password);
+    WiFi.hostname(config.wifi.hostname);
+    MDNS.begin(config.wifi.hostname);
+    ESP_LOGI(TAG, "WiFi Mode STA - Trying connect to: %s", config.wifi.ssid);
+    ESP_LOGI(TAG, " - attempt: %i", wifi_retry);
   }
 }
 

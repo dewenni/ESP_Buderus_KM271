@@ -23,6 +23,30 @@ void configInitValue();
 void checkGPIO();
 void configFinalCheck();
 
+// Fallback for every remote entry point that can flash or reconfigure the
+// device, used only until config.auth.password is set. It is compiled into a
+// public firmware, so it is not a secret - CHANGE IT via the web UI's Auth
+// settings after first login.
+static const char *DEFAULT_PASSWORD = "km271-2026!";
+
+const char *devicePassword() { return (strlen(config.auth.password) > 0) ? config.auth.password : DEFAULT_PASSWORD; }
+
+/**
+ * *******************************************************************
+ * @brief   Load a scalar config field from JSON, leaving the existing
+ *          value (in-class default, or whatever was already loaded)
+ *          untouched if the key is absent - a missing key must never
+ *          silently zero a field that was never meant to change.
+ * @param   target  reference to the config struct field to update
+ * @param   value   the corresponding doc["section"]["field"] lookup
+ * @return  none
+ * *******************************************************************/
+template <typename T> void loadCfg(T &target, JsonVariantConst value) {
+  if (!value.isNull()) {
+    target = value.as<T>();
+  }
+}
+
 /**
  * *******************************************************************
  * @brief   Setup for intitial configuration
@@ -51,6 +75,16 @@ void configSetup() {
 }
 
 void configFinalCheck() {
+
+  // Clamp every field that is later used as an array index. The web UI
+  // callbacks validate these, but a hand-edited or uploaded config.json does
+  // not go through them - and config.lang indexes arrays of exactly MAX_LANG
+  // entries, while config.log.filter indexes LOG_FILTER[][6]. An out-of-range
+  // value read from the file would otherwise be dereferenced as a wild
+  // pointer on the next web UI page load or log write.
+  config.lang = constrain(config.lang, 0, MAX_LANG - 1);
+  config.mqtt.lang = constrain(config.mqtt.lang, 0, MAX_LANG - 1);
+  config.log.filter = constrain(config.log.filter, 0, LOG_FILTER_SYSTEM);
 
   // set log level
   setLogLevel(config.log.level);
@@ -265,37 +299,20 @@ void configGPIO() {
  * *******************************************************************/
 void configInitValue() {
 
-  memset((void *)&config, 0, sizeof(config));
+  // Assigning a value-initialised instance restores every default declared
+  // in config.h. This used to be a memset() to zero, which silently discarded
+  // all of them - most seriously auth.enable = true, so "config reset" (telnet)
+  // left the device with web authentication switched OFF and wrote that to
+  // flash. The oilmeter defaults (2.0 kg/h, 0.85 kg/l, 50 pulses, 500 ms) and
+  // ntp/log/debug enable flags were lost the same way. Doing it this way also
+  // means defaults added to config.h later can no longer be missed here.
+  config = s_config{};
 
-  // WiFi
+  // fields that have no in-class default
   snprintf(config.wifi.hostname, sizeof(config.wifi.hostname), "ESP-Buderus-KM271");
-
-  // MQTT
-  config.mqtt.port = 1883;
-  config.mqtt.enable = false;
   snprintf(config.mqtt.ha_topic, sizeof(config.mqtt.ha_topic), "homeassistant");
 
-  // NTP
-  snprintf(config.ntp.server, sizeof(config.ntp.server), "de.pool.ntp.org");
-  snprintf(config.ntp.tz, sizeof(config.ntp.tz), "CET-1CEST,M3.5.0,M10.5.0/3");
-  config.ntp.enable = true;
-
-  // heating circuits
-  config.km271.use_hc1 = false;
-  config.km271.use_hc2 = false;
-  config.km271.use_ww = false;
-
-  // km271
-  config.km271.use_alarmMsg = false;
-
-  // language
-  config.lang = 0;
-
-  // oilmeter
-  config.oilmeter.use_hardware_meter = false;
-  config.oilmeter.use_virtual_meter = false;
-
-  // gpio
+  // gpio: -1 means "unused", which is not the value-initialised 0
   memset(&config.gpio, -1, sizeof(config.gpio));
 }
 
@@ -432,25 +449,43 @@ void configSaveToFile() {
   doc["logger"]["order"] = config.log.order;
   doc["logger"]["level"] = config.log.level;
 
-  // Delete existing file, otherwise the configuration is appended to the file
-  LittleFS.remove(filename);
+  // Write to a temporary file first, then rename over the real one. The
+  // previous code removed config.json and then re-created it, which left a
+  // window where the file was absent or truncated. A power cut in that window
+  // (and configCyclic() saves on any change, so it is not a rare moment) meant
+  // the next boot failed to parse the config, fell back to defaults, and came
+  // up as an access point with no WiFi credentials - unrecoverable without
+  // physical access to the device.
+  const char *tmpFilename = "/config.json.tmp";
 
-  // Open file for writing
-  File file = LittleFS.open(filename, FILE_WRITE);
+  LittleFS.remove(tmpFilename); // leftover from an interrupted earlier attempt
+
+  File file = LittleFS.open(tmpFilename, FILE_WRITE);
   if (!file) {
-    ESP_LOGE(TAG, "Failed to create file");
+    ESP_LOGE(TAG, "Failed to create temporary config file");
     return;
   }
 
-  // Serialize JSON to file
-  if (serializeJson(doc, file) == 0) {
-    ESP_LOGE(TAG, "Failed to write to file");
-  } else {
-    ESP_LOGI(TAG, "config successfully saved to file: %s - Version: %i", filename, CFG_VERSION);
+  size_t written = serializeJson(doc, file);
+  file.close();
+
+  if (written == 0) {
+    ESP_LOGE(TAG, "Failed to write config - keeping the previous file");
+    LittleFS.remove(tmpFilename);
+    return;
   }
 
-  // Close the file
-  file.close();
+  // rename() cannot overwrite on LittleFS, so the old file has to go first.
+  // The window between these two calls is the one remaining exposure, but
+  // unlike before, a crash there leaves a complete config.json.tmp behind -
+  // which configLoadFromFile() recovers from on the next boot.
+  LittleFS.remove(filename);
+  if (!LittleFS.rename(tmpFilename, filename)) {
+    ESP_LOGE(TAG, "Failed to rename %s to %s", tmpFilename, filename);
+    return;
+  }
+
+  ESP_LOGI(TAG, "config successfully saved to file: %s - Version: %i", filename, CFG_VERSION);
 }
 
 /**
@@ -460,6 +495,8 @@ void configSaveToFile() {
  * @return  none
  * *******************************************************************/
 void configLoadFromFile() {
+  const char *tmpFilename = "/config.json.tmp";
+
   // Open file for reading
   File file = LittleFS.open(filename);
 
@@ -468,6 +505,25 @@ void configLoadFromFile() {
 
   // Deserialize the JSON document
   DeserializationError error = deserializeJson(doc, file);
+
+  // If the main file is missing or unparseable, try the temporary file left
+  // behind by configSaveToFile(). A crash between the remove() and the
+  // rename() there leaves a complete, valid config there - recovering from it
+  // is the difference between carrying on normally and coming up as an access
+  // point with no WiFi credentials.
+  if (error && LittleFS.exists(tmpFilename)) {
+    ESP_LOGW(TAG, "%s missing or corrupt - recovering from %s", filename, tmpFilename);
+    file.close();
+    file = LittleFS.open(tmpFilename);
+    error = deserializeJson(doc, file);
+    if (!error) {
+      file.close();
+      LittleFS.remove(filename);
+      LittleFS.rename(tmpFilename, filename);
+      file = LittleFS.open(filename);
+    }
+  }
+
   if (error) {
     ESP_LOGE(TAG, "Failed to read file, using default configuration and start wifi-AP");
     configInitValue();
@@ -478,23 +534,24 @@ void configLoadFromFile() {
 
     config.version = doc["version"];
 
-    config.oilmeter.use_hardware_meter = doc["oilmeter"]["use_hardware_meter"];
-    config.oilmeter.use_virtual_meter = doc["oilmeter"]["use_virtual_meter"];
-    config.oilmeter.consumption_kg_h = doc["oilmeter"]["consumption_kg_h"];
-    config.oilmeter.oil_density_kg_l = doc["oilmeter"]["oil_density_kg_l"];
-    config.oilmeter.pulse_per_liter = doc["oilmeter"]["pulse_per_liter"];
-    config.oilmeter.virt_calc_offset = doc["oilmeter"]["virt_calc_offset"];
-    config.oilmeter.debounce_time = doc["oilmeter"]["debounce_time"];
+    loadCfg(config.oilmeter.use_hardware_meter, doc["oilmeter"]["use_hardware_meter"]);
+    loadCfg(config.oilmeter.use_virtual_meter, doc["oilmeter"]["use_virtual_meter"]);
+    loadCfg(config.oilmeter.consumption_kg_h, doc["oilmeter"]["consumption_kg_h"]);
+    loadCfg(config.oilmeter.oil_density_kg_l, doc["oilmeter"]["oil_density_kg_l"]);
+    loadCfg(config.oilmeter.pulse_per_liter, doc["oilmeter"]["pulse_per_liter"]);
+    loadCfg(config.oilmeter.virt_calc_offset, doc["oilmeter"]["virt_calc_offset"]);
+    loadCfg(config.oilmeter.debounce_time, doc["oilmeter"]["debounce_time"]);
 
-    config.lang = doc["lang"];
+    loadCfg(config.lang, doc["lang"]);
 
-    config.sim.enable = doc["sim"]["enable"];
+    loadCfg(config.sim.enable, doc["sim"]["enable"]);
 
     EspStrUtil::readJSONstring(config.wifi.ssid, sizeof(config.wifi.ssid), doc["wifi"]["ssid"]);
 
     if (config.version == 0) {
       EspStrUtil::readJSONstring(config.wifi.password, sizeof(config.wifi.password), doc["wifi"]["password"]);
     } else {
+      memset(encrypted, 0, sizeof(encrypted));
       EspStrUtil::readJSONstring(encrypted, sizeof(encrypted), doc["wifi"]["password"]);
       if (EspStrUtil::decryptPassword(encrypted, key, config.wifi.password, sizeof(config.wifi.password))) {
         // ESP_LOGD(TAG, "decrypted WiFi password: %s", config.wifi.password);
@@ -504,34 +561,35 @@ void configLoadFromFile() {
     }
 
     EspStrUtil::readJSONstring(config.wifi.hostname, sizeof(config.wifi.hostname), doc["wifi"]["hostname"]);
-    config.wifi.static_ip = doc["wifi"]["static_ip"];
+    loadCfg(config.wifi.static_ip, doc["wifi"]["static_ip"]);
     EspStrUtil::readJSONstring(config.wifi.ipaddress, sizeof(config.wifi.ipaddress), doc["wifi"]["ipaddress"]);
     EspStrUtil::readJSONstring(config.wifi.subnet, sizeof(config.wifi.subnet), doc["wifi"]["subnet"]);
     EspStrUtil::readJSONstring(config.wifi.gateway, sizeof(config.wifi.gateway), doc["wifi"]["gateway"]);
     EspStrUtil::readJSONstring(config.wifi.dns, sizeof(config.wifi.dns), doc["wifi"]["dns"]);
 
-    config.eth.enable = doc["eth"]["enable"];
+    loadCfg(config.eth.enable, doc["eth"]["enable"]);
     EspStrUtil::readJSONstring(config.eth.hostname, sizeof(config.eth.hostname), doc["eth"]["hostname"]);
-    config.eth.static_ip = doc["eth"]["static_ip"];
+    loadCfg(config.eth.static_ip, doc["eth"]["static_ip"]);
     EspStrUtil::readJSONstring(config.eth.ipaddress, sizeof(config.eth.ipaddress), doc["eth"]["ipaddress"]);
     EspStrUtil::readJSONstring(config.eth.ipaddress, sizeof(config.eth.ipaddress), doc["eth"]["ipaddress"]);
     EspStrUtil::readJSONstring(config.eth.subnet, sizeof(config.eth.subnet), doc["eth"]["subnet"]);
     EspStrUtil::readJSONstring(config.eth.gateway, sizeof(config.eth.gateway), doc["eth"]["gateway"]);
     EspStrUtil::readJSONstring(config.eth.dns, sizeof(config.eth.dns), doc["eth"]["dns"]);
-    config.eth.gpio_sck = doc["eth"]["gpio_sck"];
-    config.eth.gpio_mosi = doc["eth"]["gpio_mosi"];
-    config.eth.gpio_miso = doc["eth"]["gpio_miso"];
-    config.eth.gpio_cs = doc["eth"]["gpio_cs"];
-    config.eth.gpio_irq = doc["eth"]["gpio_irq"];
-    config.eth.gpio_rst = doc["eth"]["gpio_rst"];
+    loadCfg(config.eth.gpio_sck, doc["eth"]["gpio_sck"]);
+    loadCfg(config.eth.gpio_mosi, doc["eth"]["gpio_mosi"]);
+    loadCfg(config.eth.gpio_miso, doc["eth"]["gpio_miso"]);
+    loadCfg(config.eth.gpio_cs, doc["eth"]["gpio_cs"]);
+    loadCfg(config.eth.gpio_irq, doc["eth"]["gpio_irq"]);
+    loadCfg(config.eth.gpio_rst, doc["eth"]["gpio_rst"]);
 
-    config.mqtt.enable = doc["mqtt"]["enable"];
+    loadCfg(config.mqtt.enable, doc["mqtt"]["enable"]);
     EspStrUtil::readJSONstring(config.mqtt.server, sizeof(config.mqtt.server), doc["mqtt"]["server"]);
     EspStrUtil::readJSONstring(config.mqtt.user, sizeof(config.mqtt.user), doc["mqtt"]["user"]);
 
     if (config.version == 0) {
       EspStrUtil::readJSONstring(config.mqtt.password, sizeof(config.mqtt.password), doc["mqtt"]["password"]);
     } else {
+      memset(encrypted, 0, sizeof(encrypted));
       EspStrUtil::readJSONstring(encrypted, sizeof(encrypted), doc["mqtt"]["password"]);
       if (EspStrUtil::decryptPassword(encrypted, key, config.mqtt.password, sizeof(config.mqtt.password))) {
         // ESP_LOGD(TAG, "decrypted mqtt password: %s", config.mqtt.password);
@@ -541,39 +599,40 @@ void configLoadFromFile() {
     }
 
     EspStrUtil::readJSONstring(config.mqtt.topic, sizeof(config.mqtt.topic), doc["mqtt"]["topic"]);
-    config.mqtt.port = doc["mqtt"]["port"];
-    config.mqtt.config_retain = doc["mqtt"]["config_retain"];
-    config.mqtt.lang = doc["mqtt"]["language"];
-    config.mqtt.cyclicSendMin = doc["mqtt"]["cyclic_send"];
-    config.mqtt.ha_enable = doc["mqtt"]["ha_enable"];
+    loadCfg(config.mqtt.port, doc["mqtt"]["port"]);
+    loadCfg(config.mqtt.config_retain, doc["mqtt"]["config_retain"]);
+    loadCfg(config.mqtt.lang, doc["mqtt"]["language"]);
+    loadCfg(config.mqtt.cyclicSendMin, doc["mqtt"]["cyclic_send"]);
+    loadCfg(config.mqtt.ha_enable, doc["mqtt"]["ha_enable"]);
     EspStrUtil::readJSONstring(config.mqtt.ha_topic, sizeof(config.mqtt.ha_topic), doc["mqtt"]["ha_topic"]);
     EspStrUtil::readJSONstring(config.mqtt.ha_device, sizeof(config.mqtt.ha_device), doc["mqtt"]["ha_device"]);
 
-    config.ntp.enable = doc["ntp"]["enable"];
+    loadCfg(config.ntp.enable, doc["ntp"]["enable"]);
     EspStrUtil::readJSONstring(config.ntp.server, sizeof(config.ntp.server), doc["ntp"]["server"]);
     EspStrUtil::readJSONstring(config.ntp.tz, sizeof(config.ntp.tz), doc["ntp"]["tz"]);
-    config.ntp.auto_sync = doc["ntp"]["auto_sync"];
+    loadCfg(config.ntp.auto_sync, doc["ntp"]["auto_sync"]);
 
-    config.gpio.led_wifi = doc["gpio"]["led_wifi"];
-    config.gpio.led_heartbeat = doc["gpio"]["led_heartbeat"];
-    config.gpio.led_logmode = doc["gpio"]["led_logmode"];
-    config.gpio.led_oilcounter = doc["gpio"]["led_oilcounter"];
-    config.gpio.trigger_oilcounter = doc["gpio"]["trigger_oilcounter"];
-    config.gpio.km271_RX = doc["gpio"]["km271_RX"];
-    config.gpio.km271_TX = doc["gpio"]["km271_TX"];
+    loadCfg(config.gpio.led_wifi, doc["gpio"]["led_wifi"]);
+    loadCfg(config.gpio.led_heartbeat, doc["gpio"]["led_heartbeat"]);
+    loadCfg(config.gpio.led_logmode, doc["gpio"]["led_logmode"]);
+    loadCfg(config.gpio.led_oilcounter, doc["gpio"]["led_oilcounter"]);
+    loadCfg(config.gpio.trigger_oilcounter, doc["gpio"]["trigger_oilcounter"]);
+    loadCfg(config.gpio.km271_RX, doc["gpio"]["km271_RX"]);
+    loadCfg(config.gpio.km271_TX, doc["gpio"]["km271_TX"]);
 
-    config.km271.use_hc1 = doc["km271"]["use_hc1"];
-    config.km271.use_hc2 = doc["km271"]["use_hc2"];
-    config.km271.use_ww = doc["km271"]["use_ww"];
-    config.km271.use_solar = doc["km271"]["use_solar"];
-    config.km271.use_alarmMsg = doc["km271"]["use_alarmMsg"];
+    loadCfg(config.km271.use_hc1, doc["km271"]["use_hc1"]);
+    loadCfg(config.km271.use_hc2, doc["km271"]["use_hc2"]);
+    loadCfg(config.km271.use_ww, doc["km271"]["use_ww"]);
+    loadCfg(config.km271.use_solar, doc["km271"]["use_solar"]);
+    loadCfg(config.km271.use_alarmMsg, doc["km271"]["use_alarmMsg"]);
 
-    config.auth.enable = doc["auth"]["enable"];
+    loadCfg(config.auth.enable, doc["auth"]["enable"]);
     EspStrUtil::readJSONstring(config.auth.user, sizeof(config.auth.user), doc["auth"]["user"]);
 
     if (config.version == 0) {
       EspStrUtil::readJSONstring(config.auth.password, sizeof(config.auth.password), doc["auth"]["password"]);
     } else {
+      memset(encrypted, 0, sizeof(encrypted));
       EspStrUtil::readJSONstring(encrypted, sizeof(encrypted), doc["auth"]["password"]);
       if (EspStrUtil::decryptPassword(encrypted, key, config.auth.password, sizeof(config.auth.password))) {
         // ESP_LOGD(TAG, "decrypted auth password: %s", config.auth.password);
@@ -582,27 +641,28 @@ void configLoadFromFile() {
       }
     }
 
-    config.debug.enable = doc["debug"]["enable"];
+    loadCfg(config.debug.enable, doc["debug"]["enable"]);
     EspStrUtil::readJSONstring(config.debug.filter, sizeof(config.debug.filter), doc["debug"]["filter"]);
     if (strlen(config.debug.filter) == 0) {
       strcpy(config.debug.filter, "XX_XX_XX_XX_XX_XX_XX_XX_XX_XX_XX");
     }
 
-    config.sensor.ch1_enable = doc["sensor"]["ch1_enable"];
+    loadCfg(config.sensor.ch1_enable, doc["sensor"]["ch1_enable"]);
     EspStrUtil::readJSONstring(config.sensor.ch1_name, sizeof(config.sensor.ch1_name), doc["sensor"]["ch1_name"]);
     EspStrUtil::readJSONstring(config.sensor.ch1_description, sizeof(config.sensor.ch1_description), doc["sensor"]["ch1_description"]);
-    config.sensor.ch1_gpio = doc["sensor"]["ch1_gpio"];
-    config.sensor.ch2_enable = doc["sensor"]["ch2_enable"];
+    loadCfg(config.sensor.ch1_gpio, doc["sensor"]["ch1_gpio"]);
+    loadCfg(config.sensor.ch2_enable, doc["sensor"]["ch2_enable"]);
     EspStrUtil::readJSONstring(config.sensor.ch2_name, sizeof(config.sensor.ch2_name), doc["sensor"]["ch2_name"]);
     EspStrUtil::readJSONstring(config.sensor.ch2_description, sizeof(config.sensor.ch2_description), doc["sensor"]["ch2_description"]);
-    config.sensor.ch2_gpio = doc["sensor"]["ch2_gpio"];
+    loadCfg(config.sensor.ch2_gpio, doc["sensor"]["ch2_gpio"]);
 
-    config.pushover.enable = doc["pushover"]["enable"];
-    config.pushover.filter = doc["pushover"]["filter"];
+    loadCfg(config.pushover.enable, doc["pushover"]["enable"]);
+    loadCfg(config.pushover.filter, doc["pushover"]["filter"]);
 
     if (config.version == 0) {
       EspStrUtil::readJSONstring(config.pushover.token, sizeof(config.pushover.token), doc["pushover"]["token"]);
     } else {
+      memset(encrypted, 0, sizeof(encrypted));
       EspStrUtil::readJSONstring(encrypted, sizeof(encrypted), doc["pushover"]["token"]);
       if (EspStrUtil::decryptPassword(encrypted, key, config.pushover.token, sizeof(config.pushover.token))) {
         // ESP_LOGD(TAG, "decrypted pushover token: %s", config.pushover.token);
@@ -614,6 +674,7 @@ void configLoadFromFile() {
     if (config.version == 0) {
       EspStrUtil::readJSONstring(config.pushover.user_key, sizeof(config.pushover.user_key), doc["pushover"]["user_key"]);
     } else {
+      memset(encrypted, 0, sizeof(encrypted));
       EspStrUtil::readJSONstring(encrypted, sizeof(encrypted), doc["pushover"]["user_key"]);
       if (EspStrUtil::decryptPassword(encrypted, key, config.pushover.user_key, sizeof(config.pushover.user_key))) {
         // ESP_LOGD(TAG, "decrypted pushover user_key: %s", config.pushover.user_key);
@@ -622,10 +683,10 @@ void configLoadFromFile() {
       }
     }
 
-    config.log.enable = doc["logger"]["enable"];
-    config.log.filter = doc["logger"]["filter"];
-    config.log.order = doc["logger"]["order"];
-    config.log.level = doc["logger"]["level"];
+    loadCfg(config.log.enable, doc["logger"]["enable"]);
+    loadCfg(config.log.filter, doc["logger"]["filter"]);
+    loadCfg(config.log.order, doc["logger"]["order"]);
+    loadCfg(config.log.level, doc["logger"]["level"]);
   }
 
   if (strlen(config.wifi.ssid) == 0) {

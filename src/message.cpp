@@ -540,8 +540,11 @@ void messageCyclic() {
     checkHeapStatus();
   }
 
-  // send all km271 values from time to time
-  if (!setupMode && config.mqtt.cyclicSendMin > 0 && mqttIsConnected()) {
+  // Send all km271 values from time to time. Skipped while the serial link is
+  // down: the whole point of this resend is freshness, and replaying the
+  // cached struct with a new timestamp when nothing is actually being received
+  // is what made a dead link look like a healthy boiler in Home Assistant.
+  if (!setupMode && config.mqtt.cyclicSendMin > 0 && mqttIsConnected() && km271GetLogMode()) {
     if (cyclicSendCfgTimer.delayOnTrigger(true, config.mqtt.cyclicSendMin * 60000)) {
       sendAllKmCfgValues();
     }

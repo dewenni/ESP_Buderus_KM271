@@ -31,10 +31,33 @@ static const char *TAG = "WEB"; // LOG TAG
 static bool webInitDone = false;
 static bool simulationInit = false;
 static const size_t BUFFER_SIZE = 512;
-static char webCallbackElementID[32];
-static char webCallbackValue[256];
-static bool webCallbackAvailable = false;
 static bool onLoadRequest = false;
+
+// Web UI commands arrive on the AsyncTCP task and are executed on the loop
+// task. This used to be a single element/value pair plus a flag, which lost
+// any message that arrived before the previous one was consumed, and could
+// hand webCallback() the element ID of one message with the value of the
+// next - i.e. apply one control's value to a different config field or boiler
+// command. Use a small ring buffer guarded by a critical section, the same
+// shape already used for the MQTT command queue.
+struct s_webCallbackMsg {
+  char elementID[32];
+  char value[256];
+};
+#define WEB_CALLBACK_QUEUE_LEN 8
+static s_webCallbackMsg webCallbackQueue[WEB_CALLBACK_QUEUE_LEN];
+static volatile uint8_t webCallbackHead = 0;
+static volatile uint8_t webCallbackTail = 0;
+static portMUX_TYPE webCallbackMux = portMUX_INITIALIZER_UNLOCKED;
+
+// A web OTA that is cut off mid-upload (browser tab closed, WiFi dropped)
+// produces no callback at all - ESPAsyncWebServer simply abandons the request.
+// The OTA_BEGIN side effects would then stay in force forever: the watchdog
+// disabled, ota.isActive() true (which freezes every value in the web UI), and
+// Update.begin() never ended (which makes every later web OTA fail). Track the
+// last sign of life and unwind the state if it stalls.
+#define OTA_STALL_TIMEOUT 60000 // 1 minute without a progress callback
+static unsigned long otaLastActivity = 0;
 
 static auto &wdt = EspSysUtil::Wdt::getInstance();
 static auto &ota = EspSysUtil::OTA::getInstance();
@@ -51,9 +74,11 @@ void webUISetup() {
     case EspWebUI::OTA_BEGIN:
       ota.setActive(true);
       wdt.disable();
+      otaLastActivity = millis();
       break;
     case EspWebUI::OTA_PROGRESS:
       webUI.wsUpdateOTAprogress(msg);
+      otaLastActivity = millis();
       break;
     case EspWebUI::OTA_FINISH:
       ota.setActive(false);
@@ -90,11 +115,23 @@ void webUISetup() {
   // callback for reload
   webUI.setCallbackReload([]() { onLoadRequest = true; });
 
-  // callback for web elements - copy elementID and value and call webCallback in cyclic loop
+  // callback for web elements - queue elementID and value, executed by webCallback() in the cyclic loop
   webUI.setCallbackWebElement([](const char *elementID, const char *elementValue) {
-    snprintf(webCallbackElementID, sizeof(webCallbackElementID), "%s", elementID);
-    snprintf(webCallbackValue, sizeof(webCallbackValue), "%s", elementValue);
-    webCallbackAvailable = true;
+    if (elementID == nullptr || elementValue == nullptr) {
+      return;
+    }
+    portENTER_CRITICAL(&webCallbackMux);
+    uint8_t next = (webCallbackHead + 1) % WEB_CALLBACK_QUEUE_LEN;
+    bool full = (next == webCallbackTail);
+    if (!full) {
+      snprintf(webCallbackQueue[webCallbackHead].elementID, sizeof(webCallbackQueue[0].elementID), "%s", elementID);
+      snprintf(webCallbackQueue[webCallbackHead].value, sizeof(webCallbackQueue[0].value), "%s", elementValue);
+      webCallbackHead = next;
+    }
+    portEXIT_CRITICAL(&webCallbackMux);
+    if (full) {
+      ESP_LOGE(TAG, "web callback queue full - command dropped");
+    }
   });
 
   webUI.setCredentials(config.auth.user, config.auth.password);
@@ -124,10 +161,35 @@ void webUICyclic() {
   // handling of update webUI elements
   webUIupdates();
 
-  // handling of callback infomation
-  if (webCallbackAvailable) {
-    webCallback(webCallbackElementID, webCallbackValue);
-    webCallbackAvailable = false;
+  // handling of callback information - drain everything queued since last time
+  while (true) {
+    s_webCallbackMsg msg;
+    portENTER_CRITICAL(&webCallbackMux);
+    bool haveMsg = (webCallbackTail != webCallbackHead);
+    if (haveMsg) {
+      msg = webCallbackQueue[webCallbackTail];
+      webCallbackTail = (webCallbackTail + 1) % WEB_CALLBACK_QUEUE_LEN;
+    }
+    portEXIT_CRITICAL(&webCallbackMux);
+    if (!haveMsg) {
+      break;
+    }
+    webCallback(msg.elementID, msg.value);
+  }
+
+  // Unwind a web OTA that was cut off mid-upload. Without this the watchdog
+  // stays disabled, the web UI keeps showing frozen values that still look
+  // plausible, and every later web OTA fails with "OTA could not begin" -
+  // all silently, and precisely when an update is most needed.
+  if (ota.isActive() && (millis() - otaLastActivity) > OTA_STALL_TIMEOUT) {
+    ESP_LOGE(TAG, "OTA upload stalled - aborting and restoring normal operation");
+    Update.abort();
+    ota.setActive(false);
+    if (!setupMode) {
+      wdt.enable();
+    }
+    webUI.wsUpdateWebText("p00_ota_upd_err", "upload aborted (timeout)", false);
+    webUI.wsUpdateWebDialog("ota_update_failed_dialog", "open");
   }
 
   // in simulation mode, load simdata and display simModeBar

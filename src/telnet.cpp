@@ -17,6 +17,14 @@ static char param[MAX_PAR][MAX_CHAR];
 static bool msgAvailable = false;
 static const char *TAG = "TELNET"; // LOG TAG
 
+// Telnet is unauthenticated by design in the upstream project - it exposes
+// commands like "test crash" (crashes the device) and "config reset" with
+// no login at all, regardless of the web UI's config.auth.enable setting.
+// Require a password on every telnet session, independent of that setting.
+// The credential itself is devicePassword() (see config.h), shared with the
+// web login and ArduinoOTA.
+static bool telnetAuthenticated = false;
+
 /* P R O T O T Y P E S ********************************************************/
 void readLogger(e_logTyp typ);
 void dispatchCommand(char param[MAX_PAR][MAX_CHAR]);
@@ -61,25 +69,51 @@ void telnetShell() {
   telnet.print(ansi.reset());
 }
 
+void telnetPasswordPrompt() {
+  telnet.print(ansi.setFG(ANSI_BRIGHT_YELLOW));
+  telnet.print("Password: ");
+  telnet.print(ansi.reset());
+}
+
 void onTelnetConnect(String ip) {
   ESP_LOGI(TAG, "Telnet: %s connected", ip.c_str());
+  telnetAuthenticated = false;
   telnet.println(ansi.setFG(ANSI_BRIGHT_GREEN));
   telnet.println("\n----------------------------------------------------------------------");
   telnet.println("\nESP Buderus KM271");
-  telnet.println("\nWelcome " + telnet.getIP());
-  telnet.println("use command: \"help\" for further information");
   telnet.println("\n----------------------------------------------------------------------\n");
   telnet.println(ansi.reset());
-  telnetShell();
+  telnetPasswordPrompt();
 }
 
-void onTelnetDisconnect(String ip) { ESP_LOGI(TAG, "Telnet: %s disconnected", ip.c_str()); }
+void onTelnetDisconnect(String ip) {
+  telnetAuthenticated = false;
+  ESP_LOGI(TAG, "Telnet: %s disconnected", ip.c_str());
+}
 
 void onTelnetReconnect(String ip) { ESP_LOGI(TAG, "Telnet: %s reconnected", ip.c_str()); }
 
 void onTelnetConnectionAttempt(String ip) { ESP_LOGI(TAG, "Telnet: %s tried to connect", ip.c_str()); }
 
 void onTelnetInput(String str) {
+  if (!telnetAuthenticated) {
+    // password check happens before any command parsing - a wrong password
+    // disconnects the client immediately instead of re-prompting, so a
+    // scripted brute-force has to pay the cost of a full reconnect per
+    // attempt rather than free-running in one session.
+    if (str == devicePassword()) {
+      telnetAuthenticated = true;
+      ESP_LOGI(TAG, "Telnet: %s authenticated", telnet.getIP().c_str());
+      telnet.println("\nAccess granted.");
+      telnet.println("use command: \"help\" for further information\n");
+      telnetShell();
+    } else {
+      ESP_LOGI(TAG, "Telnet: %s failed authentication", telnet.getIP().c_str());
+      telnet.println("\nAccess denied.");
+      telnet.disconnectClient();
+    }
+    return;
+  }
   if (!extractMessage(str, param)) {
     telnet.println("Syntax error");
   } else {

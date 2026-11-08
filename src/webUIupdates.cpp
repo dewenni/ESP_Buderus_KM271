@@ -366,7 +366,7 @@ void generateKm271ConfigJSON() {
     webUI.addJson(kmCfgJsonDoc, "p03_hc1_remotecontrol", pkmConfigStr->hc1_remotecontrol);
     webUI.addJson(kmCfgJsonDoc, "p02_hc1_prg", pkmConfigNum->hc1_program);
     webUI.addJson(kmCfgJsonDoc, "p02_hc1_holiday_days", pkmConfigNum->hc1_holiday_days);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_act_prg", KM_CFG_ARRAY::HC_PROGRAM[config.lang][pkmConfigNum->hc1_program]);
+    webUI.addJson(kmCfgJsonDoc, "p03_hc1_act_prg", KM_CFG_ARRAY::HC_PROGRAM[config.lang][constrain(pkmConfigNum->hc1_program, 0, 8)]);
     webUI.addJson(kmCfgJsonDoc, "p03_hc1_t01", pkmConfigStr->hc1_timer01);
     webUI.addJson(kmCfgJsonDoc, "p03_hc1_t02", pkmConfigStr->hc1_timer02);
     webUI.addJson(kmCfgJsonDoc, "p03_hc1_t03", pkmConfigStr->hc1_timer03);
@@ -413,7 +413,7 @@ void generateKm271ConfigJSON() {
     webUI.addJson(kmCfgJsonDoc, "p04_hc2_remotecontrol", pkmConfigStr->hc2_remotecontrol);
     webUI.addJson(kmCfgJsonDoc, "p02_hc2_prg", pkmConfigNum->hc2_program);
     webUI.addJson(kmCfgJsonDoc, "p02_hc2_holiday_days", pkmConfigNum->hc2_holiday_days);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_act_prg", KM_CFG_ARRAY::HC_PROGRAM[config.lang][pkmConfigNum->hc2_program]);
+    webUI.addJson(kmCfgJsonDoc, "p04_hc2_act_prg", KM_CFG_ARRAY::HC_PROGRAM[config.lang][constrain(pkmConfigNum->hc2_program, 0, 8)]);
     webUI.addJson(kmCfgJsonDoc, "p04_hc2_t01", pkmConfigStr->hc2_timer01);
     webUI.addJson(kmCfgJsonDoc, "p04_hc2_t02", pkmConfigStr->hc2_timer02);
     webUI.addJson(kmCfgJsonDoc, "p04_hc2_t03", pkmConfigStr->hc2_timer03);
@@ -821,7 +821,7 @@ void updateKm271StatusElements(bool forceUpdate) {
   if (forceUpdate || kmStatusCpy.BurnerStates != pkmStatus->BurnerStates) {
     kmStatusCpy.BurnerStates = pkmStatus->BurnerStates;
     webUI.addJson(jsonDoc, "p01_burner", (kmStatusCpy.BurnerStates == 0) ? WEB_TXT::OFF[config.lang] : WEB_TXT::ON[config.lang]);
-    webUI.addJson(jsonDoc, "p06_burn_ctrl", KM_CFG_ARRAY::BURNER_STATE[config.lang][kmStatusCpy.BurnerStates]);
+    webUI.addJson(jsonDoc, "p06_burn_ctrl", KM_CFG_ARRAY::BURNER_STATE[config.lang][constrain(kmStatusCpy.BurnerStates, 0, 4)]);
   }
   if (forceUpdate || kmStatusCpy.ExhaustTemp != pkmStatus->ExhaustTemp) {
     kmStatusCpy.ExhaustTemp = pkmStatus->ExhaustTemp;

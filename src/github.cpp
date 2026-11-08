@@ -3,6 +3,12 @@
 #include <github.h>
 #include <message.h>
 
+// NOTE: GithubReleaseOTA is used without setCa(), so the download is encrypted
+// but the server certificate is NOT verified, and the image itself is
+// unsigned. Anyone able to spoof DNS or MITM the device's egress can serve
+// arbitrary firmware here. Treat this button as trusted-network-only.
+// Note also that the version check below is "tag != VERSION" rather than "tag
+// is newer", so the update button also offers downgrades.
 #define GITHUB_OWNER "dewenni"
 #define GITHUB_REPO "ESP_Buderus_KM271"
 
