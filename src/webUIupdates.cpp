@@ -296,7 +296,7 @@ void updateSystemInfoElementsStatic() {
   webUI.addJson(jsonDoc, "p09_sw_version", VERSION);
   webUI.addJson(jsonDoc, "p00_dialog_version", VERSION);
 
-  webUI.addJson(jsonDoc, "p09_sw_date", EspStrUtil::getDateStringWeb());
+  webUI.addJson(jsonDoc, "p09_sw_date", EspStrUtil::getBuildDateTime());
 
   // restart reason
   webUI.addJson(jsonDoc, "p09_restart_reason", EspSysUtil::RestartReason::get());
