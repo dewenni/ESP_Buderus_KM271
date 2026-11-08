@@ -969,6 +969,22 @@ const user_translations = {
   },
 };
 
+function validateHost(input) {
+  input.value = input.value.trim();
+  if (/^[\d.]+$/.test(input.value)) {
+    validateIP(input);
+    return;
+  }
+  const hostPattern =
+    /^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$/;
+  if (!hostPattern.test(input.value)) {
+    input.setAttribute("aria-invalid", "true");
+  } else {
+    input.setAttribute("aria-invalid", "false");
+    sendData(input.id, input.value);
+  }
+}
+
 function initLogType() {
   var typeSelect = document.getElementById("p10_logger_type");
   changeLogType(typeSelect);
