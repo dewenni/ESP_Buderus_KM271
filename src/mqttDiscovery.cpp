@@ -726,6 +726,10 @@ void mqttSendHaCfg_Sys() {
   mqttHaConfig(KM_ETH, "eth_full_duplex", NULL, "sensor", NULL, "{{ value_json.full_duplex }}", "mdi:lan", TYP_TEXT, textPar());
 
   mqttHaConfig(KM_DEBUG, "logmode", NULL, "sensor", NULL, "{{ value_json.logmode }}", "mdi:connection", TYP_TEXT, textPar());
+  // how long the serial link to the Logamatic has been silent - the companion
+  // to logmode, so a dead link is visible as a growing number rather than only
+  // as a boolean that used to never change
+  mqttHaConfig(KM_DEBUG, "rx_age_s", "duration", "sensor", "s", "{{ value_json.rx_age_s }}", "mdi:timer-outline", TYP_TEXT, textPar());
   mqttHaConfig(KM_DEBUG, "sw_version", NULL, "sensor", NULL, "{{ value_json.sw_version }}", "mdi:github", TYP_TEXT, textPar());
 
   mqttHaConfig(KM_SYSINFO, "restart_reason", NULL, "sensor", NULL, "{{ value_json.restart_reason }}", "mdi:information-outline", TYP_TEXT, textPar());

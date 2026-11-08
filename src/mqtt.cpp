@@ -33,6 +33,13 @@ static int km271sendCnt = 0;
 static muTimer km271sendTimer;
 std::queue<s_MqttMessage> mqttCmdQueue;
 
+// addMqttCmd() is called from onMqttMessage(), which AsyncMqttClient invokes
+// directly on the AsyncTCP task - mqttCyclic()/processMqttMessage() drain the
+// same queue from the loop task. std::queue (backed by std::deque) gives no
+// thread-safety of its own, so every push/pop/size/empty/front access below
+// is wrapped in this short critical section.
+static portMUX_TYPE mqttQueueMux = portMUX_INITIALIZER_UNLOCKED;
+
 /**
  * *******************************************************************
  * @brief   add message to mqtt command buffer
@@ -40,7 +47,9 @@ std::queue<s_MqttMessage> mqttCmdQueue;
  * @return  none
  * *******************************************************************/
 void addMqttCmd(const char *topic, const char *payload, int len) {
-  if (mqttCmdQueue.size() < MAX_MQTT_CMD) {
+  portENTER_CRITICAL(&mqttQueueMux);
+  bool queueFull = (mqttCmdQueue.size() >= MAX_MQTT_CMD);
+  if (!queueFull) {
     s_MqttMessage message;
     strncpy(message.topic, topic, sizeof(message.topic) - 1);
     message.topic[sizeof(message.topic) - 1] = '\0';
@@ -51,6 +60,10 @@ void addMqttCmd(const char *topic, const char *payload, int len) {
     message.len = len;
 
     mqttCmdQueue.push(message);
+  }
+  portEXIT_CRITICAL(&mqttQueueMux);
+
+  if (!queueFull) {
     ESP_LOGD(TAG, "add msg to buffer: %s, %s", topic, payload);
   } else {
     ESP_LOGE(TAG, "too many commands within too short time");
@@ -107,11 +120,16 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
     strncpy(msgCpy.topic, topic, sizeof(msgCpy.topic) - 1);
     msgCpy.topic[sizeof(msgCpy.topic) - 1] = '\0';
   }
-  if (payload == NULL) {
-    msgCpy.payload[0] = '\0';
-  } else if (len > 0 && len < PAYLOAD_LEN) {
+  if (payload != NULL && len > 0 && len < PAYLOAD_LEN) {
     memcpy(msgCpy.payload, payload, len);
     msgCpy.payload[len] = '\0';
+  } else {
+    // Also covers len >= PAYLOAD_LEN, which previously fell through every
+    // branch and left msgCpy.payload as uninitialised stack. That garbage was
+    // then queued, atoi()'d and could be written to the boiler as a setpoint
+    // whenever it happened to parse inside a valid range.
+    msgCpy.payload[0] = '\0';
+    msgCpy.len = 0;
   }
 
   addMqttCmd(msgCpy.topic, msgCpy.payload, msgCpy.len);
@@ -219,7 +237,10 @@ void mqttSetup() {
 void mqttCyclic() {
 
   // process incoming messages
-  if (!mqttCmdQueue.empty()) {
+  portENTER_CRITICAL(&mqttQueueMux);
+  bool haveCmd = !mqttCmdQueue.empty();
+  portEXIT_CRITICAL(&mqttQueueMux);
+  if (haveCmd) {
     processMqttMessage();
   }
 
@@ -229,27 +250,27 @@ void mqttCyclic() {
     setupDone = true;
   }
 
-  // automatic reconnect to mqtt broker if connection is lost - try 5 times, then reboot
+  // Automatic reconnect to the mqtt broker if the connection is lost. This
+  // never reboots the device: an unreachable broker (Home Assistant being
+  // updated, the broker container restarting, a mistyped server address) says
+  // nothing about this device's health, and restarting would drop the decoded
+  // boiler state, both log ring buffers and the NTP sync without fixing
+  // anything. The old behaviour rebooted after ~150 s and kept doing so for
+  // the whole outage, which also made it very hard to push an OTA update to
+  // correct the setting that caused it. Retries continue indefinitely with a
+  // backoff capped at MQTT_RECONNECT * MQTT_RETRY_MAX.
   if (!mqtt_client.connected() && (wifi.connected || eth.connected)) {
     if (mqtt_retry == 0) {
       mqtt_retry++;
       mqtt_client.connect();
-      ESP_LOGI(TAG, "MQTT - connection attempt: 1/5");
+      ESP_LOGI(TAG, "MQTT - connection attempt: %i", mqtt_retry);
     } else if (mqttReconnectTimer.delayOnTrigger(true, MQTT_RECONNECT * mqtt_retry)) {
       mqttReconnectTimer.delayReset();
-      if (mqtt_retry < 5) {
-        mqtt_retry++;
-        mqtt_client.connect();
-        ESP_LOGI(TAG, "MQTT - connection attempt: %i/5", mqtt_retry);
-      } else {
-        ESP_LOGI(TAG, "MQTT connection not possible, esp rebooting...");
-        storeData(); // store Data before reboot
-        EspSysUtil::RestartReason::saveLocal("no mqtt connection");
-        yield();
-        delay(1000);
-        yield();
-        ESP.restart();
+      if (mqtt_retry < MQTT_RETRY_MAX) {
+        mqtt_retry++; // capped, so the backoff stops growing and cannot overflow
       }
+      mqtt_client.connect();
+      ESP_LOGI(TAG, "MQTT - connection attempt: %i", mqtt_retry);
     }
   }
 
@@ -300,15 +321,21 @@ void mqttCyclic() {
  * *******************************************************************/
 void processMqttMessage() {
 
+  portENTER_CRITICAL(&mqttQueueMux);
   s_MqttMessage msgCpy = mqttCmdQueue.front();
+  portEXIT_CRITICAL(&mqttQueueMux);
 
   ESP_LOGD(TAG, "process msg from buffer: %s, %s", msgCpy.topic, msgCpy.payload);
 
   // payload as number
-  int16_t intVal = 0;
+  // wide enough that the range checks inside km271sendCmd() see the value the
+  // user actually sent: as int16_t, publishing 286 to a 30..60 setpoint wrapped
+  // to 30 and was accepted as valid, and the oil counter (in 1/100 L) could only
+  // express 0..327.67 L before wrapping negative
+  long intVal = 0;
   float floatVal = 0.0;
   if (msgCpy.len > 0) {
-    intVal = atoi(msgCpy.payload);
+    intVal = atol(msgCpy.payload);
     floatVal = atoff(msgCpy.payload);
   }
 
@@ -337,23 +364,38 @@ void processMqttMessage() {
       // Iteration thru payload
       char *token = strtok(msgCpy.payload, "_");
       size_t i = 0;
+      bool validHex = true;
       while (token != NULL && i < 8) {
         // check, if the substring contains valid hex values
         size_t tokenLen = strlen(token);
         if (tokenLen != 2 || !isxdigit(token[0]) || !isxdigit(token[1])) {
-          // invalid hex values found
+          // Invalid hex - report and stop parsing, but fall through to the
+          // queue pop at the end of this function. This used to "return",
+          // which left the message at the head of the queue forever:
+          // mqttCyclic() re-entered this function on every loop iteration,
+          // republishing the error at loop rate and blocking every subsequent
+          // MQTT command until the device was rebooted.
           km271Msg(KM_TYP_MESSAGE, "invalid hex parameter", "");
-          return;
+          validHex = false;
+          break;
         }
         hexArray[i] = strtol(token, NULL, 16); // convert hex strings to uint8_t
         token = strtok(NULL, "_");             // next substring
         i++;
       }
       // check if all 8 hex values are found
-      if (i == 8) {
+      if (!validHex) {
+        // already reported above
+      } else if (i == 8) {
         // everything seems to be valid - call service function
-        km271Msg(KM_TYP_MESSAGE, "service message accepted", "");
-        km271sendServiceCmd(hexArray);
+        if (km271sendServiceCmd(hexArray)) {
+          km271Msg(KM_TYP_MESSAGE, "service message accepted", "");
+        } else {
+          // first byte is the KM271 Data-Type and is also used as the
+          // "command pending" sentinel for the send-queue - 0x00 can't be
+          // queued, it would be silently dropped instead of transmitted.
+          km271Msg(KM_TYP_MESSAGE, "service message rejected: first byte must not be 00", "");
+        }
       } else {
         // not enough hex values found
         km271Msg(KM_TYP_MESSAGE, "not enough hex parameter", "");
@@ -649,5 +691,7 @@ void processMqttMessage() {
     }
   }
 
+  portENTER_CRITICAL(&mqttQueueMux);
   mqttCmdQueue.pop(); // next entry in Queue
+  portEXIT_CRITICAL(&mqttQueueMux);
 }
