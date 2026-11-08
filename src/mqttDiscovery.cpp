@@ -174,6 +174,14 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
     doc["icon"] = icon;
   }
 
+  // km271Msg() publishes bit states as "1"/"0", but Home Assistant's
+  // binary_sensor defaults to "ON"/"OFF" - map them explicitly, otherwise
+  // every binary_sensor would sit permanently at "off".
+  if (strcmp(component, "binary_sensor") == 0) {
+    doc["pl_on"] = "1";
+    doc["pl_off"] = "0";
+  }
+
   if (devType == TYP_BTN) {
     char cmdTopic[256];
     sprintf(cmdTopic, "%s/cmd/%s", statePrefix, name);
@@ -192,6 +200,15 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
 
   if (kmType == KM_STATUS && unit != NULL) {
     doc["state_class"] = "measurement";
+  }
+
+  // Cumulative counters must be total_increasing rather than measurement: with
+  // "measurement" Home Assistant's long-term statistics keep mean/min/max and
+  // never a sum, so no consumption figure (litres per month, burner hours per
+  // day) can be derived - which is the entire purpose of these three.
+  if (strcmp(name, KM_STAT_TOPIC::BOILER_CONSUMPTION[config.mqtt.lang]) == 0 ||
+      strcmp(name, KM_STAT_TOPIC::BOILER_LIFETIME_4[config.mqtt.lang]) == 0 || strcmp(name, "oilcounter") == 0) {
+    doc["state_class"] = "total_increasing";
   }
 
   if (devType == TYP_SLIDER) {
@@ -518,6 +535,8 @@ void mqttSendHaCfg_KmStat() {
                  "mdi:alert-circle-outline", TYP_TEXT, textPar());
     mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::HC1_OV2_NO_COM_REMOTE[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ERR_OK),
                  "mdi:alert-circle-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::HC1_OV2_REMOTE_ERR[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ERR_OK),
+                 "mdi:alert-circle-outline", TYP_TEXT, textPar());
     mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::HC1_OV2_SUMMER[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ON_OFF), "mdi:information-outline",
                  TYP_TEXT, textPar());
     mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::HC1_PUMP[config.mqtt.lang], NULL, "sensor", "%", NULL, "mdi:heat-pump-outline", TYP_TEXT, textPar());
@@ -566,6 +585,8 @@ void mqttSendHaCfg_KmStat() {
     mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::HC2_OV2_FLOW_SENS_ERR[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ERR_OK),
                  "mdi:alert-circle-outline", TYP_TEXT, textPar());
     mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::HC2_OV2_NO_COM_REMOTE[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ERR_OK),
+                 "mdi:alert-circle-outline", TYP_TEXT, textPar());
+    mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::HC2_OV2_REMOTE_ERR[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ERR_OK),
                  "mdi:alert-circle-outline", TYP_TEXT, textPar());
     mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::HC2_OV2_SUMMER[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ON_OFF), "mdi:information-outline",
                  TYP_TEXT, textPar());
@@ -624,7 +645,7 @@ void mqttSendHaCfg_KmStat() {
 
   // STATUS VALUES BOILER/BURNER
   if (config.oilmeter.use_virtual_meter) {
-    mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::BOILER_CONSUMPTION[config.mqtt.lang], NULL, "sensor", "L", NULL, "mdi:barrel-outline", TYP_TEXT,
+    mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::BOILER_CONSUMPTION[config.mqtt.lang], "volume", "sensor", "L", NULL, "mdi:barrel-outline", TYP_TEXT,
                  textPar());
   }
   mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::BOILER_CONTROL[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:gas-burner", TYP_TEXT, textPar());
@@ -632,6 +653,8 @@ void mqttSendHaCfg_KmStat() {
                "mdi:alert-circle-outline", TYP_TEXT, textPar());
   mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::BOILER_ERR_BURNER[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ERR_OK), "mdi:alert-circle-outline",
                TYP_TEXT, textPar());
+  mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::BOILER_ERR_EXHAUST[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ERR_OK),
+               "mdi:alert-circle-outline", TYP_TEXT, textPar());
   mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::BOILER_ERR_EXT[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ERR_OK), "mdi:alert-circle-outline",
                TYP_TEXT, textPar());
   mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::BOILER_ERR_GAS_SENS[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ERR_OK),
@@ -642,6 +665,25 @@ void mqttSendHaCfg_KmStat() {
                TYP_TEXT, textPar());
   mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::BOILER_ERR_STAY_COLD[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ERR_OK),
                "mdi:alert-circle-outline", TYP_TEXT, textPar());
+
+  // live alarm bits decoded from telegram 0xaa42 (ERR_Alarmstatus). These are
+  // published on every change but had no discovery entry at all, so nothing in
+  // Home Assistant could see - let alone automate on - an active burner fault.
+  // Exposed as binary_sensor/problem so they can drive notifications directly.
+  // The four undocumented bits (02/08/20/80) stay unregistered on purpose:
+  // their meaning is unknown, and labelling an unknown bit "problem" would
+  // produce alarms nobody can act on.
+  mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::ALARM_BURNER[config.mqtt.lang], "problem", "binary_sensor", NULL, NULL, "mdi:alert-circle-outline", TYP_TEXT,
+               textPar());
+  mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::ALARM_EXHAUST[config.mqtt.lang], "problem", "binary_sensor", NULL, NULL, "mdi:alert-circle-outline", TYP_TEXT,
+               textPar());
+  mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::ALARM_BOILER_FLOW[config.mqtt.lang], "problem", "binary_sensor", NULL, NULL, "mdi:alert-circle-outline",
+               TYP_TEXT, textPar());
+  if (config.km271.use_hc2) {
+    mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::ALARM_HC2_FLOW_SENS[config.mqtt.lang], "problem", "binary_sensor", NULL, NULL, "mdi:alert-circle-outline",
+                 TYP_TEXT, textPar());
+  }
+
   mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::BOILER_LIFETIME_4[config.mqtt.lang], "duration", "sensor", "min", NULL, "mdi:clock-outline", TYP_TEXT,
                textPar());
   mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::BOILER_ON_TEMP[config.mqtt.lang], "temperature", "sensor", "°C", NULL, "mdi:thermometer", TYP_TEXT,
@@ -663,7 +705,9 @@ void mqttSendHaCfg_KmStat() {
                TYP_TEXT, textPar());
   mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::BOILER_STATE_STAGE1[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ON_OFF), "mdi:gas-burner",
                TYP_TEXT, textPar());
-  mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::BOILER_STATE_STAGE1[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ON_OFF), "mdi:gas-burner",
+  // was a copy-paste duplicate of STAGE1, so STAGE2 was published but never
+  // had an entity
+  mqttHaConfig(KM_STATUS, KM_STAT_TOPIC::BOILER_STATE_STAGE2[config.mqtt.lang], NULL, "sensor", NULL, valueTmpl(VAL_ON_OFF), "mdi:gas-burner",
                TYP_TEXT, textPar());
 
   // general status values
@@ -701,7 +745,10 @@ void mqttSendHaCfg_KmMisc() {
 
   // Oilcounter
   if (config.oilmeter.use_hardware_meter) {
-    mqttHaConfig(KM_OIL, "oilcounter", NULL, "sensor", NULL, NULL, "mdi:barrel-outline", TYP_TEXT, textPar());
+    // published in hundredths of a litre (see sendOilmeter()), so it needs the
+    // /100 template - without it Home Assistant showed a bare unitless integer
+    // reading 100x the actual volume
+    mqttHaConfig(KM_OIL, "oilcounter", "volume", "sensor", "L", "{{ value | float / 100 }}", "mdi:barrel-outline", TYP_TEXT, textPar());
   }
 
   // Alarm
