@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html data-theme="dark">
   <head>
     <title>ESP Async Web Server</title>
@@ -391,6 +391,21 @@
                   id="cfg_mqtt_ha_enable" />
               </div>
               <br />
+              <div role="group">
+                <button
+                  type="button"
+                  id="p12_mqtt_test_btn"
+                  style="white-space: nowrap; flex: 0 0 auto"
+                  data-i18n="mqtt_connection_test"></button>
+                <input
+                  type="text"
+                  id="p12_mqtt_connection"
+                  style="height: auto; min-width: 0"
+                  aria-label="MQTT connection status"
+                  value="---"
+                  disabled />
+              </div>
+              <span id="p12_mqtt_connection_state" hidden></span>
               <label for="mqtt_server" data-i18n="server"></label>
               <input
                 type="text"
@@ -408,6 +423,7 @@
                 type="password"
                 id="cfg_mqtt_password"
                 name="mqtt_password" />
+              <br />
               <label for="mqtt_language" data-i18n="topic$ $language"></label>
               <select id="cfg_mqtt_language" name="mqtt_language">
                 <option value="0" data-i18n="german"></option>
@@ -418,6 +434,7 @@
                 type="text"
                 id="cfg_mqtt_cyclic_send"
                 name="mqtt_cyclic_send" />
+              <br />
               <label for="mqtt_ha_topic">Home Assistant Topic</label>
               <input
                 type="text"

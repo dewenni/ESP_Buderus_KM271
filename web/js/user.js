@@ -1,3 +1,19 @@
+function initMqttConnectionStatus() {
+  const input = document.getElementById("p12_mqtt_connection");
+  const state = document.getElementById("p12_mqtt_connection_state");
+  const update = () => {
+    if (state.textContent === "connected") {
+      input.setAttribute("aria-invalid", "false");
+    } else if (state.textContent === "disconnected") {
+      input.setAttribute("aria-invalid", "true");
+    } else {
+      input.removeAttribute("aria-invalid");
+    }
+  };
+  new MutationObserver(update).observe(state, { childList: true, characterData: true, subtree: true });
+  update();
+}
+
 function validateHost(input) {
   input.value = input.value.trim();
   if (/^[\d.]+$/.test(input.value)) {

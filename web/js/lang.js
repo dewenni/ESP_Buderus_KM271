@@ -358,6 +358,10 @@ const user_translations = {
     de: "Config Nachrichten als retain",
     en: "config messages as retain",
   },
+  mqtt_connection_test: {
+    de: "Verbindung testen",
+    en: "Test connection",
+  },
   optional_sensor: {
     de: "optionale Sensoren",
     en: "optional sensors",

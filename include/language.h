@@ -31,6 +31,7 @@ constexpr const char *ACTIVE[] = {"aktiv", "active"};
 constexpr const char *INACTIVE[] = {"inaktiv", "inactive"};
 constexpr const char *FULL_DUPLEX[] = {"Vollduplex", "Full-Duplex"};
 constexpr const char *CONNECTED[] = {"verbunden", "connected"};
+constexpr const char *CONNECTING[] = {"Verbinde...", "Connecting..."};
 constexpr const char *NOT_CONNECTED[] = {"nicht verbunden", "not connected"};
 }; // namespace WEB_TXT
 

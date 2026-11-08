@@ -3,6 +3,7 @@
 document.addEventListener("DOMContentLoaded", function () {
   // call user functions
   initLogType();
+  initMqttConnectionStatus();
   loadSimulatedData();
 
   // ETH: open dialog to show w5500 configuration

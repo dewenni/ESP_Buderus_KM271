@@ -348,6 +348,14 @@ void webCallback(const char *elementId, const char *value) {
   }
 
   // MQTT
+  if (strcmp(elementId, "p12_mqtt_test_btn") == 0) {
+    mqttReconnect();
+    if (mqttIsReconnecting()) {
+      webUI.wsUpdateWebText("p12_mqtt_connection", WEB_TXT::CONNECTING[config.lang], true);
+      webUI.wsUpdateWebText("p12_mqtt_connection_state", "connecting", false);
+      webUI.wsUpdateWebText("p09_mqtt_connection", WEB_TXT::CONNECTING[config.lang], false);
+    }
+  }
   if (strcmp(elementId, "cfg_mqtt_enable") == 0) {
     config.mqtt.enable = EspStrUtil::stringToBool(value);
   }

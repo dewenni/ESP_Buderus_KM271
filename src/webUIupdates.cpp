@@ -250,7 +250,15 @@ void updateSystemInfoElements() {
 
   // MQTT Status
   webUI.addJson(jsonDoc, "p09_mqtt_status", config.mqtt.enable ? WEB_TXT::ACTIVE[config.lang] : WEB_TXT::INACTIVE[config.lang]);
-  webUI.addJson(jsonDoc, "p09_mqtt_connection", mqttIsConnected() ? WEB_TXT::CONNECTED[config.lang] : WEB_TXT::NOT_CONNECTED[config.lang]);
+  const char *mqttConnection = mqttIsConnecting() ? WEB_TXT::CONNECTING[config.lang]
+                              : mqttIsConnected() ? WEB_TXT::CONNECTED[config.lang] : WEB_TXT::NOT_CONNECTED[config.lang];
+  webUI.addJson(jsonDoc, "p09_mqtt_connection", mqttConnection);
+  webUI.addJson(jsonDoc, "p12_mqtt_connection", mqttConnection);
+  const char *mqttConnectionState = !config.mqtt.enable || setupMode ? "inactive"
+                                    : mqttIsConnecting() ? "connecting"
+                                    : mqttIsConnected() ? "connected" : "disconnected";
+  webUI.addJson(jsonDoc, "p12_mqtt_connection_state", mqttConnectionState);
+  webUI.wsUpdateWebDisabled("p12_mqtt_test_btn", !config.mqtt.enable || setupMode || mqttIsReconnecting());
 
   if (mqttGetLastError() != nullptr) {
     webUI.addJson(jsonDoc, "p09_mqtt_last_err", mqttGetLastError());

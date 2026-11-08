@@ -12,6 +12,9 @@
 const char *addTopic(const char *suffix);
 void mqttSetup();
 void mqttCyclic();
+void mqttReconnect();
+bool mqttIsReconnecting();
+bool mqttIsConnecting();
 void checkMqtt();
 void mqttPublish(const char *sendtopic, const char *payload, boolean retained);
 const char *mqttGetLastError();
