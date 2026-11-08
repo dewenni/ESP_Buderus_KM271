@@ -3,6 +3,9 @@
 document.addEventListener("DOMContentLoaded", function () {
   // call user functions
   initLogType();
+  initMqttConnectionStatus();
+  initWiFiApDialog();
+  initWiFiSsidDialog();
   loadSimulatedData();
 
   // ETH: open dialog to show w5500 configuration
@@ -63,6 +66,40 @@ document.addEventListener("DOMContentLoaded", function () {
 // localization texts
 // --------------------------------------
 const user_translations = {
+  wifi_ssid_search: { de: "Suche WLAN", en: "Find Wi-Fi" },
+  wifi_ssid_title: { de: "WLAN auswählen", en: "Select Wi-Fi network" },
+  wifi_ssid_select: { de: "Verfügbare WLAN-Netze", en: "Available Wi-Fi networks" },
+  wifi_ssid_hint: {
+    de: "Versteckte WLAN-Namen können manuell eingegeben werden. Bei einem anderen WLAN-Namen wird die feste BSSID zurückgesetzt.",
+    en: "Hidden Wi-Fi names can be entered manually. Selecting a different Wi-Fi name clears the fixed BSSID.",
+  },
+  wifi_ssid_choose: { de: "Bitte WLAN auswählen", en: "Select a Wi-Fi network" },
+  wifi_ssid_found: { de: "WLAN auswählen und mit Übernehmen bestätigen.", en: "Select a network and confirm with Apply." },
+  wifi_ssid_empty: { de: "Keine WLAN-Netze gefunden.", en: "No Wi-Fi networks found." },
+  wifi_ap_bssid: {
+    de: "Access Point (BSSID, optional)",
+    en: "Access point (BSSID, optional)",
+  },
+  wifi_ap_search: { de: "Suche AP", en: "Find AP" },
+  wifi_ap_hint: {
+    de: "Leer = automatische Auswahl. Mit fester BSSID erfolgt kein Wechsel zu anderen Access Points. Gilt ab der nächsten WLAN-Verbindung oder nach einem Neustart.",
+    en: "Empty = automatic selection. A fixed BSSID prevents switching to other access points. Applies on the next Wi-Fi connection or after a restart.",
+  },
+  wifi_ap_title: { de: "Access Point auswählen", en: "Select access point" },
+  wifi_ap_select: { de: "Verfügbare Access Points", en: "Available access points" },
+  wifi_ap_retry: { de: "Erneut suchen", en: "Scan again" },
+  wifi_ap_apply: { de: "Übernehmen", en: "Apply" },
+  wifi_ap_auto: { de: "Automatisch auswählen", en: "Select automatically" },
+  wifi_ap_current: { de: "aktuell verbunden", en: "currently connected" },
+  wifi_ap_channel: { de: "Kanal", en: "Channel" },
+  wifi_ap_not_found: { de: "nicht gefunden", en: "not found" },
+  wifi_ap_scanning: { de: "Suche läuft…", en: "Scanning…" },
+  wifi_ap_found: { de: "Access Point auswählen und mit Übernehmen bestätigen.", en: "Select an access point and confirm with Apply." },
+  wifi_ap_empty: { de: "Keine Access Points für diesen WLAN-Namen gefunden.", en: "No access points found for this Wi-Fi name." },
+  wifi_ap_invalid_ssid: { de: "Bitte zuerst einen WLAN-Namen mit 1 bis 32 Byte eingeben.", en: "Enter a Wi-Fi name of 1 to 32 bytes first." },
+  wifi_ap_failed: { de: "Die Suche ist fehlgeschlagen. Bitte erneut versuchen.", en: "The scan failed. Please try again." },
+  wifi_ap_busy: { de: "Das Gerät führt bereits eine Suche oder ein Update aus. Bitte später erneut versuchen.", en: "The device is already scanning or updating. Please try again later." },
+  wifi_ap_ssid_changed: { de: "Der WLAN-Name wurde geändert. Bitte den Dialog schließen und erneut suchen.", en: "The Wi-Fi name has changed. Close this dialog and scan again." },
   control: {
     de: "Bedienung",
     en: "Control",
@@ -418,6 +455,10 @@ const user_translations = {
   mqtt_cfg_ret: {
     de: "Config Nachrichten als retain",
     en: "config messages as retain",
+  },
+  mqtt_connection_test: {
+    de: "Verbindung testen",
+    en: "Test connection",
   },
   optional_sensor: {
     de: "optionale Sensoren",
@@ -969,6 +1010,22 @@ const user_translations = {
   },
 };
 
+function initMqttConnectionStatus() {
+  const input = document.getElementById("p12_mqtt_connection");
+  const state = document.getElementById("p12_mqtt_connection_state");
+  const update = () => {
+    if (state.textContent === "connected") {
+      input.setAttribute("aria-invalid", "false");
+    } else if (state.textContent === "disconnected") {
+      input.setAttribute("aria-invalid", "true");
+    } else {
+      input.removeAttribute("aria-invalid");
+    }
+  };
+  new MutationObserver(update).observe(state, { childList: true, characterData: true, subtree: true });
+  update();
+}
+
 function validateHost(input) {
   input.value = input.value.trim();
   if (/^[\d.]+$/.test(input.value)) {
@@ -1024,5 +1081,224 @@ async function loadSimulatedData() {
   } catch (error) {
     console.error("Fehler beim Laden von sim.json:", error);
   }
+}
+
+function validateWiFiBssid(input) {
+  input.value = input.value.trim().toUpperCase();
+  if (!input.value) {
+    input.removeAttribute("aria-invalid");
+    return true;
+  }
+  const valid = /^(?:[0-9A-F]{2}:){5}[0-9A-F]{2}$/.test(input.value);
+  input.setAttribute("aria-invalid", valid ? "false" : "true");
+  return valid;
+}
+
+function wifiApText(key) {
+  const lang = document.getElementById("cfg_lang").value === "1" ? "en" : "de";
+  return user_translations[key][lang];
+}
+
+function initWiFiApDialog() {
+  const input = document.getElementById("cfg_wifi_bssid");
+  const dialog = document.getElementById("p12_wifi_ap_dialog");
+  const list = document.getElementById("p12_wifi_ap_list");
+  const status = document.getElementById("p12_wifi_ap_status");
+  const payload = document.getElementById("p12_wifi_ap_results");
+  const search = document.getElementById("p12_wifi_ap_scan_btn");
+  const retry = document.getElementById("p12_wifi_ap_retry_btn");
+  const apply = document.getElementById("p12_wifi_ap_apply_btn");
+  let ssid = "";
+  let selected = "";
+  let timer;
+
+  const setBusy = (busy) => {
+    search.disabled = retry.disabled = apply.disabled = list.disabled = busy;
+    status.setAttribute("aria-busy", busy ? "true" : "false");
+  };
+  const render = (accessPoints) => {
+    list.replaceChildren();
+    const addOption = (value, text) => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = text;
+      list.appendChild(option);
+    };
+    addOption("", wifiApText("wifi_ap_auto"));
+    const seen = new Set();
+    accessPoints.slice().sort((a, b) => b.rssi - a.rssi).forEach((ap) => {
+      const bssid = String(ap.bssid).toUpperCase();
+      if (!/^(?:[0-9A-F]{2}:){5}[0-9A-F]{2}$/.test(bssid) || seen.has(bssid)) return;
+      seen.add(bssid);
+      const current = ap.current ? ` — ${wifiApText("wifi_ap_current")}` : "";
+      addOption(bssid, `${bssid} — ${ap.rssi} dBm — ${wifiApText("wifi_ap_channel")} ${ap.channel}${current}`);
+    });
+    if (selected && !seen.has(selected)) {
+      addOption(selected, `${selected} — ${wifiApText("wifi_ap_not_found")}`);
+    }
+    list.value = selected;
+  };
+  const fail = (key) => {
+    clearTimeout(timer);
+    setBusy(false);
+    status.textContent = wifiApText(key);
+  };
+  const scan = () => {
+    clearTimeout(timer);
+    if (!ssid || new TextEncoder().encode(ssid).length > 32) {
+      fail("wifi_ap_invalid_ssid");
+      return;
+    }
+    setBusy(true);
+    status.textContent = wifiApText("wifi_ap_scanning");
+    // Pass the field value explicitly so a preceding edit need not be saved yet.
+    sendData("p12_wifi_ap_scan_cmd", ssid);
+    timer = setTimeout(() => fail("wifi_ap_failed"), 25000);
+  };
+
+  search.addEventListener("click", () => {
+    ssid = document.getElementById("cfg_wifi_ssid").value;
+    selected = validateWiFiBssid(input) ? input.value : "";
+    document.getElementById("p12_wifi_ap_ssid").textContent = ssid;
+    render([]);
+    if (!dialog.open) dialog.showModal();
+    scan();
+  });
+  retry.addEventListener("click", scan);
+  list.addEventListener("change", () => { selected = list.value; });
+  document.getElementById("p12_wifi_ap_close_btn").addEventListener("click", () => dialog.close());
+  apply.addEventListener("click", () => {
+    if (document.getElementById("cfg_wifi_ssid").value !== ssid) {
+      fail("wifi_ap_ssid_changed");
+      return;
+    }
+    input.value = list.value;
+    if (validateWiFiBssid(input)) {
+      sendData(input.id, input.value);
+      dialog.close();
+    }
+  });
+  new MutationObserver(() => {
+    let result;
+    try { result = JSON.parse(payload.textContent); } catch { return; }
+    if (result.scan === "ssid" || result.ssid !== ssid) return;
+    if (result.status === "scanning") {
+      setBusy(true);
+      status.textContent = wifiApText("wifi_ap_scanning");
+      return;
+    }
+    clearTimeout(timer);
+    setBusy(false);
+    if (result.status === "done") {
+      render(Array.isArray(result.aps) ? result.aps : []);
+      status.textContent = wifiApText(result.aps && result.aps.length ? "wifi_ap_found" : "wifi_ap_empty");
+    } else {
+      fail(result.status === "busy" ? "wifi_ap_busy" : result.status === "invalid_ssid" ? "wifi_ap_invalid_ssid" : "wifi_ap_failed");
+    }
+  }).observe(payload, { childList: true, characterData: true, subtree: true });
+}
+
+function initWiFiSsidDialog() {
+  const input = document.getElementById("cfg_wifi_ssid");
+  const dialog = document.getElementById("p12_wifi_ssid_dialog");
+  const list = document.getElementById("p12_wifi_ssid_list");
+  const status = document.getElementById("p12_wifi_ssid_status");
+  const search = document.getElementById("p12_wifi_ssid_scan_btn");
+  const retry = document.getElementById("p12_wifi_ssid_retry_btn");
+  const apply = document.getElementById("p12_wifi_ssid_apply_btn");
+  let selected = "";
+  let busy = false;
+  let timer;
+
+  const setBusy = (value) => {
+    busy = value;
+    search.disabled = retry.disabled = list.disabled = busy;
+    apply.disabled = busy || !list.value;
+    status.setAttribute("aria-busy", busy ? "true" : "false");
+  };
+  const render = (accessPoints) => {
+    const networks = new Map();
+    accessPoints.forEach((ap) => {
+      const ssid = String(ap.ssid ?? "");
+      if (!ssid || new TextEncoder().encode(ssid).length > 32) return;
+      const previous = networks.get(ssid);
+      const current = Boolean(ap.current || (previous && previous.current));
+      networks.set(ssid, { ...(previous && previous.rssi > ap.rssi ? previous : ap), ssid, current });
+    });
+    list.replaceChildren();
+    const addOption = (value, text) => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = text;
+      list.appendChild(option);
+      return option;
+    };
+    addOption("", wifiApText("wifi_ssid_choose")).disabled = true;
+    [...networks.values()].sort((a, b) => b.rssi - a.rssi).forEach((network) => {
+      const current = network.current ? ` — ${wifiApText("wifi_ap_current")}` : "";
+      addOption(network.ssid, `${network.ssid} — ${network.rssi} dBm — ${wifiApText("wifi_ap_channel")} ${network.channel}${current}`);
+    });
+    if (selected && !networks.has(selected)) {
+      addOption(selected, `${selected} — ${wifiApText("wifi_ap_not_found")}`);
+    }
+    list.value = selected;
+    setBusy(busy);
+    return networks.size;
+  };
+  const fail = (key) => {
+    clearTimeout(timer);
+    setBusy(false);
+    status.textContent = wifiApText(key);
+  };
+  const scan = () => {
+    clearTimeout(timer);
+    setBusy(true);
+    status.textContent = wifiApText("wifi_ap_scanning");
+    sendData("p12_wifi_ssid_scan_cmd", "");
+    timer = setTimeout(() => fail("wifi_ap_failed"), 25000);
+  };
+  search.addEventListener("click", () => {
+    selected = input.value;
+    render([]);
+    if (!dialog.open) dialog.showModal();
+    scan();
+  });
+  retry.addEventListener("click", scan);
+  list.addEventListener("change", () => {
+    selected = list.value;
+    setBusy(busy);
+  });
+  document.getElementById("p12_wifi_ssid_close_btn").addEventListener("click", () => dialog.close());
+  apply.addEventListener("click", () => {
+    if (busy || !list.value) return;
+    if (input.value !== list.value) {
+      const bssid = document.getElementById("cfg_wifi_bssid");
+      bssid.value = "";
+      validateWiFiBssid(bssid);
+      sendData(bssid.id, "");
+    }
+    input.value = list.value;
+    sendData(input.id, input.value);
+    dialog.close();
+  });
+  const payload = document.getElementById("p12_wifi_ap_results");
+  new MutationObserver(() => {
+    let result;
+    try { result = JSON.parse(payload.textContent); } catch { return; }
+    if (result.scan !== "ssid") return;
+    if (result.status === "scanning") {
+      setBusy(true);
+      status.textContent = wifiApText("wifi_ap_scanning");
+      return;
+    }
+    clearTimeout(timer);
+    setBusy(false);
+    if (result.status === "done") {
+      const count = render(Array.isArray(result.aps) ? result.aps : []);
+      status.textContent = wifiApText(count ? "wifi_ssid_found" : "wifi_ssid_empty");
+    } else {
+      fail(result.status === "busy" ? "wifi_ap_busy" : "wifi_ap_failed");
+    }
+  }).observe(payload, { childList: true, characterData: true, subtree: true });
 }
 

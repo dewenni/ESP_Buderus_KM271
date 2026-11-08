@@ -2292,12 +2292,120 @@
               <label for="wifi_hostname" data-i18n="hostname"></label>
               <input type="text" id="cfg_wifi_hostname" name="wifi_hostname" />
               <label for="wifi_ssid" data-i18n="ssid"></label>
-              <input type="text" id="cfg_wifi_ssid" name="wifi_ssid" />
+              <fieldset role="group">
+                <input
+                  type="text"
+                  id="cfg_wifi_ssid"
+                  aria-describedby="p12_wifi_ssid_hint"
+                  name="wifi_ssid"
+                  style="min-width: 0" />
+                <button
+                  type="button"
+                  id="p12_wifi_ssid_scan_btn"
+                  data-i18n="wifi_ssid_search"
+                  style="white-space: nowrap; flex: 0 0 auto"></button>
+              </fieldset>
+              <small id="p12_wifi_ssid_hint" data-i18n="wifi_ssid_hint"></small>
+              <dialog
+                id="p12_wifi_ssid_dialog"
+                aria-labelledby="p12_wifi_ssid_title">
+                <article style="width: min(48rem, 95vw)">
+                  <header
+                    id="p12_wifi_ssid_title"
+                    data-i18n="wifi_ssid_title"></header>
+                  <p
+                    id="p12_wifi_ssid_status"
+                    role="status"
+                    aria-live="polite"></p>
+                  <label
+                    for="p12_wifi_ssid_list"
+                    data-i18n="wifi_ssid_select"></label>
+                  <select
+                    id="p12_wifi_ssid_list"
+                    size="6"
+                    style="width: 100%"></select>
+                  <footer>
+                    <button
+                      type="button"
+                      id="p12_wifi_ssid_retry_btn"
+                      data-i18n="wifi_ap_retry"></button>
+                    <button
+                      type="button"
+                      id="p12_wifi_ssid_apply_btn"
+                      data-i18n="wifi_ap_apply"></button>
+                    <button
+                      type="button"
+                      id="p12_wifi_ssid_close_btn"
+                      class="secondary"
+                      data-i18n="close"></button>
+                  </footer>
+                </article>
+              </dialog>
               <label for="wifi_password">Passwort</label>
               <input
                 type="password"
                 id="cfg_wifi_password"
                 name="wifi_password" />
+
+              <label for="cfg_wifi_bssid" data-i18n="wifi_ap_bssid"></label>
+              <fieldset role="group">
+                <input
+                  type="text"
+                  id="cfg_wifi_bssid"
+                  aria-describedby="p12_wifi_ap_hint"
+                  name="wifi_bssid"
+                  placeholder="AA:BB:CC:DD:EE:FF"
+                  maxlength="17"
+                  oninput="validateWiFiBssid(this)"
+                  style="min-width: 0" />
+                <button
+                  type="button"
+                  id="p12_wifi_ap_scan_btn"
+                  data-i18n="wifi_ap_search"
+                  style="white-space: nowrap; flex: 0 0 auto"></button>
+              </fieldset>
+              <small id="p12_wifi_ap_hint" data-i18n="wifi_ap_hint"></small>
+              <span id="p12_wifi_ap_results" hidden></span>
+
+              <dialog
+                id="p12_wifi_ap_dialog"
+                aria-labelledby="p12_wifi_ap_title">
+                <article style="width: min(48rem, 95vw)">
+                  <header
+                    id="p12_wifi_ap_title"
+                    data-i18n="wifi_ap_title"></header>
+                  <p>
+                    <span data-i18n="ssid"></span>:
+                    <strong id="p12_wifi_ap_ssid"></strong>
+                  </p>
+                  <p
+                    id="p12_wifi_ap_status"
+                    role="status"
+                    aria-live="polite"></p>
+                  <label
+                    for="p12_wifi_ap_list"
+                    data-i18n="wifi_ap_select"></label>
+                  <select
+                    id="p12_wifi_ap_list"
+                    size="6"
+                    style="width: 100%"></select>
+                  <footer>
+                    <button
+                      type="button"
+                      id="p12_wifi_ap_retry_btn"
+                      data-i18n="wifi_ap_retry"></button>
+                    <button
+                      type="button"
+                      id="p12_wifi_ap_apply_btn"
+                      data-i18n="wifi_ap_apply"></button>
+                    <button
+                      type="button"
+                      id="p12_wifi_ap_close_btn"
+                      class="secondary"
+                      data-i18n="close"></button>
+                  </footer>
+                </article>
+              </dialog>
 
               <div class="section-header">
                 <label for="man_ip_enable" data-i18n="static_ip"></label>
@@ -2643,6 +2751,21 @@
                   id="cfg_mqtt_ha_enable" />
               </div>
               <br />
+              <div role="group">
+                <button
+                  type="button"
+                  id="p12_mqtt_test_btn"
+                  style="white-space: nowrap; flex: 0 0 auto"
+                  data-i18n="mqtt_connection_test"></button>
+                <input
+                  type="text"
+                  id="p12_mqtt_connection"
+                  style="height: auto; min-width: 0"
+                  aria-label="MQTT connection status"
+                  value="---"
+                  disabled />
+              </div>
+              <span id="p12_mqtt_connection_state" hidden></span>
               <label for="mqtt_server" data-i18n="server"></label>
               <input
                 type="text"
@@ -2660,6 +2783,7 @@
                 type="password"
                 id="cfg_mqtt_password"
                 name="mqtt_password" />
+              <br /><br />
               <label for="mqtt_language" data-i18n="topic$ $language"></label>
               <select id="cfg_mqtt_language" name="mqtt_language">
                 <option value="0" data-i18n="german"></option>
@@ -2670,6 +2794,7 @@
                 type="text"
                 id="cfg_mqtt_cyclic_send"
                 name="mqtt_cyclic_send" />
+              <br /><br />
               <label for="mqtt_ha_topic">Home Assistant Topic</label>
               <input
                 type="text"
