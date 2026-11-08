@@ -57,6 +57,7 @@ struct s_cfg_wifi {
   char subnet[17];
   char gateway[17];
   char dns[17];
+  char bssid[18];
 };
 
 struct s_cfg_eth {

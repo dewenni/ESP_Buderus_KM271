@@ -354,6 +354,7 @@ void configSaveToFile() {
   doc["wifi"]["subnet"] = config.wifi.subnet;
   doc["wifi"]["gateway"] = config.wifi.gateway;
   doc["wifi"]["dns"] = config.wifi.dns;
+  doc["wifi"]["bssid"] = config.wifi.bssid;
 
   doc["eth"]["enable"] = config.eth.enable;
   doc["eth"]["hostname"] = config.eth.hostname;
@@ -566,6 +567,7 @@ void configLoadFromFile() {
     EspStrUtil::readJSONstring(config.wifi.subnet, sizeof(config.wifi.subnet), doc["wifi"]["subnet"]);
     EspStrUtil::readJSONstring(config.wifi.gateway, sizeof(config.wifi.gateway), doc["wifi"]["gateway"]);
     EspStrUtil::readJSONstring(config.wifi.dns, sizeof(config.wifi.dns), doc["wifi"]["dns"]);
+    EspStrUtil::readJSONstring(config.wifi.bssid, sizeof(config.wifi.bssid), doc["wifi"]["bssid"]);
 
     loadCfg(config.eth.enable, doc["eth"]["enable"]);
     EspStrUtil::readJSONstring(config.eth.hostname, sizeof(config.eth.hostname), doc["eth"]["hostname"]);

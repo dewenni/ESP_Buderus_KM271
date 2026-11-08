@@ -1,6 +1,7 @@
 #include <ETH.h>
 #include <SPI.h>
 #include <basics.h>
+#include <esp_wifi.h>
 
 #ifndef ETH_PHY_TYPE
 #define ETH_PHY_TYPE ETH_PHY_W5500
@@ -68,7 +69,45 @@ void onWiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info) {
   ESP_LOGI(TAG, "WiFi connected");
   snprintf(wifi.ipAddress, sizeof(wifi.ipAddress), "%s", WiFi.localIP().toString().c_str());
   ESP_LOGI(TAG, "IP address: %s", wifi.ipAddress);
+  uint8_t *bssid = WiFi.BSSID();
+  ESP_LOGI(TAG, "BSSID: %02X:%02X:%02X:%02X:%02X:%02X, Ch: %d, RSSI: %d dBm",
+           bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5],
+           (int)WiFi.channel(), (int)WiFi.RSSI());
   wifi.connected = true;
+}
+
+/**
+ * *******************************************************************
+ * @brief   Parse and validate a BSSID string into a byte array
+ * @param   bssidStr  MAC address string (format: "AA:BB:CC:DD:EE:FF")
+ * @param   bssid     output byte array (6 bytes)
+ * @return  true if valid, false otherwise
+ * *******************************************************************/
+static bool parseBSSID(const char *bssidStr, uint8_t *bssid) {
+  if (strlen(bssidStr) != 17) return false;
+  int pos = 0;
+  int matched = sscanf(bssidStr, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx%n",
+                       &bssid[0], &bssid[1], &bssid[2], &bssid[3], &bssid[4], &bssid[5], &pos);
+  return matched == 6 && pos == 17;
+}
+
+/**
+ * *******************************************************************
+ * @brief   Start WiFi connection, with optional BSSID locking
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+static void beginWiFiConnection() {
+  uint8_t bssid[6];
+  if (strlen(config.wifi.bssid) == 17 && parseBSSID(config.wifi.bssid, bssid)) {
+    WiFi.begin(config.wifi.ssid, config.wifi.password, 0, bssid);
+    ESP_LOGI(TAG, "WiFi Mode STA - Trying connect to: %s (BSSID lock: %s)", config.wifi.ssid, config.wifi.bssid);
+  } else {
+    WiFi.begin(config.wifi.ssid, config.wifi.password);
+    ESP_LOGI(TAG, "WiFi Mode STA - Trying connect to: %s", config.wifi.ssid);
+  }
+  WiFi.hostname(config.wifi.hostname);
+  MDNS.begin(config.wifi.hostname);
 }
 
 /**
@@ -118,10 +157,7 @@ void checkWiFi() {
     }
 
     WiFi.mode(WIFI_STA);
-    WiFi.begin(config.wifi.ssid, config.wifi.password);
-    WiFi.hostname(config.wifi.hostname);
-    MDNS.begin(config.wifi.hostname);
-    ESP_LOGI(TAG, "WiFi Mode STA - Trying connect to: %s", config.wifi.ssid);
+    beginWiFiConnection();
     ESP_LOGI(TAG, " - attempt: %i", wifi_retry);
   }
 }
@@ -157,10 +193,9 @@ void setupWiFi() {
     // connect to configured wifi AP
     WiFi.mode(WIFI_STA);
     WiFi.setAutoReconnect(true);
-    WiFi.begin(config.wifi.ssid, config.wifi.password);
-    WiFi.hostname(config.wifi.hostname);
-    MDNS.begin(config.wifi.hostname);
-    ESP_LOGI(TAG, "WiFi Mode STA - Trying connect to: %s", config.wifi.ssid);
+    WiFi.setSleep(WIFI_PS_NONE);
+    esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N);
+    beginWiFiConnection();
   }
 }
 
