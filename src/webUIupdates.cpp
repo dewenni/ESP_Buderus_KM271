@@ -463,10 +463,10 @@ void generateKm271ConfigJSON() {
       snprintf(tmpMessage, sizeof(tmpMessage), "%s", WEB_TXT::AUTOMATIC[config.lang]);
       webUI.addJson(kmCfgJsonDoc, "p01_solar_opmode_icon", "i_auto");
     } else if (pkmConfigNum->solar_operation_mode == 1) {
-      snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", WEB_TXT::MANUAL[config.lang], WEB_TXT::DAY[config.lang]);
+      snprintf(tmpMessage, sizeof(tmpMessage), "%s: %s", WEB_TXT::MANUAL[config.lang], WEB_TXT::DAY[config.lang]);
       webUI.addJson(kmCfgJsonDoc, "p01_solar_opmode_icon", "i_manual");
     } else {
-      snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", WEB_TXT::MANUAL[config.lang], WEB_TXT::NIGHT[config.lang]);
+      snprintf(tmpMessage, sizeof(tmpMessage), "%s: %s", WEB_TXT::MANUAL[config.lang], WEB_TXT::NIGHT[config.lang]);
       webUI.addJson(kmCfgJsonDoc, "p01_solar_opmode_icon", "i_manual");
     }
     webUI.addJson(kmCfgJsonDoc, "p01_solar_opmode", tmpMessage);
@@ -717,10 +717,10 @@ void updateKm271StatusElements(bool forceUpdate) {
         webUI.addJson(jsonDoc, "p01_ww_opmode_icon", "i_auto");
       } else {                                                   // MANUAL
         if (bitRead(kmStatusCpy.HotWaterOperatingStates_2, 5)) { // DAY
-          snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", WEB_TXT::MANUAL[config.lang], WEB_TXT::DAY[config.lang]);
+          snprintf(tmpMessage, sizeof(tmpMessage), "%s: %s", WEB_TXT::MANUAL[config.lang], WEB_TXT::DAY[config.lang]);
           webUI.addJson(jsonDoc, "p01_ww_opmode_icon", "i_manual");
         } else { // NIGHT
-          snprintf(tmpMessage, sizeof(tmpMessage), "%s : %s", WEB_TXT::MANUAL[config.lang], WEB_TXT::NIGHT[config.lang]);
+          snprintf(tmpMessage, sizeof(tmpMessage), "%s: %s", WEB_TXT::MANUAL[config.lang], WEB_TXT::NIGHT[config.lang]);
           webUI.addJson(jsonDoc, "p01_ww_opmode_icon", "i_manual");
         }
       }
