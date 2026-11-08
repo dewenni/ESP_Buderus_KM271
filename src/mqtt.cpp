@@ -1,6 +1,6 @@
-#include <WiFi.h>
 #include <atomic>
 #include <basics.h>
+#include <WiFiMgn.h>
 #include <km271.h>
 #include <language.h>
 #include <message.h>

@@ -1,5 +1,6 @@
 
 #include <basics.h>
+#include <WiFiMgn.h>
 #include <km271.h>
 #include <language.h>
 #include <message.h>
@@ -198,10 +199,25 @@ void webCallback(const char *elementId, const char *value) {
   }
 
   // WiFi
+  if (strcmp(elementId, "p12_wifi_ssid_scan_cmd") == 0) {
+    requestWiFiSsidScan();
+  }
+  if (strcmp(elementId, "p12_wifi_ap_scan_cmd") == 0) {
+    requestWiFiApScan(value);
+  }
+  if (strcmp(elementId, "cfg_wifi_bssid") == 0) {
+    if (!setWiFiBssid(value)) {
+      webUI.wsUpdateWebText("cfg_wifi_bssid", config.wifi.bssid, true);
+    }
+  }
   if (strcmp(elementId, "cfg_wifi_hostname") == 0) {
     snprintf(config.wifi.hostname, sizeof(config.wifi.hostname), "%s", value);
   }
   if (strcmp(elementId, "cfg_wifi_ssid") == 0) {
+    if (strcmp(config.wifi.ssid, value) != 0) {
+      setWiFiBssid("");
+      webUI.wsUpdateWebText("cfg_wifi_bssid", "", true);
+    }
     snprintf(config.wifi.ssid, sizeof(config.wifi.ssid), "%s", value);
   }
   if (strcmp(elementId, "cfg_wifi_password") == 0) {

@@ -1,7 +1,7 @@
 #include <ETH.h>
 #include <SPI.h>
 #include <basics.h>
-#include <esp_wifi.h>
+#include <WiFiMgn.h>
 
 #ifndef ETH_PHY_TYPE
 #define ETH_PHY_TYPE ETH_PHY_W5500
@@ -10,17 +10,11 @@
 
 /* P R O T O T Y P E S ********************************************************/
 void ntpSetup();
-void setupOTA();
-void setup_wifi();
 
 /* D E C L A R A T I O N S ****************************************************/
-s_wifi wifi; // global WiFi Informations
 s_eth eth;   // global ETH Informations
 
-static muTimer wifiReconnectTimer = muTimer(); // timer for reconnect delay
-static int wifi_retry = 0;
 static const char *TAG = "SETUP"; // LOG TAG
-static auto &ota = EspSysUtil::OTA::getInstance();
 
 /**
  * *******************************************************************
@@ -35,168 +29,6 @@ void ntpSetup() {
   setenv("TZ", config.ntp.tz,
          1); // Set environment variable with your time zone
   tzset();
-}
-
-/**
- * *******************************************************************
- * @brief   callback function if WiFi is connected to configured AP
- * @param   none
- * @return  none
- * *******************************************************************/
-void onWiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
-  wifi_retry = 0;
-  ESP_LOGI(TAG, "Connected to AP successfully!");
-}
-
-/**
- * *******************************************************************
- * @brief   callback function if WiFi is disconnected from configured AP
- * @param   none
- * @return  none
- * *******************************************************************/
-void onWiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) {
-  wifi.connected = false;
-  ESP_LOGI(TAG, "WiFi-Disconnected");
-}
-
-/**
- * *******************************************************************
- * @brief   callback function if WiFi is connected and client got IP
- * @param   none
- * @return  none
- * *******************************************************************/
-void onWiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info) {
-  ESP_LOGI(TAG, "WiFi connected");
-  snprintf(wifi.ipAddress, sizeof(wifi.ipAddress), "%s", WiFi.localIP().toString().c_str());
-  ESP_LOGI(TAG, "IP address: %s", wifi.ipAddress);
-  uint8_t *bssid = WiFi.BSSID();
-  ESP_LOGI(TAG, "BSSID: %02X:%02X:%02X:%02X:%02X:%02X, Ch: %d, RSSI: %d dBm",
-           bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5],
-           (int)WiFi.channel(), (int)WiFi.RSSI());
-  wifi.connected = true;
-}
-
-/**
- * *******************************************************************
- * @brief   Parse and validate a BSSID string into a byte array
- * @param   bssidStr  MAC address string (format: "AA:BB:CC:DD:EE:FF")
- * @param   bssid     output byte array (6 bytes)
- * @return  true if valid, false otherwise
- * *******************************************************************/
-static bool parseBSSID(const char *bssidStr, uint8_t *bssid) {
-  if (strlen(bssidStr) != 17) return false;
-  int pos = 0;
-  int matched = sscanf(bssidStr, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx%n",
-                       &bssid[0], &bssid[1], &bssid[2], &bssid[3], &bssid[4], &bssid[5], &pos);
-  return matched == 6 && pos == 17;
-}
-
-/**
- * *******************************************************************
- * @brief   Start WiFi connection, with optional BSSID locking
- * @param   none
- * @return  none
- * *******************************************************************/
-static void beginWiFiConnection() {
-  uint8_t bssid[6];
-  if (strlen(config.wifi.bssid) == 17 && parseBSSID(config.wifi.bssid, bssid)) {
-    WiFi.begin(config.wifi.ssid, config.wifi.password, 0, bssid);
-    ESP_LOGI(TAG, "WiFi Mode STA - Trying connect to: %s (BSSID lock: %s)", config.wifi.ssid, config.wifi.bssid);
-  } else {
-    WiFi.begin(config.wifi.ssid, config.wifi.password);
-    ESP_LOGI(TAG, "WiFi Mode STA - Trying connect to: %s", config.wifi.ssid);
-  }
-  WiFi.hostname(config.wifi.hostname);
-  MDNS.begin(config.wifi.hostname);
-}
-
-/**
- * *******************************************************************
- * @brief   check WiFi connection and automatic reconnect
- * @param   none
- * @return  none
- * *******************************************************************/
-void checkWiFi() {
-
-  // Ethernet is also not connected - so we need to establish WiFi
-  if (wifiReconnectTimer.delayOnTrigger((!wifi.connected && !eth.connected), WIFI_RECONNECT)) {
-    wifiReconnectTimer.delayReset();
-
-    wifi_retry++;
-
-    // Keep retrying indefinitely instead of rebooting after a handful of
-    // attempts. A router reboot, an access point being replaced or an ISP
-    // outage is not this device's fault, and restarting drops the decoded
-    // boiler state, both log ring buffers and the NTP sync while fixing
-    // nothing - the boiler itself keeps running regardless. The old
-    // behaviour turned any outage longer than 2.5 minutes into a permanent
-    // reboot loop, which also made it nearly impossible to push an OTA
-    // update during the outage.
-    //
-    // The exception is a last-resort restart: the ESP32 WiFi stack can end
-    // up in a state that reconnecting alone does not clear, and by then
-    // nothing is working anyway, so a reboot costs nothing and may be the
-    // only way back without physical access to the device.
-    if (wifi_retry >= WIFI_RETRY_REBOOT && !ota.isActive()) {
-      ESP_LOGI(TAG, "no WiFi after %i attempts - rebooting as a last resort", wifi_retry);
-      storeData(); // store Data before reboot
-      EspSysUtil::RestartReason::saveLocal("no wifi connection");
-      yield();
-      delay(1000);
-      yield();
-      ESP.restart();
-    }
-
-    // Periodically tear the stack down completely before reconnecting; this
-    // clears most wedged states without needing a restart.
-    if ((wifi_retry % WIFI_RETRY_HARD_RESET) == 0) {
-      ESP_LOGI(TAG, "WiFi - resetting the stack before retry %i", wifi_retry);
-      WiFi.disconnect(true);
-      WiFi.mode(WIFI_OFF);
-      delay(100);
-    }
-
-    WiFi.mode(WIFI_STA);
-    beginWiFiConnection();
-    ESP_LOGI(TAG, " - attempt: %i", wifi_retry);
-  }
-}
-
-/**
- * *******************************************************************
- * @brief   Setup for general WiFi Function
- * @param   none
- * @return  none
- * *******************************************************************/
-void setupWiFi() {
-
-  if (setupMode) {
-    // start Accesspoint for initial setup
-    IPAddress ip(192, 168, 4, 1);
-    IPAddress gateway(192, 168, 4, 1);
-    IPAddress subnet(255, 255, 255, 0);
-    WiFi.softAPConfig(ip, gateway, subnet);
-    WiFi.softAP("ESP-Buderus-km271");
-    ESP_LOGI(TAG, "WiFi Mode: AccessPoint SSID: ESP-Buderus-km271 / IP: http://192.168.4.1");
-
-  } else {
-    // setup callback function
-    WiFi.onEvent(onWiFiStationConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_CONNECTED);
-    WiFi.onEvent(onWiFiStationDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
-    WiFi.onEvent(onWiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
-
-    // manual IP-Settings
-    if (config.wifi.static_ip) {
-      WiFi.config(IPAddress(config.wifi.ipaddress), IPAddress(config.wifi.gateway), IPAddress(config.wifi.subnet), IPAddress(config.wifi.dns));
-    }
-
-    // connect to configured wifi AP
-    WiFi.mode(WIFI_STA);
-    WiFi.setAutoReconnect(true);
-    WiFi.setSleep(WIFI_PS_NONE);
-    esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N);
-    beginWiFiConnection();
-  }
 }
 
 void onEthEvent(arduino_event_id_t event, arduino_event_info_t info) {
@@ -274,49 +106,6 @@ void basicSetup() {
 
   // NTP
   ntpSetup();
-}
-
-/**
- * *******************************************************************
- * @brief   Send WiFi Information in JSON format via MQTT
- * @param   none
- * @return  none
- * *******************************************************************/
-void sendWiFiInfo() {
-
-  JsonDocument wifiJSON;
-
-  if (wifi.connected) {
-    // check  RSSI
-    wifi.rssi = WiFi.RSSI();
-
-    // dBm to Quality:
-    if (wifi.rssi <= -100)
-      wifi.signal = 0;
-    else if (wifi.rssi >= -50)
-      wifi.signal = 100;
-    else
-      wifi.signal = 2 * (wifi.rssi + 100);
-
-    wifiJSON["status"] = wifi.connected ? "connected" : "disconnected";
-    wifiJSON["rssi"] = wifi.rssi;
-    wifiJSON["signal"] = wifi.signal;
-    wifiJSON["ip"] = wifi.ipAddress;
-    wifiJSON["date_time"] = EspStrUtil::getDateTimeString();
-  } else {
-    wifiJSON["status"] = "disconnected";
-    wifiJSON["rssi"] = "--";
-    wifiJSON["signal"] = "--";
-    wifiJSON["ip"] = "--";
-    wifiJSON["date_time"] = EspStrUtil::getDateTimeString();
-  }
-
-  char sendWififJSON[255];
-  serializeJson(wifiJSON, sendWififJSON);
-  mqttPublish(addTopic("/wifi"), sendWififJSON, false);
-
-  // wifi status
-  mqttPublish(addTopic("/status"), "online", false);
 }
 
 /**

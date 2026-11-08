@@ -1,5 +1,6 @@
 #include "EscapeCodes.h"
 #include <basics.h>
+#include <WiFiMgn.h>
 #include <config.h>
 #include <language.h>
 #include <message.h>

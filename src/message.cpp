@@ -1,6 +1,7 @@
 #include "esp_log.h"
 #include <HTTPClient.h>
 #include <basics.h>
+#include <WiFiMgn.h>
 #include <km271.h>
 #include <message.h>
 #include <telnet.h>

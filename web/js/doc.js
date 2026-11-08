@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // call user functions
   initLogType();
   initMqttConnectionStatus();
+  initWiFiApDialog();
+  initWiFiSsidDialog();
   loadSimulatedData();
 
   // ETH: open dialog to show w5500 configuration

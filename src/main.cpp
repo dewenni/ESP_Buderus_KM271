@@ -2,6 +2,7 @@
 #include <ArduinoOTA.h>
 #include <esp_ota_ops.h>
 #include <basics.h>
+#include <WiFiMgn.h>
 #include <config.h>
 #include <km271.h>
 #include <message.h>
@@ -212,10 +213,8 @@ void loop() {
   // check if config has changed
   configCyclic();
 
-  // check WiFi - automatic reconnect
-  if (!setupMode) {
-    checkWiFi();
-  }
+  // WiFi scans and automatic reconnect
+  wifiCyclic();
 
   // check MQTT - automatic reconnect
   if (config.mqtt.enable && !setupMode) {
@@ -229,7 +228,7 @@ void loop() {
   } else {
     // LED for WiFi connected
     if (config.gpio.led_wifi != -1)
-      digitalWrite(config.gpio.led_wifi, WiFi.status() != WL_CONNECTED); // (true=LED off)
+      digitalWrite(config.gpio.led_wifi, !wifiIsConnected()); // (true=LED off)
     // LED for KM271 LogMode active
     if (config.gpio.led_logmode != -1)
       digitalWrite(config.gpio.led_logmode, !km271GetLogMode()); // (true=LED off)

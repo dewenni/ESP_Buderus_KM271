@@ -1,4 +1,5 @@
 #include <basics.h>
+#include <WiFiMgn.h>
 #include <github.h>
 #include <language.h>
 #include <message.h>
@@ -215,7 +216,7 @@ void updateSystemInfoElements() {
   snprintf(tmpMessage, sizeof(tmpMessage), "%ld dbm", wifi.rssi);
   webUI.addJson(jsonDoc, "p09_wifi_rssi", tmpMessage);
 
-  if (!WiFi.isConnected()) {
+  if (!wifiIsConnected()) {
     webUI.addJson(jsonDoc, "p00_wifi_icon", "i_wifi_nok");
   } else if (wifi.rssi < -80) {
     webUI.addJson(jsonDoc, "p00_wifi_icon", "i_wifi_1");
