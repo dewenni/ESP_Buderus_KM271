@@ -2736,6 +2736,18 @@ void km271calcBurnerCalcOilConsumption() {
  * *******************************************************************/
 void sendAllKmStatValues() {
 
+  // Nothing has been decoded from the boiler yet, so kmStatus is still the
+  // zero-initialised struct. Replaying it announces a burner runtime of 0, a
+  // boiler temperature of 0 and so on, which subscribers cannot tell apart
+  // from a real reading - and for the cumulative counters Home Assistant
+  // records the drop to 0 and the jump back as consumption, which is enough
+  // to ruin the daily/monthly statistics derived from them. The boiler's own
+  // initial dump publishes every value as it arrives, so nothing is lost by
+  // waiting for it. See #161.
+  if (!kmInitDone) {
+    return;
+  }
+
   if (config.km271.use_hc1) {
     km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::HC1_OV1_OFFTIME_OPT[config.mqtt.lang],
              EspStrUtil::intToString(bitRead(kmStatus.HC1_OperatingStates_1, 0)));
@@ -2894,6 +2906,13 @@ void sendAllKmStatValues() {
 }
 
 void sendAllKmCfgValues() {
+
+  // Same as in sendAllKmStatValues(): before the first complete dump the
+  // config strings are empty and the numbers are 0, so publishing them would
+  // report setpoints the controller never sent.
+  if (!kmInitDone) {
+    return;
+  }
 
   if (config.km271.use_hc1) {
     km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_SUMMER_THRESHOLD[config.mqtt.lang], kmConfigStr.hc1_summer_mode_threshold);
