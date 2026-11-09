@@ -1,21 +1,9 @@
 #pragma once
 
-/* I N C L U D E S ****************************************************/
+// Compatibility include for the application. Transport and device hooks are
+// separated so mqttBasic.cpp/.h can be updated identically in both projects.
 #include <Arduino.h>
-#include <AsyncMqttClient.h>
 #include <config.h>
 #include <language.h>
-
-
-
-/* P R O T O T Y P E S ********************************************************/
-const char *addTopic(const char *suffix);
-void mqttSetup();
-void mqttCyclic();
-void mqttReconnect();
-bool mqttIsReconnecting();
-bool mqttIsConnecting();
-void checkMqtt();
-void mqttPublish(const char *sendtopic, const char *payload, boolean retained);
-const char *mqttGetLastError();
-bool mqttIsConnected();
+#include <mqttBasic.h>
+#include <mqttCustom.h>

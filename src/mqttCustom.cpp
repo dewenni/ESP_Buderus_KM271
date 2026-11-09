@@ -1,336 +1,37 @@
-#include <atomic>
+#include <mqtt.h>
+#include <mqttCustom.h>
 #include <basics.h>
 #include <WiFiMgn.h>
-#include <km271.h>
 #include <language.h>
 #include <message.h>
-#include <mqtt.h>
 #include <mqttDiscovery.h>
+#include <km271.h>
 #include <oilmeter.h>
-#include <queue>
 #include <simulation.h>
 #include <stdint.h>
 
-#define PAYLOAD_LEN 512
-#define MAX_MQTT_CMD 20
-
-struct s_MqttMessage {
-  char topic[512];
-  char payload[PAYLOAD_LEN];
-  int len;
-};
-
-/* D E C L A R A T I O N S ****************************************************/
-static void processMqttMessage();
-static AsyncMqttClient mqtt_client;
-static bool bootUpMsgDone, setupDone = false;
-static int targetIndex = -1;
-static const char *TAG = "MQTT"; // LOG TAG
-static char lastError[64] = "---";
-static int mqtt_retry = 0;
-static muTimer mqttReconnectTimer;
-static std::atomic<bool> mqttTransportDisconnected{true};
-static bool mqttReconnectRequested = false;
-static bool mqttDisconnectStarted = false;
-static s_cfg_mqtt mqttConnectionConfig;
-static char mqttClientId[sizeof(config.wifi.hostname)];
-static char mqttWillTopic[256];
+static const char *TAG = "MQTT";
+static bool bootUpMsgDone = false;
 static char haStatusTopic[128];
+static int targetIndex = -1;
 static bool km271sendRequest = false;
 static int km271sendCnt = 0;
 static muTimer km271sendTimer;
-std::queue<s_MqttMessage> mqttCmdQueue;
 
-// addMqttCmd() is called from onMqttMessage(), which AsyncMqttClient invokes
-// directly on the AsyncTCP task - mqttCyclic()/processMqttMessage() drain the
-// same queue from the loop task. std::queue (backed by std::deque) gives no
-// thread-safety of its own, so every push/pop/size/empty/front access below
-// is wrapped in this short critical section.
-static portMUX_TYPE mqttQueueMux = portMUX_INITIALIZER_UNLOCKED;
-
-/**
- * *******************************************************************
- * @brief   add message to mqtt command buffer
- * @param   topic, payload, len
- * @return  none
- * *******************************************************************/
-void addMqttCmd(const char *topic, const char *payload, int len) {
-  portENTER_CRITICAL(&mqttQueueMux);
-  bool queueFull = (mqttCmdQueue.size() >= MAX_MQTT_CMD);
-  if (!queueFull) {
-    s_MqttMessage message;
-    strncpy(message.topic, topic, sizeof(message.topic) - 1);
-    message.topic[sizeof(message.topic) - 1] = '\0';
-
-    strncpy(message.payload, payload, sizeof(message.payload) - 1);
-    message.payload[sizeof(message.payload) - 1] = '\0';
-
-    message.len = len;
-
-    mqttCmdQueue.push(message);
-  }
-  portEXIT_CRITICAL(&mqttQueueMux);
-
-  if (!queueFull) {
-    ESP_LOGD(TAG, "add msg to buffer: %s, %s", topic, payload);
-  } else {
-    ESP_LOGE(TAG, "too many commands within too short time");
-  }
-}
-
-/**
- * *******************************************************************
- * @brief   mqtt publish wrapper
- * @param   topic, payload, retained
- * @return  none
- * *******************************************************************/
-void mqttPublish(const char *topic, const char *payload, boolean retained) { mqtt_client.publish(topic, 0, retained, payload); }
-
-/**
- * *******************************************************************
- * @brief   helper function to add subject to mqtt topic
- * @param   none
- * @return  none
- * *******************************************************************/
-const char *addTopic(const char *suffix) {
-  static char newTopic[256];
-  snprintf(newTopic, sizeof(newTopic), "%s%s", config.mqtt.topic, suffix);
-  return newTopic;
-}
-
-/**
- * *******************************************************************
- * @brief   helper function to add subject to mqtt topic
- * @param   none
- * @return  none
- * *******************************************************************/
-const char *addCfgCmdTopic(const char *suffix) {
-  static char newTopic[256];
-  snprintf(newTopic, sizeof(newTopic), "%s/setvalue/%s", config.mqtt.topic, suffix);
-  return newTopic;
-}
-
-/**
- * *******************************************************************
- * @brief   MQTT callback function for incoming message
- * @param   topic, payload
- * @return  none
- * *******************************************************************/
-void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
-
-  s_MqttMessage msgCpy;
-
-  msgCpy.len = len;
-
-  if (topic == NULL) {
-    msgCpy.topic[0] = '\0';
-  } else {
-    strncpy(msgCpy.topic, topic, sizeof(msgCpy.topic) - 1);
-    msgCpy.topic[sizeof(msgCpy.topic) - 1] = '\0';
-  }
-  if (payload != NULL && len > 0 && len < PAYLOAD_LEN) {
-    memcpy(msgCpy.payload, payload, len);
-    msgCpy.payload[len] = '\0';
-  } else {
-    // Also covers len >= PAYLOAD_LEN, which previously fell through every
-    // branch and left msgCpy.payload as uninitialised stack. That garbage was
-    // then queued, atoi()'d and could be written to the boiler as a setpoint
-    // whenever it happened to parse inside a valid range.
-    msgCpy.payload[0] = '\0';
-    msgCpy.len = 0;
-  }
-
-  addMqttCmd(msgCpy.topic, msgCpy.payload, msgCpy.len);
-
-  ESP_LOGI(TAG, "msg received | topic: %s | payload: %s", msgCpy.topic, msgCpy.payload);
-}
-
-/**
- * *******************************************************************
- * @brief   callback function if MQTT gets connected
- * @param   none
- * @return  none
- * *******************************************************************/
-void onMqttConnect(bool sessionPresent) {
-  mqtt_retry = 0;
-  ESP_LOGI(TAG, "MQTT connected");
-  // Once connected, publish an announcement...
+void mqttCustomConnected() {
   sendWiFiInfo();
-  // ... and resubscribe
-  mqtt_client.subscribe(addTopic("/cmd/#"), 0);
-  mqtt_client.subscribe(addTopic("/setvalue/#"), 0);
-
-  if (config.mqtt.ha_enable) {
-    mqtt_client.subscribe(haStatusTopic, 0);
+  mqttSubscribe(addTopic("/cmd/#"));
+  mqttSubscribe(addTopic("/setvalue/#"));
+  const auto &settings = mqttGetConnectionConfig();
+  snprintf(haStatusTopic, sizeof(haStatusTopic), "%s/status", settings.ha_topic);
+  if (settings.ha_enable) {
+    mqttSubscribe(haStatusTopic);
   }
 }
 
-/**
- * *******************************************************************
- * @brief   callback function if MQTT gets disconnected
- * @param   none
- * @return  none
- * *******************************************************************/
-void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
-
-  switch (reason) {
-  case AsyncMqttClientDisconnectReason::TCP_DISCONNECTED:
-    snprintf(lastError, sizeof(lastError), "TCP DISCONNECTED");
-    break;
-  case AsyncMqttClientDisconnectReason::MQTT_UNACCEPTABLE_PROTOCOL_VERSION:
-    snprintf(lastError, sizeof(lastError), "MQTT UNACCEPTABLE PROTOCOL VERSION");
-    break;
-  case AsyncMqttClientDisconnectReason::MQTT_IDENTIFIER_REJECTED:
-    snprintf(lastError, sizeof(lastError), "MQTT IDENTIFIER REJECTED");
-    break;
-  case AsyncMqttClientDisconnectReason::MQTT_SERVER_UNAVAILABLE:
-    snprintf(lastError, sizeof(lastError), "MQTT SERVER UNAVAILABLE");
-    break;
-  case AsyncMqttClientDisconnectReason::MQTT_MALFORMED_CREDENTIALS:
-    snprintf(lastError, sizeof(lastError), "MQTT MALFORMED CREDENTIALS");
-    break;
-  case AsyncMqttClientDisconnectReason::MQTT_NOT_AUTHORIZED:
-    snprintf(lastError, sizeof(lastError), "MQTT NOT AUTHORIZED");
-    break;
-  case AsyncMqttClientDisconnectReason::TLS_BAD_FINGERPRINT:
-    snprintf(lastError, sizeof(lastError), "TLS BAD FINGERPRINT");
-    break;
-  default:
-    snprintf(lastError, sizeof(lastError), "UNKNOWN ERROR");
-    break;
-  }
-  mqttTransportDisconnected.store(true);
-}
-
-/**
- * *******************************************************************
- * @brief   is MQTT connected
- * @param   none
- * @return  none
- * *******************************************************************/
-bool mqttIsConnected() { return mqtt_client.connected(); }
-
-const char *mqttGetLastError() { return lastError; }
-
-void mqttReconnect() {
-  if (config.mqtt.enable && !setupMode) {
-    mqttReconnectRequested = true;
-  }
-}
-
-bool mqttIsReconnecting() { return mqttReconnectRequested; }
-
-bool mqttIsConnecting() {
-  return mqttReconnectRequested || (!mqttTransportDisconnected.load() && !mqttIsConnected());
-}
-
-static void mqttApplySettings() {
-  // AsyncMqttClient retains pointers: keep this connection's parameters alive
-  // and unchanged while the settings form is being edited.
-  mqttConnectionConfig = config.mqtt;
-  snprintf(mqttClientId, sizeof(mqttClientId), "%s", config.wifi.hostname);
-  snprintf(mqttWillTopic, sizeof(mqttWillTopic), "%s/status", mqttConnectionConfig.topic);
-  snprintf(haStatusTopic, sizeof(haStatusTopic), "%s/status", mqttConnectionConfig.ha_topic);
-  mqtt_client.setServer(mqttConnectionConfig.server, mqttConnectionConfig.port);
-  mqtt_client.setClientId(mqttClientId);
-  mqtt_client.setCredentials(mqttConnectionConfig.user[0] ? mqttConnectionConfig.user : nullptr,
-                             mqttConnectionConfig.user[0] ? mqttConnectionConfig.password : nullptr);
-  mqtt_client.setWill(mqttWillTopic, 0, true, "offline");
-}
-
-static void mqttConnect() {
-  if (mqttTransportDisconnected.load()) {
-    mqttApplySettings();
-    mqttTransportDisconnected.store(false);
-    mqtt_client.connect();
-  }
-}
-
-/**
- * *******************************************************************
- * @brief   Basic MQTT setup
- * @param   none
- * @return  none
- * *******************************************************************/
-void mqttSetup() {
-
-  mqtt_client.onConnect(onMqttConnect);
-  mqtt_client.onDisconnect(onMqttDisconnect);
-  mqtt_client.onMessage(onMqttMessage);
-  mqttApplySettings();
-  mqtt_client.setKeepAlive(10);
-
-  ESP_LOGI(TAG, "MQTT setup done!");
-}
-
-/**
- * *******************************************************************
- * @brief   MQTT cyclic function
- * @param   none
- * @return  none
- * *******************************************************************/
-void mqttCyclic() {
-
-  // process incoming messages
-  portENTER_CRITICAL(&mqttQueueMux);
-  bool haveCmd = !mqttCmdQueue.empty();
-  portEXIT_CRITICAL(&mqttQueueMux);
-  if (haveCmd) {
-    processMqttMessage();
-  }
-
-  // call setup when connection is established
-  if (config.mqtt.enable && !setupMode && !setupDone && (eth.connected || wifi.connected)) {
-    mqttSetup();
-    setupDone = true;
-  }
-
-  if (mqttReconnectRequested) {
-    if (!mqttDisconnectStarted) {
-      mqttDisconnectStarted = true;
-      if (!mqttTransportDisconnected.load()) {
-        mqtt_client.disconnect(true);
-      }
-    }
-    // connected() becomes false before the TCP disconnect callback completes.
-    // Wait for that callback before reconfiguring or starting another attempt.
-    if (!mqttTransportDisconnected.load()) {
-      return;
-    }
-    mqttReconnectRequested = false;
-    mqttDisconnectStarted = false;
-    mqtt_retry = 0;
-    mqttReconnectTimer.delayReset();
-    snprintf(lastError, sizeof(lastError), "---");
-    ESP_LOGI(TAG, "MQTT connection test requested");
-  }
-
-  // Automatic reconnect to the mqtt broker if the connection is lost. This
-  // never reboots the device: an unreachable broker (Home Assistant being
-  // updated, the broker container restarting, a mistyped server address) says
-  // nothing about this device's health, and restarting would drop the decoded
-  // boiler state, both log ring buffers and the NTP sync without fixing
-  // anything. The old behaviour rebooted after ~150 s and kept doing so for
-  // the whole outage, which also made it very hard to push an OTA update to
-  // correct the setting that caused it. Retries continue indefinitely with a
-  // backoff capped at MQTT_RECONNECT * MQTT_RETRY_MAX.
-  if (!mqtt_client.connected() && (wifi.connected || eth.connected)) {
-    if (mqtt_retry == 0) {
-      mqtt_retry++;
-      mqttConnect();
-      ESP_LOGI(TAG, "MQTT - connection attempt: %i", mqtt_retry);
-    } else if (mqttReconnectTimer.delayOnTrigger(true, MQTT_RECONNECT * mqtt_retry)) {
-      mqttReconnectTimer.delayReset();
-      if (mqtt_retry < MQTT_RETRY_MAX) {
-        mqtt_retry++; // capped, so the backoff stops growing and cannot overflow
-      }
-      mqttConnect();
-      ESP_LOGI(TAG, "MQTT - connection attempt: %i", mqtt_retry);
-    }
-  }
-
+void mqttCustomCyclic() {
   // send bootup messages after restart and established mqtt connection
-  if (!bootUpMsgDone && mqtt_client.connected()) {
+  if (!bootUpMsgDone && mqttIsConnected()) {
     bootUpMsgDone = true;
     char tempMessage[128];
     snprintf(tempMessage, sizeof(tempMessage), "%s\n(%s)", KM_INFO_MSG::RESTARTED[config.lang], EspSysUtil::RestartReason::get());
@@ -343,7 +44,7 @@ void mqttCyclic() {
   }
 
   // call mqttDiscovery cyclic function if HA is activated
-  if (config.mqtt.ha_enable && mqtt_client.connected()) {
+  if (config.mqtt.ha_enable && mqttIsConnected()) {
     mqttDiscoveryCyclic();
   }
 
@@ -368,10 +69,8 @@ void mqttCyclic() {
   }
 }
 
-// Oil counters are stored as signed 32-bit hundredths of a litre in NVS.
-// Do not use atol(): invalid text such as a retained "offline" becomes zero.
 static bool parseOilmeterCounter(const char *payload, int len, long &value) {
-  if (len <= 0 || len >= PAYLOAD_LEN || payload[len] != '\0') {
+  if (len <= 0 || static_cast<size_t>(len) >= MQTT_PAYLOAD_LEN || payload[len] != '\0') {
     return false;
   }
   long parsed = 0;
@@ -389,17 +88,9 @@ static bool parseOilmeterCounter(const char *payload, int len, long &value) {
   return true;
 }
 
-/**
- * *******************************************************************
- * @brief   MQTT callback function for incoming message
- * @param   topic, payload
- * @return  none
- * *******************************************************************/
-void processMqttMessage() {
+void processMqttMessage(const s_MqttMessage &message) {
 
-  portENTER_CRITICAL(&mqttQueueMux);
-  s_MqttMessage msgCpy = mqttCmdQueue.front();
-  portEXIT_CRITICAL(&mqttQueueMux);
+  s_MqttMessage msgCpy = message;
 
   ESP_LOGD(TAG, "process msg from buffer: %s, %s", msgCpy.topic, msgCpy.payload);
 
@@ -446,12 +137,7 @@ void processMqttMessage() {
         // check, if the substring contains valid hex values
         size_t tokenLen = strlen(token);
         if (tokenLen != 2 || !isxdigit(token[0]) || !isxdigit(token[1])) {
-          // Invalid hex - report and stop parsing, but fall through to the
-          // queue pop at the end of this function. This used to "return",
-          // which left the message at the head of the queue forever:
-          // mqttCyclic() re-entered this function on every loop iteration,
-          // republishing the error at loop rate and blocking every subsequent
-          // MQTT command until the device was rebooted.
+          // Reject the malformed service command without sending it.
           km271Msg(KM_TYP_MESSAGE, "invalid hex parameter", "");
           validHex = false;
           break;
@@ -773,7 +459,5 @@ void processMqttMessage() {
     }
   }
 
-  portENTER_CRITICAL(&mqttQueueMux);
-  mqttCmdQueue.pop(); // next entry in Queue
-  portEXIT_CRITICAL(&mqttQueueMux);
+
 }

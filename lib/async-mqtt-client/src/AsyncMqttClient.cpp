@@ -179,12 +179,20 @@ void AsyncMqttClient::_clear() {
   _clearQueue(true);  // keep session data for now
 
   _parsingInformation.bufferState = AsyncMqttClientInternals::BufferState::NONE;
+  // A connection may end halfway through the variable-length header. The next
+  // connection must not append its length bytes to that incomplete packet.
+  _remainingLengthBufferPosition = 0;
 
   _client.setRxTimeout(0);
 }
 
 /* TCP */
 void AsyncMqttClient::_onConnect() {
+  // DNS/TCP completion can arrive after a connection attempt was cancelled.
+  if (_state != CONNECTING) {
+    _client.close();
+    return;
+  }
   log_i("TCP conn, MQTT CONNECT");
 #if ASYNC_TCP_SSL_ENABLED
   if (_secure && _secureServerFingerprints.size() > 0) {
@@ -221,6 +229,7 @@ void AsyncMqttClient::_onConnect() {
 }
 
 void AsyncMqttClient::_onDisconnect() {
+  if (_state == DISCONNECTED) return;
   log_i("TCP disconn");
   _state = DISCONNECTED;
 
@@ -689,27 +698,34 @@ void AsyncMqttClient::connect() {
 
   _client.setRxTimeout(_keepAlive);
 
+  bool started;
 #if ASYNC_TCP_SSL_ENABLED
   if (_useIp) {
-    _client.connect(_ip, _port, _secure);
+    started = _client.connect(_ip, _port, _secure);
   } else {
-    _client.connect(_host, _port, _secure);
+    started = _client.connect(_host, _port, _secure);
   }
 #else
   if (_useIp) {
-    _client.connect(_ip, _port);
+    started = _client.connect(_ip, _port);
   } else {
-    _client.connect(_host, _port);
+    started = _client.connect(_host, _port);
   }
 #endif
+  // A synchronous failure (e.g. DNS error or resource exhaustion) need not
+  // produce a TCP disconnect callback. Otherwise CONNECTING blocks all retries.
+  if (!started) _onDisconnect();
 }
 
 void AsyncMqttClient::disconnect(bool force) {
   if (_state == DISCONNECTED) return;
   log_i("DISCONNECT (f:%d)", force);
   if (force) {
-    _state = DISCONNECTED;
+    _state = DISCONNECTING;
     _client.close(true);
+    // With no TCP socket (e.g. while resolving DNS), close() need not call us
+    // back. Still reset the parser/queue and notify the application exactly once.
+    if (_state != DISCONNECTED) _onDisconnect();
   } else if (_state != DISCONNECTING) {
     _state = DISCONNECTING;
     AsyncMqttClientInternals::OutPacket* msg = new AsyncMqttClientInternals::DisconnOutPacket;
