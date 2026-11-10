@@ -285,7 +285,7 @@ void configGPIO() {
 
     if (config.oilmeter.use_hardware_meter) {
       if (config.gpio.trigger_oilcounter != -1)
-        pinMode(config.gpio.trigger_oilcounter, INPUT_PULLUP); // Trigger Input
+        pinMode(config.gpio.trigger_oilcounter, INPUT); // Trigger Input
       if (config.gpio.led_oilcounter != -1)
         pinMode(config.gpio.led_oilcounter, OUTPUT); // Status LED
     }
@@ -643,8 +643,7 @@ void configLoadFromFile() {
 
     loadCfg(config.service.telnet_enable, doc["service"]["telnet_enable"]);
     const char *serviceCipher = doc["service"]["password"] | "";
-    if (serviceCipher[0] != '\0' &&
-        !EspStrUtil::decryptPassword(serviceCipher, key, config.service.password, sizeof(config.service.password))) {
+    if (serviceCipher[0] != '\0' && !EspStrUtil::decryptPassword(serviceCipher, key, config.service.password, sizeof(config.service.password))) {
       config.service.password[0] = '\0';
       ESP_LOGE(TAG, "Cannot decrypt service password; service access disabled");
     }
