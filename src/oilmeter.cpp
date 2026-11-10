@@ -14,12 +14,13 @@
 #include <oilmeter.h>
 
 /* V A R I A B L E S ********************************************************/
-static bool reboot = true; // flag for reboot
 static char tmpMsg[300] = {'\0'};
 static const char *TAG = "OIL";             // LOG TAG
 static bool errTriggerGpioNotSet = false;   // flag for error message
 static bool errPulsePerLiterNotSet = false; // flag for error message
-static bool bootState = false;              // flag for boot state
+
+enum class OilPulseState { WaitForOpen, WaitForClose, WaitForRelease };
+static OilPulseState oilPulseState = OilPulseState::WaitForOpen;
 
 #define NVS_NAMESPACE "oilmeter_data"
 #define OILCYCLICINFO_TIME 3600000 // 360.000 = 1 hour
@@ -129,9 +130,11 @@ void setupOilmeter() {
   cmdLoadOilmeter(); // load oilcounter from NVS
   ESP_LOGI(TAG, "restored value from Flash: %lu", data.oilcounter);
 
-  // flag to ignore the gpio state at startup
-  bootState = !digitalRead(config.gpio.trigger_oilcounter);
-  reboot = true;
+  // Require a stable open contact before accepting a complete close/open cycle.
+  // Seed the debounce output as closed so an initially open contact also has
+  // to pass the opening debounce time. A contact closed at boot is not counted.
+  oilPulseState = OilPulseState::WaitForOpen;
+  oilTrigger.delayOnOff(true, 0, 0);
 }
 
 /**
@@ -141,11 +144,6 @@ void setupOilmeter() {
  * @return  none
  * *******************************************************************/
 void cyclicOilmeter() {
-  // LED indication: toggle onboard LED with every impulse
-  if (config.gpio.led_oilcounter != -1) {
-    digitalWrite(config.gpio.led_oilcounter, digitalRead(config.gpio.trigger_oilcounter));
-  }
-
   if (config.gpio.trigger_oilcounter == -1) {
     if (!errTriggerGpioNotSet) {
       ESP_LOGE(TAG, "trigger_oilcounter is not set");
@@ -164,19 +162,27 @@ void cyclicOilmeter() {
   errTriggerGpioNotSet = false;
   errPulsePerLiterNotSet = false;
 
-  // Debounce the input trigger using a timer function
+  // The Reed contact pulls the input low when the rocker moves forward.
   bool currentInput = !digitalRead(config.gpio.trigger_oilcounter);
-  bool statusTrigger = oilTrigger.delayOnOffTrigger(currentInput, config.oilmeter.debounce_time, config.oilmeter.debounce_time) == 1;
+  if (config.gpio.led_oilcounter != -1) {
+    digitalWrite(config.gpio.led_oilcounter, !currentInput);
+  }
 
-  // reset the reboot flag if the trigger has changed once
-  if (currentInput != bootState) {
-    reboot = false;
+  // Count on the debounced release, matching the mechanical counter's return
+  // stroke. Both closing and opening must be stable for the configured time.
+  byte trigger = oilTrigger.delayOnOffTrigger(currentInput, config.oilmeter.debounce_time, config.oilmeter.debounce_time);
+  bool completedCycle = false;
+  if (trigger == 0) {
+    completedCycle = oilPulseState == OilPulseState::WaitForRelease;
+    oilPulseState = OilPulseState::WaitForClose;
+  } else if (trigger == 1 && oilPulseState == OilPulseState::WaitForClose) {
+    oilPulseState = OilPulseState::WaitForRelease;
   }
 
   // Static accumulator for the fractional part (the remaining hundredths per liter)
   static int oil_remainder = 0;
 
-  if (statusTrigger && !reboot) {
+  if (completedCycle) {
     // Objective: 1 liter = 100 hundredths, so each impulse should add (100 / pulse_per_liter) hundredths.
     // Since (100 / pulse_per_liter) may not be an integer,
     // we add the integer part directly and accumulate the remainder.
