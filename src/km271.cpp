@@ -54,6 +54,8 @@ static KmRx_s kmRxBuf;                      // Rx block storag
 static uint8_t send_buf[8] = {};
 static char kmTmpMsg[256];
 static bool kmInitDone = false;
+// Bits 0..11: six temperature pairs; bits 12/13: burner / HC1 WW priority.
+static uint16_t chartValuesReceived = 0;
 static bool km271RefreshActive = false;
 
 // send_buf is written from whatever task handles the caller (loop() for
@@ -167,6 +169,7 @@ void cyclicKM271() {
       km271Msg(KM_TYP_MESSAGE, "no data from Logamatic - serial link considered down", "");
     }
     kmSerialStats.logModeActive = false;
+    chartValuesReceived = 0;
     KmRxBlockState = KM_TSK_START;
   } else {
     kmSerialStats.logModeActive = (KmRxBlockState == KM_TSK_LOGGING);
@@ -1070,6 +1073,7 @@ void parseInfo(uint8_t *data, int len) {
       }
 
       kmStatus.HC1_OperatingStates_1 = data[2];
+      chartValuesReceived |= (1U << 13);
       km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::HC1_OV1_OFFTIME_OPT[config.mqtt.lang],
                EspStrUtil::intToString(bitRead(kmStatus.HC1_OperatingStates_1, 0)));
       km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::HC1_OV1_ONTIME_OPT[config.mqtt.lang],
@@ -1113,6 +1117,7 @@ void parseInfo(uint8_t *data, int len) {
   case 0x8002: // 0x8002 : Temperature (1C resolution)
     if (config.km271.use_hc1) {
       kmStatus.HC1_HeatingForwardTargetTemp = (float)data[2];
+      chartValuesReceived |= (1U << 6);
       km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::HC1_FLOW_SETPOINT[config.mqtt.lang], EspStrUtil::intToString(kmStatus.HC1_HeatingForwardTargetTemp));
     }
     break;
@@ -1120,6 +1125,7 @@ void parseInfo(uint8_t *data, int len) {
   case 0x8003: // 0x8003 : Temperature (1C resolution)
     if (config.km271.use_hc1) {
       kmStatus.HC1_HeatingForwardActualTemp = (float)data[2];
+      chartValuesReceived |= (1U << 7);
       km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::HC1_FLOW_TEMP[config.mqtt.lang], EspStrUtil::intToString(kmStatus.HC1_HeatingForwardActualTemp));
     }
     break;
@@ -1244,6 +1250,7 @@ void parseInfo(uint8_t *data, int len) {
   case 0x8114: // 0x8114 : Temperature (1C resolution)
     if (config.km271.use_hc2) {
       kmStatus.HC2_HeatingForwardTargetTemp = (float)data[2];
+      chartValuesReceived |= (1U << 8);
       km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::HC2_FLOW_SETPOINT[config.mqtt.lang], EspStrUtil::intToString(kmStatus.HC2_HeatingForwardTargetTemp));
     }
     break;
@@ -1251,6 +1258,7 @@ void parseInfo(uint8_t *data, int len) {
   case 0x8115: // 0x8115 : Temperature (1C resolution)
     if (config.km271.use_hc2) {
       kmStatus.HC2_HeatingForwardActualTemp = (float)data[2];
+      chartValuesReceived |= (1U << 9);
       km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::HC2_FLOW_TEMP[config.mqtt.lang], EspStrUtil::intToString(kmStatus.HC2_HeatingForwardActualTemp));
     }
     break;
@@ -1354,11 +1362,13 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x8426: // 0x8426 : Temperature (1C resolution)
     kmStatus.HotWaterTargetTemp = (float)data[2];
+    chartValuesReceived |= (1U << 2);
     km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::WW_SETPOINT[config.mqtt.lang], EspStrUtil::intToString(kmStatus.HotWaterTargetTemp));
     break;
 
   case 0x8427: // 0x8427 : Temperature (1C resolution)
     kmStatus.HotWaterActualTemp = (float)data[2];
+    chartValuesReceived |= (1U << 3);
     km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::WW_TEMP[config.mqtt.lang], EspStrUtil::intToString(kmStatus.HotWaterActualTemp));
     break;
 
@@ -1376,11 +1386,13 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x882a: // 0x882a : Temperature (1C resolution)
     kmStatus.BoilerForwardTargetTemp = (float)data[2];
+    chartValuesReceived |= (1U << 0);
     km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::BOILER_SETPOINT[config.mqtt.lang], EspStrUtil::intToString(kmStatus.BoilerForwardTargetTemp));
     break;
 
   case 0x882b: // 0x882b : Temperature (1C resolution)
     kmStatus.BoilerForwardActualTemp = (float)data[2];
+    chartValuesReceived |= (1U << 1);
     km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::BOILER_TEMP[config.mqtt.lang], EspStrUtil::intToString(kmStatus.BoilerForwardActualTemp));
     break;
 
@@ -1436,6 +1448,7 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x8832: // 0x8832 : Bitfield
     kmStatus.BurnerStates = data[2];
+    chartValuesReceived |= (1U << 12);
     // [ "Kessel aus"), "1.Stufe an"), "-"), "-"), "2.Stufe an bzw. Modulation frei" ]
     km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::BOILER_CONTROL[config.mqtt.lang], EspStrUtil::intToString(kmStatus.BurnerStates));
     break;
@@ -1471,11 +1484,13 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x893c: // 0x893c : Temperature (1C resolution, possibly negative)
     kmStatus.OutsideTemp = decodeNegValue(data[2]);
+    chartValuesReceived |= (1U << 10);
     km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::OUTSIDE_TEMP[config.mqtt.lang], EspStrUtil::intToString(kmStatus.OutsideTemp));
     break;
 
   case 0x893d: // 0x893d : Temperature (1C resolution, possibly negative)
     kmStatus.OutsideDampedTemp = decodeNegValue(data[2]);
+    chartValuesReceived |= (1U << 11);
     km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::OUTSIDE_TEMP_DAMPED[config.mqtt.lang], EspStrUtil::intToString(kmStatus.OutsideDampedTemp));
     break;
 
@@ -1510,6 +1525,7 @@ void parseInfo(uint8_t *data, int len) {
   case 0x9144:
     if (config.km271.use_solar) {
       kmStatus.SolarWW = data[2];
+      chartValuesReceived |= (1U << 4);
       km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::SOLAR_WW[config.mqtt.lang], EspStrUtil::intToString(kmStatus.SolarWW));
     }
     break;
@@ -1517,6 +1533,7 @@ void parseInfo(uint8_t *data, int len) {
   case 0x9146:
     if (config.km271.use_solar) {
       kmStatus.SolarCollector = decodeNegValue(data[2]);
+      chartValuesReceived |= (1U << 5);
       km271Msg(KM_TYP_STATUS, KM_STAT_TOPIC::SOLAR_COLLECTOR[config.mqtt.lang], EspStrUtil::intToString(kmStatus.SolarCollector));
     }
     break;
@@ -1693,6 +1710,7 @@ e_ret km271ProtInit(int rxPin, int txPin) {
 
   // initialize structs
   memset((void *)&kmStatus, 0, sizeof(s_km271_status));
+  chartValuesReceived = 0;
   memset((void *)&kmConfigStr, 0, sizeof(s_km271_config_str));
   memset((void *)&kmConfigNum, 0, sizeof(s_km271_config_num));
 
@@ -2504,6 +2522,21 @@ bool km271sendServiceCmd(uint8_t cmdPara[8]) {
  * @return  bool state of LogModeActive
  * *******************************************************************/
 bool km271GetLogMode() { return kmSerialStats.logModeActive; }
+uint8_t km271ChartValidity() {
+  if (!kmInitDone || !km271GetLogMode()) return 0;
+  uint8_t valid = 0;
+  for (uint8_t i = 0; i < 6; ++i) {
+    const uint16_t pair = 3U << (2 * i);
+    if ((chartValuesReceived & pair) == pair) valid |= (1U << i);
+  }
+  if (!config.km271.use_ww) valid &= ~(1U << 1);
+  if (!config.km271.use_solar) valid &= ~(1U << 2);
+  if (!config.km271.use_hc1) valid &= ~(1U << 3);
+  if (!config.km271.use_hc2) valid &= ~(1U << 4);
+  if (chartValuesReceived & (1U << 12)) valid |= (1U << 6);
+  if (config.km271.use_hc1 && (chartValuesReceived & (1U << 13))) valid |= (1U << 7);
+  return valid;
+}
 unsigned long km271GetTxBytes() { return kmSerialStats.TxBytes; }
 unsigned long km271GetRxBytes() { return kmSerialStats.RxBytes; }
 

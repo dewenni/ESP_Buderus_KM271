@@ -126,3 +126,138 @@
 .weekly-program-key-on {
   background: var(--pico-primary-background);
 }
+
+/* Temperature history stays within the existing dashboard card width. */
+#tab1 > .grid {
+  align-items: flex-start;
+}
+
+.dash.dash-history {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.dash-history > .dash-main {
+  min-width: 0;
+}
+
+.dash-history-plot {
+  grid-column: 1 / -1;
+  min-width: 0;
+  padding: 0 6px 3px;
+}
+
+.dash-chart {
+  height: 126px;
+}
+
+.dash-chart svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+}
+
+.dash-chart text {
+  fill: var(--pico-muted-color);
+  font: 11px var(--pico-font-family);
+}
+
+.dash-chart-grid {
+  stroke: var(--pico-form-element-border-color);
+  stroke-width: 1;
+}
+
+.dash-chart-actual,
+.dash-chart-target {
+  fill: none;
+  stroke: var(--pico-color);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.dash-chart-target {
+  stroke: var(--pico-muted-color);
+  stroke-width: 1.4;
+  stroke-dasharray: 5 4;
+}
+
+.dash-chart circle {
+  stroke: none;
+}
+
+.dash-chart circle.dash-chart-actual { fill: var(--pico-color); }
+.dash-chart circle.dash-chart-target { fill: var(--pico-muted-color); }
+
+.dash-chart-guide {
+  stroke: var(--pico-muted-color);
+  stroke-width: 1;
+}
+
+.dash-chart-status {
+  height: 1.5em;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 11px;
+  color: var(--pico-muted-color);
+  text-align: center;
+}
+
+.dash-chart-state {
+  fill: var(--pico-primary-background);
+  opacity: 0.28;
+}
+
+.dash-chart-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  margin: 0.25rem 8px 0 29px;
+  font-size: 11px;
+  color: var(--pico-muted-color);
+}
+
+.dash-chart-state-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: auto;
+  color: var(--pico-color);
+}
+
+.dash-chart-legend .svg {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-size: contain;
+}
+
+.dash-chart-key-on::before,
+.dash-chart-key-off::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 8px;
+  margin-right: 4px;
+  background: var(--pico-primary-background);
+}
+
+.dash-chart-key-off::before {
+  background: var(--pico-form-element-border-color);
+  opacity: 1;
+}
+
+.dash-history .dash-footer > div::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  margin-right: 3px;
+  vertical-align: middle;
+  border-top: 2px solid var(--pico-color);
+}
+.dash-history .dash-footer > div:first-child::before {
+  border-top: 2px dashed var(--pico-muted-color);
+}

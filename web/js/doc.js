@@ -3,6 +3,7 @@
 document.addEventListener("DOMContentLoaded", function () {
   // call user functions
   initLogType();
+  initDashboardCharts();
   initWeeklyPrograms();
   initMqttConnectionStatus();
   initWiFiApDialog();

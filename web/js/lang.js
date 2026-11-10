@@ -2,6 +2,11 @@
 // localization texts
 // --------------------------------------
 const user_translations = {
+  chart_wait: { de: "Warte auf gültige Daten …", en: "Waiting for valid data …" },
+  chart_off: { de: "AUS", en: "OFF" },
+  chart_gap: { de: "keine Daten", en: "no data" },
+  chart_burner: { de: "Brenner", en: "Burner" },
+  chart_priority: { de: "Warmwasservorrang", en: "Hot water priority" },
   weekly_program_hint: {
     de: "Wochenplan des manuellen Programms. Das aktive Programm wird oben angezeigt.",
     en: "Weekly schedule of the manual program. The active program is shown above.",

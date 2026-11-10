@@ -341,6 +341,8 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara);
 void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara);
 bool km271sendServiceCmd(uint8_t cmdPara[8]);
 bool km271GetLogMode();
+// Bits: boiler, WW, solar, HC1, HC2, outside, burner, HC1 WW priority.
+uint8_t km271ChartValidity();
 unsigned long km271GetTxBytes();
 unsigned long km271GetRxBytes();
 void km271SetDateTimeNTP();

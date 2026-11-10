@@ -188,11 +188,14 @@
           </article>
         </div>
         <!-- END Grid1 -->
+        <span id="p01_chart_valid" hidden></span>
+        <span id="p01_chart_burner" hidden></span>
+        <span id="p01_chart_priority" hidden></span>
 
         <div class="grid">
           <!-- START Grid2 -->
 
-          <article class="dash">
+          <article data-chart="p01_burner_temp_set,p01_burner_temp_act" data-chart-bit="0" data-chart-state="burner" class="dash dash-history">
             <div class="dash-main">
               <div class="dash-header" data-i18n="burner_temp"></div>
               <div class="dash-content">
@@ -204,12 +207,10 @@
                 <div data-i18n="act_temp_c"></div>
               </div>
             </div>
-            <div class="dash-icon">
-              <i class="svg i_temp"></i>
-            </div>
+            <div class="dash-history-plot"><div class="dash-chart"></div><div class="dash-chart-status"></div></div>
           </article>
 
-          <article class="dash OPT_HW">
+          <article data-chart="p01_ww_temp_set,p01_ww_temp_act" data-chart-bit="1" data-chart-state="priority" class="dash dash-history OPT_HW">
             <div class="dash-main">
               <div class="dash-header" data-i18n="hot_water"></div>
               <div class="dash-content">
@@ -221,12 +222,10 @@
                 <div data-i18n="act_temp_c"></div>
               </div>
             </div>
-            <div class="dash-icon">
-              <i class="svg i_temp"></i>
-            </div>
+            <div class="dash-history-plot"><div class="dash-chart"></div><div class="dash-chart-status"></div></div>
           </article>
 
-          <article class="dash OPT_SOLAR">
+          <article data-chart="p01_solar_ww,p01_solar_collector" data-chart-bit="2" class="dash dash-history OPT_SOLAR">
             <div class="dash-main">
               <div class="dash-header" data-i18n="solar"></div>
               <div class="dash-content">
@@ -238,12 +237,10 @@
                 <div data-i18n="collector$ $temp_c"></div>
               </div>
             </div>
-            <div class="dash-icon">
-              <i class="svg i_temp"></i>
-            </div>
+            <div class="dash-history-plot"><div class="dash-chart"></div><div class="dash-chart-status"></div></div>
           </article>
 
-          <article class="dash OPT_HC1">
+          <article data-chart="p01_hc1_flow_set,p01_hc1_flow_act" data-chart-bit="3" data-chart-state="burner" class="dash dash-history OPT_HC1">
             <div class="dash-main">
               <div class="dash-header" data-i18n="hc1$-$flow"></div>
               <div class="dash-content">
@@ -255,12 +252,10 @@
                 <div data-i18n="act_temp_c"></div>
               </div>
             </div>
-            <div class="dash-icon">
-              <i class="svg i_temp"></i>
-            </div>
+            <div class="dash-history-plot"><div class="dash-chart"></div><div class="dash-chart-status"></div></div>
           </article>
 
-          <article class="dash OPT_HC2">
+          <article data-chart="p01_hc2_flow_set,p01_hc2_flow_act" data-chart-bit="4" data-chart-state="burner" class="dash dash-history OPT_HC2">
             <div class="dash-main">
               <div class="dash-header" data-i18n="hc2$-$flow"></div>
               <div class="dash-content">
@@ -272,12 +267,10 @@
                 <div data-i18n="act_temp_c"></div>
               </div>
             </div>
-            <div class="dash-icon">
-              <i class="svg i_temp"></i>
-            </div>
+            <div class="dash-history-plot"><div class="dash-chart"></div><div class="dash-chart-status"></div></div>
           </article>
 
-          <article class="dash">
+          <article data-chart="p01_temp_out_act,p01_temp_out_dmp" data-chart-bit="5" class="dash dash-history">
             <div class="dash-main">
               <div class="dash-header" data-i18n="temp_out"></div>
               <div class="dash-content">
@@ -289,9 +282,7 @@
                 <div data-i18n="temp_out_dmp"></div>
               </div>
             </div>
-            <div class="dash-icon">
-              <i class="svg i_temp"></i>
-            </div>
+            <div class="dash-history-plot"><div class="dash-chart"></div><div class="dash-chart-status"></div></div>
           </article>
 
           <article class="dash OPT_SENS1">

@@ -29,6 +29,7 @@ static s_km271_alarm_str *pkmAlarmStr = km271GetAlarmMsgAdr();
 static char tmpMessage[300] = {'\0'};
 static unsigned int KmAlarmHash[4] = {0};
 static bool refreshRequest = false;
+static uint8_t chartSnapshotValid = 0;
 static bool km271RefreshActiveOld = false;
 static int UpdateCntSlow = 0;
 static int UpdateCntRefresh = 0;
@@ -287,6 +288,11 @@ void updateSystemInfoElements() {
   webUI.addJson(jsonDoc, "p09_km271_rx", EspStrUtil::formatBytes(km271GetRxBytes()));
   webUI.addJson(jsonDoc, "p09_km271_tx", EspStrUtil::formatBytes(km271GetTxBytes()));
 
+  // A positive chart status is sent only after a matching temperature snapshot.
+  // Reuse the regular system update; no extra history packets or timer needed.
+  chartSnapshotValid &= km271ChartValidity();
+  webUI.addJson(jsonDoc, "p01_chart_valid", chartSnapshotValid);
+
   webUI.wsUpdateWebJSON(jsonDoc);
 }
 
@@ -517,9 +523,12 @@ void updateKm271StatusElements(bool forceUpdate) {
 
   webUI.initJsonBuffer(jsonDoc);
 
+  const uint8_t chartValid = km271ChartValidity();
+  const bool forceSnapshot = forceUpdate || (chartValid & ~chartSnapshotValid);
+
   // heating circuit 1 values
   if (config.km271.use_hc1) {
-    if (forceUpdate || (kmStatusCpy.HC1_OperatingStates_1 != pkmStatus->HC1_OperatingStates_1) ||
+    if (forceSnapshot || (kmStatusCpy.HC1_OperatingStates_1 != pkmStatus->HC1_OperatingStates_1) ||
         (kmStatusCpy.HC1_OperatingStates_2 != pkmStatus->HC1_OperatingStates_2)) {
       kmStatusCpy.HC1_OperatingStates_1 = pkmStatus->HC1_OperatingStates_1;
       kmStatusCpy.HC1_OperatingStates_2 = pkmStatus->HC1_OperatingStates_2;
@@ -549,6 +558,7 @@ void updateKm271StatusElements(bool forceUpdate) {
       webUI.addJson(jsonDoc, "p03_hc1_ov1_off_time_opt", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 0)));
       webUI.addJson(jsonDoc, "p03_hc1_ov1_on_time_opt", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 1)));
       webUI.addJson(jsonDoc, "p03_hc1_ov1_auto", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 2)));
+      webUI.addJson(jsonDoc, "p01_chart_priority", bitRead(kmStatusCpy.HC1_OperatingStates_1, 3));
       webUI.addJson(jsonDoc, "p03_hc1_ov1_ww_priority", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 3)));
       webUI.addJson(jsonDoc, "p03_hc1_ov1_screed_drying", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 4)));
       webUI.addJson(jsonDoc, "p03_hc1_ov1_holiday", onOffString(bitRead(kmStatusCpy.HC1_OperatingStates_1, 5)));
@@ -567,12 +577,12 @@ void updateKm271StatusElements(bool forceUpdate) {
       webUI.addJson(jsonDoc, "p03_hc1_ov2_flow_at_max", errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 5)));
       webUI.addJson(jsonDoc, "p03_hc1_ov2_ext_sign_in", errOkString(bitRead(kmStatusCpy.HC1_OperatingStates_2, 6)));
     }
-    if (forceUpdate || kmStatusCpy.HC1_HeatingForwardTargetTemp != pkmStatus->HC1_HeatingForwardTargetTemp) {
+    if (forceSnapshot || kmStatusCpy.HC1_HeatingForwardTargetTemp != pkmStatus->HC1_HeatingForwardTargetTemp) {
       kmStatusCpy.HC1_HeatingForwardTargetTemp = pkmStatus->HC1_HeatingForwardTargetTemp;
       webUI.addJson(jsonDoc, "p01_hc1_flow_set", kmStatusCpy.HC1_HeatingForwardTargetTemp);
       webUI.addJson(jsonDoc, "p03_hc1_flow_set", kmStatusCpy.HC1_HeatingForwardTargetTemp);
     }
-    if (forceUpdate || (kmStatusCpy.HC1_HeatingForwardActualTemp != pkmStatus->HC1_HeatingForwardActualTemp)) {
+    if (forceSnapshot || (kmStatusCpy.HC1_HeatingForwardActualTemp != pkmStatus->HC1_HeatingForwardActualTemp)) {
       kmStatusCpy.HC1_HeatingForwardActualTemp = pkmStatus->HC1_HeatingForwardActualTemp;
       webUI.addJson(jsonDoc, "p01_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardActualTemp);
       webUI.addJson(jsonDoc, "p03_hc1_flow_act", kmStatusCpy.HC1_HeatingForwardActualTemp);
@@ -667,12 +677,12 @@ void updateKm271StatusElements(bool forceUpdate) {
       webUI.addJson(jsonDoc, "p04_hc2_ov2_flow_at_max", errOkString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 5)));
       webUI.addJson(jsonDoc, "p04_hc2_ov2_ext_sign_in", errOkString(bitRead(kmStatusCpy.HC2_OperatingStates_2, 6)));
     }
-    if (forceUpdate || kmStatusCpy.HC2_HeatingForwardTargetTemp != pkmStatus->HC2_HeatingForwardTargetTemp) {
+    if (forceSnapshot || kmStatusCpy.HC2_HeatingForwardTargetTemp != pkmStatus->HC2_HeatingForwardTargetTemp) {
       kmStatusCpy.HC2_HeatingForwardTargetTemp = pkmStatus->HC2_HeatingForwardTargetTemp;
       webUI.addJson(jsonDoc, "p01_hc2_flow_set", kmStatusCpy.HC2_HeatingForwardTargetTemp);
       webUI.addJson(jsonDoc, "p04_hc2_flow_set", kmStatusCpy.HC2_HeatingForwardTargetTemp);
     }
-    if (forceUpdate || kmStatusCpy.HC2_HeatingForwardActualTemp != pkmStatus->HC2_HeatingForwardActualTemp) {
+    if (forceSnapshot || kmStatusCpy.HC2_HeatingForwardActualTemp != pkmStatus->HC2_HeatingForwardActualTemp) {
       kmStatusCpy.HC2_HeatingForwardActualTemp = pkmStatus->HC2_HeatingForwardActualTemp;
       webUI.addJson(jsonDoc, "p01_hc2_flow_act", kmStatusCpy.HC2_HeatingForwardActualTemp);
       webUI.addJson(jsonDoc, "p04_hc2_flow_act", kmStatusCpy.HC2_HeatingForwardActualTemp);
@@ -755,13 +765,13 @@ void updateKm271StatusElements(bool forceUpdate) {
       webUI.addJson(jsonDoc, "p05_hw_ov2_hot", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 6)));
       webUI.addJson(jsonDoc, "p05_hw_ov2_prio", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 7)));
     }
-    if (forceUpdate || (kmStatusCpy.HotWaterTargetTemp != pkmStatus->HotWaterTargetTemp)) {
+    if (forceSnapshot || (kmStatusCpy.HotWaterTargetTemp != pkmStatus->HotWaterTargetTemp)) {
       kmStatusCpy.HotWaterTargetTemp = pkmStatus->HotWaterTargetTemp;
       snprintf(tmpMessage, sizeof(tmpMessage), "%hhu °C", kmStatusCpy.HotWaterTargetTemp);
       webUI.addJson(jsonDoc, "p05_hw_set_temp", tmpMessage);
       webUI.addJson(jsonDoc, "p01_ww_temp_set", kmStatusCpy.HotWaterTargetTemp);
     }
-    if (forceUpdate || (kmStatusCpy.HotWaterActualTemp != pkmStatus->HotWaterActualTemp)) {
+    if (forceSnapshot || (kmStatusCpy.HotWaterActualTemp != pkmStatus->HotWaterActualTemp)) {
       kmStatusCpy.HotWaterActualTemp = pkmStatus->HotWaterActualTemp;
       snprintf(tmpMessage, sizeof(tmpMessage), "%hhu °C", kmStatusCpy.HotWaterActualTemp);
       webUI.addJson(jsonDoc, "p05_hw_act_temp", tmpMessage);
@@ -780,12 +790,12 @@ void updateKm271StatusElements(bool forceUpdate) {
   } // END HotWater
 
   // general values
-  if (forceUpdate || kmStatusCpy.BoilerForwardTargetTemp != pkmStatus->BoilerForwardTargetTemp) {
+  if (forceSnapshot || kmStatusCpy.BoilerForwardTargetTemp != pkmStatus->BoilerForwardTargetTemp) {
     kmStatusCpy.BoilerForwardTargetTemp = pkmStatus->BoilerForwardTargetTemp;
     webUI.addJson(jsonDoc, "p06_boil_set", kmStatusCpy.BoilerForwardTargetTemp);
     webUI.addJson(jsonDoc, "p01_burner_temp_set", kmStatusCpy.BoilerForwardTargetTemp);
   }
-  if (forceUpdate || kmStatusCpy.BoilerForwardActualTemp != pkmStatus->BoilerForwardActualTemp) {
+  if (forceSnapshot || kmStatusCpy.BoilerForwardActualTemp != pkmStatus->BoilerForwardActualTemp) {
     kmStatusCpy.BoilerForwardActualTemp = pkmStatus->BoilerForwardActualTemp;
     webUI.addJson(jsonDoc, "p06_boil_temp", kmStatusCpy.BoilerForwardActualTemp);
     webUI.addJson(jsonDoc, "p01_burner_temp_act", kmStatusCpy.BoilerForwardActualTemp);
@@ -827,8 +837,9 @@ void updateKm271StatusElements(bool forceUpdate) {
     webUI.addJson(jsonDoc, "p06_boil_s_perf_high", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 5)));
     webUI.addJson(jsonDoc, "p06_boil_s_stage2", onOffString(bitRead(kmStatusCpy.BoilerOperatingStates, 6)));
   }
-  if (forceUpdate || kmStatusCpy.BurnerStates != pkmStatus->BurnerStates) {
+  if (forceSnapshot || kmStatusCpy.BurnerStates != pkmStatus->BurnerStates) {
     kmStatusCpy.BurnerStates = pkmStatus->BurnerStates;
+    webUI.addJson(jsonDoc, "p01_chart_burner", kmStatusCpy.BurnerStates != 0 ? 1 : 0);
     webUI.addJson(jsonDoc, "p01_burner", (kmStatusCpy.BurnerStates == 0) ? WEB_TXT::OFF[config.lang] : WEB_TXT::ON[config.lang]);
     webUI.addJson(jsonDoc, "p06_burn_ctrl", KM_CFG_ARRAY::BURNER_STATE[config.lang][constrain(kmStatusCpy.BurnerStates, 0, 4)]);
   }
@@ -857,12 +868,12 @@ void updateKm271StatusElements(bool forceUpdate) {
     kmStatusCpy.BurnerCalcOilConsumption = pkmStatus->BurnerCalcOilConsumption;
     // is handled somewhere else
   }
-  if (forceUpdate || kmStatusCpy.OutsideTemp != pkmStatus->OutsideTemp) {
+  if (forceSnapshot || kmStatusCpy.OutsideTemp != pkmStatus->OutsideTemp) {
     kmStatusCpy.OutsideTemp = pkmStatus->OutsideTemp;
     webUI.addJson(jsonDoc, "p07_out_temp", kmStatusCpy.OutsideTemp);
     webUI.addJson(jsonDoc, "p01_temp_out_act", kmStatusCpy.OutsideTemp);
   }
-  if (forceUpdate || kmStatusCpy.OutsideDampedTemp != pkmStatus->OutsideDampedTemp) {
+  if (forceSnapshot || kmStatusCpy.OutsideDampedTemp != pkmStatus->OutsideDampedTemp) {
     kmStatusCpy.OutsideDampedTemp = pkmStatus->OutsideDampedTemp;
     webUI.addJson(jsonDoc, "p07_out_temp_damped", kmStatusCpy.OutsideDampedTemp);
     webUI.addJson(jsonDoc, "p01_temp_out_dmp", kmStatusCpy.OutsideDampedTemp);
@@ -892,13 +903,13 @@ void updateKm271StatusElements(bool forceUpdate) {
       webUI.addJson(jsonDoc, "p13_solar_load", (kmStatusCpy.SolarLoad == 0) ? WEB_TXT::OFF[config.lang] : WEB_TXT::ON[config.lang]);
     }
 
-    if (forceUpdate || kmStatusCpy.SolarWW != pkmStatus->SolarWW) {
+    if (forceSnapshot || kmStatusCpy.SolarWW != pkmStatus->SolarWW) {
       kmStatusCpy.SolarWW = pkmStatus->SolarWW;
       webUI.addJson(jsonDoc, "p01_solar_ww", kmStatusCpy.SolarWW);
       webUI.addJson(jsonDoc, "p13_solar_ww", kmStatusCpy.SolarWW);
     }
 
-    if (forceUpdate || kmStatusCpy.SolarCollector != pkmStatus->SolarCollector) {
+    if (forceSnapshot || kmStatusCpy.SolarCollector != pkmStatus->SolarCollector) {
       kmStatusCpy.SolarCollector = pkmStatus->SolarCollector;
       webUI.addJson(jsonDoc, "p01_solar_collector", kmStatusCpy.SolarCollector);
       webUI.addJson(jsonDoc, "p13_solar_collector", kmStatusCpy.SolarCollector);
@@ -918,6 +929,12 @@ void updateKm271StatusElements(bool forceUpdate) {
       webUI.addJson(jsonDoc, "p13_solar_9147", kmStatusCpy.Solar9147);
     }
   }
+
+  // Keep readiness and the first valid values in the same WebSocket message.
+  if (forceUpdate || chartValid != chartSnapshotValid) {
+    webUI.addJson(jsonDoc, "p01_chart_valid", chartValid);
+  }
+  chartSnapshotValid = chartValid;
 
   // check if something is to send
   if (webUI.dataInJsonBuffer()) {
