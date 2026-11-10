@@ -1,9 +1,9 @@
 // includes
 #include <ArduinoOTA.h>
-#include <esp_ota_ops.h>
-#include <basics.h>
 #include <WiFiMgn.h>
+#include <basics.h>
 #include <config.h>
+#include <esp_ota_ops.h>
 #include <km271.h>
 #include <message.h>
 #include <mqtt.h>
@@ -45,9 +45,34 @@ static auto &ota = EspSysUtil::OTA::getInstance();
 // makes it once the device has proven it actually works.
 bool verifyRollbackLater() { return true; }
 
-#define OTA_VALIDATE_MIN_UPTIME 120000  // healthy for 2 min with a network
-#define OTA_VALIDATE_MAX_UPTIME 600000  // ... or 10 min regardless, see below
+#define OTA_VALIDATE_MIN_UPTIME 120000 // healthy for 2 min with a network
+#define OTA_VALIDATE_MAX_UPTIME 600000 // ... or 10 min regardless, see below
 static bool otaImageValidated = false;
+
+static void handleArduinoOTA() {
+  static bool running = false;
+  static char password[sizeof(config.service.password)] = {};
+  static char hostname[sizeof(config.wifi.hostname)] = {};
+  if (ota.isActive()) {
+    if (running) ArduinoOTA.handle();
+    return;
+  }
+  bool allowed = serviceAccessEnabled();
+  const char *desiredHostname = config.wifi.hostname[0] ? config.wifi.hostname : "ESP-Buderus-KM271";
+  if (running && (!allowed || strcmp(password, servicePassword()) || strcmp(hostname, desiredHostname))) {
+    ArduinoOTA.end();
+    running = false;
+  }
+  if (allowed && !running) {
+    snprintf(password, sizeof(password), "%s", servicePassword());
+    snprintf(hostname, sizeof(hostname), "%s", desiredHostname);
+    ArduinoOTA.setHostname(hostname);
+    ArduinoOTA.setPassword(password);
+    ArduinoOTA.begin();
+    running = true;
+  }
+  if (running) ArduinoOTA.handle();
+}
 
 /**
  * *******************************************************************
@@ -145,13 +170,7 @@ void setup() {
     }
     ota.setActive(false);
   });
-  ArduinoOTA.setHostname(config.wifi.hostname);
-  // Without a password ArduinoOTA skips its challenge-response entirely, so
-  // anyone on the network could push arbitrary firmware (espota.py -i <ip>)
-  // with no credentials at all - a second flash path that bypasses the auth
-  // on the web UI's /update route. Guard it with the same device password.
-  ArduinoOTA.setPassword(devicePassword());
-  ArduinoOTA.begin();
+  handleArduinoOTA();
 
   // setup for km271
   if (!setupMode) {
@@ -171,6 +190,7 @@ void setup() {
 
   // telnet Setup
   setupTelnet();
+
 }
 
 /**
@@ -187,7 +207,7 @@ void loop() {
   }
 
   // OTA Update
-  ArduinoOTA.handle();
+  handleArduinoOTA();
 
   // double reset detector
   mrd->loop();

@@ -2,16 +2,35 @@
 // localization texts
 // --------------------------------------
 const user_translations = {
+  service_access: { de: "Service-Zugänge", en: "Service access" },
+  service_password: { de: "Service-Passwort", en: "Service password" },
+  service_telnet: { de: "Telnet aktivieren", en: "Enable Telnet" },
+  service_hint: {
+    de: "Zentrales Passwort für Service Zugänge wie z.B. Telnet und Remote-OTA (ArduinoOTA). Ohne Passwort bleiben beide gesperrt. Im Setup-Modus gilt admin / km271-2026!.",
+    en: "Central password for service access such as Telnet and Remote-OTA (ArduinoOTA). Without a password, both remain locked. In setup mode, admin / km271-2026! applies.",
+  },
   wifi_ssid_search: { de: "Suche WLAN", en: "Find Wi-Fi" },
   wifi_ssid_title: { de: "WLAN auswählen", en: "Select Wi-Fi network" },
-  wifi_ssid_select: { de: "Verfügbare WLAN-Netze", en: "Available Wi-Fi networks" },
+  wifi_ssid_select: {
+    de: "Verfügbare WLAN-Netze",
+    en: "Available Wi-Fi networks",
+  },
   wifi_ssid_hint: {
     de: "Versteckte WLAN-Namen können manuell eingegeben werden. Bei einem anderen WLAN-Namen wird die feste BSSID zurückgesetzt.",
     en: "Hidden Wi-Fi names can be entered manually. Selecting a different Wi-Fi name clears the fixed BSSID.",
   },
-  wifi_ssid_choose: { de: "Bitte WLAN auswählen", en: "Select a Wi-Fi network" },
-  wifi_ssid_found: { de: "WLAN auswählen und mit Übernehmen bestätigen.", en: "Select a network and confirm with Apply." },
-  wifi_ssid_empty: { de: "Keine WLAN-Netze gefunden.", en: "No Wi-Fi networks found." },
+  wifi_ssid_choose: {
+    de: "Bitte WLAN auswählen",
+    en: "Select a Wi-Fi network",
+  },
+  wifi_ssid_found: {
+    de: "WLAN auswählen und mit Übernehmen bestätigen.",
+    en: "Select a network and confirm with Apply.",
+  },
+  wifi_ssid_empty: {
+    de: "Keine WLAN-Netze gefunden.",
+    en: "No Wi-Fi networks found.",
+  },
   wifi_ap_bssid: {
     de: "Access Point (BSSID, optional)",
     en: "Access point (BSSID, optional)",
@@ -22,7 +41,10 @@ const user_translations = {
     en: "Empty = automatic selection. A fixed BSSID prevents switching to other access points. Applies on the next Wi-Fi connection or after a restart.",
   },
   wifi_ap_title: { de: "Access Point auswählen", en: "Select access point" },
-  wifi_ap_select: { de: "Verfügbare Access Points", en: "Available access points" },
+  wifi_ap_select: {
+    de: "Verfügbare Access Points",
+    en: "Available access points",
+  },
   wifi_ap_retry: { de: "Erneut suchen", en: "Scan again" },
   wifi_ap_apply: { de: "Übernehmen", en: "Apply" },
   wifi_ap_auto: { de: "Automatisch auswählen", en: "Select automatically" },
@@ -30,12 +52,30 @@ const user_translations = {
   wifi_ap_channel: { de: "Kanal", en: "Channel" },
   wifi_ap_not_found: { de: "nicht gefunden", en: "not found" },
   wifi_ap_scanning: { de: "Suche läuft…", en: "Scanning…" },
-  wifi_ap_found: { de: "Access Point auswählen und mit Übernehmen bestätigen.", en: "Select an access point and confirm with Apply." },
-  wifi_ap_empty: { de: "Keine Access Points für diesen WLAN-Namen gefunden.", en: "No access points found for this Wi-Fi name." },
-  wifi_ap_invalid_ssid: { de: "Bitte zuerst einen WLAN-Namen mit 1 bis 32 Byte eingeben.", en: "Enter a Wi-Fi name of 1 to 32 bytes first." },
-  wifi_ap_failed: { de: "Die Suche ist fehlgeschlagen. Bitte erneut versuchen.", en: "The scan failed. Please try again." },
-  wifi_ap_busy: { de: "Das Gerät führt bereits eine Suche oder ein Update aus. Bitte später erneut versuchen.", en: "The device is already scanning or updating. Please try again later." },
-  wifi_ap_ssid_changed: { de: "Der WLAN-Name wurde geändert. Bitte den Dialog schließen und erneut suchen.", en: "The Wi-Fi name has changed. Close this dialog and scan again." },
+  wifi_ap_found: {
+    de: "Access Point auswählen und mit Übernehmen bestätigen.",
+    en: "Select an access point and confirm with Apply.",
+  },
+  wifi_ap_empty: {
+    de: "Keine Access Points für diesen WLAN-Namen gefunden.",
+    en: "No access points found for this Wi-Fi name.",
+  },
+  wifi_ap_invalid_ssid: {
+    de: "Bitte zuerst einen WLAN-Namen mit 1 bis 32 Byte eingeben.",
+    en: "Enter a Wi-Fi name of 1 to 32 bytes first.",
+  },
+  wifi_ap_failed: {
+    de: "Die Suche ist fehlgeschlagen. Bitte erneut versuchen.",
+    en: "The scan failed. Please try again.",
+  },
+  wifi_ap_busy: {
+    de: "Das Gerät führt bereits eine Suche oder ein Update aus. Bitte später erneut versuchen.",
+    en: "The device is already scanning or updating. Please try again later.",
+  },
+  wifi_ap_ssid_changed: {
+    de: "Der WLAN-Name wurde geändert. Bitte den Dialog schließen und erneut suchen.",
+    en: "The Wi-Fi name has changed. Close this dialog and scan again.",
+  },
   control: {
     de: "Bedienung",
     en: "Control",

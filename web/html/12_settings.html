@@ -363,9 +363,23 @@
               </div>
               <br />
               <label for="auth_user" data-i18n="user"></label>
-              <input type="text" id="cfg_auth_user" name="auth_user" />
+              <input type="text" id="cfg_auth_user" name="auth_user" maxlength="63" />
               <label for="auth_passw" data-i18n="password"></label>
-              <input type="password" id="cfg_auth_password" name="auth_passw" />
+              <input type="password" id="cfg_auth_password" name="auth_passw" maxlength="63" />
+            </details>
+            <hr />
+            <!-- Independent service access -->
+            <details>
+              <summary data-i18n="service_access"></summary>
+              <label for="cfg_service_password" data-i18n="service_password"></label>
+              <input type="password" id="cfg_service_password" name="service_password" maxlength="63" autocomplete="new-password" />
+              <p><small data-i18n="service_hint"></small></p>
+              <div class="section-header">
+                <label for="cfg_service_telnet_enable" data-i18n="service_telnet"></label>
+                <div class="switch-container">
+                  <input id="cfg_service_telnet_enable" name="service_telnet_enable" type="checkbox" role="switch" />
+                </div>
+              </div>
             </details>
             <hr />
             <!-- NTP-Server -->

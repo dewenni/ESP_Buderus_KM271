@@ -21,7 +21,7 @@ static const char *TAG = "WEB"; // LOG TAG
  * *******************************************************************/
 void webCallback(const char *elementId, const char *value) {
 
-  ESP_LOGD(TAG, "Received - Element ID: %s = %s", elementId, value);
+  ESP_LOGD(TAG, "Received - Element ID: %s", elementId);
 
   // ------------------------------------------------------------------
   // GitHub / Version
@@ -282,16 +282,32 @@ void webCallback(const char *elementId, const char *value) {
 
   // Authentication
   if (strcmp(elementId, "cfg_auth_enable") == 0) {
-    config.auth.enable = EspStrUtil::stringToBool(value);
-    webUI.setAuthentication(config.auth.enable);
+    bool enable = EspStrUtil::stringToBool(value);
+    if (enable && (!config.auth.user[0] || !config.auth.password[0])) {
+      webUI.wsShowInfoMsg(config.lang == 0 ? "Zuerst WebUI-Benutzername und Passwort eingeben." : "Enter the WebUI username and password first.");
+      webUI.wsUpdateWebState("cfg_auth_enable", false);
+      return;
+    }
+    config.auth.enable = enable;
+    applyWebAccessSettings();
   }
   if (strcmp(elementId, "cfg_auth_user") == 0) {
+    if ((config.auth.enable && value[0] == '\0') || strlen(value) >= 64) return;
     snprintf(config.auth.user, sizeof(config.auth.user), "%s", value);
-    webUI.setCredentials(config.auth.user, config.auth.password);
+    applyWebAccessSettings();
   }
   if (strcmp(elementId, "cfg_auth_password") == 0) {
+    if ((config.auth.enable && value[0] == '\0') || strlen(value) >= 64) return;
     snprintf(config.auth.password, sizeof(config.auth.password), "%s", value);
-    webUI.setCredentials(config.auth.user, config.auth.password);
+    applyWebAccessSettings();
+  }
+
+  if (strcmp(elementId, "cfg_service_password") == 0) {
+    if (strlen(value) >= sizeof(config.service.password)) return;
+    snprintf(config.service.password, sizeof(config.service.password), "%s", value);
+  }
+  if (strcmp(elementId, "cfg_service_telnet_enable") == 0) {
+    config.service.telnet_enable = EspStrUtil::stringToBool(value);
   }
 
   // NTP-Server

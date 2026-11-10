@@ -23,13 +23,14 @@ void configInitValue();
 void checkGPIO();
 void configFinalCheck();
 
-// Fallback for every remote entry point that can flash or reconfigure the
-// device, used only until config.auth.password is set. It is compiled into a
-// public firmware, so it is not a secret - CHANGE IT via the web UI's Auth
-// settings after first login.
+// Fixed recovery credentials, used exclusively in SetupMode.
 static const char *DEFAULT_PASSWORD = "km271-2026!";
+static const char *DEFAULT_USERNAME = "admin";
 
-const char *devicePassword() { return (strlen(config.auth.password) > 0) ? config.auth.password : DEFAULT_PASSWORD; }
+const char *devicePassword() { return setupMode ? DEFAULT_PASSWORD : config.auth.password; }
+const char *deviceUsername() { return setupMode ? DEFAULT_USERNAME : config.auth.user; }
+const char *servicePassword() { return setupMode ? DEFAULT_PASSWORD : config.service.password; }
+bool serviceAccessEnabled() { return servicePassword()[0] != '\0'; }
 
 /**
  * *******************************************************************
@@ -408,6 +409,16 @@ void configSaveToFile() {
   doc["km271"]["use_solar"] = config.km271.use_solar;
   doc["km271"]["use_alarmMsg"] = config.km271.use_alarmMsg;
 
+  doc["service"]["telnet_enable"] = config.service.telnet_enable;
+  if (config.service.password[0] == '\0') {
+    doc["service"]["password"] = "";
+  } else if (EspStrUtil::encryptPassword(config.service.password, key, encrypted, sizeof(encrypted))) {
+    doc["service"]["password"] = encrypted;
+  } else {
+    ESP_LOGE(TAG, "Cannot encrypt service password; keeping previous config file");
+    return;
+  }
+
   doc["auth"]["enable"] = config.auth.enable;
   doc["auth"]["user"] = config.auth.user;
 
@@ -497,6 +508,8 @@ void configSaveToFile() {
  * *******************************************************************/
 void configLoadFromFile() {
   const char *tmpFilename = "/config.json.tmp";
+  // Old configuration files have no service section: keep these access paths off.
+  config.service = s_cfg_service{};
 
   // Open file for reading
   File file = LittleFS.open(filename);
@@ -628,7 +641,17 @@ void configLoadFromFile() {
     loadCfg(config.km271.use_solar, doc["km271"]["use_solar"]);
     loadCfg(config.km271.use_alarmMsg, doc["km271"]["use_alarmMsg"]);
 
+    loadCfg(config.service.telnet_enable, doc["service"]["telnet_enable"]);
+    const char *serviceCipher = doc["service"]["password"] | "";
+    if (serviceCipher[0] != '\0' &&
+        !EspStrUtil::decryptPassword(serviceCipher, key, config.service.password, sizeof(config.service.password))) {
+      config.service.password[0] = '\0';
+      ESP_LOGE(TAG, "Cannot decrypt service password; service access disabled");
+    }
+
     loadCfg(config.auth.enable, doc["auth"]["enable"]);
+    config.auth.user[0] = '\0';
+    config.auth.password[0] = '\0';
     EspStrUtil::readJSONstring(config.auth.user, sizeof(config.auth.user), doc["auth"]["user"]);
 
     if (config.version == 0) {
@@ -689,6 +712,11 @@ void configLoadFromFile() {
     loadCfg(config.log.filter, doc["logger"]["filter"]);
     loadCfg(config.log.order, doc["logger"]["order"]);
     loadCfg(config.log.level, doc["logger"]["level"]);
+  }
+
+  if (config.auth.enable && (!config.auth.user[0] || !config.auth.password[0])) {
+    ESP_LOGW(TAG, "Incomplete WebUI credentials: entering SetupMode for recovery");
+    setupMode = true;
   }
 
   if (strlen(config.wifi.ssid) == 0) {

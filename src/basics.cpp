@@ -1,7 +1,7 @@
 #include <ETH.h>
 #include <SPI.h>
-#include <basics.h>
 #include <WiFiMgn.h>
+#include <basics.h>
 
 #ifndef ETH_PHY_TYPE
 #define ETH_PHY_TYPE ETH_PHY_W5500
@@ -12,7 +12,7 @@
 void ntpSetup();
 
 /* D E C L A R A T I O N S ****************************************************/
-s_eth eth;   // global ETH Informations
+s_eth eth; // global ETH Informations
 
 static const char *TAG = "SETUP"; // LOG TAG
 
@@ -71,7 +71,7 @@ void onEthEvent(arduino_event_id_t event, arduino_event_info_t info) {
  * *******************************************************************/
 void setupETH() {
 
-  pinMode(config.eth.gpio_irq, OUTPUT);
+  pinMode(config.eth.gpio_irq, INPUT_PULLUP);
   pinMode(config.eth.gpio_rst, OUTPUT);
 
   Network.onEvent(onEthEvent);

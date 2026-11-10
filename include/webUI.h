@@ -19,3 +19,5 @@ extern EspWebUI webUI;
 void webUISetup();
 void webUICyclic();
 void webReadLogBuffer();
+
+void applyWebAccessSettings();

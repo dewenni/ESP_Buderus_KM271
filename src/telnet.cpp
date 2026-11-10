@@ -18,12 +18,9 @@ static char param[MAX_PAR][MAX_CHAR];
 static bool msgAvailable = false;
 static const char *TAG = "TELNET"; // LOG TAG
 
-// Telnet is unauthenticated by design in the upstream project - it exposes
-// commands like "test crash" (crashes the device) and "config reset" with
-// no login at all, regardless of the web UI's config.auth.enable setting.
-// Require a password on every telnet session, independent of that setting.
-// The credential itself is devicePassword() (see config.h), shared with the
-// web login and ArduinoOTA.
+// Telnet is opt-in and always uses the independent service password.
+static bool telnetRunning = false;
+static char telnetPassword[sizeof(config.service.password)] = {};
 static bool telnetAuthenticated = false;
 
 /* P R O T O T Y P E S ********************************************************/
@@ -77,8 +74,13 @@ void telnetPasswordPrompt() {
 }
 
 void onTelnetConnect(String ip) {
+  if (!config.service.telnet_enable || !serviceAccessEnabled()) {
+    telnet.disconnectClient();
+    return;
+  }
   ESP_LOGI(TAG, "Telnet: %s connected", ip.c_str());
-  telnetAuthenticated = false;
+  telnetAuthenticated = msgAvailable = false;
+  telnetIF = s_telnetIF{};
   telnet.println(ansi.setFG(ANSI_BRIGHT_GREEN));
   telnet.println("\n----------------------------------------------------------------------");
   telnet.println("\nESP Buderus KM271");
@@ -88,21 +90,26 @@ void onTelnetConnect(String ip) {
 }
 
 void onTelnetDisconnect(String ip) {
-  telnetAuthenticated = false;
+  telnetAuthenticated = msgAvailable = false;
+  telnetIF = s_telnetIF{};
   ESP_LOGI(TAG, "Telnet: %s disconnected", ip.c_str());
 }
 
-void onTelnetReconnect(String ip) { ESP_LOGI(TAG, "Telnet: %s reconnected", ip.c_str()); }
+void onTelnetReconnect(String ip) { onTelnetConnect(ip); }
 
 void onTelnetConnectionAttempt(String ip) { ESP_LOGI(TAG, "Telnet: %s tried to connect", ip.c_str()); }
 
 void onTelnetInput(String str) {
+  if (!config.service.telnet_enable || !serviceAccessEnabled() || strcmp(telnetPassword, servicePassword())) {
+    telnet.disconnectClient();
+    return;
+  }
   if (!telnetAuthenticated) {
     // password check happens before any command parsing - a wrong password
     // disconnects the client immediately instead of re-prompting, so a
     // scripted brute-force has to pay the cost of a full reconnect per
     // attempt rather than free-running in one session.
-    if (str == devicePassword()) {
+    if (str == servicePassword()) {
       telnetAuthenticated = true;
       ESP_LOGI(TAG, "Telnet: %s authenticated", telnet.getIP().c_str());
       telnet.println("\nAccess granted.");
@@ -137,11 +144,7 @@ void setupTelnet() {
   telnet.onDisconnect(onTelnetDisconnect);
   telnet.onInputReceived(onTelnetInput);
 
-  if (telnet.begin(23, false)) {
-    ESP_LOGI(TAG, "Telnet Server running!");
-  } else {
-    ESP_LOGI(TAG, "Telnet Server error!");
-  }
+
 }
 
 /**
@@ -152,6 +155,20 @@ void setupTelnet() {
  * *******************************************************************/
 void cyclicTelnet() {
 
+  bool enabled = config.service.telnet_enable && serviceAccessEnabled();
+  if (telnetRunning && (!enabled || strcmp(telnetPassword, servicePassword()))) {
+    telnet.disconnectClient();
+    telnet.stop();
+    telnetRunning = telnetAuthenticated = msgAvailable = false;
+    telnetIF = s_telnetIF{};
+  }
+  if (!enabled) return;
+  if (!telnetRunning) {
+    snprintf(telnetPassword, sizeof(telnetPassword), "%s", servicePassword());
+    telnetRunning = telnet.begin(23, false);
+    if (!telnetRunning) return;
+    ESP_LOGI(TAG, "Telnet server running (service password required)");
+  }
   telnet.loop();
 
   // process incoming messages

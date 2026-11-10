@@ -62,6 +62,27 @@ static unsigned long otaLastActivity = 0;
 static auto &wdt = EspSysUtil::Wdt::getInstance();
 static auto &ota = EspSysUtil::OTA::getInstance();
 
+// WebSocket commands are executed on the loop task.
+static bool queueWebCommand(const char *elementID, const char *elementValue) {
+  if (!elementID || !elementValue || strlen(elementID) >= sizeof(webCallbackQueue[0].elementID) ||
+      strlen(elementValue) >= sizeof(webCallbackQueue[0].value)) return false;
+  portENTER_CRITICAL(&webCallbackMux);
+  uint8_t next = (webCallbackHead + 1) % WEB_CALLBACK_QUEUE_LEN;
+  bool available = next != webCallbackTail;
+  if (available) {
+    snprintf(webCallbackQueue[webCallbackHead].elementID, sizeof(webCallbackQueue[0].elementID), "%s", elementID);
+    snprintf(webCallbackQueue[webCallbackHead].value, sizeof(webCallbackQueue[0].value), "%s", elementValue);
+    webCallbackHead = next;
+  }
+  portEXIT_CRITICAL(&webCallbackMux);
+  return available;
+}
+
+void applyWebAccessSettings() {
+  webUI.setCredentials(deviceUsername(), devicePassword());
+  webUI.setAuthentication(setupMode || config.auth.enable);
+}
+
 /**
  * *******************************************************************
  * @brief   cyclic call for webUI - creates all webUI elements
@@ -103,6 +124,7 @@ void webUISetup() {
     case EspWebUI::UPLOAD_FINISH:
       webUI.wsUpdateWebText("upload_status_txt", msg, false);
       configLoadFromFile(); // load configuration
+      applyWebAccessSettings();
       webUI.wsUpdateWebLanguage(LANG::CODE[config.lang]);
       webUI.wsLoadConfigWebUI(); // update webUI settings
       break;
@@ -117,25 +139,10 @@ void webUISetup() {
 
   // callback for web elements - queue elementID and value, executed by webCallback() in the cyclic loop
   webUI.setCallbackWebElement([](const char *elementID, const char *elementValue) {
-    if (elementID == nullptr || elementValue == nullptr) {
-      return;
-    }
-    portENTER_CRITICAL(&webCallbackMux);
-    uint8_t next = (webCallbackHead + 1) % WEB_CALLBACK_QUEUE_LEN;
-    bool full = (next == webCallbackTail);
-    if (!full) {
-      snprintf(webCallbackQueue[webCallbackHead].elementID, sizeof(webCallbackQueue[0].elementID), "%s", elementID);
-      snprintf(webCallbackQueue[webCallbackHead].value, sizeof(webCallbackQueue[0].value), "%s", elementValue);
-      webCallbackHead = next;
-    }
-    portEXIT_CRITICAL(&webCallbackMux);
-    if (full) {
-      ESP_LOGE(TAG, "web callback queue full - command dropped");
-    }
+    if (!queueWebCommand(elementID, elementValue)) ESP_LOGW(TAG, "Web command queue full or invalid input");
   });
 
-  webUI.setCredentials(config.auth.user, config.auth.password);
-  webUI.setAuthentication(config.auth.enable);
+  applyWebAccessSettings();
 
   webUI.begin();
 

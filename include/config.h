@@ -114,6 +114,11 @@ struct s_cfg_auth {
   char password[64];
 };
 
+struct s_cfg_service {
+  bool telnet_enable = false;
+  char password[64] = {};
+};
+
 struct s_cfg_debug {
   bool enable = true;
   char filter[33];
@@ -160,6 +165,7 @@ struct s_config {
   s_cfg_gpio gpio;
   s_cfg_km271 km271;
   s_cfg_auth auth;
+  s_cfg_service service;
   s_cfg_debug debug;
   s_cfg_sensor sensor;
   s_cfg_pushover pushover;
@@ -169,10 +175,12 @@ struct s_config {
 extern s_config config;
 extern bool setupMode;
 
-// The single password guarding every remote entry point that can flash or
-// reconfigure this device (web login, telnet, ArduinoOTA): whatever is set in
-// config.auth.password, or a compiled-in default if that was never set.
+// Setup credentials are independent of config.json; normal WebUI credentials
+// and the separately stored service password have no shared fallback.
 const char *devicePassword();
+const char *deviceUsername();
+const char *servicePassword();
+bool serviceAccessEnabled();
 
 void configSetup();
 void configCyclic();
