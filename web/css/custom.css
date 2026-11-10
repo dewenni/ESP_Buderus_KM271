@@ -12,3 +12,117 @@
 :root {
   --pico-font-size-override: -5%;
 }
+
+/* Limit both heating circuits to two readable columns and a compact program. */
+.heating-circuit {
+  max-width: 64rem;
+}
+
+.heating-circuit-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+  align-items: start;
+  gap: var(--pico-grid-column-gap);
+  margin-bottom: var(--pico-block-spacing-vertical);
+}
+
+.heating-circuit-info > article {
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+/* Weekly view of the manual heating program. */
+.weekly-program {
+  --weekly-program-border: color-mix(in srgb, var(--pico-color) 25%, transparent);
+}
+
+.weekly-program-scroll {
+  overflow-x: auto;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+}
+
+.weekly-program-chart {
+  min-width: 36rem;
+}
+
+.weekly-program-header,
+.weekly-program-body {
+  display: grid;
+  grid-template-columns: 3rem repeat(7, minmax(0, 1fr));
+}
+
+.weekly-program-header {
+  padding-bottom: 0.75rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+.weekly-program-body {
+  height: 28rem;
+  margin-block: 0.5rem;
+  border-block: 1px solid var(--weekly-program-border);
+}
+
+.weekly-program-axis,
+.weekly-program-day {
+  position: relative;
+}
+
+.weekly-program-axis > span {
+  position: absolute;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  color: var(--pico-muted-color);
+  font-size: 0.7rem;
+}
+
+.weekly-program-day {
+  border-left: 1px solid var(--weekly-program-border);
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(12.5% - 1px), var(--weekly-program-border) calc(12.5% - 1px), var(--weekly-program-border) 12.5%);
+}
+
+.weekly-program-day:last-child {
+  border-right: 1px solid var(--weekly-program-border);
+}
+
+.weekly-program-block {
+  position: absolute;
+  inset-inline: 0.2rem;
+  min-height: 2px;
+  border-radius: 0.25rem;
+  background: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+  padding-inline: 0.15rem;
+  text-align: center;
+  overflow: hidden;
+  font-size: 0.7rem;
+}
+
+.weekly-program-block > span {
+  display: block;
+}
+
+.weekly-program-block > span:last-child {
+  position: absolute;
+  bottom: 0;
+  inset-inline: 0;
+}
+
+.weekly-program-legend {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+}
+
+.weekly-program-legend i {
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.8rem;
+  border: 1px solid var(--weekly-program-border);
+  border-radius: 0.15rem;
+}
+
+.weekly-program-key-on {
+  background: var(--pico-primary-background);
+}

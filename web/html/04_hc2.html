@@ -31,9 +31,8 @@
     <main class="container">
       <!--SECTION-START-->
       <!-- HC2-Inhalt hier -->
-      <div id="tab4" class="tab-content">
-        <div class="grid">
-          <!-- Grid 1 -->
+      <div id="tab4" class="tab-content heating-circuit">
+        <div class="heating-circuit-info">
           <article class="card">
             <p class="table-header" data-i18n="config"></p>
             <table class="striped">
@@ -160,10 +159,6 @@
               </tbody>
             </table>
           </article>
-        </div>
-        <!-- END Grid 1 -->
-        <div class="grid">
-          <!-- Grid 2 -->
 
           <article class="card">
             <p class="table-header" data-i18n="op_values$ 1$"></p>
@@ -239,78 +234,87 @@
             </table>
           </article>
         </div>
-        <!-- END Grid 2 -->
 
-        <!-- Grid 3 -->
-        <div class="grid">
-          <article class="card">
-            <p class="table-header" data-i18n="programs"></p>
-            <h6 data-i18n="act_prg"></h6>
-            <div id="p04_hc2_act_prg"></div>
-            <h6 data-i18n="man_prg_timer"></h6>
-            <table class="striped">
-              <tbody>
-                <tr>
-                  <td data-i18n="hc2$ $timer++ 01"></td>
-                  <td id="p04_hc2_t01" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc2$ $timer++ 02"></td>
-                  <td id="p04_hc2_t02" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc2$ $timer++ 03"></td>
-                  <td id="p04_hc2_t03" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc2$ $timer++ 04"></td>
-                  <td id="p04_hc2_t04" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc2$ $timer++ 05"></td>
-                  <td id="p04_hc2_t05" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc2$ $timer++ 06"></td>
-                  <td id="p04_hc2_t06" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc2$ $timer++ 07"></td>
-                  <td id="p04_hc2_t07" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc2$ $timer++ 08"></td>
-                  <td id="p04_hc2_t08" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc2$ $timer++ 09"></td>
-                  <td id="p04_hc2_t09" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc2$ $timer++ 10"></td>
-                  <td id="p04_hc2_t10" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc2$ $timer++ 11"></td>
-                  <td id="p04_hc2_t11" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc2$ $timer++ 12"></td>
-                  <td id="p04_hc2_t12" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc2$ $timer++ 13"></td>
-                  <td id="p04_hc2_t13" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc2$ $timer++ 14"></td>
-                  <td id="p04_hc2_t14" class="table-value"></td>
-                </tr>
-              </tbody>
-            </table>
-          </article>
-        </div>
-        <!-- END Grid 3 -->
+        <article class="card">
+          <p class="table-header" data-i18n="programs"></p>
+          <h6 data-i18n="act_prg"></h6>
+          <div id="p04_hc2_act_prg"></div>
+          <h6 data-i18n="man_prg_timer"></h6>
+          <div class="weekly-program" data-timer-prefix="p04_hc2">
+            <p><small data-i18n="weekly_program_hint"></small></p>
+            <p class="weekly-program-status" role="status"></p>
+            <div class="weekly-program-scroll" hidden>
+              <div class="weekly-program-chart"></div>
+            </div>
+            <p class="weekly-program-legend" hidden>
+              <span><i class="weekly-program-key-on" aria-hidden="true"></i> <span data-i18n="weekly_program_on"></span></span>
+              <span><i class="weekly-program-key-off" aria-hidden="true"></i> <span data-i18n="weekly_program_off"></span></span>
+            </p>
+            <details>
+              <summary data-i18n="weekly_program_details"></summary>
+          <table class="striped">
+            <tbody>
+              <tr>
+                <td data-i18n="hc2$ $timer++ 01"></td>
+                <td id="p04_hc2_t01" class="table-value"></td>
+              </tr>
+              <tr>
+                <td data-i18n="hc2$ $timer++ 02"></td>
+                <td id="p04_hc2_t02" class="table-value"></td>
+              </tr>
+              <tr>
+                <td data-i18n="hc2$ $timer++ 03"></td>
+                <td id="p04_hc2_t03" class="table-value"></td>
+              </tr>
+              <tr>
+                <td data-i18n="hc2$ $timer++ 04"></td>
+                <td id="p04_hc2_t04" class="table-value"></td>
+              </tr>
+              <tr>
+                <td data-i18n="hc2$ $timer++ 05"></td>
+                <td id="p04_hc2_t05" class="table-value"></td>
+              </tr>
+              <tr>
+                <td data-i18n="hc2$ $timer++ 06"></td>
+                <td id="p04_hc2_t06" class="table-value"></td>
+              </tr>
+              <tr>
+                <td data-i18n="hc2$ $timer++ 07"></td>
+                <td id="p04_hc2_t07" class="table-value"></td>
+              </tr>
+              <tr>
+                <td data-i18n="hc2$ $timer++ 08"></td>
+                <td id="p04_hc2_t08" class="table-value"></td>
+              </tr>
+              <tr>
+                <td data-i18n="hc2$ $timer++ 09"></td>
+                <td id="p04_hc2_t09" class="table-value"></td>
+              </tr>
+              <tr>
+                <td data-i18n="hc2$ $timer++ 10"></td>
+                <td id="p04_hc2_t10" class="table-value"></td>
+              </tr>
+              <tr>
+                <td data-i18n="hc2$ $timer++ 11"></td>
+                <td id="p04_hc2_t11" class="table-value"></td>
+              </tr>
+              <tr>
+                <td data-i18n="hc2$ $timer++ 12"></td>
+                <td id="p04_hc2_t12" class="table-value"></td>
+              </tr>
+              <tr>
+                <td data-i18n="hc2$ $timer++ 13"></td>
+                <td id="p04_hc2_t13" class="table-value"></td>
+              </tr>
+              <tr>
+                <td data-i18n="hc2$ $timer++ 14"></td>
+                <td id="p04_hc2_t14" class="table-value"></td>
+              </tr>
+            </tbody>
+          </table>
+            </details>
+          </div>
+        </article>
       </div>
       <!--SECTION-END-->
     </main>

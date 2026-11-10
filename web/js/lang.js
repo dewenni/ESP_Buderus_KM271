@@ -2,6 +2,16 @@
 // localization texts
 // --------------------------------------
 const user_translations = {
+  weekly_program_hint: {
+    de: "Wochenplan des manuellen Programms. Das aktive Programm wird oben angezeigt.",
+    en: "Weekly schedule of the manual program. The active program is shown above.",
+  },
+  weekly_program_loading: { de: "Schaltzeiten werden geladen …", en: "Loading switch points …" },
+  weekly_program_empty: { de: "Keine Schaltzeiten für das manuelle Programm hinterlegt.", en: "No switch points stored for the manual program." },
+  weekly_program_invalid: { de: "Schaltzeiten nicht eindeutig darstellbar. Bitte die Schaltpunkte prüfen.", en: "The schedule cannot be displayed unambiguously. Please check the switch points." },
+  weekly_program_details: { de: "Schaltpunkte anzeigen", en: "Show switch points" },
+  weekly_program_on: { de: "An", en: "On" },
+  weekly_program_off: { de: "Aus", en: "Off" },
   service_access: { de: "Service-Zugänge", en: "Service access" },
   service_password: { de: "Service-Passwort", en: "Service password" },
   service_telnet: { de: "Telnet aktivieren", en: "Enable Telnet" },
