@@ -1,5 +1,4 @@
 #include <ETH.h>
-#include <SPI.h>
 #include <WiFiMgn.h>
 #include <basics.h>
 
@@ -76,9 +75,14 @@ void setupETH() {
 
   Network.onEvent(onEthEvent);
 
-  SPI.setFrequency(SPI_MASTER_FREQ_8M);
-  SPI.begin(config.eth.gpio_sck, config.eth.gpio_miso, config.eth.gpio_mosi);
-  ETH.begin(ETH_PHY_TYPE, ETH_PHY_ADDR, config.eth.gpio_cs, config.eth.gpio_irq, config.eth.gpio_rst, SPI);
+  // Use the native ESP-IDF SPI driver on SPI3 (the ESP32's previous VSPI bus).
+  // Let ETH initialize the bus; do not also call Arduino SPI.begin() on it.
+  ESP_LOGI(TAG, "ETH W5500: native ESP-IDF SPI, 8 MHz");
+  if (!ETH.begin(ETH_PHY_TYPE, ETH_PHY_ADDR, config.eth.gpio_cs, config.eth.gpio_irq, config.eth.gpio_rst,
+                 SPI3_HOST, config.eth.gpio_sck, config.eth.gpio_miso, config.eth.gpio_mosi, 8)) {
+    ESP_LOGE(TAG, "ETH initialization failed (W5500 SPI: 8 MHz)");
+    return;
+  }
 
   if (config.eth.static_ip) {
     ETH.config(IPAddress(config.eth.ipaddress), IPAddress(config.eth.gateway), IPAddress(config.eth.subnet), IPAddress(config.eth.dns));
