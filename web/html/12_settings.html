@@ -32,10 +32,120 @@
     <main class="container">
       <!--SECTION-START-->
       <div id="tab12" class="tab-content">
-        <div class="grid" style="max-width: 1024px">
-          <div style="width: 100%">
-            <!-- WLAN -->
-            <details>
+        <header class="page-heading">
+          <h1 data-i18n="settings"></h1>
+          <p data-i18n="settings_subtitle"></p>
+        </header>
+  <div class="settings-layout" data-settings data-settings-layout="tabs" data-settings-initial="network">
+    <div class="settings-body">
+      <aside class="settings-category-nav" aria-labelledby="p12_settings_area_label">
+        <label class="settings-category-picker">
+          <span id="p12_settings_area_label" data-i18n="settings_area"></span>
+          <select id="p12_settings_area" data-settings-select data-ui-local></select>
+        </label>
+        <div class="settings-category-list" data-settings-list></div>
+      </aside>
+      <div class="settings-panels">
+        <section id="p12_settings_general" class="settings-panel" data-settings-group="general" data-settings-label="settings_general">
+          <h2 data-i18n="settings_general"></h2>
+<details name="settings-general">
+              <summary data-i18n="language"></summary>
+              <select id="cfg_lang">
+                <option value="0" data-i18n="german"></option>
+                <option value="1" data-i18n="english"></option>
+              </select>
+            </details>
+<hr />
+<details name="settings-general">
+<summary data-i18n="settings_time"></summary>
+<h3 data-i18n="ntp"></h3>
+              <div class="section-header">
+                <label for="ntp_enable" data-i18n="activate"></label>
+                <div class="switch-container">
+                  <input
+                    name="ntp_enable"
+                    type="checkbox"
+                    role="switch"
+                    id="cfg_ntp_enable" />
+                </div>
+              </div>
+              <br />
+              <label for="ntp_server" data-i18n="server"></label>
+              <input type="text" id="cfg_ntp_server" name="ntp_server" />
+              <div class="leftright">
+                <label for="time_zone" data-i18n="ntp_tz"></label>
+                <button
+                  id="p12_ntp_open_dialog_btn"
+                  class="i_help"
+                  style="
+                    height: 30px;
+                    background-color: transparent;
+                    border: none;
+                  "></button>
+              </div>
+              <input type="text" id="cfg_ntp_tz" name="time_zone" />
+
+<h3 data-i18n="datetime"></h3>
+              <div class="section-header">
+                <label for="ntp_auto_sync" data-i18n="ntp_auto_sync"></label>
+                <div class="switch-container">
+                  <input
+                    name="ntp_auto_sync"
+                    type="checkbox"
+                    role="switch"
+                    id="cfg_ntp_auto_sync" />
+                </div>
+              </div>
+              <br />
+              <label data-i18n="act_date"></label>
+              <input
+                id="p12_ntp_date"
+                style="margin-right: 2%"
+                type="date"
+                value="--"
+                aria-label="Read-only input"
+                readonly />
+              <label data-i18n="act_time"></label>
+              <input
+                id="p12_ntp_time"
+                style="margin-right: 2%"
+                type="time"
+                value="--"
+                aria-label="Read-only input"
+                readonly />
+              <button
+                id="p12_ntp_btn"
+                data-i18n="button_ntp"
+                style="white-space: nowrap; width: 100%">
+                --
+              </button>
+              <br /><br />
+              <label data-i18n="set_date"></label>
+              <input
+                id="p12_dti_date"
+                style="margin-right: 2%"
+                type="date"
+                aria-label="Date"
+                aria-invalid="true" />
+              <label data-i18n="set_time"></label>
+              <input
+                id="p12_dti_time"
+                style="margin-right: 2%"
+                type="time"
+                aria-label="Time"
+                aria-invalid="true" />
+              <button
+                id="p12_dti_btn"
+                data-i18n="button_dti"
+                style="white-space: nowrap; width: 100%">
+                --
+              </button>
+
+</details>
+        </section>
+        <section id="p12_settings_network" class="settings-panel" data-settings-group="network" data-settings-label="settings_network">
+          <h2 data-i18n="settings_network"></h2>
+<details name="settings-network">
               <summary data-i18n="wifi"></summary>
               <label for="wifi_hostname" data-i18n="hostname"></label>
               <input type="text" id="cfg_wifi_hostname" name="wifi_hostname" />
@@ -198,9 +308,8 @@
                   name="ip_dns" />
               </div>
             </details>
-            <hr />
-            <!-- ETHERNET -->
-            <details>
+<hr />
+<details name="settings-network">
               <summary>Ethernet (W5500)</summary>
               <div class="section-header">
                 <label for="eth_enable" data-i18n="activate"></label>
@@ -213,37 +322,48 @@
                 </div>
               </div>
               <br />
-              <label for="eth_hostname" data-i18n="hostname"></label>
-              <input type="text" id="cfg_eth_hostname" name="eth_hostname" />
-              <div class="leftright">
-                <label for="eth_gpio_sck">GPIO CLK</label>
+              <div class="settings-field settings-field--wide">
+                <label for="cfg_eth_hostname" data-i18n="hostname"></label>
+                <input type="text" id="cfg_eth_hostname" name="eth_hostname" />
+              </div>
+              <div class="settings-fields">
+<div class="settings-field settings-field--compact">
+<div class="leftright">
+                <label for="cfg_eth_gpio_sck">GPIO CLK</label>
                 <button
                   id="p12_eth_open_dialog_btn"
-                  class="i_help"
-                  style="
-                    height: 30px;
-                    background-color: transparent;
-                    border: none;
-                  "></button>
+                  class="i_help"></button>
               </div>
-              <input type="number" id="cfg_eth_gpio_sck" name="eth_gpio_sck" />
-              <label for="eth_gpio_mosi">GPIO MOSI</label>
-              <input
+<input type="number" id="cfg_eth_gpio_sck" name="eth_gpio_sck" />
+</div>
+              <div class="settings-field settings-field--compact">
+<label for="cfg_eth_gpio_mosi">GPIO MOSI</label>
+<input
                 type="number"
                 id="cfg_eth_gpio_mosi"
                 name="eth_gpio_mosi" />
-              <label for="eth_gpio_miso">GPIO MISO</label>
-              <input
+</div>
+              <div class="settings-field settings-field--compact">
+<label for="cfg_eth_gpio_miso">GPIO MISO</label>
+<input
                 type="number"
                 id="cfg_eth_gpio_miso"
                 name="eth_gpio_miso" />
-              <label for="eth_gpio_cs">GPIO CS</label>
-              <input type="number" id="cfg_eth_gpio_cs" name="eth_gpio_cs" />
-              <label for="eth_gpio_irq">GPIO INT</label>
-              <input type="number" id="cfg_eth_gpio_irq" name="eth_gpio_irq" />
-              <label for="eth_gpio_rst">GPIO RST</label>
-              <input type="number" id="cfg_eth_gpio_rst" name="eth_gpio_rst" />
-              <div class="section-header">
+</div>
+              <div class="settings-field settings-field--compact">
+<label for="cfg_eth_gpio_cs">GPIO CS</label>
+<input type="number" id="cfg_eth_gpio_cs" name="eth_gpio_cs" />
+</div>
+              <div class="settings-field settings-field--compact">
+<label for="cfg_eth_gpio_irq">GPIO INT</label>
+<input type="number" id="cfg_eth_gpio_irq" name="eth_gpio_irq" />
+</div>
+              <div class="settings-field settings-field--compact">
+<label for="cfg_eth_gpio_rst">GPIO RST</label>
+<input type="number" id="cfg_eth_gpio_rst" name="eth_gpio_rst" />
+</div>
+</div>
+<div class="section-header">
                 <label for="man_ip_enable" data-i18n="static_ip"></label>
                 <div class="switch-container">
                   <input
@@ -286,8 +406,476 @@
                   name="ip_dns" />
               </div>
             </details>
-            <!-- Dialog OPEN-ETH-HELP -->
-            <dialog id="p12_eth_dialog">
+        </section>
+        <section id="p12_settings_integrations" class="settings-panel" data-settings-group="integrations" data-settings-label="settings_integrations">
+          <h2 data-i18n="settings_integrations"></h2>
+<details name="settings-integrations" id="p12_mqtt_settings">
+              <summary data-i18n="mqtt"></summary>
+              <div class="section-header">
+                <label for="mqtt_enable" data-i18n="activate"></label>
+                <div class="switch-container">
+                  <input
+                    name="mqtt_enable"
+                    type="checkbox"
+                    role="switch"
+                    id="cfg_mqtt_enable" />
+                </div>
+              </div>
+              <div class="section-header">
+                <label for="mqtt_cfg_ret" data-i18n="mqtt_cfg_ret"></label>
+                <input
+                  name="mqtt_cfg_ret"
+                  type="checkbox"
+                  role="switch"
+                  id="cfg_mqtt_config_retain" />
+              </div>
+              <br />
+              <div role="group">
+                <button
+                  type="button"
+                  id="p12_mqtt_test_btn"
+                  style="white-space: nowrap; flex: 0 0 auto"
+                  data-i18n="mqtt_connection_test"></button>
+                <input
+                  type="text"
+                  id="p12_mqtt_connection"
+                  style="height: auto; min-width: 0"
+                  aria-label="MQTT connection status"
+                  value="---"
+                  disabled />
+              </div>
+              <span id="p12_mqtt_connection_state" hidden></span>
+              <label for="mqtt_server" data-i18n="server"></label>
+              <input
+                type="text"
+                oninput="validateHost(this)"
+                id="cfg_mqtt_server"
+                name="mqtt_server" />
+              <label for="mqtt_port" data-i18n="port"></label>
+              <input type="text" id="cfg_mqtt_port" name="mqtt_port" />
+              <label for="mqtt_topic" data-i18n="topic"></label>
+              <input type="text" id="cfg_mqtt_topic" name="mqtt_topic" />
+              <label for="mqtt_user" data-i18n="user"></label>
+              <input type="text" id="cfg_mqtt_user" name="mqtt_user" />
+              <label for="mqtt_password" data-i18n="password"></label>
+              <input
+                type="password"
+                id="cfg_mqtt_password"
+                name="mqtt_password" />
+              <br /><br />
+              <label for="mqtt_language" data-i18n="topic$ $language"></label>
+              <select id="cfg_mqtt_language" name="mqtt_language">
+                <option value="0" data-i18n="german"></option>
+                <option value="1" data-i18n="english"></option>
+              </select>
+              <label for="mqtt_cyclicsend" data-i18n="cyclic_send"></label>
+              <input
+                type="text"
+                id="cfg_mqtt_cyclic_send"
+                name="mqtt_cyclic_send" />
+            </details>
+<hr />
+<details name="settings-integrations" id="p12_ha_settings">
+              <summary>Home Assistant</summary>
+              <div class="section-header">
+                <label for="cfg_mqtt_ha_enable" data-i18n="activate"></label>
+                <input
+                  name="mqtt_ha_enable"
+                  type="checkbox"
+                  role="switch"
+                  id="cfg_mqtt_ha_enable" />
+              </div>
+              <p><small data-i18n="ha_mqtt_hint"></small></p>
+              <p id="p12_ha_mqtt_warning" hidden>
+                <small><span data-i18n="ha_mqtt_disabled"></span> <a href="#p12_mqtt_settings" id="p12_ha_mqtt_link" data-i18n="ha_mqtt_open"></a></small>
+              </p>
+              <label for="cfg_mqtt_ha_topic">Home Assistant Topic</label>
+              <input
+                type="text"
+                id="cfg_mqtt_ha_topic"
+                placeholder="homeassistant"
+                name="mqtt_ha_topic" />
+              <label for="cfg_mqtt_ha_device">Home Assistant Device Name</label>
+              <input
+                type="text"
+                id="cfg_mqtt_ha_device"
+                placeholder="Logamatic"
+                name="mqtt_ha_device" />
+            </details>
+<hr />
+<details name="settings-integrations">
+              <summary data-i18n="pushover"></summary>
+              <div class="section-header">
+                <label for="pushover_enable" data-i18n="activate"></label>
+                <div class="switch-container">
+                  <input
+                    name="pushover_enable"
+                    type="checkbox"
+                    role="switch"
+                    id="cfg_pushover_enable" />
+                </div>
+              </div>
+              <br />
+              <label for="pushover_api_token" data-i18n="api_token"></label>
+              <input
+                type="password"
+                id="cfg_pushover_token"
+                name="pushover_api_token" />
+              <label for="pushover_user_key" data-i18n="user_key"></label>
+              <input
+                type="password"
+                id="cfg_pushover_user_key"
+                name="pushover_user_key" />
+              <label for="pushover_filter" data-i18n="filter"></label>
+              <select id="cfg_pushover_filter" name="pushover_filter">
+                <option value="0" data-i18n="alarm"></option>
+                <option value="1" data-i18n="alarm_info"></option>
+              </select>
+              <label for="pushover_test_msg" data-i18n="test_msg"></label>
+              <div>
+                <div role="group" name="pushover_test_msg">
+                  <input id="p12_pushover_test_msg" name="text" type="text" />
+                  <button id="p12_pushover_test_btn" data-i18n="send"></button>
+                </div>
+              </div>
+            </details>
+        </section>
+        <section id="p12_settings_device" class="settings-panel" data-settings-group="device" data-settings-label="settings_device">
+          <h2 data-i18n="settings_device"></h2>
+<details name="settings-device">
+              <summary data-i18n="logamatic"></summary>
+              <div class="section-header">
+                <label
+                  for="heating_circuit_1"
+                  data-i18n="heating_circuit_1"></label>
+                <input
+                  name="heating_circuit_1"
+                  type="checkbox"
+                  role="switch"
+                  hideOpt="OPT_HC1"
+                  id="cfg_km271_use_hc1" />
+              </div>
+              <div class="section-header">
+                <label
+                  for="heating_circuit_2"
+                  data-i18n="heating_circuit_2"></label>
+                <input
+                  name="heating_circuit_2"
+                  type="checkbox"
+                  role="switch"
+                  hideOpt="OPT_HC2"
+                  id="cfg_km271_use_hc2" />
+              </div>
+              <div class="section-header">
+                <label for="hot_water" data-i18n="hot_water"></label>
+                <input
+                  name="hot_water"
+                  type="checkbox"
+                  role="switch"
+                  hideOpt="OPT_HW"
+                  id="cfg_km271_use_ww" />
+              </div>
+              <div class="section-header">
+                <label for="solar" data-i18n="solar"></label>
+                <input
+                  name="solar"
+                  type="checkbox"
+                  role="switch"
+                  hideOpt="OPT_SOLAR"
+                  id="cfg_km271_use_solar" />
+              </div>
+              <div class="section-header">
+                <label for="alarm" data-i18n="alarm"></label>
+                <input
+                  name="alarm"
+                  type="checkbox"
+                  role="switch"
+                  hideOpt="OPT_ALARM"
+                  id="cfg_km271_use_alarmMsg" />
+              </div>
+            </details>
+<hr />
+<details name="settings-device">
+              <summary data-i18n="oilmeter"></summary>
+              <div class="section-header">
+                <h6 for="oil_hardware" data-i18n="oil_hardware"></h6>
+                <input
+                  name="oil_hardware"
+                  type="checkbox"
+                  role="switch"
+                  hideOpt="OPT_HW_OIL"
+                  id="cfg_oilmeter_use_hardware_meter" />
+              </div>
+              <br />
+              <div class="settings-fields">
+<div class="settings-field settings-field--medium OPT_HW_OIL">
+<label
+                for="cfg_oilmeter_pulse_per_liter"
+                data-i18n="pulse_per_liter"></label>
+<input
+                name="pulse_per_liter"
+                type="number"
+                id="cfg_oilmeter_pulse_per_liter" />
+</div>
+              <div class="settings-field settings-field--medium OPT_HW_OIL">
+<label
+                for="cfg_oilmeter_debounce_time"
+                data-i18n="debounce_time"></label>
+<input
+                name="debounce_time"
+                type="number"
+                id="cfg_oilmeter_debounce_time" />
+</div>
+</div>
+<div class="section-header">
+                <h6 for="oil_virtual" data-i18n="oil_virtual"></h6>
+                <input
+                  name="oil_virtual"
+                  type="checkbox"
+                  role="switch"
+                  hideOpt="OPT_V_OIL"
+                  id="cfg_oilmeter_use_virtual_meter" />
+              </div>
+              <br />
+              <div class="settings-fields">
+<div class="settings-field settings-field--medium OPT_V_OIL">
+<label
+                for="cfg_oilmeter_consumption_kg_h"
+                data-i18n="oil_par1_kg_h"></label>
+<input
+                name="oil_par1_kg_h"
+                type="number"
+                id="cfg_oilmeter_consumption_kg_h" />
+</div>
+              <div class="settings-field settings-field--medium OPT_V_OIL">
+<label
+                for="cfg_oilmeter_oil_density_kg_l"
+                data-i18n="oil_par2_kg_l"></label>
+<input
+                name="oil_par2_kg_l"
+                type="number"
+                id="cfg_oilmeter_oil_density_kg_l" />
+</div>
+              <div class="settings-field settings-field--medium OPT_V_OIL">
+<label
+                for="cfg_oilmeter_virt_calc_offset"
+                data-i18n="virt_calc_offset"></label>
+<input
+                name="virt_calc_offset"
+                type="number"
+                id="cfg_oilmeter_virt_calc_offset" />
+</div>
+</div>
+</details>
+<hr />
+<details name="settings-device">
+              <summary data-i18n="optional_sensor"></summary>
+              <div class="section-header">
+                <h6 for="sens1" data-i18n="sens1"></h6>
+                <input
+                  name="sens1"
+                  type="checkbox"
+                  role="switch"
+                  hideOpt="OPT_SENS1"
+                  id="cfg_sensor_ch1_enable" />
+              </div>
+              <label for="sens1_name" data-i18n="name"></label>
+              <input type="text" id="cfg_sensor_ch1_name" name="sens1_name" />
+              <label for="sens1_desc" data-i18n="description"></label>
+              <input
+                type="text"
+                id="cfg_sensor_ch1_description"
+                name="sens1_desc" />
+              <div class="settings-fields">
+<div class="settings-field settings-field--compact">
+<label for="cfg_sensor_ch1_gpio" data-i18n="gpio"></label>
+<input
+                name="sens1_gpio"
+                type="number"
+                id="cfg_sensor_ch1_gpio"
+                placeholder="-1 to disable" />
+</div>
+</div>
+<div class="section-header">
+                <h6 for="sens2" data-i18n="sens2"></h6>
+                <input
+                  name="sens2"
+                  type="checkbox"
+                  role="switch"
+                  hideOpt="OPT_SENS2"
+                  id="cfg_sensor_ch2_enable" />
+              </div>
+              <label for="sens2_name">Name</label>
+              <input type="text" id="cfg_sensor_ch2_name" name="sens2_name" />
+              <label for="sens2_desc" data-i18n="description"></label>
+              <input
+                type="text"
+                id="cfg_sensor_ch2_description"
+                name="sens2_desc" />
+              <div class="settings-fields">
+<div class="settings-field settings-field--compact">
+<label for="cfg_sensor_ch2_gpio" data-i18n="gpio"></label>
+<input
+                name="sens2_gpio"
+                type="number"
+                id="cfg_sensor_ch2_gpio"
+                placeholder="-1 to disable" />
+</div>
+</div>
+</details>
+<hr />
+<details name="settings-device">
+              <summary data-i18n="gpio"></summary>
+              <br />
+              <select id="p12_boards" name="boards">
+                <option
+                  selected
+                  disabled
+                  value=""
+                  data-i18n="select_template"></option>
+                <option value="1">generic ESP32</option>
+                <option value="2">Board 0.0.5</option>
+                <option value="3">Board ≥0.0.6</option>
+              </select>
+              <div class="settings-fields">
+<div class="settings-field settings-field--compact">
+<div class="leftright">
+                <label for="cfg_gpio_km271_RX" data-i18n="km271_rx"></label>
+                <button
+                  id="p12_gpio_open_dialog_btn"
+                  class="i_help"></button>
+              </div>
+<input
+                class="num-input"
+                name="km271_rx"
+                type="number"
+                id="cfg_gpio_km271_RX"
+                placeholder="-1 to disable" />
+</div>
+              <div class="settings-field settings-field--compact">
+<label for="cfg_gpio_km271_TX" data-i18n="km271_tx"></label>
+<input
+                class="num-input"
+                name="km271_tx"
+                type="number"
+                id="cfg_gpio_km271_TX"
+                placeholder="-1 to disable" />
+</div>
+              <div class="settings-field settings-field--compact">
+<label for="cfg_gpio_led_heartbeat" data-i18n="led_heartbeat"></label>
+<input
+                class="num-input"
+                name="led_heartbeat"
+                type="number"
+                id="cfg_gpio_led_heartbeat"
+                placeholder="-1 to disable" />
+</div>
+              <div class="settings-field settings-field--compact">
+<label for="cfg_gpio_led_logmode" data-i18n="led_logmode"></label>
+<input
+                class="num-input"
+                name="led_logmode"
+                type="number"
+                id="cfg_gpio_led_logmode"
+                placeholder="-1 to disable" />
+</div>
+              <div class="settings-field settings-field--compact">
+<label for="cfg_gpio_led_wifi" data-i18n="led_wifi"></label>
+<input
+                class="num-input"
+                name="led_wifi"
+                type="number"
+                id="cfg_gpio_led_wifi"
+                placeholder="-1 to disable" />
+</div>
+              <div class="settings-field settings-field--compact">
+<label for="cfg_gpio_led_oilcounter" data-i18n="led_oilcounter"></label>
+<input
+                class="num-input"
+                name="led_oilcounter"
+                type="number"
+                id="cfg_gpio_led_oilcounter"
+                placeholder="-1 to disable" />
+</div>
+              <div class="settings-field settings-field--compact">
+<label for="cfg_gpio_trigger_oilcounter" data-i18n="trig_oilcounter"></label>
+<input
+                class="num-input"
+                name="trig_oilcounter"
+                type="number"
+                id="cfg_gpio_trigger_oilcounter"
+                placeholder="-1 to disable" />
+</div>
+</div>
+</details>
+        </section>
+        <section id="p12_settings_maintenance" class="settings-panel" data-settings-group="maintenance" data-settings-label="settings_maintenance">
+          <h2 data-i18n="settings_maintenance"></h2>
+<details name="settings-maintenance">
+              <summary data-i18n="access"></summary>
+              <div class="section-header">
+                <label for="auth_enable" data-i18n="activate"></label>
+                <div class="switch-container">
+                  <input
+                    name="auth_enable"
+                    type="checkbox"
+                    role="switch"
+                    hideOpt="OPT_AUTH"
+                    id="cfg_auth_enable" />
+                </div>
+              </div>
+              <br />
+              <label for="auth_user" data-i18n="user"></label>
+              <input type="text" id="cfg_auth_user" name="auth_user" maxlength="63" />
+              <label for="auth_passw" data-i18n="password"></label>
+              <input type="password" id="cfg_auth_password" name="auth_passw" maxlength="63" />
+            </details>
+<hr />
+<details name="settings-maintenance">
+              <summary data-i18n="service_access"></summary>
+              <label for="cfg_service_password" data-i18n="service_password"></label>
+              <input type="password" id="cfg_service_password" name="service_password" maxlength="63" autocomplete="new-password" />
+              <p><small data-i18n="service_hint"></small></p>
+              <div class="section-header">
+                <label for="cfg_service_telnet_enable" data-i18n="service_telnet"></label>
+                <div class="switch-container">
+                  <input id="cfg_service_telnet_enable" name="service_telnet_enable" type="checkbox" role="switch" />
+                </div>
+              </div>
+            </details>
+<hr />
+<details name="settings-maintenance">
+              <summary data-i18n="simulation"></summary>
+              <div class="section-header">
+                <label for="simulation_enable" data-i18n="activate"></label>
+                <div class="switch-container">
+                  <input
+                    name="simulation_enable"
+                    type="checkbox"
+                    role="switch"
+                    hideOpt="OPT_SIM"
+                    id="cfg_sim_enable" />
+                </div>
+              </div>
+              <br />
+              <button
+                id="p12_btn_simdata"
+                class="OPT_SIM"
+                data-i18n="generate_simdata"
+                style="width: 100%; margin-bottom: 10px"></button>
+            </details>
+        </section>
+        <div class="settings-actions">
+<button
+              id="p12_btn_restart"
+              data-i18n="restart"
+              onclick="restartFunction()"
+              style="width: 100%; margin-bottom: 10px"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+<dialog id="p12_eth_dialog">
               <article>
                 <table>
                   <tbody>
@@ -346,74 +934,7 @@
                 </div>
               </article>
             </dialog>
-            <hr />
-            <!-- Authentication -->
-            <details>
-              <summary data-i18n="access"></summary>
-              <div class="section-header">
-                <label for="auth_enable" data-i18n="activate"></label>
-                <div class="switch-container">
-                  <input
-                    name="auth_enable"
-                    type="checkbox"
-                    role="switch"
-                    hideOpt="OPT_AUTH"
-                    id="cfg_auth_enable" />
-                </div>
-              </div>
-              <br />
-              <label for="auth_user" data-i18n="user"></label>
-              <input type="text" id="cfg_auth_user" name="auth_user" maxlength="63" />
-              <label for="auth_passw" data-i18n="password"></label>
-              <input type="password" id="cfg_auth_password" name="auth_passw" maxlength="63" />
-            </details>
-            <hr />
-            <!-- Independent service access -->
-            <details>
-              <summary data-i18n="service_access"></summary>
-              <label for="cfg_service_password" data-i18n="service_password"></label>
-              <input type="password" id="cfg_service_password" name="service_password" maxlength="63" autocomplete="new-password" />
-              <p><small data-i18n="service_hint"></small></p>
-              <div class="section-header">
-                <label for="cfg_service_telnet_enable" data-i18n="service_telnet"></label>
-                <div class="switch-container">
-                  <input id="cfg_service_telnet_enable" name="service_telnet_enable" type="checkbox" role="switch" />
-                </div>
-              </div>
-            </details>
-            <hr />
-            <!-- NTP-Server -->
-            <details>
-              <summary data-i18n="ntp"></summary>
-              <div class="section-header">
-                <label for="ntp_enable" data-i18n="activate"></label>
-                <div class="switch-container">
-                  <input
-                    name="ntp_enable"
-                    type="checkbox"
-                    role="switch"
-                    id="cfg_ntp_enable" />
-                </div>
-              </div>
-              <br />
-              <label for="ntp_server" data-i18n="server"></label>
-              <input type="text" id="cfg_ntp_server" name="ntp_server" />
-              <div class="leftright">
-                <label for="time_zone" data-i18n="ntp_tz"></label>
-                <button
-                  id="p12_ntp_open_dialog_btn"
-                  class="i_help"
-                  style="
-                    height: 30px;
-                    background-color: transparent;
-                    border: none;
-                  "></button>
-              </div>
-              <input type="text" id="cfg_ntp_tz" name="time_zone" />
-            </details>
-            <hr />
-            <!-- Dialog OPEN-NTP-HELP -->
-            <dialog id="p12_ntp_dialog">
+<dialog id="p12_ntp_dialog">
               <article>
                 <div id="p12_ntp_help_output"></div>
                 <div class="dash-footer">
@@ -424,322 +945,7 @@
                 </div>
               </article>
             </dialog>
-            <!-- Datum & Uhrzeit -->
-            <details>
-              <summary data-i18n="datetime"></summary>
-              <div class="section-header">
-                <label for="ntp_auto_sync" data-i18n="ntp_auto_sync"></label>
-                <div class="switch-container">
-                  <input
-                    name="ntp_auto_sync"
-                    type="checkbox"
-                    role="switch"
-                    id="cfg_ntp_auto_sync" />
-                </div>
-              </div>
-              <br />
-              <label data-i18n="act_date"></label>
-              <input
-                id="p12_ntp_date"
-                style="margin-right: 2%"
-                type="date"
-                value="--"
-                aria-label="Read-only input"
-                readonly />
-              <label data-i18n="act_time"></label>
-              <input
-                id="p12_ntp_time"
-                style="margin-right: 2%"
-                type="time"
-                value="--"
-                aria-label="Read-only input"
-                readonly />
-              <button
-                id="p12_ntp_btn"
-                data-i18n="button_ntp"
-                style="white-space: nowrap; width: 100%">
-                --
-              </button>
-              <br /><br />
-              <label data-i18n="set_date"></label>
-              <input
-                id="p12_dti_date"
-                style="margin-right: 2%"
-                type="date"
-                aria-label="Date"
-                aria-invalid="true" />
-              <label data-i18n="set_time"></label>
-              <input
-                id="p12_dti_time"
-                style="margin-right: 2%"
-                type="time"
-                aria-label="Time"
-                aria-invalid="true" />
-              <button
-                id="p12_dti_btn"
-                data-i18n="button_dti"
-                style="white-space: nowrap; width: 100%">
-                --
-              </button>
-            </details>
-            <hr />
-            <!-- MQTT -->
-            <details>
-              <summary data-i18n="mqtt"></summary>
-              <div class="section-header">
-                <label for="mqtt_enable" data-i18n="activate"></label>
-                <div class="switch-container">
-                  <input
-                    name="mqtt_enable"
-                    type="checkbox"
-                    role="switch"
-                    id="cfg_mqtt_enable" />
-                </div>
-              </div>
-              <div class="section-header">
-                <label for="mqtt_cfg_ret" data-i18n="mqtt_cfg_ret"></label>
-                <input
-                  name="mqtt_cfg_ret"
-                  type="checkbox"
-                  role="switch"
-                  id="cfg_mqtt_config_retain" />
-              </div>
-              <div class="section-header">
-                <label for="mqtt_ha_enable">Home Assistant</label>
-                <input
-                  name="mqtt_ha_enable"
-                  type="checkbox"
-                  role="switch"
-                  id="cfg_mqtt_ha_enable" />
-              </div>
-              <br />
-              <div role="group">
-                <button
-                  type="button"
-                  id="p12_mqtt_test_btn"
-                  style="white-space: nowrap; flex: 0 0 auto"
-                  data-i18n="mqtt_connection_test"></button>
-                <input
-                  type="text"
-                  id="p12_mqtt_connection"
-                  style="height: auto; min-width: 0"
-                  aria-label="MQTT connection status"
-                  value="---"
-                  disabled />
-              </div>
-              <span id="p12_mqtt_connection_state" hidden></span>
-              <label for="mqtt_server" data-i18n="server"></label>
-              <input
-                type="text"
-                oninput="validateHost(this)"
-                id="cfg_mqtt_server"
-                name="mqtt_server" />
-              <label for="mqtt_port" data-i18n="port"></label>
-              <input type="text" id="cfg_mqtt_port" name="mqtt_port" />
-              <label for="mqtt_topic" data-i18n="topic"></label>
-              <input type="text" id="cfg_mqtt_topic" name="mqtt_topic" />
-              <label for="mqtt_user" data-i18n="user"></label>
-              <input type="text" id="cfg_mqtt_user" name="mqtt_user" />
-              <label for="mqtt_password" data-i18n="password"></label>
-              <input
-                type="password"
-                id="cfg_mqtt_password"
-                name="mqtt_password" />
-              <br /><br />
-              <label for="mqtt_language" data-i18n="topic$ $language"></label>
-              <select id="cfg_mqtt_language" name="mqtt_language">
-                <option value="0" data-i18n="german"></option>
-                <option value="1" data-i18n="english"></option>
-              </select>
-              <label for="mqtt_cyclicsend" data-i18n="cyclic_send"></label>
-              <input
-                type="text"
-                id="cfg_mqtt_cyclic_send"
-                name="mqtt_cyclic_send" />
-              <br /><br />
-              <label for="mqtt_ha_topic">Home Assistant Topic</label>
-              <input
-                type="text"
-                id="cfg_mqtt_ha_topic"
-                placeholder="homeassistant"
-                name="mqtt_ha_topic" />
-              <label for="mqtt_ha_device">Home Assistant Device Name</label>
-              <input
-                type="text"
-                id="cfg_mqtt_ha_device"
-                placeholder="Logamatic"
-                name="mqtt_ha_device" />
-            </details>
-            <hr />
-            <!-- Pushover -->
-            <details>
-              <summary data-i18n="pushover"></summary>
-              <div class="section-header">
-                <label for="pushover_enable" data-i18n="activate"></label>
-                <div class="switch-container">
-                  <input
-                    name="pushover_enable"
-                    type="checkbox"
-                    role="switch"
-                    id="cfg_pushover_enable" />
-                </div>
-              </div>
-              <br />
-              <label for="pushover_api_token" data-i18n="api_token"></label>
-              <input
-                type="password"
-                id="cfg_pushover_token"
-                name="pushover_api_token" />
-              <label for="pushover_user_key" data-i18n="user_key"></label>
-              <input
-                type="password"
-                id="cfg_pushover_user_key"
-                name="pushover_user_key" />
-              <label for="pushover_filter" data-i18n="filter"></label>
-              <select id="cfg_pushover_filter" name="pushover_filter">
-                <option value="0" data-i18n="alarm"></option>
-                <option value="1" data-i18n="alarm_info"></option>
-              </select>
-              <label for="pushover_test_msg" data-i18n="test_msg"></label>
-              <div>
-                <div role="group" name="pushover_test_msg">
-                  <input id="p12_pushover_test_msg" name="text" type="text" />
-                  <button id="p12_pushover_test_btn" data-i18n="send"></button>
-                </div>
-              </div>
-            </details>
-            <hr />
-            <!-- Logamatic -->
-            <details>
-              <summary data-i18n="logamatic"></summary>
-              <div class="section-header">
-                <label
-                  for="heating_circuit_1"
-                  data-i18n="heating_circuit_1"></label>
-                <input
-                  name="heating_circuit_1"
-                  type="checkbox"
-                  role="switch"
-                  hideOpt="OPT_HC1"
-                  id="cfg_km271_use_hc1" />
-              </div>
-              <div class="section-header">
-                <label
-                  for="heating_circuit_2"
-                  data-i18n="heating_circuit_2"></label>
-                <input
-                  name="heating_circuit_2"
-                  type="checkbox"
-                  role="switch"
-                  hideOpt="OPT_HC2"
-                  id="cfg_km271_use_hc2" />
-              </div>
-              <div class="section-header">
-                <label for="hot_water" data-i18n="hot_water"></label>
-                <input
-                  name="hot_water"
-                  type="checkbox"
-                  role="switch"
-                  hideOpt="OPT_HW"
-                  id="cfg_km271_use_ww" />
-              </div>
-              <div class="section-header">
-                <label for="solar" data-i18n="solar"></label>
-                <input
-                  name="solar"
-                  type="checkbox"
-                  role="switch"
-                  hideOpt="OPT_SOLAR"
-                  id="cfg_km271_use_solar" />
-              </div>
-              <div class="section-header">
-                <label for="alarm" data-i18n="alarm"></label>
-                <input
-                  name="alarm"
-                  type="checkbox"
-                  role="switch"
-                  hideOpt="OPT_ALARM"
-                  id="cfg_km271_use_alarmMsg" />
-              </div>
-            </details>
-            <hr />
-            <!-- Hardware -->
-            <details>
-              <summary data-i18n="gpio"></summary>
-              <br />
-              <select id="p12_boards" name="boards">
-                <option
-                  selected
-                  disabled
-                  value=""
-                  data-i18n="select_template"></option>
-                <option value="1">generic ESP32</option>
-                <option value="2">Board 0.0.5</option>
-                <option value="3">Board ≥0.0.6</option>
-              </select>
-              <div class="leftright">
-                <label for="km271_rx" data-i18n="km271_rx"></label>
-                <button
-                  id="p12_gpio_open_dialog_btn"
-                  class="i_help"
-                  style="
-                    height: 30px;
-                    background-color: transparent;
-                    border: none;
-                  "></button>
-              </div>
-
-              <input
-                class="num-input"
-                name="km271_rx"
-                type="number"
-                id="cfg_gpio_km271_RX"
-                placeholder="-1 to disable" />
-              <label for="km271_tx" data-i18n="km271_tx"></label>
-              <input
-                class="num-input"
-                name="km271_tx"
-                type="number"
-                id="cfg_gpio_km271_TX"
-                placeholder="-1 to disable" />
-              <label for="led_heartbeat" data-i18n="led_heartbeat"></label>
-              <input
-                class="num-input"
-                name="led_heartbeat"
-                type="number"
-                id="cfg_gpio_led_heartbeat"
-                placeholder="-1 to disable" />
-              <label for="led_logmode" data-i18n="led_logmode"></label>
-              <input
-                class="num-input"
-                name="led_logmode"
-                type="number"
-                id="cfg_gpio_led_logmode"
-                placeholder="-1 to disable" />
-              <label for="led_wifi" data-i18n="led_wifi"></label>
-              <input
-                class="num-input"
-                name="led_wifi"
-                type="number"
-                id="cfg_gpio_led_wifi"
-                placeholder="-1 to disable" />
-              <label for="led_oilcounter" data-i18n="led_oilcounter"></label>
-              <input
-                class="num-input"
-                name="led_oilcounter"
-                type="number"
-                id="cfg_gpio_led_oilcounter"
-                placeholder="-1 to disable" />
-              <label for="trig_oilcounter" data-i18n="trig_oilcounter"></label>
-              <input
-                class="num-input"
-                name="trig_oilcounter"
-                type="number"
-                id="cfg_gpio_trigger_oilcounter"
-                placeholder="-1 to disable" />
-            </details>
-            <!-- Dialog OPEN-GPIO-HELP -->
-            <dialog id="p12_gpio_dialog">
+<dialog id="p12_gpio_dialog">
               <article>
                 <p>Description for KM271Wifi Boards</p>
                 <table>
@@ -790,167 +996,7 @@
                 </div>
               </article>
             </dialog>
-            <hr />
-            <!-- Oilmeter -->
-            <details>
-              <summary data-i18n="oilmeter"></summary>
-              <div class="section-header">
-                <h6 for="oil_hardware" data-i18n="oil_hardware"></h6>
-                <input
-                  name="oil_hardware"
-                  type="checkbox"
-                  role="switch"
-                  hideOpt="OPT_HW_OIL"
-                  id="cfg_oilmeter_use_hardware_meter" />
-              </div>
-              <br />
-              <label
-                class="OPT_HW_OIL"
-                for="pulse_per_liter"
-                data-i18n="pulse_per_liter"></label>
-              <input
-                class="OPT_HW_OIL"
-                name="pulse_per_liter"
-                type="number"
-                id="cfg_oilmeter_pulse_per_liter" />
-              <label
-                class="OPT_HW_OIL"
-                for="debounce_time"
-                data-i18n="debounce_time"></label>
-              <input
-                class="OPT_HW_OIL"
-                name="debounce_time"
-                type="number"
-                id="cfg_oilmeter_debounce_time" />
-              <div class="section-header">
-                <h6 for="oil_virtual" data-i18n="oil_virtual"></h6>
-                <input
-                  name="oil_virtual"
-                  type="checkbox"
-                  role="switch"
-                  hideOpt="OPT_V_OIL"
-                  id="cfg_oilmeter_use_virtual_meter" />
-              </div>
-              <br />
-              <label
-                class="OPT_V_OIL"
-                for="oil_par1_kg_h"
-                data-i18n="oil_par1_kg_h"></label>
-              <input
-                class="OPT_V_OIL"
-                name="oil_par1_kg_h"
-                type="number"
-                id="cfg_oilmeter_consumption_kg_h" />
-              <label
-                class="OPT_V_OIL"
-                for="oil_par2_kg_l"
-                data-i18n="oil_par2_kg_l"></label>
-              <input
-                class="OPT_V_OIL"
-                name="oil_par2_kg_l"
-                type="number"
-                id="cfg_oilmeter_oil_density_kg_l" />
-              <label
-                class="OPT_V_OIL"
-                for="virt_calc_offset"
-                data-i18n="virt_calc_offset"></label>
-              <input
-                class="OPT_V_OIL"
-                name="virt_calc_offset"
-                type="number"
-                id="cfg_oilmeter_virt_calc_offset" />
-            </details>
-            <hr />
-            <!-- Optional Sensors -->
-            <details>
-              <summary data-i18n="optional_sensor"></summary>
-              <div class="section-header">
-                <h6 for="sens1" data-i18n="sens1"></h6>
-                <input
-                  name="sens1"
-                  type="checkbox"
-                  role="switch"
-                  hideOpt="OPT_SENS1"
-                  id="cfg_sensor_ch1_enable" />
-              </div>
-              <label for="sens1_name" data-i18n="name"></label>
-              <input type="text" id="cfg_sensor_ch1_name" name="sens1_name" />
-              <label for="sens1_desc" data-i18n="description"></label>
-              <input
-                type="text"
-                id="cfg_sensor_ch1_description"
-                name="sens1_desc" />
-              <label for="sens1_gpio" data-i18n="gpio"></label>
-              <input
-                name="sens1_gpio"
-                type="number"
-                id="cfg_sensor_ch1_gpio"
-                placeholder="-1 to disable" />
-
-              <div class="section-header">
-                <h6 for="sens2" data-i18n="sens2"></h6>
-                <input
-                  name="sens2"
-                  type="checkbox"
-                  role="switch"
-                  hideOpt="OPT_SENS2"
-                  id="cfg_sensor_ch2_enable" />
-              </div>
-              <label for="sens2_name">Name</label>
-              <input type="text" id="cfg_sensor_ch2_name" name="sens2_name" />
-              <label for="sens2_desc" data-i18n="description"></label>
-              <input
-                type="text"
-                id="cfg_sensor_ch2_description"
-                name="sens2_desc" />
-              <label for="sens2_gpio" data-i18n="gpio"></label>
-              <input
-                name="sens2_gpio"
-                type="number"
-                id="cfg_sensor_ch2_gpio"
-                placeholder="-1 to disable" />
-            </details>
-            <hr />
-            <!-- Simulation -->
-            <details>
-              <summary data-i18n="simulation"></summary>
-              <div class="section-header">
-                <label for="simulation_enable" data-i18n="activate"></label>
-                <div class="switch-container">
-                  <input
-                    name="simulation_enable"
-                    type="checkbox"
-                    role="switch"
-                    hideOpt="OPT_SIM"
-                    id="cfg_sim_enable" />
-                </div>
-              </div>
-              <br />
-              <button
-                id="p12_btn_simdata"
-                class="OPT_SIM"
-                data-i18n="generate_simdata"
-                style="width: 100%; margin-bottom: 10px"></button>
-            </details>
-            <hr />
-            <!-- Language -->
-            <details>
-              <summary data-i18n="language"></summary>
-              <select id="cfg_lang">
-                <option value="0" data-i18n="german"></option>
-                <option value="1" data-i18n="english"></option>
-              </select>
-            </details>
-            <hr />
-            <!-- Buttons -->
-            <button
-              id="p12_btn_restart"
-              data-i18n="restart"
-              onclick="restartFunction()"
-              style="width: 100%; margin-bottom: 10px"></button>
-          </div>
-        </div>
-      </div>
+</div>
       <!--SECTION-END-->
     </main>
     <!-- Footer -->

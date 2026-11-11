@@ -2,9 +2,21 @@
 // localization texts
 // --------------------------------------
 const user_translations = {
+  ha_mqtt_hint: { de: "Benötigt eine aktivierte und konfigurierte MQTT-Verbindung.", en: "Requires an enabled and configured MQTT connection." },
+  ha_mqtt_disabled: { de: "MQTT ist derzeit deaktiviert.", en: "MQTT is currently disabled." },
+  ha_mqtt_open: { de: "MQTT-Einstellungen öffnen", en: "Open MQTT settings" },
+  ui_connected: { de: "Verbunden", en: "Connected" },
+  ui_disconnected: { de: "Keine Verbindung", en: "Disconnected" },
+  dashboard_subtitle: { de: "Heizung im Überblick", en: "Heating at a glance" },
+  system_subtitle: { de: "Verbindungen und Gerät", en: "Connections and device" },
+  settings_subtitle: { de: "Konfiguration", en: "Configuration" },
+  chart_target: { de: "Soll", en: "Target" },
+  chart_actual: { de: "Ist", en: "Actual" },
+  chart_current: { de: "Aktuell", en: "Current" },
+  chart_damped: { de: "Gedämpft", en: "Damped" },
   chart_wait: { de: "Warte auf gültige Daten …", en: "Waiting for valid data …" },
   chart_off: { de: "AUS", en: "OFF" },
-  chart_gap: { de: "keine Daten", en: "no data" },
+  chart_gap: { de: "Keine Messdaten in diesem Zeitraum", en: "No measurements in this interval" },
   chart_burner: { de: "Brenner", en: "Burner" },
   chart_priority: { de: "Warmwasservorrang", en: "Hot water priority" },
   weekly_program_hint: {
@@ -159,17 +171,9 @@ const user_translations = {
     de: "Solltemperatur",
     en: "Set Temperature",
   },
-  set_temp_c: {
-    de: "Solltemperatur \u00b0C",
-    en: "Set Temperature \u00b0C",
-  },
   act_temp: {
     de: "Isttemperatur",
     en: "Actual Temperature",
-  },
-  act_temp_c: {
-    de: "Isttemperatur \u00b0C",
-    en: "Actual Temperature \u00b0C",
   },
   opmode: {
     de: "Betriebsart",
@@ -435,14 +439,6 @@ const user_translations = {
     de: "Au\u00dfentemperatur",
     en: "Temperature outdoor",
   },
-  temp_out_act: {
-    de: "aktuell \u00b0C",
-    en: "actually \u00b0C",
-  },
-  temp_out_dmp: {
-    de: "ged\u00e4mpft \u00b0C",
-    en: "damped \u00b0C",
-  },
   mqtt_cfg_ret: {
     de: "Config Nachrichten als retain",
     en: "config messages as retain",
@@ -574,10 +570,6 @@ const user_translations = {
   temp: {
     de: "Temperatur",
     en: "temp",
-  },
-  temp_c: {
-    de: "°C",
-    en: "°C",
   },
   processing: {
     de: "Aufbereitung",

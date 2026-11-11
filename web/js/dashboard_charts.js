@@ -41,6 +41,31 @@ class DashboardHistory {
   }
 }
 
+// Separate measured paths from visual bridges; never add interpolated samples.
+function dashboardChartPaths(rows, column, step, x, y) {
+  let line = "", gaps = "", previous = null, missing = false;
+  const point = row => `${x(row[0]).toFixed(2)},${y(row[column]).toFixed(2)}`;
+  for (const row of rows) {
+    if (row[column] === null) { missing = true; continue; }
+    const gap = previous && (missing || row[0] - previous[0] > 45000);
+    if (gap) gaps += `M${point(previous)}L${point(row)}`;
+    line += !previous || gap ? `M${point(row)}` : step ? `H${x(row[0]).toFixed(2)}V${y(row[column]).toFixed(2)}` : `L${point(row)}`;
+    previous = row;
+    missing = false;
+  }
+  return { line, gaps };
+}
+
+// Read real samples only. Every interval touching a gap remains unknown.
+function dashboardChartSample(rows, time, sampleMs = 30000) {
+  const before = rows.findLast(row => row[0] <= time);
+  const after = rows.find(row => row[0] >= time);
+  if (!before || before[1] === null) return null;
+  if (!after) return time - before[0] <= sampleMs ? before : null;
+  if (after[1] === null || after[0] - before[0] > sampleMs * 1.5) return null;
+  return time - before[0] <= after[0] - time ? before : after;
+}
+
 function initDashboardCharts() {
   const get = id => document.getElementById(id);
   const ready = get("p01_chart_valid"), lost = get("connectionLostBar"), tab = get("tab1");
@@ -72,7 +97,7 @@ function initDashboardCharts() {
     }
     return { card, chart: card.querySelector(".dash-chart"), status: card.querySelector(".dash-chart-status"),
       fields: card.dataset.chart.split(",").map(get), bit: Number(card.dataset.chartBit),
-      history: history(card.dataset.chart), state, legend, valid: false };
+      history: history(card.dataset.chart), primary: Number(card.dataset.chartPrimary ?? 1), state, legend, valid: false };
   });
   function save() {
     try {
@@ -93,15 +118,15 @@ function initDashboardCharts() {
     const now = Date.now();
     c.history.prune(now);
     const rows = c.history.rows, values = rows.flatMap(row => row.slice(1)).filter(Number.isFinite);
-    const width = Math.floor(c.chart.clientWidth), height = 126;
-    if (width < 90) return;
+    const width = Math.floor(c.chart.clientWidth), height = Math.floor(c.chart.clientHeight);
+    if (width < 90 || height < 60) return;
     const left = 29, right = width - 8, top = 9, bottom = height - 23;
     const min = values.length ? Math.floor((Math.min(...values) - 2) / 5) * 5 : 0;
     const max = values.length ? Math.max(min + 5, Math.ceil((Math.max(...values) + 2) / 5) * 5) : 100;
     const x = t => left + (t - (now - 3600000)) / 3600000 * (right - left);
     const y = v => bottom - (v - min) / (max - min) * (bottom - top);
     const time = t => new Date(t).toLocaleTimeString(language(), { hour: "2-digit", minute: "2-digit", hour12: false });
-    const labels = Array.from(c.card.querySelectorAll(".dash-footer > div"), el => el.textContent.trim());
+    const labels = c.fields.map(field => field.closest(".dash-reading").querySelector(".dash-reading-label").textContent.trim());
     const title = c.card.querySelector(".dash-header").textContent;
     const svg = node("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": title });
     svg.append(node("title", {}, `${title}: ${labels.join(" / ")}`));
@@ -132,17 +157,11 @@ function initDashboardCharts() {
       svg.append(node("text", { x: x(t), y: height - 5, "text-anchor": i === 0 ? "start" : i === 2 ? "end" : "middle" }, time(t)));
     }
     for (const column of [1, 2]) {
-      let path = "", pen = false;
-      for (const row of rows) {
-        if (row[column] === null) continue; // Bridge missing samples without inventing stored values.
-        const px = x(row[0]).toFixed(2), py = y(row[column]).toFixed(2);
-        // Only Sollwerte are step curves; solar/outside temperatures are continuous.
-        const step = column === 1 && c.fields[0].id.endsWith("_set");
-        path += !pen ? `M${px},${py}` : step ? `H${px}V${py}` : `L${px},${py}`;
-        pen = true;
-      }
-      const cls = column === 1 ? "dash-chart-target" : "dash-chart-actual";
-      svg.append(node("path", { d: path, class: cls }));
+      const step = column === 1 && c.fields[0].id.endsWith("_set");
+      const paths = dashboardChartPaths(rows, column, step, x, y);
+      const cls = column === c.primary + 1 ? "dash-chart-actual" : "dash-chart-target";
+      svg.append(node("path", { d: paths.line, class: cls }));
+      svg.append(node("path", { d: paths.gaps, class: `${cls} dash-chart-gap` }));
       const last = rows.at(-1);
       if (last && last[column] !== null) svg.append(node("circle", { cx: x(last[0]), cy: y(last[column]), r: 3, class: cls }));
     }
@@ -152,10 +171,11 @@ function initDashboardCharts() {
       if (!rows.length) return;
       const bounds = svg.getBoundingClientRect();
       const t = now - 3600000 + ((event.clientX - bounds.left) / bounds.width * width - left) / (right - left) * 3600000;
-      const row = rows.reduce((best, r) => Math.abs(r[0] - t) < Math.abs(best[0] - t) ? r : best);
-      guide.setAttribute("x1", x(row[0])); guide.setAttribute("x2", x(row[0])); guide.setAttribute("visibility", "visible");
-      c.status.textContent = row[1] === null || Math.abs(row[0] - t) > sampleMs ? `${time(t)} · ${text("chart_gap")}` :
-        `${time(row[0])} · ${row[1].toLocaleString(language())} / ${row[2].toLocaleString(language())} °C`;
+      const row = dashboardChartSample(rows, t, sampleMs);
+      const position = row ? x(row[0]) : Math.max(left, Math.min(right, x(t)));
+      guide.setAttribute("x1", position); guide.setAttribute("x2", position); guide.setAttribute("visibility", "visible");
+      c.status.textContent = !row ? `${time(t)} · ${text("chart_gap")}` :
+        `${time(row[0])} · ${labels[0]} ${row[1].toLocaleString(language())} / ${labels[1]} ${row[2].toLocaleString(language())} °C`;
     };
     overlay.addEventListener("pointermove", inspect);
     overlay.addEventListener("pointerdown", inspect);

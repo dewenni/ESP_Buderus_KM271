@@ -1,3 +1,53 @@
+function initHomeAssistantSettings() {
+  const mqtt = document.getElementById("cfg_mqtt_enable");
+  const section = document.getElementById("p12_ha_settings");
+  const update = () => {
+    document.getElementById("p12_ha_mqtt_warning").hidden = mqtt.checked;
+  };
+  mqtt.addEventListener("change", update);
+  section.addEventListener("toggle", update);
+  document.getElementById("p12_ha_mqtt_link").addEventListener("click", event => {
+    event.preventDefault();
+    const target = document.getElementById("p12_mqtt_settings");
+    target.open = true;
+    target.scrollIntoView({ block: "nearest" });
+    mqtt.focus({ preventScroll: true });
+  });
+  update();
+}
+
+function initPageHeader() {
+  const indicator = document.getElementById("p00_web_connection");
+  const label = document.getElementById("p00_web_connection_text");
+  const update = () => {
+    const connected = typeof ws !== "undefined" && ws && ws.readyState === WebSocket.OPEN;
+    const language = document.getElementById("cfg_lang").value === "1" ? "en" : "de";
+    indicator.classList.toggle("is-connected", !!connected);
+    label.dataset.i18n = connected ? "ui_connected" : "ui_disconnected";
+    label.textContent = (connected ? user_translations.ui_connected : user_translations.ui_disconnected)[language];
+  };
+  // The first socket may open while the existing disconnect bar is already hidden.
+  if (typeof ws !== "undefined" && ws) ws.addEventListener("open", update);
+  new MutationObserver(update).observe(document.getElementById("connectionLostBar"), {
+    attributes: true, attributeFilter: ["style", "class"],
+  });
+  document.getElementById("cfg_lang").addEventListener("change", update);
+  update();
+}
+
+function initDashboardStatusIcons() {
+  document.querySelectorAll(".dashboard-status [data-active-value]").forEach(card => {
+    const source = document.getElementById(card.dataset.activeValue);
+    const update = () => {
+      const raw = source.textContent.trim();
+      const value = Number(raw);
+      card.classList.toggle("is-active", raw !== "" && Number.isFinite(value) && value > 0);
+    };
+    new MutationObserver(update).observe(source, { childList: true, characterData: true, subtree: true });
+    update();
+  });
+}
+
 function initMqttConnectionStatus() {
   const input = document.getElementById("p12_mqtt_connection");
   const state = document.getElementById("p12_mqtt_connection_state");

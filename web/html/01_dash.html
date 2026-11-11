@@ -30,7 +30,11 @@
       <!--SECTION-START-->
       <!-- Tab-1 -->
       <div id="tab1" class="tab-content active">
-        <div class="grid">
+        <header class="page-heading">
+          <h1 data-i18n="dashboard"></h1>
+          <p data-i18n="dashboard_subtitle"></p>
+        </header>
+        <div class="dashboard-status">
           <article class="dash OPT_HC1">
             <div class="dash-main">
               <div class="dash-header" data-i18n="hc1$-$opmode"></div>
@@ -127,7 +131,7 @@
             </div>
           </article>
 
-          <article class="dash OPT_HC1">
+          <article data-active-value="p03_hc1_pump" class="dash OPT_HC1">
             <div class="dash-main">
               <div class="dash-header" data-i18n="hc1$-$pump"></div>
               <div class="dash-content">
@@ -139,7 +143,7 @@
             </div>
           </article>
 
-          <article class="dash OPT_HC2">
+          <article data-active-value="p04_hc2_pump" class="dash OPT_HC2">
             <div class="dash-main">
               <div class="dash-header" data-i18n="hc2$-$pump"></div>
               <div class="dash-content">
@@ -151,7 +155,7 @@
             </div>
           </article>
 
-          <article class="dash">
+          <article data-active-value="p01_chart_burner" class="dash">
             <div class="dash-main">
               <div class="dash-header" data-i18n="burner"></div>
               <div class="dash-content">
@@ -186,105 +190,6 @@
               <i class="svg i_oil"></i>
             </div>
           </article>
-        </div>
-        <!-- END Grid1 -->
-        <span id="p01_chart_valid" hidden></span>
-        <span id="p01_chart_burner" hidden></span>
-        <span id="p01_chart_priority" hidden></span>
-
-        <div class="grid">
-          <!-- START Grid2 -->
-
-          <article data-chart="p01_burner_temp_set,p01_burner_temp_act" data-chart-bit="0" data-chart-state="burner" class="dash dash-history">
-            <div class="dash-main">
-              <div class="dash-header" data-i18n="burner_temp"></div>
-              <div class="dash-content">
-                <div class="value" id="p01_burner_temp_set"></div>
-                <div class="value" id="p01_burner_temp_act"></div>
-              </div>
-              <div class="dash-footer">
-                <div data-i18n="set_temp_c"></div>
-                <div data-i18n="act_temp_c"></div>
-              </div>
-            </div>
-            <div class="dash-history-plot"><div class="dash-chart"></div><div class="dash-chart-status"></div></div>
-          </article>
-
-          <article data-chart="p01_ww_temp_set,p01_ww_temp_act" data-chart-bit="1" data-chart-state="priority" class="dash dash-history OPT_HW">
-            <div class="dash-main">
-              <div class="dash-header" data-i18n="hot_water"></div>
-              <div class="dash-content">
-                <div class="value" id="p01_ww_temp_set"></div>
-                <div class="value" id="p01_ww_temp_act"></div>
-              </div>
-              <div class="dash-footer">
-                <div data-i18n="set_temp_c"></div>
-                <div data-i18n="act_temp_c"></div>
-              </div>
-            </div>
-            <div class="dash-history-plot"><div class="dash-chart"></div><div class="dash-chart-status"></div></div>
-          </article>
-
-          <article data-chart="p01_solar_ww,p01_solar_collector" data-chart-bit="2" class="dash dash-history OPT_SOLAR">
-            <div class="dash-main">
-              <div class="dash-header" data-i18n="solar"></div>
-              <div class="dash-content">
-                <div class="value" id="p01_solar_ww"></div>
-                <div class="value" id="p01_solar_collector"></div>
-              </div>
-              <div class="dash-footer">
-                <div data-i18n="hot_water$ $temp_c"></div>
-                <div data-i18n="collector$ $temp_c"></div>
-              </div>
-            </div>
-            <div class="dash-history-plot"><div class="dash-chart"></div><div class="dash-chart-status"></div></div>
-          </article>
-
-          <article data-chart="p01_hc1_flow_set,p01_hc1_flow_act" data-chart-bit="3" data-chart-state="burner" class="dash dash-history OPT_HC1">
-            <div class="dash-main">
-              <div class="dash-header" data-i18n="hc1$-$flow"></div>
-              <div class="dash-content">
-                <div class="value" id="p01_hc1_flow_set"></div>
-                <div class="value" id="p01_hc1_flow_act"></div>
-              </div>
-              <div class="dash-footer">
-                <div data-i18n="set_temp_c"></div>
-                <div data-i18n="act_temp_c"></div>
-              </div>
-            </div>
-            <div class="dash-history-plot"><div class="dash-chart"></div><div class="dash-chart-status"></div></div>
-          </article>
-
-          <article data-chart="p01_hc2_flow_set,p01_hc2_flow_act" data-chart-bit="4" data-chart-state="burner" class="dash dash-history OPT_HC2">
-            <div class="dash-main">
-              <div class="dash-header" data-i18n="hc2$-$flow"></div>
-              <div class="dash-content">
-                <div class="value" id="p01_hc2_flow_set"></div>
-                <div class="value" id="p01_hc2_flow_act"></div>
-              </div>
-              <div class="dash-footer">
-                <div data-i18n="set_temp_c"></div>
-                <div data-i18n="act_temp_c"></div>
-              </div>
-            </div>
-            <div class="dash-history-plot"><div class="dash-chart"></div><div class="dash-chart-status"></div></div>
-          </article>
-
-          <article data-chart="p01_temp_out_act,p01_temp_out_dmp" data-chart-bit="5" class="dash dash-history">
-            <div class="dash-main">
-              <div class="dash-header" data-i18n="temp_out"></div>
-              <div class="dash-content">
-                <div class="value" id="p01_temp_out_act"></div>
-                <div class="value" id="p01_temp_out_dmp"></div>
-              </div>
-              <div class="dash-footer">
-                <div data-i18n="temp_out_act"></div>
-                <div data-i18n="temp_out_dmp"></div>
-              </div>
-            </div>
-            <div class="dash-history-plot"><div class="dash-chart"></div><div class="dash-chart-status"></div></div>
-          </article>
-
           <article class="dash OPT_SENS1">
             <div class="dash-main">
               <div class="dash-header" id="p01_sens1_name"></div>
@@ -314,6 +219,114 @@
               <i class="svg i_temp"></i>
             </div>
           </article>
+        </div>
+        <!-- END Grid1 -->
+        <span id="p01_chart_valid" hidden></span>
+        <span id="p01_chart_burner" hidden></span>
+        <span id="p01_chart_priority" hidden></span>
+
+        <div class="dashboard-trends">
+          <!-- START Grid2 -->
+
+          <article data-chart="p01_burner_temp_set,p01_burner_temp_act" data-chart-bit="0" data-chart-state="burner" class="dash dash-history">
+            <div class="dash-header" data-i18n="burner_temp"></div>
+            <div class="dash-readings">
+              <div class="dash-reading dash-reading-primary dash-series-second">
+                <div class="dash-reading-label" data-i18n="chart_actual"></div>
+                <div class="dash-reading-value"><span id="p01_burner_temp_act" class="value"></span><span class="dash-reading-unit">°C</span></div>
+              </div>
+              <div class="dash-reading dash-reading-secondary dash-series-first">
+                <div class="dash-reading-label" data-i18n="chart_target"></div>
+                <div class="dash-reading-value"><span id="p01_burner_temp_set" class="value"></span><span class="dash-reading-unit">°C</span></div>
+              </div>
+            </div>
+            <div class="dash-history-plot"><div class="dash-chart"></div></div>
+            <div class="dash-chart-status"></div>
+          </article>
+
+          <article data-chart="p01_ww_temp_set,p01_ww_temp_act" data-chart-bit="1" data-chart-state="priority" class="dash dash-history OPT_HW">
+            <div class="dash-header" data-i18n="hot_water"></div>
+            <div class="dash-readings">
+              <div class="dash-reading dash-reading-primary dash-series-second">
+                <div class="dash-reading-label" data-i18n="chart_actual"></div>
+                <div class="dash-reading-value"><span id="p01_ww_temp_act" class="value"></span><span class="dash-reading-unit">°C</span></div>
+              </div>
+              <div class="dash-reading dash-reading-secondary dash-series-first">
+                <div class="dash-reading-label" data-i18n="chart_target"></div>
+                <div class="dash-reading-value"><span id="p01_ww_temp_set" class="value"></span><span class="dash-reading-unit">°C</span></div>
+              </div>
+            </div>
+            <div class="dash-history-plot"><div class="dash-chart"></div></div>
+            <div class="dash-chart-status"></div>
+          </article>
+
+          <article data-chart="p01_solar_ww,p01_solar_collector" data-chart-bit="2" class="dash dash-history OPT_SOLAR">
+            <div class="dash-header" data-i18n="solar"></div>
+            <div class="dash-readings">
+              <div class="dash-reading dash-reading-primary dash-series-second">
+                <div class="dash-reading-label" data-i18n="collector"></div>
+                <div class="dash-reading-value"><span id="p01_solar_collector" class="value"></span><span class="dash-reading-unit">°C</span></div>
+              </div>
+              <div class="dash-reading dash-reading-secondary dash-series-first">
+                <div class="dash-reading-label" data-i18n="hot_water"></div>
+                <div class="dash-reading-value"><span id="p01_solar_ww" class="value"></span><span class="dash-reading-unit">°C</span></div>
+              </div>
+            </div>
+            <div class="dash-history-plot"><div class="dash-chart"></div></div>
+            <div class="dash-chart-status"></div>
+          </article>
+
+          <article data-chart="p01_hc1_flow_set,p01_hc1_flow_act" data-chart-bit="3" data-chart-state="burner" class="dash dash-history OPT_HC1">
+            <div class="dash-header" data-i18n="hc1$-$flow"></div>
+            <div class="dash-readings">
+              <div class="dash-reading dash-reading-primary dash-series-second">
+                <div class="dash-reading-label" data-i18n="chart_actual"></div>
+                <div class="dash-reading-value"><span id="p01_hc1_flow_act" class="value"></span><span class="dash-reading-unit">°C</span></div>
+              </div>
+              <div class="dash-reading dash-reading-secondary dash-series-first">
+                <div class="dash-reading-label" data-i18n="chart_target"></div>
+                <div class="dash-reading-value"><span id="p01_hc1_flow_set" class="value"></span><span class="dash-reading-unit">°C</span></div>
+              </div>
+            </div>
+            <div class="dash-history-plot"><div class="dash-chart"></div></div>
+            <div class="dash-chart-status"></div>
+          </article>
+
+          <article data-chart="p01_hc2_flow_set,p01_hc2_flow_act" data-chart-bit="4" data-chart-state="burner" class="dash dash-history OPT_HC2">
+            <div class="dash-header" data-i18n="hc2$-$flow"></div>
+            <div class="dash-readings">
+              <div class="dash-reading dash-reading-primary dash-series-second">
+                <div class="dash-reading-label" data-i18n="chart_actual"></div>
+                <div class="dash-reading-value"><span id="p01_hc2_flow_act" class="value"></span><span class="dash-reading-unit">°C</span></div>
+              </div>
+              <div class="dash-reading dash-reading-secondary dash-series-first">
+                <div class="dash-reading-label" data-i18n="chart_target"></div>
+                <div class="dash-reading-value"><span id="p01_hc2_flow_set" class="value"></span><span class="dash-reading-unit">°C</span></div>
+              </div>
+            </div>
+            <div class="dash-history-plot"><div class="dash-chart"></div></div>
+            <div class="dash-chart-status"></div>
+          </article>
+
+          <article data-chart="p01_temp_out_act,p01_temp_out_dmp" data-chart-primary="0" data-chart-bit="5" class="dash dash-history">
+            <div class="dash-header" data-i18n="temp_out"></div>
+            <div class="dash-readings">
+              <div class="dash-reading dash-reading-primary dash-series-first">
+                <div class="dash-reading-label" data-i18n="chart_current"></div>
+                <div class="dash-reading-value"><span id="p01_temp_out_act" class="value"></span><span class="dash-reading-unit">°C</span></div>
+              </div>
+              <div class="dash-reading dash-reading-secondary dash-series-second">
+                <div class="dash-reading-label" data-i18n="chart_damped"></div>
+                <div class="dash-reading-value"><span id="p01_temp_out_dmp" class="value"></span><span class="dash-reading-unit">°C</span></div>
+              </div>
+            </div>
+            <div class="dash-history-plot"><div class="dash-chart"></div></div>
+            <div class="dash-chart-status"></div>
+          </article>
+
+
+
+
         </div>
         <!-- END Grid2 -->
       </div>

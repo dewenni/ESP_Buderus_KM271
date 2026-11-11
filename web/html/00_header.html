@@ -13,6 +13,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
   <body>
+    <header class="app-header">
+      <strong class="app-brand">ESP-Buderus-KM271</strong>
+      <div class="app-modes">
+        <span class="simModeBar">SIMULATION</span>
+        <span class="setupModeBar">SETUP-MODE</span>
+      </div>
+      <span id="p00_web_connection" class="app-connection" role="status">
+        <span id="p00_web_connection_text" data-i18n="ui_disconnected"></span>
+      </span>
+    </header>
     <!-- Dialog Version -->
     <dialog id="version_dialog">
       <article class="dash">
@@ -98,11 +108,13 @@
       <div class="topMenu">
         <ul>
           <li>
-            <strong style="margin-right: 10px">ESP-Buderus-KM271</strong>
-            <span class="simModeBar">SIM</span>
-            <span class="setupModeBar">SETUP</span>
+            <strong class="app-brand">ESP-Buderus-KM271</strong>
           </li>
         </ul>
+        <div class="app-modes">
+          <span class="simModeBar">SIM</span>
+          <span class="setupModeBar">SETUP</span>
+        </div>
         <ul>
           <li>
             <details class="dropdown">
@@ -152,94 +164,74 @@
     <!--TOP-MENU-END-->
     <!--SIDEBAR-->
     <div class="sidebar">
-      <div>
-        <div>ESP-Buderus-KM271</div>
-      </div>
-      <div class="simModeBar">SIMULATION-MODE</div>
-      <div class="setupModeBar">SETUP-MODE</div>
       <ul class="nav-list">
         <li>
           <a href="#" data-tab="tab1" class="active">
-            <i class="svg i_dashboard"></i>
             <span class="links_name" data-i18n="dashboard"></span>
           </a>
         </li>
         <li>
           <a href="#" data-tab="tab2">
-            <i class="svg i_control"></i>
             <span class="links_name" data-i18n="control"></span>
           </a>
         </li>
         <li class="OPT_HC1">
           <a href="#" data-tab="tab3">
-            <i class="svg svg i_table"></i>
             <span class="links_name" data-i18n="heating_circuit_1"></span>
           </a>
         </li>
         <li class="OPT_HC2">
           <a href="#" data-tab="tab4">
-            <i class="svg svg i_table"></i>
             <span class="links_name" data-i18n="heating_circuit_2"></span>
           </a>
         </li>
         <li class="OPT_HW">
           <a href="#" data-tab="tab5">
-            <i class="svg i_water"></i>
             <span class="links_name" data-i18n="hot_water"></span>
           </a>
         </li>
         <li class="OPT_SOLAR">
           <a href="#" data-tab="tab13">
-            <i class="svg i_solar"></i>
             <span class="links_name" data-i18n="solar"></span>
           </a>
         </li>
         <li>
           <a href="#" data-tab="tab6">
-            <i class="svg i_flame"></i>
             <span class="links_name" data-i18n="burner"></span>
           </a>
         </li>
         <li>
           <a href="#" data-tab="tab7">
-            <i class="svg i_table"></i>
             <span class="links_name" data-i18n="general"></span>
           </a>
         </li>
-        <li></li>
         <li class="OPT_ALARM">
           <a href="#" data-tab="tab8">
-            <i class="svg i_alarm"></i>
             <span class="links_name" data-i18n="alarm"></span>
           </a>
         </li>
-        <li></li>
         <li>
           <a href="#" data-tab="tab9">
-            <i class="svg i_info"></i>
             <span class="links_name" data-i18n="system"></span>
           </a>
         </li>
         <li>
           <a href="#" data-tab="tab10">
-            <i class="svg i_log"></i>
             <span class="links_name" data-i18n="logger"></span>
           </a>
         </li>
         <li>
           <a href="#" data-tab="tab11">
-            <i class="svg i_upload"></i>
             <span class="links_name" data-i18n="tools"></span>
           </a>
         </li>
         <li>
           <a href="#" data-tab="tab12">
-            <i class="svg i_settings"></i>
             <span class="links_name" data-i18n="settings"></span>
           </a>
         </li>
       </ul>
-      <div style="display: inline-flex; margin-top: auto; margin-bottom: 5px">
+      <div class="sidebar-status" style="display: inline-flex; margin-top: auto; margin-bottom: 5px">
         <a id="p00_version" style="margin-right: auto; margin-top: auto"></a>
         <i id="p00_wifi_icon" style="width: 28px; height: 28px"></i>
         <i id="p00_eth_icon" style="width: 28px; height: 28px"></i>
