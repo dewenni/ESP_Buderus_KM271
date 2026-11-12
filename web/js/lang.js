@@ -939,11 +939,7 @@ const user_translations = {
     en: "received",
   },
   act_prg: {
-    de: "aktives Programm",
-    en: "active program",
-  },
-  man_prg_timer: {
-    de: "Timer des manuellen Programms",
-    en: "timer of manual program",
+    de: "Aktives Programm",
+    en: "Active program",
   },
 };
