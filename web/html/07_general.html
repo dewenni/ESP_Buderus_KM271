@@ -28,14 +28,13 @@
     <!-- Tab-Content -->
     <main class="container">
       <!--SECTION-START-->
-      <div id="tab7" class="tab-content">
+      <div id="tab7" class="tab-content information-page information-page--compact">
         <header class="page-heading">
-          <h1 data-i18n="general"></h1>
+          <h1 data-i18n="general"></h1><p data-i18n="info_general_subtitle"></p>
         </header>
-        <div class="grid">
-          <!-- Grid 1 -->
-          <article class="card">
-            <p class="table-header" data-i18n="config"></p>
+<div class="information-grid">
+<article class="card">
+            <h2 class="table-header" data-i18n="config"></h2>
             <table class="striped">
               <tbody>
                 <tr>
@@ -61,9 +60,8 @@
               </tbody>
             </table>
           </article>
-
-          <article class="card">
-            <p class="table-header" data-i18n="limits"></p>
+<article class="card">
+            <h2 class="table-header" data-i18n="limits"></h2>
             <table class="striped">
               <tbody>
                 <tr>
@@ -85,36 +83,18 @@
               </tbody>
             </table>
           </article>
-        </div>
-        <!-- END Grid 1 -->
-
-        <div class="grid">
-          <!-- Grid 2 -->
-          <article class="card">
-            <p class="table-header" data-i18n="temperatures"></p>
+<article class="card">
+            <h2 class="table-header" data-i18n="temperatures"></h2>
             <table class="striped">
               <tbody>
-                <tr>
-                  <td data-i18n="outside_temp"></td>
-                  <td id="p07_out_temp" class="table-value"></td>
-                  <td>°C</td>
-                </tr>
-                <tr>
-                  <td data-i18n="outside_temp_damped"></td>
-                  <td id="p07_out_temp_damped" class="table-value"></td>
-                  <td>°C</td>
-                </tr>
-                <tr>
-                  <td data-i18n="exhaust_gas_temp"></td>
-                  <td id="p07_exh_gas_temp" class="table-value"></td>
-                  <td>°C</td>
-                </tr>
+                <tr><td data-i18n="outside_temp"></td><td class="table-value"><span id="p07_out_temp"></span><span class="information-unit">°C</span></td></tr>
+                <tr><td data-i18n="outside_temp_damped"></td><td class="table-value"><span id="p07_out_temp_damped"></span><span class="information-unit">°C</span></td></tr>
+                <tr><td data-i18n="exhaust_gas_temp"></td><td class="table-value"><span id="p07_exh_gas_temp"></span><span class="information-unit">°C</span></td></tr>
               </tbody>
             </table>
           </article>
-        </div>
-        <!-- END Grid 2 -->
-      </div>
+</div>
+</div>
       <!--SECTION-END-->
     </main>
     <!-- Footer -->

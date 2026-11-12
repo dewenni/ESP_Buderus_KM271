@@ -1,0 +1,95 @@
+/* Read-only pages share the dashboard surfaces and existing WebSocket targets. */
+.information-page { container-type: inline-size; }
+.information-grid, .information-page .heating-circuit-info {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+  margin-bottom: 1rem;
+}
+.information-page.heating-circuit, .information-page--compact { max-width: 64rem; }
+.information-page .card {
+  min-width: 0;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 1.25rem;
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  border-radius: 0.75rem;
+}
+.information-page .table-header { margin: 0 0 0.75rem; font-size: 1.1rem; font-weight: 500; }
+.information-page table { margin-bottom: 0; }
+.information-page table + table { margin-top: 1rem; }
+.information-page td { overflow-wrap: anywhere; }
+.information-page td:first-child { width: 59%; }
+.information-page .table-value { text-align: right; font-variant-numeric: tabular-nums; }
+.information-note { color: var(--ui-muted); font-size: max(12px, 0.8rem); line-height: 1.5; margin: 0.9rem 0 0; overflow-wrap: anywhere; }
+.information-runtime { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; font-size: 1.65rem; font-variant-numeric: tabular-nums; }
+.information-runtime small { font-size: 0.9rem; color: var(--ui-muted); }
+.information-page .is-active { color: var(--ui-accent); }
+.information-page .is-error { color: var(--pico-del-color); }
+.information-page .is-connected { color: var(--ui-connected); }
+.information-unit { margin-left: 0.35rem; white-space: nowrap; }
+.information-page [data-info-meter] { display: block; width: 8rem; max-width: 100%; height: 0.3rem; margin: 0.5rem 0 0 auto; --pico-progress-color: var(--ui-target); --pico-progress-background-color: color-mix(in srgb, var(--ui-muted) 35%, var(--ui-surface)); }
+.information-page [data-info-meter][hidden] { display: none; }
+.tools-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.information-page .tools form { margin: 0; min-width: 0; }
+.information-page .tools label { display: block; margin-bottom: 0.5rem; }
+.information-page .tools input[type=file] { width: 100%; min-width: 0; margin: 0; }
+.tools-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-top: 1rem; }
+.tools-actions > button, .tools-actions > input[type=submit] { width: auto; max-width: 100%; margin: 0; white-space: normal; }
+.information-page .tools progress { margin: 1rem 0 0; }
+.log-toolbar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) max-content; gap: 0.75rem; align-items: end; margin-bottom: 1rem; }
+.log-toolbar > div { min-width: 0; }
+.log-toolbar [hidden] { display: none; }
+.log-toolbar label { display: block; font-size: 0.85rem; color: var(--ui-muted); margin-bottom: 0.4rem; }
+.log-toolbar select { width: 100%; margin: 0; }
+.log-toolbar .tools-actions { justify-content: end; margin: 0; }
+.log-heading { display: flex; align-items: start; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem 1.5rem; }
+.log-recording { display: flex; align-items: center; gap: 0.8rem; min-height: 44px; margin: 0; }
+.log-recording input { margin: 0; }
+.information-page [data-info-state="connection"]::before {
+  content: ""; display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 50%;
+  margin-right: 0.5rem; vertical-align: middle; background: var(--ui-muted);
+}
+.information-page .is-connected[data-info-state]::before { background: var(--ui-connected); }
+.information-page .is-disconnected[data-info-state]::before { background: var(--pico-del-color); }
+.information-page [data-info-state="connection"] { color: var(--ui-text); }
+#p10_log_output { font: max(12px, 0.85rem)/1.7 ui-monospace, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+#p10_log_output > div { padding: 0.35rem 0; border-bottom: 1px solid var(--ui-border); }
+#p10_log_output .log-warning { color: var(--ui-accent); }
+#p10_log_output .log-error { color: var(--pico-del-color); }
+#p10_log_output .log-debug { color: var(--ui-muted); }
+@container (max-width: 850px) {
+  .information-grid, .information-page .heating-circuit-info { grid-template-columns: minmax(0, 1fr); }
+}
+@container (max-width: 420px) {
+  .information-page .card { padding: 1rem; }
+  .tools-actions > button, .tools-actions > input[type=submit] { flex: 1 1 100%; }
+}
+
+@container (max-width: 1000px) {
+  .log-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .log-toolbar .tools-actions { grid-column: auto; }
+}
+@container (max-width: 420px) {
+  .log-toolbar { grid-template-columns: minmax(0, 1fr); }
+  .log-toolbar .tools-actions { justify-content: start; }
+}
+
+/* Keep accessible file labels without repeating the card headings. */
+.information-page .tools .tools-file-label {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+.tools-remote-update { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--ui-border); }
+.tools-remote-update button { display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; width: auto; max-width: 100%; margin: 0; }
+.tools-remote-update .svg { width: 20px; height: 20px; flex: 0 0 20px; }
+@container (max-width: 420px) { .tools-remote-update button { width: 100%; } }
+
+.memory-detail { display: block; margin-top: 0.25rem; color: var(--ui-muted); font-size: max(12px, 0.8rem); }
+
+.memory-table { table-layout: fixed; }
+
+.information-stack { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }

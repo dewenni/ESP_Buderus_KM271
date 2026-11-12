@@ -31,64 +31,50 @@
     <main class="container">
       <!--SECTION-START-->
       <!-- Logger-Inhalt hier -->
-      <div id="tab10" class="tab-content">
-        <header class="page-heading">
-          <h1 data-i18n="logger"></h1>
+      <div id="tab10" class="tab-content information-page">
+        <header class="page-heading log-heading">
+          <div><h1 data-i18n="logger"></h1><p data-i18n="info_log_subtitle"></p></div>
+          <label class="log-recording"><span data-i18n="info_log_recording"></span><input name="log_enable" type="checkbox" role="switch" id="cfg_logger_enable" /></label>
         </header>
-        <div class="grid">
-          <!-- Grid 1 -->
-          <article style="width: 100%">
-            <div
-              class="dash-content"
-              style="gap: 5px; margin-bottom: 5px; flex-wrap: wrap">
-              <button id="p10_log_clr_btn" data-i18n="clear"></button>
-              <button id="p10_log_refresh_btn" data-i18n="refresh"></button>
-              <select
+<div class="log-toolbar">
+<div><label for="p10_logger_type" data-i18n="info_log_source"></label><select
                 id="p10_logger_type"
-                onchange="changeLogType(this)"
-                style="max-width: 210px; margin: 0px">
+                onchange="changeLogType(this)">
                 <option value="0" data-i18n="log_type_1"></option>
                 <option value="1" data-i18n="log_type_2"></option>
               </select>
-              <select
-                id="cfg_logger_level"
-                style="max-width: 200px; margin: 0px">
+</div>
+<div id="log_level_field"><label for="cfg_logger_level" data-i18n="info_log_level"></label><select
+                id="cfg_logger_level">
                 <option value="1" data-i18n="log_level_1"></option>
                 <option value="2" data-i18n="log_level_2"></option>
                 <option value="3" data-i18n="log_level_3"></option>
                 <option value="4" data-i18n="log_level_4"></option>
               </select>
-              <select
-                id="cfg_logger_filter"
-                style="max-width: 300px; margin: 0px">
+</div>
+<div id="log_filter_field"><label for="cfg_logger_filter" data-i18n="filter"></label><select
+                id="cfg_logger_filter">
                 <option value="0" data-i18n="log_mode_1"></option>
                 <option value="1" data-i18n="log_mode_2"></option>
                 <option value="2" data-i18n="log_mode_3"></option>
                 <option value="3" data-i18n="log_mode_4"></option>
                 <option value="4" data-i18n="log_mode_5"></option>
               </select>
-              <select
-                id="cfg_logger_order"
-                style="max-width: 200px; margin: 0px">
+</div>
+<div><label for="cfg_logger_order" data-i18n="info_log_order"></label><select
+                id="cfg_logger_order">
                 <option value="0" data-i18n="sort_down"></option>
                 <option value="1" data-i18n="sort_up"></option>
               </select>
-              <input
-                name="log_enable"
-                type="checkbox"
-                role="switch"
-                id="cfg_logger_enable" />
-            </div>
-            <hr />
-            <div
-              id="p10_log_output"
-              style="
-                font-family: 'Consolas', monospace;
-                font-size: medium;
-              "></div>
-          </article>
-        </div>
-      </div>
+</div>
+<div class="tools-actions"><button id="p10_log_refresh_btn" data-i18n="refresh"></button><button id="p10_log_clr_btn" data-i18n="clear"></button>
+</div>
+</div>
+<article class="card log-panel">
+<div id="p10_log_output" role="log">
+</div>
+</article>
+</div>
       <!--SECTION-END-->
     </main>
     <!-- Footer -->

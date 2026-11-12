@@ -30,223 +30,179 @@
     <main class="container">
       <!--SECTION-START-->
       <!-- HC1-Inhalt hier -->
-      <div id="tab3" class="tab-content heating-circuit">
+      <div id="tab3" class="tab-content heating-circuit information-page">
         <header class="page-heading">
-          <h1 data-i18n="heating_circuit_1"></h1>
+          <h1 data-i18n="heating_circuit_1"></h1><p data-i18n="info_circuit_subtitle"></p>
         </header>
         <div class="heating-circuit-info">
-          <article class="card">
-            <p class="table-header" data-i18n="config"></p>
+<article class="card">
+            <h2 class="table-header" data-i18n="config"></h2>
             <table class="striped">
               <tbody>
                 <tr>
-                  <td data-i18n="hc1$ $night_temp"></td>
+                  <td data-i18n="night_temp"></td>
                   <td id="p03_hc1_night_temp" class="table-value"></td>
                 </tr>
                 <tr>
-                  <td data-i18n="hc1$ $day_temp"></td>
+                  <td data-i18n="day_temp"></td>
                   <td id="p03_hc1_day_temp" class="table-value"></td>
                 </tr>
                 <tr>
-                  <td data-i18n="hc1$ $operation_mode"></td>
+                  <td data-i18n="operation_mode"></td>
                   <td id="p03_hc1_op_mode" class="table-value"></td>
                 </tr>
                 <tr>
-                  <td data-i18n="hc1$ $holiday_temp"></td>
+                  <td data-i18n="holiday_temp"></td>
                   <td id="p03_hc1_hday_temp" class="table-value"></td>
                 </tr>
                 <tr>
-                  <td data-i18n="hc1$ $max_temp"></td>
+                  <td data-i18n="max_temp"></td>
                   <td id="p03_hc1_max_temp" class="table-value"></td>
                 </tr>
                 <tr>
-                  <td data-i18n="hc1$ $interpretation"></td>
+                  <td data-i18n="control_design_temp"></td>
                   <td id="p03_hc1_interp" class="table-value"></td>
                 </tr>
                 <tr>
-                  <td data-i18n="hc1$ $switch_on_temperature"></td>
+                  <td data-i18n="switch_on_temperature"></td>
                   <td id="p03_hc1_sw_on_temp" class="table-value">--</td>
                 </tr>
                 <tr>
-                  <td data-i18n="hc1$ $switch_off_threshold"></td>
+                  <td data-i18n="switch_off_threshold"></td>
                   <td id="p03_hc1_sw_off_th" class="table-value">--</td>
                 </tr>
                 <tr>
-                  <td data-i18n="hc1$ $reduction_mode"></td>
+                  <td data-i18n="reduction_mode"></td>
                   <td id="p03_hc1_red_mode" class="table-value"></td>
                 </tr>
                 <tr>
-                  <td data-i18n="hc1$ $heating_system"></td>
+                  <td data-i18n="heating_system"></td>
                   <td id="p03_hc1_heatsys" class="table-value"></td>
                 </tr>
                 <tr>
-                  <td data-i18n="hc1$ $temp_offset"></td>
+                  <td data-i18n="temp_offset"></td>
                   <td id="p03_hc1_temp_offset" class="table-value"></td>
                 </tr>
                 <tr>
-                  <td data-i18n="hc1$ $remotecontrol"></td>
+                  <td data-i18n="remotecontrol"></td>
                   <td id="p03_hc1_remotecontrol" class="table-value"></td>
                 </tr>
                 <tr>
-                  <td data-i18n="hc1$ $summer_mode_threshold"></td>
+                  <td data-i18n="control_summer_threshold"></td>
                   <td id="p03_hc1_summer_th" class="table-value">--</td>
                 </tr>
                 <tr>
-                  <td data-i18n="hc1$ $frost_protection_threshold"></td>
+                  <td data-i18n="control_frost_threshold"></td>
                   <td id="p03_hc1_frost_th" class="table-value">--</td>
                 </tr>
               </tbody>
             </table>
           </article>
-
-          <article class="card">
-            <p class="table-header" data-i18n="status"></p>
+<article class="card">
+            <h2 class="table-header" data-i18n="info_current_values"></h2>
             <table class="striped">
               <tbody>
-                <tr>
-                  <td data-i18n="hc1$ $flow_setpoint"></td>
-                  <td id="p03_hc1_flow_set" class="table-value"></td>
-                  <td>°C</td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc1$ $flow_temp"></td>
-                  <td id="p03_hc1_flow_act" class="table-value"></td>
-                  <td>°C</td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc1$ $heat_curve_10C"></td>
-                  <td id="p03_hc1_heat_curve_10C" class="table-value"></td>
-                  <td>°C</td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc1$ $heat_curve_0C"></td>
-                  <td id="p03_hc1_heat_curve_0C" class="table-value"></td>
-                  <td>°C</td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc1$ $heat_curve_-10C"></td>
-                  <td id="p03_hc1_heat_curve_-10C" class="table-value"></td>
-                  <td>°C</td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc1$ $mixer"></td>
-                  <td id="p03_hc1_mixer" class="table-value"></td>
-                  <td>%</td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc1$ $off_time_opt_duration"></td>
-                  <td id="p03_hc1_off_time_opt_dur" class="table-value">--</td>
-                  <td>min</td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc1$ $on_time_opt_duration"></td>
-                  <td id="p03_hc1_on_time_opt_dur" class="table-value">--</td>
-                  <td>min</td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc1$ $pump"></td>
-                  <td id="p03_hc1_pump" class="table-value"></td>
-                  <td>%</td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc1$ $room_setpoint"></td>
-                  <td id="p03_hc1_room_set" class="table-value"></td>
-                  <td>°C</td>
-                </tr>
-                <tr>
-                  <td data-i18n="hc1$ $room_temp"></td>
-                  <td id="p03_hc1_room_temp" class="table-value"></td>
-                  <td>°C</td>
-                </tr>
+                <tr><td data-i18n="flow_setpoint"></td><td class="table-value"><span id="p03_hc1_flow_set"></span><span class="information-unit">°C</span></td></tr>
+                <tr><td data-i18n="flow_temp"></td><td class="table-value"><span id="p03_hc1_flow_act"></span><span class="information-unit">°C</span></td></tr>
+                <tr><td data-i18n="heat_curve_10C"></td><td class="table-value"><span id="p03_hc1_heat_curve_10C"></span><span class="information-unit">°C</span></td></tr>
+                <tr><td data-i18n="heat_curve_0C"></td><td class="table-value"><span id="p03_hc1_heat_curve_0C"></span><span class="information-unit">°C</span></td></tr>
+                <tr><td data-i18n="heat_curve_-10C"></td><td class="table-value"><span id="p03_hc1_heat_curve_-10C"></span><span class="information-unit">°C</span></td></tr>
+                <tr><td data-i18n="mixer"></td><td class="table-value"><span id="p03_hc1_mixer"></span><span class="information-unit">%</span></td></tr>
+                <tr><td data-i18n="off_time_opt_duration"></td><td class="table-value"><span id="p03_hc1_off_time_opt_dur">--</span><span class="information-unit">min</span></td></tr>
+                <tr><td data-i18n="on_time_opt_duration"></td><td class="table-value"><span id="p03_hc1_on_time_opt_dur">--</span><span class="information-unit">min</span></td></tr>
+                <tr><td data-i18n="pump"></td><td class="table-value"><span id="p03_hc1_pump" data-info-state="number"></span><span class="information-unit">%</span></td></tr>
+                <tr><td data-i18n="room_setpoint"></td><td class="table-value"><span id="p03_hc1_room_set"></span><span class="information-unit">°C</span></td></tr>
+                <tr><td data-i18n="room_temp"></td><td class="table-value"><span id="p03_hc1_room_temp"></span><span class="information-unit">°C</span></td></tr>
               </tbody>
             </table>
           </article>
-
-          <article class="card">
-            <p class="table-header" data-i18n="op_values$ 1$"></p>
-            <table class="striped">
-              <tbody>
-                <tr>
-                  <td data-i18n="hc1$ $ov1_off_time_optimization"></td>
-                  <td id="p03_hc1_ov1_off_time_opt" class="table-value">--</td>
+<article class="card">
+<h2 class="table-header" data-i18n="info_operating_states"></h2>
+<table class="striped">
+<tbody>
+<tr>
+                  <td data-i18n="ov1_off_time_optimization"></td>
+                  <td id="p03_hc1_ov1_off_time_opt" class="table-value" data-info-state="on">--</td>
                 </tr>
-                <tr>
-                  <td data-i18n="hc1$ $ov1_on_time_optimization"></td>
-                  <td id="p03_hc1_ov1_on_time_opt" class="table-value">--</td>
+<tr>
+                  <td data-i18n="ov1_on_time_optimization"></td>
+                  <td id="p03_hc1_ov1_on_time_opt" class="table-value" data-info-state="on">--</td>
                 </tr>
-                <tr>
-                  <td data-i18n="hc1$ $ov1_automatic"></td>
-                  <td id="p03_hc1_ov1_auto" class="table-value"></td>
+<tr>
+                  <td data-i18n="ov1_automatic"></td>
+                  <td id="p03_hc1_ov1_auto" class="table-value" data-info-state="on"></td>
                 </tr>
-                <tr>
-                  <td data-i18n="hc1$ $ov1_ww_priority"></td>
-                  <td id="p03_hc1_ov1_ww_priority" class="table-value"></td>
+<tr>
+                  <td data-i18n="ov1_ww_priority"></td>
+                  <td id="p03_hc1_ov1_ww_priority" class="table-value" data-info-state="on"></td>
                 </tr>
-                <tr>
-                  <td data-i18n="hc1$ $ov1_screed_drying"></td>
-                  <td id="p03_hc1_ov1_screed_drying" class="table-value"></td>
+<tr>
+                  <td data-i18n="ov1_screed_drying"></td>
+                  <td id="p03_hc1_ov1_screed_drying" class="table-value" data-info-state="on"></td>
                 </tr>
-                <tr>
-                  <td data-i18n="hc1$ $ov1_holiday"></td>
-                  <td id="p03_hc1_ov1_holiday" class="table-value"></td>
+<tr>
+                  <td data-i18n="ov1_holiday"></td>
+                  <td id="p03_hc1_ov1_holiday" class="table-value" data-info-state="on"></td>
                 </tr>
-                <tr>
-                  <td data-i18n="hc1$ $ov1_frost_protection"></td>
-                  <td id="p03_hc1_ov1_frost" class="table-value">--</td>
+<tr>
+                  <td data-i18n="ov1_frost_protection"></td>
+                  <td id="p03_hc1_ov1_frost" class="table-value" data-info-state="on">--</td>
                 </tr>
-              </tbody>
-            </table>
-          </article>
-
-          <article class="card">
-            <p class="table-header" data-i18n="op_values$ 2$"></p>
-            <table class="striped">
-              <tbody>
-                <tr>
-                  <td data-i18n="hc1$ $ov2_summer"></td>
-                  <td id="p03_hc1_ov2_summer" class="table-value"></td>
+<tr>
+                  <td data-i18n="ov2_summer"></td>
+                  <td id="p03_hc1_ov2_summer" class="table-value" data-info-state="on"></td>
                 </tr>
-                <tr>
-                  <td data-i18n="hc1$ $ov2_day"></td>
-                  <td id="p03_hc1_ov2_day" class="table-value"></td>
+<tr>
+                  <td data-i18n="ov2_day"></td>
+                  <td id="p03_hc1_ov2_day" class="table-value" data-info-state="on"></td>
                 </tr>
-                <tr>
-                  <td data-i18n="hc1$ $ov2_no_conn_to_remotectrl"></td>
-                  <td id="p03_hc1_ov2_no_con_remote" class="table-value">--</td>
+</tbody>
+</table>
+</article>
+<article class="card">
+<h2 class="table-header" data-i18n="info_monitoring"></h2>
+<table class="striped">
+<tbody>
+<tr>
+                  <td data-i18n="ov2_no_conn_to_remotectrl"></td>
+                  <td id="p03_hc1_ov2_no_con_remote" class="table-value" data-info-state="error">--</td>
                 </tr>
-                <tr>
-                  <td data-i18n="hc1$ $ov2_remotectrl_error"></td>
-                  <td id="p03_hc1_ov2_remote_err" class="table-value">--</td>
+<tr>
+                  <td data-i18n="ov2_remotectrl_error"></td>
+                  <td id="p03_hc1_ov2_remote_err" class="table-value" data-info-state="error">--</td>
                 </tr>
-                <tr>
-                  <td data-i18n="hc1$ $ov2_failure_flow_sensor"></td>
-                  <td id="p03_hc1_ov2_fail_flow_sens" class="table-value">
+<tr>
+                  <td data-i18n="ov2_failure_flow_sensor"></td>
+                  <td id="p03_hc1_ov2_fail_flow_sens" class="table-value" data-info-state="error">
                     --
                   </td>
                 </tr>
-                <tr>
-                  <td data-i18n="hc1$ $ov2_flow_at_maximum"></td>
-                  <td id="p03_hc1_ov2_flow_at_max" class="table-value">--</td>
+<tr>
+                  <td data-i18n="ov2_flow_at_maximum"></td>
+                  <td id="p03_hc1_ov2_flow_at_max" class="table-value" data-info-state="error">--</td>
                 </tr>
-                <tr>
-                  <td data-i18n="hc1$ $ov2_external_signal_input"></td>
-                  <td id="p03_hc1_ov2_ext_sign_in" class="table-value">--</td>
+<tr>
+                  <td data-i18n="ov2_external_signal_input"></td>
+                  <td id="p03_hc1_ov2_ext_sign_in" class="table-value" data-info-state="error">--</td>
                 </tr>
-              </tbody>
-            </table>
-          </article>
+</tbody>
+</table>
+</article>
         </div>
 
         <article class="card">
-          <p class="table-header" data-i18n="programs"></p>
+          <h2 class="table-header" data-i18n="programs"></h2>
           <h6 data-i18n="act_prg"></h6>
-          <div id="p03_hc1_act_prg"></div>
+          <div id="p03_hc1_act_prg">
+</div>
           <h6 data-i18n="man_prg_timer"></h6>
           <div class="weekly-program" data-timer-prefix="p03_hc1">
-            <p><small data-i18n="weekly_program_hint"></small></p>
+            <p>
+<small data-i18n="weekly_program_hint"></small></p>
             <p class="weekly-program-status" role="status"></p>
             <div class="weekly-program-scroll" hidden>
-              <div class="weekly-program-chart"></div>
+              <div class="weekly-program-chart">
+</div>
             </div>
             <p class="weekly-program-legend" hidden>
               <span><i class="weekly-program-key-on" aria-hidden="true"></i> <span data-i18n="weekly_program_on"></span></span>
@@ -257,59 +213,59 @@
           <table class="striped">
             <tbody>
               <tr>
-                <td data-i18n="hc1$ $timer++ 01"></td>
+                <td data-i18n="timer++ 01"></td>
                 <td id="p03_hc1_t01" class="table-value"></td>
               </tr>
               <tr>
-                <td data-i18n="hc1$ $timer++ 02"></td>
+                <td data-i18n="timer++ 02"></td>
                 <td id="p03_hc1_t02" class="table-value"></td>
               </tr>
               <tr>
-                <td data-i18n="hc1$ $timer++ 03"></td>
+                <td data-i18n="timer++ 03"></td>
                 <td id="p03_hc1_t03" class="table-value"></td>
               </tr>
               <tr>
-                <td data-i18n="hc1$ $timer++ 04"></td>
+                <td data-i18n="timer++ 04"></td>
                 <td id="p03_hc1_t04" class="table-value"></td>
               </tr>
               <tr>
-                <td data-i18n="hc1$ $timer++ 05"></td>
+                <td data-i18n="timer++ 05"></td>
                 <td id="p03_hc1_t05" class="table-value"></td>
               </tr>
               <tr>
-                <td data-i18n="hc1$ $timer++ 06"></td>
+                <td data-i18n="timer++ 06"></td>
                 <td id="p03_hc1_t06" class="table-value"></td>
               </tr>
               <tr>
-                <td data-i18n="hc1$ $timer++ 07"></td>
+                <td data-i18n="timer++ 07"></td>
                 <td id="p03_hc1_t07" class="table-value"></td>
               </tr>
               <tr>
-                <td data-i18n="hc1$ $timer++ 08"></td>
+                <td data-i18n="timer++ 08"></td>
                 <td id="p03_hc1_t08" class="table-value"></td>
               </tr>
               <tr>
-                <td data-i18n="hc1$ $timer++ 09"></td>
+                <td data-i18n="timer++ 09"></td>
                 <td id="p03_hc1_t09" class="table-value"></td>
               </tr>
               <tr>
-                <td data-i18n="hc1$ $timer++ 10"></td>
+                <td data-i18n="timer++ 10"></td>
                 <td id="p03_hc1_t10" class="table-value"></td>
               </tr>
               <tr>
-                <td data-i18n="hc1$ $timer++ 11"></td>
+                <td data-i18n="timer++ 11"></td>
                 <td id="p03_hc1_t11" class="table-value"></td>
               </tr>
               <tr>
-                <td data-i18n="hc1$ $timer++ 12"></td>
+                <td data-i18n="timer++ 12"></td>
                 <td id="p03_hc1_t12" class="table-value"></td>
               </tr>
               <tr>
-                <td data-i18n="hc1$ $timer++ 13"></td>
+                <td data-i18n="timer++ 13"></td>
                 <td id="p03_hc1_t13" class="table-value"></td>
               </tr>
               <tr>
-                <td data-i18n="hc1$ $timer++ 14"></td>
+                <td data-i18n="timer++ 14"></td>
                 <td id="p03_hc1_t14" class="table-value"></td>
               </tr>
             </tbody>

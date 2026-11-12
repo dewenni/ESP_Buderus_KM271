@@ -2,6 +2,73 @@
 // localization texts
 // --------------------------------------
 const user_translations = {
+  info_firmware_used: { de: "Firmware-Speicher belegt", en: "Firmware storage used" },
+  info_ram_free: { de: "RAM frei", en: "Free RAM" },
+  info_largest_free_block: { de: "Größter freier Speicherblock", en: "Largest free memory block" },
+  info_minimum_free_ram: { de: "Niedrigster freier RAM seit Neustart", en: "Lowest free RAM since restart" },
+  info_memory_used: { de: "belegt", en: "used" },
+
+  info_log_recording: { de: "Aufzeichnung", en: "Recording" },
+  info_firmware_update: { de: "Firmware-Update", en: "Firmware update" },
+  info_configuration: { de: "Konfiguration", en: "Configuration" },
+  info_check_github: { de: "GitHub-Version prüfen", en: "Check GitHub version" },
+  info_import: { de: "Importieren", en: "Import" },
+  info_export: { de: "Exportieren", en: "Export" },
+  info_show: { de: "Anzeigen", en: "Show" },
+
+  info_ethernet: { de: "Ethernet", en: "Ethernet" },
+  info_current_values: { de: "Aktuelle Werte", en: "Current values" },
+  info_operating_states: { de: "Betriebszustände", en: "Operating states" },
+  info_monitoring: { de: "Überwachung", en: "Monitoring" },
+  info_memory: { de: "Speicher", en: "Memory" },
+  info_circuit_subtitle: { de: "Konfiguration und Betriebszustände", en: "Configuration and operating states" },
+  info_ww_subtitle: { de: "Speicher und Warmwasserbereitung", en: "Cylinder and hot water preparation" },
+  info_burner_subtitle: { de: "Kessel, Betrieb und Überwachung", en: "Boiler, operation and monitoring" },
+  info_solar_subtitle: { de: "Temperaturen und Anlagenzustand", en: "Temperatures and system status" },
+  info_general_subtitle: { de: "Übergreifende Einstellungen der Logamatic", en: "General Logamatic settings" },
+  info_alarm_subtitle: { de: "Meldungen der Logamatic", en: "Logamatic messages" },
+  info_tools_subtitle: { de: "Firmware und Konfigurationsverwaltung", en: "Firmware and configuration management" },
+  info_log_subtitle: { de: "Ereignisse und Fehlersuche", en: "Events and troubleshooting" },
+  info_alarm_memory: { de: "Meldespeicher", en: "Message memory" },
+  info_alarm_hint: { de: "Die Meldungen können auch bereits quittierte Störungen enthalten. Ein Eintrag bedeutet nicht automatisch, dass die Störung aktuell anliegt.", en: "Messages may include previously acknowledged faults. An entry does not necessarily mean the fault is currently active." },
+  info_mqtt_error_hint: { de: "Der letzte Fehler ist gespeichert und beschreibt nicht zwingend den aktuellen Verbindungszustand.", en: "The last error is stored and does not necessarily describe the current connection state." },
+  info_years: { de: "Jahre", en: "years" },
+  info_days: { de: "Tage", en: "days" },
+  info_hours: { de: "Std.", en: "hrs" },
+  info_minutes: { de: "Min.", en: "min" },
+  info_firmware_file: { de: "Firmware-Datei", en: "Firmware file" },
+  info_config_file: { de: "Konfigurationsdatei", en: "Configuration file" },
+  info_no_file: { de: "Keine Datei ausgewählt", en: "No file selected" },
+  info_log_source: { de: "Logbuch", en: "Log" },
+  info_log_level: { de: "Level", en: "Level" },
+  info_log_order: { de: "Reihenfolge", en: "Order" },
+  info_solar_status: { de: "Status 9147", en: "Status 9147" },
+
+  control_help: { de: "Hilfe", en: "Help" },
+  control_summer_threshold: { de: "Sommergrenze", en: "Summer threshold" },
+  control_frost_threshold: { de: "Frostschutz", en: "Frost protection" },
+  control_design_temp: { de: "Auslegungstemperatur", en: "Design temperature" },
+  control_help_hc_mode: { de: "Nacht und Tag wählen dauerhaft den jeweiligen Betrieb. Auto wechselt anhand des an der Logamatic gewählten Heizprogramms zwischen Tag- und Nachtbetrieb.", en: "Night and Day select the respective operating mode continuously. Auto switches between day and night operation according to the heating program selected on the Logamatic." },
+  control_help_program: { de: "Wählt das Zeitprogramm der Logamatic für den Automatikbetrieb. „Eigen“ verwendet das individuelle Programm der Regelung; die übrigen Einträge sind deren vordefinierte Programme. Die Schaltzeiten werden hier nicht bearbeitet.", en: "Selects the Logamatic schedule for automatic operation. Custom uses the controller’s individual program; the other entries are its predefined programs. Switching times are not edited here." },
+  control_help_holiday_days: { de: "Dauer des Urlaubsbetriebs: 0–99 Tage. Die Logamatic verringert den Wert täglich um einen Tag. 0 bedeutet keinen laufenden Urlaubszeitraum. Die zugehörige Temperatur wird separat eingestellt.", en: "Holiday operation duration: 0–99 days. The Logamatic decreases the value by one each day. 0 means no active holiday period. Its temperature is set separately." },
+  control_help_reduction: { de: "Bestimmt die Betriebsweise während der Absenkzeiten: Abschalt, Reduziert, Raumhalt oder Aussenhalt. Raumhalt berücksichtigt die Raumtemperatur, Aussenhalt die Außentemperatur. Die tatsächliche Wirkung hängt von der Ausstattung und Konfiguration der Logamatic ab.", en: "Selects operation during setback periods: Off, Reduced, Room hold or Outdoor hold. Room hold uses room temperature; Outdoor hold uses outdoor temperature. Actual behavior depends on the Logamatic equipment and configuration." },
+  control_help_day: { de: "Raum-Solltemperatur für den Tagbetrieb: 10–30 °C in Schritten von 0,5 °C. Es handelt sich nicht um die Vorlauftemperatur. Der Wert beeinflusst die Heizungsregelung auch über die Heizkennlinie.", en: "Room temperature setpoint for day operation: 10–30 °C in 0.5 °C steps. This is not the flow temperature. The value also affects heating control through the heating curve." },
+  control_help_night: { de: "Raum-Solltemperatur für den Nacht- bzw. reduzierten Betrieb: 10–30 °C in Schritten von 0,5 °C. Ob und wie geheizt wird, hängt zusätzlich von der Absenkungsart ab.", en: "Room temperature setpoint for night or reduced operation: 10–30 °C in 0.5 °C steps. Heating behavior also depends on the selected reduction mode." },
+  control_help_holiday_temp: { de: "Raum-Solltemperatur während des eingestellten Urlaubszeitraums: 10–30 °C in Schritten von 0,5 °C. Die Dauer wird über Urlaubstage festgelegt.", en: "Room temperature setpoint during the selected holiday period: 10–30 °C in 0.5 °C steps. Set its duration using Holiday days." },
+  control_help_summer: { de: "Außentemperaturgrenze für die Sommer-/Winterumschaltung. 10–30 °C: temperaturabhängige Umschaltung. Die Randstellungen sind Sonderwerte: 9 = dauerhaft Sommer, 31 = dauerhaft Winter.", en: "Outdoor temperature threshold for summer/winter switching. 10–30 °C: temperature-dependent switching. The end positions are special values: 9 = permanent summer, 31 = permanent winter." },
+  control_help_frost: { de: "Temperaturschwelle für den Frostschutz des Heizkreises: −20 bis +10 °C in Schritten von 1 °C.", en: "Temperature threshold for heating-circuit frost protection: −20 to +10 °C in 1 °C steps." },
+  control_help_design: { de: "Auslegungstemperatur der Heizkennlinie: 30–90 °C in Schritten von 1 °C. Sie beschreibt die Auslegung des Vorlaufs und ist keine Raum-Solltemperatur.", en: "Heating curve design temperature: 30–90 °C in 1 °C steps. It describes the flow temperature design point, not a room temperature setpoint." },
+  control_help_switch_on: { de: "Aufschalttemperatur des Heizkreises: 0–10 °C in Schritten von 1 °C. Dieser Parameter wird direkt an die Logamatic übertragen; seine genaue Wirkung richtet sich nach der verwendeten Regelung und deren Konfiguration.", en: "Heating-circuit switch-on temperature: 0–10 °C in 1 °C steps. This parameter is sent directly to the Logamatic; its exact effect depends on the controller and its configuration." },
+  control_help_switch_off: { de: "Außentemperaturschwelle für die Absenkungsart Aussenhalt: −20 bis +10 °C in Schritten von 1 °C. Der Wert gehört zur außentemperaturabhängigen Absenkung.", en: "Outdoor temperature threshold for Outdoor hold reduction: −20 to +10 °C in 1 °C steps. This value belongs to outdoor-temperature-dependent setback operation." },
+  control_help_ww_mode: { de: "Wählt Nacht-, Tag- oder Automatikbetrieb der Warmwasserbereitung. Auto nutzt die zeitabhängige Freigabe der Logamatic. Die genaue Freigabe ist von deren Konfiguration abhängig.", en: "Selects night, day or automatic operation for hot water. Auto uses the Logamatic’s timed enable. The exact enable behavior depends on its configuration." },
+  control_help_ww_temp: { de: "Solltemperatur für das Warmwasser: 30–60 °C in Schritten von 1 °C. Die aktuelle Speichertemperatur wird separat im Dashboard angezeigt.", en: "Hot-water setpoint: 30–60 °C in 1 °C steps. The current cylinder temperature is displayed separately on the dashboard." },
+  control_help_circulation: { de: "Ansteuerung der Warmwasser-Zirkulationspumpe. 0 = AUS; 1–6 = Anzahl der Zyklen pro Stunde; 7 = EIN. Die Zahlen 1–6 sind keine Temperaturwerte.", en: "Hot-water circulation pump control. 0 = OFF; 1–6 = cycles per hour; 7 = ON. Values 1–6 are not temperatures." },
+  control_help_oil_feedback: { de: "„Setzen“ überträgt den eingegebenen Zählerstand. Der Istwert daneben zeigt den vom ESP bestätigten Stand in Litern; er wird erst mit dessen Rückmeldung aktualisiert.", en: "Set sends the entered meter reading. The actual value beside it shows the reading confirmed by the ESP in liters and updates only after its response." },
+
+  control_subtitle: { de: "Betriebsarten und Temperaturen", en: "Operating modes and temperatures" },
+  control_oilmeter_set: { de: "Zählerstand setzen", en: "Set meter reading" },
+  summer: { de: "Sommer", en: "Summer" },
+  winter: { de: "Winter", en: "Winter" },
   ha_mqtt_hint: { de: "Benötigt eine aktivierte und konfigurierte MQTT-Verbindung.", en: "Requires an enabled and configured MQTT connection." },
   ha_mqtt_disabled: { de: "MQTT ist derzeit deaktiviert.", en: "MQTT is currently disabled." },
   ha_mqtt_open: { de: "MQTT-Einstellungen öffnen", en: "Open MQTT settings" },
@@ -123,14 +190,6 @@ const user_translations = {
     de: "Konfiguration",
     en: "Config",
   },
-  status: {
-    de: "Status",
-    en: "Status",
-  },
-  op_values: {
-    de: "Betriebswerte",
-    en: "Operating-States",
-  },
   temperatures: {
     de: "Temperaturen",
     en: "Temperatures",
@@ -159,10 +218,6 @@ const user_translations = {
     de: "HK2",
     en: "HC2",
   },
-  ww: {
-    de: "WW",
-    en: "WW",
-  },
   act_value: {
     de: "Istwert",
     en: "Actual Value",
@@ -179,10 +234,6 @@ const user_translations = {
     de: "Betriebsart",
     en: "Operation Mode",
   },
-  error_flags: {
-    de: "Fehlermeldungen",
-    en: "Error Flags",
-  },
   burner: {
     de: "Brenner",
     en: "Burner",
@@ -190,10 +241,6 @@ const user_translations = {
   pump: {
     de: "Umw\u00e4lzpumpe",
     en: "Flow Pump",
-  },
-  hw: {
-    de: "WW",
-    en: "HW",
   },
   hot_water: {
     de: "Warmwasser",
@@ -267,41 +314,9 @@ const user_translations = {
     de: "Senior",
     en: "senior",
   },
-  info_summer1: {
-    de: "Umschalttemperatur zwischen Sommer / Winter",
-    en: "Threshold to switch between Summer/Winter",
-  },
-  info_summer2: {
-    de: "9:Sommer | 10..30:Schwelle (\u00b0C) | 31:Winter",
-    en: "9:Summer | 10..30:Threshold (\u00b0C) | 31:Winter",
-  },
-  info_frost: {
-    de: "Umschalttemperatur Frostschutz",
-    en: "Threshold for Frostprotection",
-  },
-  info_designtemp: {
-    de: "Auslegungstemperatur Heizkennlinie",
-    en: "Design Temperature for heating curve",
-  },
-  info_switchoff: {
-    de: "Umschaltschwelle f\u00fcr Absenkung Aussenhalt",
-    en: "Threshold for reduction mode",
-  },
-  info_wwtemp: {
-    de: "Solltemperatur f\u00fcr Warmwasser",
-    en: "Setpoint for Hot Water",
-  },
   info_unit_c: {
-    de: "Einheit: \u00b0C",
-    en: "Unit: \u00b0C",
-  },
-  info_ww_pump_circ1: {
-    de: "Anzahl der Zyklen pro Stunde",
-    en: "count of operation cycles per hour",
-  },
-  info_ww_pump_circ2: {
-    de: "0:AUS | 1..6: Zyklen/Stunde | 7:EIN",
-    en: "0:OFF | 1..6: cycles/hour | 7:ON",
+    de: "\u00b0C",
+    en: "\u00b0C",
   },
   oilmeter: {
     de: "\u00d6lz\u00e4hler",
@@ -326,14 +341,6 @@ const user_translations = {
   alarm_info: {
     de: "Alarme + Info",
     en: "Alarms + Info",
-  },
-  alarminfo: {
-    de: "letzte Alarm Meldungen",
-    en: "latest Alarm Messages",
-  },
-  operation: {
-    de: "Betrieb",
-    en: "Operation",
   },
   lifetimes: {
     de: "Laufzeiten",
@@ -499,14 +506,6 @@ const user_translations = {
     de: "Aussenhalt",
     en: "outdoors",
   },
-  frost_protection_threshold: {
-    de: "Frost ab",
-    en: "frost protection threshold",
-  },
-  summer_mode_threshold: {
-    de: "Sommer ab",
-    en: "summer mode threshold",
-  },
   night_temp: {
     de: "Nachttemperatur",
     en: "night temp",
@@ -526,10 +525,6 @@ const user_translations = {
   max_temp: {
     de: "Max Temperatur",
     en: "max temp",
-  },
-  interpretation: {
-    de: "Auslegung",
-    en: "interpretation",
   },
   switch_on_temperature: {
     de: "Aufschalttemperatur",
@@ -556,8 +551,8 @@ const user_translations = {
     en: "remote control",
   },
   holiday_days: {
-    de: "Ferien_Tage",
-    en: "holiday days",
+    de: "Urlaubstage",
+    en: "Holiday days",
   },
   time_offset: {
     de: "Uhrzeit_Offset",
@@ -612,61 +607,49 @@ const user_translations = {
     en: "burner modulation runtime",
   },
   ov1_off_time_optimization: {
-    de: "BW1 Ausschaltoptimierung",
-    en: "OV1 off time optimization",
+    de: "Ausschaltoptimierung",
+    en: "off time optimization",
   },
   ov1_on_time_optimization: {
-    de: "BW1 Einschaltoptimierung",
-    en: "OV1 on time optimization",
+    de: "Einschaltoptimierung",
+    en: "on time optimization",
   },
   ov1_automatic: {
-    de: "BW1 Automatik",
-    en: "OV1 automatic",
+    de: "Automatik",
+    en: "automatic",
   },
   ov1_ww_priority: {
-    de: "BW1 Warmwasservorrang",
-    en: "OV1 WW priority",
+    de: "Warmwasservorrang",
+    en: "WW priority",
   },
   ov1_screed_drying: {
-    de: "BW1 Estrichtrocknung",
-    en: "OV1 screed drying",
+    de: "Estrichtrocknung",
+    en: "screed drying",
   },
   ov1_holiday: {
-    de: "BW1 Ferien",
-    en: "OV1 holiday",
+    de: "Ferien",
+    en: "holiday",
   },
   ov1_frost_protection: {
-    de: "BW1 Frostschutz",
-    en: "OV1 frost protection",
+    de: "Frostschutz",
+    en: "frost protection",
   },
   ov2_summer: {
-    de: "BW2 Sommer",
-    en: "OV2 summer",
+    de: "Sommer",
+    en: "summer",
   },
   ov2_day: {
-    de: "BW2 Tag",
-    en: "OV2 day",
+    de: "Tag",
+    en: "day",
   },
-  ov2_no_conn_to_remotectrl: {
-    de: "BW2 Keine Komm mit FB",
-    en: "OV2 no conn to remotectrl",
-  },
-  ov2_remotectrl_error: {
-    de: "BW2 FB fehlerhaft",
-    en: "OV2 remotectrl error",
-  },
-  ov2_failure_flow_sensor: {
-    de: "BW2 Fehler Vorlauffuehler",
-    en: "OV2 failure flow sensor",
-  },
+  ov2_no_conn_to_remotectrl: { de: "Keine Verbindung zur Fernbedienung", en: "No connection to remote control" },
+  ov2_remotectrl_error: { de: "Fernbedienung fehlerhaft", en: "Remote control fault" },
+  ov2_failure_flow_sensor: { de: "Vorlauffühler fehlerhaft", en: "Flow sensor fault" },
   ov2_flow_at_maximum: {
-    de: "BW2 Maximaler Vorlauf",
-    en: "OV2 flow at maximum",
+    de: "Maximaler Vorlauf",
+    en: "flow at maximum",
   },
-  ov2_external_signal_input: {
-    de: "BW2 Externer Stoereingang",
-    en: "OV2 external signal input",
-  },
+  ov2_external_signal_input: { de: "Externer Störeingang", en: "External fault input" },
   flow_setpoint: {
     de: "Vorlaufsolltemperatur",
     en: "Flow setpoint",
@@ -704,60 +687,48 @@ const user_translations = {
     en: "Heat curve -10C",
   },
   ov1_auto: {
-    de: "BW1 Automatik",
-    en: "OV1 auto",
+    de: "Automatik",
+    en: "auto",
   },
   ov1_disinfection: {
-    de: "BW1 Desinfektion",
-    en: "OV1 disinfection",
+    de: "Desinfektion",
+    en: "disinfection",
   },
   ov1_reload: {
-    de: "BW1 Nachladung",
-    en: "OV1 reload",
+    de: "Nachladung",
+    en: "reload",
   },
-  ov1_err_disinfection: {
-    de: "BW1 Fehler Desinfektion",
-    en: "OV1 err disinfection",
-  },
-  ov1_err_sensor: {
-    de: "BW1 Fehler Fuehler",
-    en: "OV1 err sensor",
-  },
-  ov1_stays_cold: {
-    de: "BW1 Fehler bleibt kalt",
-    en: "OV1 stays cold",
-  },
-  ov1_err_anode: {
-    de: "BW1 Fehler Anode",
-    en: "OV1 err anode",
-  },
+  ov1_err_disinfection: { de: "Desinfektion fehlerhaft", en: "Disinfection fault" },
+  ov1_err_sensor: { de: "Temperaturfühler fehlerhaft", en: "Temperature sensor fault" },
+  ov1_stays_cold: { de: "Speicher bleibt kalt", en: "Cylinder stays cold" },
+  ov1_err_anode: { de: "Anodenfehler", en: "Anode fault" },
   ov2_load: {
-    de: "BW2 Laden",
-    en: "OV2 load",
+    de: "Laden",
+    en: "load",
   },
   ov2_manual: {
-    de: "BW2 Manuell",
-    en: "OV2 manual",
+    de: "Manuell",
+    en: "manual",
   },
   ov2_reload: {
-    de: "BW2 Nachladen",
-    en: "OV2 reload",
+    de: "Nachladen",
+    en: "reload",
   },
   ov2_off_time_opt_duration: {
-    de: "BW2 Ausschaltoptimierung",
-    en: "OV2 off time opt duration",
+    de: "Ausschaltoptimierung",
+    en: "off time opt duration",
   },
   ov2_on_time_opt_duration: {
-    de: "BW2 Einschaltoptimierung",
-    en: "OV2 on time opt duration",
+    de: "Einschaltoptimierung",
+    en: "on time opt duration",
   },
   ov2_hot: {
-    de: "BW2 Warm",
-    en: "OV2 hot",
+    de: "Warm",
+    en: "hot",
   },
   ov2_priority: {
-    de: "BW2 Vorrang",
-    en: "OV2 priority",
+    de: "Vorrang",
+    en: "priority",
   },
   on_time_opt_duration: {
     de: "Einschaltoptimierung",
@@ -858,22 +829,6 @@ const user_translations = {
   exhaust_gas_temp: {
     de: "Abgastemperatur",
     en: "Exhaust gas temp",
-  },
-  runtime_years: {
-    de: "Laufzeit Jahre",
-    en: "runtime years",
-  },
-  runtime_days: {
-    de: "Laufzeit Tage",
-    en: "runtime days",
-  },
-  runtime_hours: {
-    de: "Laufzeit Stunden",
-    en: "runtime hours",
-  },
-  runtime_minutes: {
-    de: "Laufzeit Minuten",
-    en: "runtime minutes",
   },
   outside_temp: {
     de: "Außentemperatur",

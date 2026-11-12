@@ -31,55 +31,41 @@
     <!-- Tab-Content -->
     <main class="container">
       <!--SECTION-START-->
-      <div id="tab11" class="tab-content">
+      <div id="tab11" class="tab-content information-page">
         <header class="page-heading">
-          <h1 data-i18n="tools"></h1>
+          <h1 data-i18n="tools"></h1><p data-i18n="info_tools_subtitle"></p>
         </header>
-        <!-- OTA-update -->
-        <div class="grid">
-          <article class="tools">
-            <div class="dash-main">
-              <div class="dash-header" data-i18n="ota"></div>
-              <div class="dash-content">
-                <form
-                  method="POST"
-                  action="#"
-                  enctype="multipart/form-data"
-                  id="ota_upload_form">
-                  <button
-                    id="p11_check_git_btn"
-                    class="svgbtn2 i_github"
-                    data-i18n="check_github"></button>
-                  <br />
-                  <input
-                    type="file"
-                    name="ota_update"
-                    id="ota_file_input"
-                    onchange="ota_sub_fun(this)"
-                    accept=".bin" />
-                  <input
-                    type="submit"
-                    id="ota_update_btn"
-                    disabled="disabled"
-                    value="Update" />
-                  <br />
-                  <div
-                    id="ota_status_txt"
-                    style="display: none; text-align: left"
-                    data-i18n="update_ready">
-                    --
-                  </div>
-                  <br /><progress
-                    id="ota_progress_bar"
-                    style="display: none"
-                    max="100"
-                    value="0"></progress>
-                </form>
+        <div class="information-grid tools-grid">
+          <article class="card tools">
+            <h2 class="table-header" data-i18n="info_firmware_update"></h2>
+            <form method="POST" action="#" enctype="multipart/form-data" id="ota_upload_form">
+              <label class="tools-file-label" for="ota_file_input" data-i18n="info_firmware_file"></label>
+              <input type="file" name="ota_update" id="ota_file_input" onchange="ota_sub_fun(this)" accept=".bin" />
+              <p class="information-note" hidden data-selected-file="ota_file_input" data-i18n="info_no_file"></p>
+              <div class="tools-actions">
+                <input type="submit" id="ota_update_btn" disabled="disabled" value="Update" />
               </div>
-            </div>
+              <div id="ota_status_txt" class="information-note" style="display:none" data-i18n="update_ready"></div>
+              <progress id="ota_progress_bar" style="display:none" max="100" value="0"></progress>
+            </form>
+            <div class="tools-remote-update"><button type="button" id="p11_check_git_btn"><i class="svg i_github" aria-hidden="true"></i><span data-i18n="info_check_github"></span></button></div>
           </article>
-          <!-- Dialog OPEN-CONFIG -->
-          <dialog id="open_config_dialog">
+          <article class="card tools">
+            <h2 class="table-header" data-i18n="info_configuration"></h2>
+            <form method="POST" action="#" enctype="multipart/form-data" id="file_upload_form">
+              <label class="tools-file-label" for="file_input" data-i18n="info_config_file"></label>
+              <input type="file" name="file_update" id="file_input" accept=".json" onchange="file_sub_fun(this)" />
+              <p class="information-note" hidden data-selected-file="file_input" data-i18n="info_no_file"></p>
+              <div class="tools-actions">
+                <button type="submit" id="file_upload_btn" data-i18n="info_import" disabled></button>
+                <button type="button" id="p11_export_btn" data-i18n="info_export" onclick="exportConfig()"></button>
+                <button type="button" id="p11_file_show_btn" data-i18n="info_show"></button>
+              </div>
+              <div id="upload_status_txt" class="information-note" style="display:none" data-i18n="import_ready"></div>
+            </form>
+          </article>
+        </div>
+        <dialog id="open_config_dialog">
             <article>
               <header><strong>config.json</strong></header>
               <pre id="config_output"></pre>
@@ -91,48 +77,6 @@
               </div>
             </article>
           </dialog>
-          <!-- config import/export -->
-          <article class="tools">
-            <div class="dash-main">
-              <div class="dash-header" data-i18n="config_mgn"></div>
-              <div class="dash-content">
-                <form
-                  method="POST"
-                  action="#"
-                  enctype="multipart/form-data"
-                  id="file_upload_form">
-                  <input
-                    type="file"
-                    name="file_update"
-                    id="file_input"
-                    accept=".json"
-                    onchange="file_sub_fun(this)" />
-                  <div
-                    id="upload_status_txt"
-                    style="display: none; text-align: left"
-                    data-i18n="import_ready">
-                    --
-                  </div>
-                  <button
-                    style="width: 100%"
-                    type="submit"
-                    id="file_upload_btn"
-                    data-i18n="import"
-                    disabled="true"></button>
-                  <button
-                    style="width: 100%"
-                    id="p11_export_btn"
-                    data-i18n="export"
-                    onclick="exportConfig()"></button>
-                  <button
-                    style="width: 100%; margin-top: 17px"
-                    id="p11_file_show_btn"
-                    data-i18n="open"></button>
-                </form>
-              </div>
-            </div>
-          </article>
-        </div>
       </div>
       <!--SECTION-END-->
     </main>

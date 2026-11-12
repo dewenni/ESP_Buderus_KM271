@@ -9,7 +9,7 @@
     <script src="../js/doc.js" defer></script>
     <script src="../js/lang.js" defer></script>
 <script>
-function test() {    
+function test() {
     document.getElementById("tab2").classList.add('active');
     localizePage("de");
 }
@@ -17,449 +17,566 @@ setInterval(test, 1000);
 </script>
 </head>
 <body>
-<!-- Layout -->    
+<!-- Layout -->
 <header style="height: 100px; display: flex; align-items: center; justify-content: center;"></header>
 <!-- Tab-Content -->
 <main class="container">
 
 <!--SECTION-START-->
 <!-- Tab-2 -->
-  <div id="tab2" class="tab-content">
-        <header class="page-heading">
-          <h1 data-i18n="control"></h1>
-        </header>
-
-      <div class="grid"> <!-- Grid-1 -->
-        
-          <article class="dash OPT_HC1">
-            <div class="dash-main" >
-                <div class="dash-header" data-i18n="hc1$-$opmode"></div>
-                <div class="dash-content">
-                  <fieldset class="radio-buttons">
-                    <input class="button-like" type="radio" id="p02_hc1_opmode_night" name="hc1_opmode" checked >
-                    <label class="button-like-label" for="p02_hc1_opmode_night" data-i18n="night"></label>
-                    <input class="button-like" type="radio" id="p02_hc1_opmode_day" name="hc1_opmode" >
-                    <label class="button-like-label" for="p02_hc1_opmode_day" data-i18n="day"></label>
-                    <input class="button-like" type="radio" id="p02_hc1_opmode_auto" name="hc1_opmode">
-                    <label class="button-like-label" for="p02_hc1_opmode_auto" data-i18n="auto"></label>
-                  </fieldset>
-                </div>
-            </div>
-          </article>
-
-          <article class="dash OPT_HC2">
-            <div class="dash-main">
-                <div class="dash-header" data-i18n="hc2$-$opmode"></div>
-                <div class="dash-content">
-                  <fieldset class="radio-buttons">
-                    <input class="button-like" type="radio" id="p02_hc2_opmode_night" name="hc2_opmode" checked >
-                    <label class="button-like-label" for="p02_hc2_opmode_night" data-i18n="night"></label>
-                    <input class="button-like" type="radio" id="p02_hc2_opmode_day" name="hc2_opmode" >
-                    <label class="button-like-label" for="p02_hc2_opmode_day" data-i18n="day"></label>
-                    <input class="button-like" type="radio" id="p02_hc2_opmode_auto" name="hc2_opmode">
-                    <label class="button-like-label" for="p02_hc2_opmode_auto" data-i18n="auto"></label>
-                  </fieldset>
-                </div>
-            </div>
-          </article>
-
-          <article class="dash">
-            <div class="dash-main">
-                <div class="dash-header" data-i18n="ww$-$opmode"></div>
-                <div class="dash-content">
-                  <fieldset class="radio-buttons">
-                    <input class="button-like" type="radio" id="p02_ww_opmode_night" name="ww_opmode" checked >
-                    <label class="button-like-label" for="p02_ww_opmode_night" data-i18n="night"></label>
-                    <input class="button-like" type="radio" id="p02_ww_opmode_day" name="ww_opmode" >
-                    <label class="button-like-label" for="p02_ww_opmode_day" data-i18n="day"></label>
-                    <input class="button-like" type="radio" id="p02_ww_opmode_auto" name="ww_opmode">
-                    <label class="button-like-label" for="p02_ww_opmode_auto" data-i18n="auto"></label>
-                  </fieldset>
-                </div>
-            </div>
-          </article>
-
-      </div>  <!-- END Grid-1 -->
-      <div class="grid"> <!-- Start Grid-2 -->
-          
-        <article class="dash OPT_HC1">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc1$-$prg"></div>
-            <div class="dash-content">
-              <select name="p02_hc1_prg" id="p02_hc1_prg">
-                <option value="0" data-i18n="hc_prg_custom"></option>
-                <option value="1" data-i18n="hc_prg_family"></option>
-                <option value="2" data-i18n="hc_prg_early"></option>
-                <option value="3" data-i18n="hc_prg_late"></option>
-                <option value="4" data-i18n="hc_prg_am"></option>
-                <option value="5" data-i18n="hc_prg_pm"></option>
-                <option value="6" data-i18n="hc_prg_noon"></option>
-                <option value="7" data-i18n="hc_prg_single"></option>
-                <option value="8" data-i18n="hc_prg_senior"></option>
-              </select>
+<div id="tab2" class="tab-content control-page">
+  <header class="page-heading">
+    <h1 data-i18n="control"></h1>
+    <p data-i18n="control_subtitle"></p>
+  </header>
+  <section class="control-section OPT_HC1" aria-labelledby="p02_hc1_heading">
+    <div class="control-section-heading">
+      <h2 id="p02_hc1_heading" data-i18n="heating_circuit_1"></h2>
+      <button type="button" class="control-help-button" data-ui-local data-control-help="hc" aria-labelledby="p02_hc1_heading control_help_label"><i class="svg i_help" aria-hidden="true"></i></button>
+    </div>
+    <div class="control-primary-grid">
+      <div class="control-card control-mode-card">
+        <div class="dash-main" >
+          <h3 class="dash-header" id="p02_hc1_opmode_label" data-i18n="opmode"></h3>
+          <div class="dash-content">
+            <fieldset class="radio-buttons" aria-labelledby="p02_hc1_opmode_label">
+              <input class="button-like" type="radio" id="p02_hc1_opmode_night" name="hc1_opmode" checked >
+              <label class="button-like-label" for="p02_hc1_opmode_night"><i class="svg i_night" aria-hidden="true"></i><span data-i18n="night"></span></label>
+              <input class="button-like" type="radio" id="p02_hc1_opmode_day" name="hc1_opmode" >
+              <label class="button-like-label" for="p02_hc1_opmode_day"><i class="svg i_day" aria-hidden="true"></i><span data-i18n="day"></span></label>
+              <input class="button-like" type="radio" id="p02_hc1_opmode_auto" name="hc1_opmode">
+              <label class="button-like-label" for="p02_hc1_opmode_auto"><i class="svg i_auto" aria-hidden="true"></i><span data-i18n="auto"></span></label>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <label class="dash-header" for="p02_hc1_prg" data-i18n="prg"></label>
+          <div class="dash-content">
+            <select name="p02_hc1_prg" id="p02_hc1_prg">
+              <option value="0" data-i18n="hc_prg_custom"></option>
+              <option value="1" data-i18n="hc_prg_family"></option>
+              <option value="2" data-i18n="hc_prg_early"></option>
+              <option value="3" data-i18n="hc_prg_late"></option>
+              <option value="4" data-i18n="hc_prg_am"></option>
+              <option value="5" data-i18n="hc_prg_pm"></option>
+              <option value="6" data-i18n="hc_prg_noon"></option>
+              <option value="7" data-i18n="hc_prg_single"></option>
+              <option value="8" data-i18n="hc_prg_senior"></option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="control-card control-compact-card">
+        <div class="dash-main">
+          <label class="dash-header" for="p02_hc1_holiday_days" data-i18n="holiday_days"></label>
+          <div class="dash-content">
+            <input type="number" id="p02_hc1_holiday_days">
+          </div>
+        </div>
+      </div>
+      <div class="control-card control-compact-card">
+        <div class="dash-main">
+          <label class="dash-header" for="p02_hc1_reduct_mode" data-i18n="reduction_mode"></label>
+          <div class="dash-content">
+            <select name="p02_hc1_prg" id="p02_hc1_reduct_mode">
+              <option value="0" data-i18n="reduct_mode_off"></option>
+              <option value="1" data-i18n="reduct_mode_fixed"></option>
+              <option value="2" data-i18n="reduct_mode_room"></option>
+              <option value="3" data-i18n="reduct_mode_outdoors"></option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="control-grid control-temperature-grid">
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_hc1_day_temp" data-i18n="day_temp"></label>
+            <div class="control-reading">
+              <span id="p02_hc1_day_temp_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
             </div>
           </div>
-        </article>            
-
-        <article class="dash OPT_HC2">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc2$-$prg" ></div>
-            <div class="dash-content">
-              <select name="p02_hc2_prg" id="p02_hc2_prg">
-                <option value="0" data-i18n="hc_prg_custom"></option>
-                <option value="1" data-i18n="hc_prg_family"></option>
-                <option value="2" data-i18n="hc_prg_early"></option>
-                <option value="3" data-i18n="hc_prg_late"></option>
-                <option value="4" data-i18n="hc_prg_am"></option>
-                <option value="5" data-i18n="hc_prg_pm"></option>
-                <option value="6" data-i18n="hc_prg_noon"></option>
-                <option value="7" data-i18n="hc_prg_single"></option>
-                <option value="8" data-i18n="hc_prg_senior"></option>
-              </select>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc1_day_temp_txt" id="p02_hc1_day_temp" min="10" max="30" step="0.5" value="20" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>10 °C</span>
+            <span>30 °C</span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_hc1_night_temp" data-i18n="night_temp"></label>
+            <div class="control-reading">
+              <span id="p02_hc1_night_temp_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
             </div>
           </div>
-        </article> 
-
-        <article class="dash OPT_HC1">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc1$-$reduction_mode"></div>
-            <div class="dash-content">
-              <select name="p02_hc1_prg" id="p02_hc1_reduct_mode">
-                <option value="0" data-i18n="reduct_mode_off"></option>
-                <option value="1" data-i18n="reduct_mode_fixed"></option>
-                <option value="2" data-i18n="reduct_mode_room"></option>
-                <option value="3" data-i18n="reduct_mode_outdoors"></option>
-              </select>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc1_night_temp_txt" id="p02_hc1_night_temp" min="10" max="30" step="0.5" value="20" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>10 °C</span>
+            <span>30 °C</span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_hc1_holiday_temp" data-i18n="holiday_temp"></label>
+            <div class="control-reading">
+              <span id="p02_hc1_holiday_temp_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
             </div>
           </div>
-        </article> 
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc1_holiday_temp_txt" id="p02_hc1_holiday_temp" min="10" max="30" step="0.5" value="20" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>10 °C</span>
+            <span>30 °C</span>
+          </div>
+        </div>
+      </div>
 
-        <article class="dash OPT_HC2">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc2$-$reduction_mode"></div>
-            <div class="dash-content">
-              <select name="p02_hc1_prg" id="p02_hc2_reduct_mode">
-                <option value="0" data-i18n="reduct_mode_off"></option>
-                <option value="1" data-i18n="reduct_mode_fixed"></option>
-                <option value="2" data-i18n="reduct_mode_room"></option>
-                <option value="3" data-i18n="reduct_mode_outdoors"></option>
-              </select>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_hc1_summer_th" data-i18n="control_summer_threshold"></label>
+            <div class="control-reading">
+              <span id="p02_hc1_summer_th_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
             </div>
           </div>
-        </article> 
-        
-        <article class="dash OPT_HC1">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc1$-$holiday_days"></div>
-              <div class="dash-content">
-                <input type="number" id="p02_hc1_holiday_days">
-              </div>
-            </div>
-        </article>
-
-        <article class="dash OPT_HC2">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc2$-$holiday_days"></div>
-              <div class="dash-content">
-                <input type="number" id="p02_hc2_holiday_days">
-              </div>
-            </div>
-        </article>
-
-      </div>  <!-- END Grid-1 -->
-
-      <div class="grid"> <!-- Start Grid-2 -->
-        <article class="dash OPT_HC1">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc1$-$summer_mode_threshold"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc1_summer_th_txt" id="p02_hc1_summer_th" min="9" max="31" value="9" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_summer_th_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_summer1"></div>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_summer2"></div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc1_summer_th_txt" id="p02_hc1_summer_th" min="9" max="31" value="9" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span data-i18n="summer"></span>
+            <span data-i18n="winter"></span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_hc1_frost_prot_th" data-i18n="control_frost_threshold"></label>
+            <div class="control-reading">
+              <span id="p02_hc1_frost_prot_th_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
             </div>
           </div>
-        </article>
-
-        <article class="dash OPT_HC2">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc2$-$summer_mode_threshold"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc2_summer_th_txt" id="p02_hc2_summer_th" min="9" max="31" value="9" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_summer_th_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_summer1"></div>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_summer2"></div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc1_frost_prot_th_txt" id="p02_hc1_frost_prot_th" min="-20" max="10" value="-20" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>-20 °C</span>
+            <span>10 °C</span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_hc1_interp" data-i18n="control_design_temp"></label>
+            <div class="control-reading">
+              <span id="p02_hc1_interp_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
             </div>
           </div>
-        </article>
-
-        <article class="dash OPT_HC1">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc1$-$frost_protection_threshold"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc1_frost_prot_th_txt" id="p02_hc1_frost_prot_th" min="-20" max="10" value="-20" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_frost_prot_th_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_frost"></div>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_unit_c"></div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc1_interp_txt" id="p02_hc1_interp" min="30" max="90" value="30" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>30 °C</span>
+            <span>90 °C</span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_hc1_sw_on_temp" data-i18n="switch_on_temperature"></label>
+            <div class="control-reading">
+              <span id="p02_hc1_sw_on_temp_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
             </div>
           </div>
-        </article>
-
-        <article class="dash OPT_HC2">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc2$-$frost_protection_threshold"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc2_frost_prot_th_txt" id="p02_hc2_frost_prot_th" min="-20" max="10" value="-20" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_frost_prot_th_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_frost"></div>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_unit_c"></div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc1_sw_on_temp_txt" id="p02_hc1_sw_on_temp" min="0" max="10" value="0" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>0 °C</span>
+            <span>10 °C</span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_hc1_sw_off_th" data-i18n="switch_off_threshold"></label>
+            <div class="control-reading">
+              <span id="p02_hc1_sw_off_th_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
             </div>
           </div>
-        </article>
-
-        <article class="dash OPT_HC1">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc1$-$interpretation"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc1_interp_txt" id="p02_hc1_interp" min="30" max="90" value="30" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_interp_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_designtemp"></div>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_unit_c"></div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc1_sw_off_th_txt" id="p02_hc1_sw_off_th" min="-20" max="10" value="-20" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>-20 °C</span>
+            <span>10 °C</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="control-section OPT_HC2" aria-labelledby="p02_hc2_heading">
+    <div class="control-section-heading">
+      <h2 id="p02_hc2_heading" data-i18n="heating_circuit_2"></h2>
+      <button type="button" class="control-help-button" data-ui-local data-control-help="hc" aria-labelledby="p02_hc2_heading control_help_label"><i class="svg i_help" aria-hidden="true"></i></button>
+    </div>
+    <div class="control-primary-grid">
+      <div class="control-card control-mode-card">
+        <div class="dash-main">
+          <h3 class="dash-header" id="p02_hc2_opmode_label" data-i18n="opmode"></h3>
+          <div class="dash-content">
+            <fieldset class="radio-buttons" aria-labelledby="p02_hc2_opmode_label">
+              <input class="button-like" type="radio" id="p02_hc2_opmode_night" name="hc2_opmode" checked >
+              <label class="button-like-label" for="p02_hc2_opmode_night"><i class="svg i_night" aria-hidden="true"></i><span data-i18n="night"></span></label>
+              <input class="button-like" type="radio" id="p02_hc2_opmode_day" name="hc2_opmode" >
+              <label class="button-like-label" for="p02_hc2_opmode_day"><i class="svg i_day" aria-hidden="true"></i><span data-i18n="day"></span></label>
+              <input class="button-like" type="radio" id="p02_hc2_opmode_auto" name="hc2_opmode">
+              <label class="button-like-label" for="p02_hc2_opmode_auto"><i class="svg i_auto" aria-hidden="true"></i><span data-i18n="auto"></span></label>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <label class="dash-header" for="p02_hc2_prg" data-i18n="prg"></label>
+          <div class="dash-content">
+            <select name="p02_hc2_prg" id="p02_hc2_prg">
+              <option value="0" data-i18n="hc_prg_custom"></option>
+              <option value="1" data-i18n="hc_prg_family"></option>
+              <option value="2" data-i18n="hc_prg_early"></option>
+              <option value="3" data-i18n="hc_prg_late"></option>
+              <option value="4" data-i18n="hc_prg_am"></option>
+              <option value="5" data-i18n="hc_prg_pm"></option>
+              <option value="6" data-i18n="hc_prg_noon"></option>
+              <option value="7" data-i18n="hc_prg_single"></option>
+              <option value="8" data-i18n="hc_prg_senior"></option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="control-card control-compact-card">
+        <div class="dash-main">
+          <label class="dash-header" for="p02_hc2_holiday_days" data-i18n="holiday_days"></label>
+          <div class="dash-content">
+            <input type="number" id="p02_hc2_holiday_days">
+          </div>
+        </div>
+      </div>
+      <div class="control-card control-compact-card">
+        <div class="dash-main">
+          <label class="dash-header" for="p02_hc2_reduct_mode" data-i18n="reduction_mode"></label>
+          <div class="dash-content">
+            <select name="p02_hc1_prg" id="p02_hc2_reduct_mode">
+              <option value="0" data-i18n="reduct_mode_off"></option>
+              <option value="1" data-i18n="reduct_mode_fixed"></option>
+              <option value="2" data-i18n="reduct_mode_room"></option>
+              <option value="3" data-i18n="reduct_mode_outdoors"></option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="control-grid control-temperature-grid">
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_hc2_day_temp" data-i18n="day_temp"></label>
+            <div class="control-reading">
+              <span id="p02_hc2_day_temp_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
             </div>
           </div>
-        </article>
-
-        <article class="dash OPT_HC2">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc2$-$interpretation"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc2_interp_txt" id="p02_hc2_interp" min="30" max="90" value="30" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_interp_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_designtemp"></div>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_unit_c"></div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc2_day_temp_txt" id="p02_hc2_day_temp" min="10" max="30" step="0.5" value="20" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>10 °C</span>
+            <span>30 °C</span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_hc2_night_temp" data-i18n="night_temp"></label>
+            <div class="control-reading">
+              <span id="p02_hc2_night_temp_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
             </div>
           </div>
-        </article>
-
-        <article class="dash OPT_HC1">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc1$-$switch_off_threshold"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc1_sw_off_th_txt" id="p02_hc1_sw_off_th" min="-20" max="10" value="-20" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_sw_off_th_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_switchoff"></div>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_unit_c"></div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc2_night_temp_txt" id="p02_hc2_night_temp" min="10" max="30" step="0.5" value="20" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>10 °C</span>
+            <span>30 °C</span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_hc2_holiday_temp" data-i18n="holiday_temp"></label>
+            <div class="control-reading">
+              <span id="p02_hc2_holiday_temp_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
             </div>
           </div>
-        </article>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc2_holiday_temp_txt" id="p02_hc2_holiday_temp" min="10" max="30" step="0.5" value="20" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>10 °C</span>
+            <span>30 °C</span>
+          </div>
+        </div>
+      </div>
 
-        <article class="dash OPT_HC2">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc2$-$switch_off_threshold"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc2_sw_off_th_txt" id="p02_hc2_sw_off_th" min="-20" max="10" value="-20" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_sw_off_th_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_switchoff"></div>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_unit_c"></div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_hc2_summer_th" data-i18n="control_summer_threshold"></label>
+            <div class="control-reading">
+              <span id="p02_hc2_summer_th_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
             </div>
           </div>
-        </article>
-
-        <article class="dash OPT_HC1">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc1$-$day_temp"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc1_day_temp_txt" id="p02_hc1_day_temp" min="10" max="30" step="0.5" value="20" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_day_temp_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_unit_c"></div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc2_summer_th_txt" id="p02_hc2_summer_th" min="9" max="31" value="9" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span data-i18n="summer"></span>
+            <span data-i18n="winter"></span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_hc2_frost_prot_th" data-i18n="control_frost_threshold"></label>
+            <div class="control-reading">
+              <span id="p02_hc2_frost_prot_th_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
             </div>
           </div>
-        </article>
-
-        <article class="dash OPT_HC2">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc2$-$day_temp"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc2_day_temp_txt" id="p02_hc2_day_temp" min="10" max="30" step="0.5" value="20" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_day_temp_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_unit_c"></div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc2_frost_prot_th_txt" id="p02_hc2_frost_prot_th" min="-20" max="10" value="-20" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>-20 °C</span>
+            <span>10 °C</span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_hc2_interp" data-i18n="control_design_temp"></label>
+            <div class="control-reading">
+              <span id="p02_hc2_interp_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
             </div>
           </div>
-        </article>
-
-        <article class="dash OPT_HC1">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc1$-$night_temp"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc1_night_temp_txt" id="p02_hc1_night_temp" min="10" max="30" step="0.5" value="20" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_night_temp_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_unit_c"></div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc2_interp_txt" id="p02_hc2_interp" min="30" max="90" value="30" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>30 °C</span>
+            <span>90 °C</span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_hc2_sw_on_temp" data-i18n="switch_on_temperature"></label>
+            <div class="control-reading">
+              <span id="p02_hc2_sw_on_temp_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
             </div>
           </div>
-        </article>
-
-        <article class="dash OPT_HC2">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc2$-$night_temp"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc2_night_temp_txt" id="p02_hc2_night_temp" min="10" max="30" step="0.5" value="20" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_night_temp_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_unit_c"></div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc2_sw_on_temp_txt" id="p02_hc2_sw_on_temp" min="0" max="10" value="0" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>0 °C</span>
+            <span>10 °C</span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_hc2_sw_off_th" data-i18n="switch_off_threshold"></label>
+            <div class="control-reading">
+              <span id="p02_hc2_sw_off_th_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
             </div>
           </div>
-        </article>    
-
-        <article class="dash OPT_HC1">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc1$-$holiday_temp"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc1_holiday_temp_txt" id="p02_hc1_holiday_temp" min="10" max="30" step="0.5" value="20" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_holiday_temp_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_unit_c"></div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc2_sw_off_th_txt" id="p02_hc2_sw_off_th" min="-20" max="10" value="-20" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>-20 °C</span>
+            <span>10 °C</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="control-section OPT_HW" aria-labelledby="p02_ww_heading">
+    <div class="control-section-heading">
+      <h2 id="p02_ww_heading" data-i18n="hot_water"></h2>
+      <button type="button" class="control-help-button" data-ui-local data-control-help="ww" aria-labelledby="p02_ww_heading control_help_label"><i class="svg i_help" aria-hidden="true"></i></button>
+    </div>
+    <div class="control-water-grid">
+      <div class="control-card control-mode-card">
+        <div class="dash-main">
+          <h3 class="dash-header" id="p02_ww_opmode_label" data-i18n="opmode"></h3>
+          <div class="dash-content">
+            <fieldset class="radio-buttons" aria-labelledby="p02_ww_opmode_label">
+              <input class="button-like" type="radio" id="p02_ww_opmode_night" name="ww_opmode" checked >
+              <label class="button-like-label" for="p02_ww_opmode_night"><i class="svg i_night" aria-hidden="true"></i><span data-i18n="night"></span></label>
+              <input class="button-like" type="radio" id="p02_ww_opmode_day" name="ww_opmode" >
+              <label class="button-like-label" for="p02_ww_opmode_day"><i class="svg i_day" aria-hidden="true"></i><span data-i18n="day"></span></label>
+              <input class="button-like" type="radio" id="p02_ww_opmode_auto" name="ww_opmode">
+              <label class="button-like-label" for="p02_ww_opmode_auto"><i class="svg i_auto" aria-hidden="true"></i><span data-i18n="auto"></span></label>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_ww_temp" data-i18n="temp"></label>
+            <div class="control-reading">
+              <span id="p02_ww_temp_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
             </div>
           </div>
-        </article>
-
-        <article class="dash OPT_HC2">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc2$-$holiday_temp"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc2_holiday_temp_txt" id="p02_hc2_holiday_temp" min="10" max="30" step="0.5" value="20" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_holiday_temp_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_unit_c"></div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_ww_temp_txt" id="p02_ww_temp" min="30" max="60" value="30" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>30 °C</span>
+            <span>60 °C</span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <label class="dash-header" for="p02_ww_circ" data-i18n="circulation"></label>
+            <div class="control-reading">
+              <span id="p02_ww_circ_txt"></span>
             </div>
           </div>
-        </article>
-
-        <article class="dash OPT_HC1">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc1$-$switch_on_temperature"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc1_sw_on_temp_txt" id="p02_hc1_sw_on_temp" min="0" max="10" value="0" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc1_sw_on_temp_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_unit_c"></div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_ww_circ_txt" id="p02_ww_circ" min="0" max="7" value="0" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span data-i18n="chart_off"></span>
+            <span data-i18n="on"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="control-section OPT_HW_OIL" aria-labelledby="p02_oil_heading">
+    <div class="control-section-heading">
+      <h2 id="p02_oil_heading" data-i18n="oilmeter"></h2>
+      <button type="button" class="control-help-button" data-ui-local data-control-help="oil" aria-labelledby="p02_oil_heading control_help_label"><i class="svg i_help" aria-hidden="true"></i></button>
+    </div>
+      <div class="control-card control-oil-set">
+        <label class="dash-header" for="p02_oilmeter_set" data-i18n="control_oilmeter_set"></label>
+        <div class="control-oil-controls">
+          <div role="group">
+            <input type="number" id="p02_oilmeter_set" min="0" step="1" />
+            <button type="button" data-i18n="set" id="p02_oilmeter_btn"></button>
+          </div>
+          <div class="control-oil-feedback" role="status" aria-live="polite">
+            <span data-i18n="act_value"></span>
+            <div class="control-oil-reading">
+              <span id="p02_oilmeter_act"></span>
+              <span class="control-unit">L</span>
             </div>
           </div>
-        </article>
-
-        <article class="dash OPT_HC2">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="hc2$-$switch_on_temperature"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_hc2_sw_on_temp_txt" id="p02_hc2_sw_on_temp" min="0" max="10" value="0" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_hc2_sw_on_temp_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_unit_c"></div>
-            </div>
-          </div>
-        </article>
-
-        <article class="dash OPT_HW">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="ww$-$temp"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_ww_temp_txt" id="p02_ww_temp" min="30" max="60" value="30" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_ww_temp_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_wwtemp"></div>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_unit_c"></div>
-            </div>
-          </div>
-        </article>
-
-        <article class="dash OPT_HW">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="ww$-$circulation"></div>
-            <div class="dash-content" role="group">
-              <input type="range" class="rangeSlider" data-value-id="p02_ww_circ_txt" id="p02_ww_circ" min="0" max="7" value="0" >
-              <span style="padding-left: 20px; padding-right: 20px" id="p02_ww_circ_txt"></span>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_ww_pump_circ1"></div>
-            </div>
-            <div class="dash-footer">
-              <div data-i18n="info_ww_pump_circ2"></div>
-            </div>
-          </div>
-        </article>
-
-      </div>  <!-- END Grid-2 -->
-
-      <div class="grid"> <!-- Start Grid-3 -->
-        <article class="dash OPT_HW_OIL">
-          <div class="dash-main">
-            <div class="dash-header" data-i18n="oilmeter"></div>
-              <div style="display: flex; justify-content: space-between; width: 100%; padding-left: 10px; padding-right: 10px">
-                      <span data-i18n="act_value"></span>
-                      <span id="p02_oilmeter_act"></span> 
-                </div>
-                <br> 
-                <div class="dash-content">
-                <div role="group">
-                  <input type="number" id="p02_oilmeter_set">
-                  <button data-i18n="set" id="p02_oilmeter_btn">
-                </div>
-              </div>
-              <div class="dash-footer">
-              <div data-i18n="oil_unit_info_set"></div>
-            </div>
-            </div>
-        </article>
-
-      </div> <!-- END Grid-3 -->
-  </div>
+        </div>
+      </div>
+  </section>
+  <span id="control_help_label" hidden data-i18n="control_help"></span>
+  <dialog id="control_help_dialog" class="control-help-dialog" aria-labelledby="control_help_title">
+    <article>
+      <header><h2 id="control_help_title"></h2></header>
+      <dl data-control-help-content="hc" hidden>
+        <dt data-i18n="opmode"></dt>
+        <dd data-i18n="control_help_hc_mode"></dd>
+        <dt data-i18n="prg"></dt>
+        <dd data-i18n="control_help_program"></dd>
+        <dt data-i18n="holiday_days"></dt>
+        <dd data-i18n="control_help_holiday_days"></dd>
+        <dt data-i18n="reduction_mode"></dt>
+        <dd data-i18n="control_help_reduction"></dd>
+        <dt data-i18n="day_temp"></dt>
+        <dd data-i18n="control_help_day"></dd>
+        <dt data-i18n="night_temp"></dt>
+        <dd data-i18n="control_help_night"></dd>
+        <dt data-i18n="holiday_temp"></dt>
+        <dd data-i18n="control_help_holiday_temp"></dd>
+        <dt data-i18n="control_summer_threshold"></dt>
+        <dd data-i18n="control_help_summer"></dd>
+        <dt data-i18n="control_frost_threshold"></dt>
+        <dd data-i18n="control_help_frost"></dd>
+        <dt data-i18n="control_design_temp"></dt>
+        <dd data-i18n="control_help_design"></dd>
+        <dt data-i18n="switch_on_temperature"></dt>
+        <dd data-i18n="control_help_switch_on"></dd>
+        <dt data-i18n="switch_off_threshold"></dt>
+        <dd data-i18n="control_help_switch_off"></dd>
+      </dl>
+      <dl data-control-help-content="ww" hidden>
+        <dt data-i18n="opmode"></dt>
+        <dd data-i18n="control_help_ww_mode"></dd>
+        <dt data-i18n="temp"></dt>
+        <dd data-i18n="control_help_ww_temp"></dd>
+        <dt data-i18n="circulation"></dt>
+        <dd data-i18n="control_help_circulation"></dd>
+      </dl>
+      <dl data-control-help-content="oil" hidden>
+        <dt data-i18n="control_oilmeter_set"></dt>
+        <dd data-i18n="oil_unit_info_set"></dd>
+        <dt data-i18n="act_value"></dt>
+        <dd data-i18n="control_help_oil_feedback"></dd>
+      </dl>
+      <footer><button type="button" data-ui-local data-control-help-close data-i18n="close"></button></footer>
+    </article>
+  </dialog>
+</div>
 <!--SECTION-END-->
-  
+
 </main>
     <!-- Footer -->
     <footer style="height: 100px; display: flex; align-items: center; justify-content: center;">

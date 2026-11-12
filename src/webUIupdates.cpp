@@ -212,6 +212,7 @@ void updateSystemInfoElements() {
 
   // Network information
   webUI.addJson(jsonDoc, "p09_wifi_ip", wifi.ipAddress);
+  webUI.addJson(jsonDoc, "p09_wifi_status", wifiIsConnected() ? WEB_TXT::CONNECTED[config.lang] : WEB_TXT::NOT_CONNECTED[config.lang]);
   snprintf(tmpMessage, sizeof(tmpMessage), "%i %%", wifi.signal);
   webUI.addJson(jsonDoc, "p09_wifi_signal", tmpMessage);
   snprintf(tmpMessage, sizeof(tmpMessage), "%ld dbm", wifi.rssi);
@@ -269,8 +270,23 @@ void updateSystemInfoElements() {
   }
 
   // ESP informations
-  webUI.addJson(jsonDoc, "p09_esp_flash_usage", ESP.getSketchSize() * 100.0f / ESP.getFreeSketchSpace());
-  webUI.addJson(jsonDoc, "p09_esp_heap_usage", (ESP.getHeapSize() - ESP.getFreeHeap()) * 100.0f / ESP.getHeapSize());
+  const uint32_t firmwareSize = ESP.getSketchSize();
+  const uint32_t firmwareCapacity = ESP.getFreeSketchSpace(); // OTA target partition, not the entire flash chip
+  const uint32_t heapSize = ESP.getHeapSize();
+  const uint32_t freeHeap = ESP.getFreeHeap();
+  if (firmwareCapacity) {
+    webUI.addJson(jsonDoc, "p09_esp_flash_usage", firmwareSize * 100.0f / firmwareCapacity);
+  } else {
+    webUI.addJson(jsonDoc, "p09_esp_flash_usage", "--");
+  }
+  webUI.addJson(jsonDoc, "p09_firmware_size", firmwareSize / 1000.0f);
+  webUI.addJson(jsonDoc, "p09_firmware_capacity", firmwareCapacity / 1000.0f);
+  webUI.addJson(jsonDoc, "p09_heap_free", freeHeap / 1000.0f);
+  if (heapSize) {
+    webUI.addJson(jsonDoc, "p09_esp_heap_usage", (heapSize - freeHeap) * 100.0f / heapSize);
+  } else {
+    webUI.addJson(jsonDoc, "p09_esp_heap_usage", "--");
+  }
   webUI.addJson(jsonDoc, "p09_esp_maxallocheap", ESP.getMaxAllocHeap() / 1000.0f);
   webUI.addJson(jsonDoc, "p09_esp_minfreeheap", ESP.getMinFreeHeap() / 1000.0f);
 

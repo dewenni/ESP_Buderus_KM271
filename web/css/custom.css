@@ -91,8 +91,8 @@
   inset-inline: 0.2rem;
   min-height: 2px;
   border-radius: 0.25rem;
-  background: var(--pico-primary-background);
-  color: var(--pico-primary-inverse);
+  background: color-mix(in srgb, var(--ui-accent) 35%, var(--ui-surface));
+  color: var(--ui-text);
   padding-inline: 0.15rem;
   text-align: center;
   overflow: hidden;
@@ -124,7 +124,7 @@
 }
 
 .weekly-program-key-on {
-  background: var(--pico-primary-background);
+  background: color-mix(in srgb, var(--ui-accent) 35%, var(--ui-surface));
 }
 
 /* Compact instrument cards; histories and rendering stay in the browser. */

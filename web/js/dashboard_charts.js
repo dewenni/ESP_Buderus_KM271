@@ -1,63 +1,69 @@
-// Browser-only, bounded histories: [timestamp, first temperature, second temperature]
-// or [timestamp, status]. null marks an unobserved interval.
+// Temperatures and states are sampled by the ESP, once per minute.
+// Browser timestamps are derived from ESP uptime, so NTP corrections on the ESP
+// cannot move historical points. No sessionStorage or browser-side sampling.
+const DASHBOARD_SAMPLE_MS = 60000;
+
 class DashboardHistory {
-  constructor(columns = 3, capacity = 120) {
-    this.columns = columns;
-    this.capacity = capacity;
-    this.rows = [];
-  }
+  constructor() { this.rows = []; }
   prune(now) {
     const cutoff = now - 3600000;
-    const baseline = this.columns === 2 ? this.rows.findLast(row => row[0] < cutoff) : null;
     this.rows = this.rows.filter(row => row[0] >= cutoff && row[0] <= now);
-    // Keep the known state at the left edge even if it has not changed for an hour.
-    if (baseline) this.rows.unshift([cutoff, baseline[1]]);
-    this.rows = this.rows.slice(-this.capacity);
-  }
-  push(now, ...values) {
-    this.prune(now);
-    this.rows.push([now, ...values]);
-    if (this.rows.length > this.capacity) this.rows.shift();
-  }
-  gap(now) {
-    if (this.rows.length && this.rows.at(-1)[1] !== null) this.push(now, ...Array(this.columns - 1).fill(null));
-  }
-  restore(rows, now) {
-    if (!Array.isArray(rows)) return;
-    let previous = -Infinity;
-    this.rows = rows.slice(-this.capacity).filter(row => {
-      if (!Array.isArray(row) || row.length !== this.columns || !Number.isFinite(row[0]) || row[0] <= previous ||
-          !row.slice(1).every(value => value === null || Number.isFinite(value)) ||
-          (this.columns === 2 && ![null, 0, 1].includes(row[1])) ||
-          (this.columns === 3 && !(row[1] === null && row[2] === null) &&
-           !row.slice(1).every(v => Number.isFinite(v) && v >= -100 && v <= 300))) return false;
-      previous = row[0];
-      return true;
-    });
-    this.rows = this.rows.filter(row => row[0] >= now - 3600000 && row[0] <= now);
-    this.prune(now);
-    // Preserve unknown intervals in storage and readouts, even when lines bridge them visually.
-    if (this.rows.length) this.gap(this.rows.at(-1)[0] + 1);
   }
 }
 
-// Separate measured paths from visual bridges; never add interpolated samples.
+// Validate a page before touching the displayed history.
+function dashboardHistoryRows(message, offset) {
+  if (!Array.isArray(message.rows) || message.rows.length > 4 || !Number.isInteger(message.now)) return null;
+  let previous = -Infinity;
+  for (const row of message.rows) {
+    if (!Array.isArray(row) || row.length !== 15 || !row.every(Number.isInteger) ||
+        row[0] <= previous || row[0] > message.now || message.now - row[0] > 3600 ||
+        row[1] < 0 || row[1] > 255 || row[2] < 0 || row[2] > 3 ||
+        row.slice(3).some(v => v < -32768 || v > 32767)) return null;
+    previous = row[0];
+  }
+  return message.rows.map(row => [offset + row[0] * 1000, ...row.slice(1)]);
+}
+
+// Bounded cubic interpolation: tangents flatten at extrema and cannot overshoot.
+function dashboardSmoothPath(points) {
+  if (!points.length) return "";
+  const point = p => p.map(v => v.toFixed(2)).join(",");
+  let path = `M${point(points[0])}`;
+  if (points.length === 2) return path + `L${point(points[1])}`;
+  const slopes = points.slice(1).map((p, i) => (p[1] - points[i][1]) / (p[0] - points[i][0]));
+  const tangent = i => i === 0 ? slopes[0] : i === slopes.length ? slopes.at(-1) :
+    slopes[i - 1] * slopes[i] > 0 ? Math.sign(slopes[i]) * Math.min(Math.abs(slopes[i - 1]), Math.abs(slopes[i])) : 0;
+  for (let i = 1; i < points.length; ++i) {
+    const a = points[i - 1], b = points[i], h = (b[0] - a[0]) / 3;
+    path += `C${point([a[0] + h, a[1] + h * tangent(i - 1)])} ${point([b[0] - h, b[1] - h * tangent(i)])} ${point(b)}`;
+  }
+  return path;
+}
+
+// Separate measured paths from straight visual bridges; never add samples.
 function dashboardChartPaths(rows, column, step, x, y) {
-  let line = "", gaps = "", previous = null, missing = false;
+  let line = "", gaps = "", previous = null, missing = false, segment = [];
   const point = row => `${x(row[0]).toFixed(2)},${y(row[column]).toFixed(2)}`;
+  const flush = () => { line += dashboardSmoothPath(segment); segment = []; };
   for (const row of rows) {
     if (row[column] === null) { missing = true; continue; }
-    const gap = previous && (missing || row[0] - previous[0] > 45000);
-    if (gap) gaps += `M${point(previous)}L${point(row)}`;
-    line += !previous || gap ? `M${point(row)}` : step ? `H${x(row[0]).toFixed(2)}V${y(row[column]).toFixed(2)}` : `L${point(row)}`;
+    const gap = previous && (missing || row[0] - previous[0] > DASHBOARD_SAMPLE_MS * 1.5);
+    if (gap) {
+      gaps += `M${point(previous)}L${point(row)}`;
+      if (!step) flush();
+    }
+    if (step) line += !previous || gap ? `M${point(row)}` : `H${x(row[0]).toFixed(2)}V${y(row[column]).toFixed(2)}`;
+    else segment.push([x(row[0]), y(row[column])]);
     previous = row;
     missing = false;
   }
+  if (!step) flush();
   return { line, gaps };
 }
 
 // Read real samples only. Every interval touching a gap remains unknown.
-function dashboardChartSample(rows, time, sampleMs = 30000) {
+function dashboardChartSample(rows, time, sampleMs = DASHBOARD_SAMPLE_MS) {
   const before = rows.findLast(row => row[0] <= time);
   const after = rows.find(row => row[0] >= time);
   if (!before || before[1] === null) return null;
@@ -69,22 +75,14 @@ function dashboardChartSample(rows, time, sampleMs = 30000) {
 function initDashboardCharts() {
   const get = id => document.getElementById(id);
   const ready = get("p01_chart_valid"), lost = get("connectionLostBar"), tab = get("tab1");
-  const sampleMs = 30000, timeoutMs = 15000, storageKey = "km271.dashboard.v1";
+  const sampleMs = DASHBOARD_SAMPLE_MS, timeoutMs = 15000;
   const language = () => get("cfg_lang").value === "1" ? "en" : "de";
   const text = key => user_translations[key][language()];
   const number = element => element.textContent.trim() === "" ? NaN : Number(element.textContent.trim());
-  const connected = () => getComputedStyle(lost).display === "none";
-  const histories = {};
-  let stored = {}, mask = 0, lastStatus = 0;
-  try { stored = JSON.parse(sessionStorage.getItem(storageKey)) || {}; } catch (_) { /* Storage may be blocked. */ }
-  function history(key, columns = 3, capacity = 120) {
-    const series = new DashboardHistory(columns, capacity);
-    series.restore(stored[key], Date.now());
-    histories[key] = series;
-    return series;
-  }
+  const connected = () => typeof ws !== "undefined" && ws && ws.readyState === WebSocket.OPEN;
+  let mask = 0, lastStatus = 0;
   const states = Object.fromEntries(["burner", "priority"].map((name, i) => [name, {
-    element: get(`p01_chart_${name}`), label: () => text(i === 0 ? "chart_burner" : "chart_priority"), bit: 6 + i, valid: false, observed: 0, history: history(name, 2, 256)
+    label: () => text(i === 0 ? "chart_burner" : "chart_priority"), bit: 6 + i, valid: false, history: new DashboardHistory()
   }]));
   const charts = Array.from(document.querySelectorAll("[data-chart]"), card => {
     const state = states[card.dataset.chartState];
@@ -97,15 +95,8 @@ function initDashboardCharts() {
     }
     return { card, chart: card.querySelector(".dash-chart"), status: card.querySelector(".dash-chart-status"),
       fields: card.dataset.chart.split(",").map(get), bit: Number(card.dataset.chartBit),
-      history: history(card.dataset.chart), primary: Number(card.dataset.chartPrimary ?? 1), state, legend, valid: false };
+      history: new DashboardHistory(), primary: Number(card.dataset.chartPrimary ?? 1), state, legend };
   });
-  function save() {
-    try {
-      sessionStorage.setItem(storageKey, JSON.stringify(Object.fromEntries(Object.entries(histories).map(([key, h]) => {
-        h.prune(Date.now()); return [key, h.rows];
-      }))));
-    } catch (_) { /* Charts continue in RAM if storage is unavailable. */ }
-  }
   const ns = "http://www.w3.org/2000/svg";
   function node(tag, attrs, content) {
     const element = document.createElementNS(ns, tag);
@@ -131,7 +122,7 @@ function initDashboardCharts() {
     const svg = node("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": title });
     svg.append(node("title", {}, `${title}: ${labels.join(" / ")}`));
     const summary = () => {
-      c.status.textContent = c.valid ? "" : text("chart_wait");
+      c.status.textContent = rows.some(row => row[1] !== null) ? "" : text("chart_wait");
     };
     summary();
     if (c.state) {
@@ -141,7 +132,7 @@ function initDashboardCharts() {
       c.state.history.prune(now);
       const events = c.state.history.rows;
       for (let i = 0; i < events.length; ++i) {
-        const [start, state] = events[i], end = events[i + 1]?.[0] ?? (c.state.valid ? now : start);
+        const [start, state] = events[i], end = events[i + 1]?.[0] ?? (c.state.valid ? Math.min(now, start + sampleMs) : start);
         if (state !== 1 || end <= start) continue;
         const rect = node("rect", { x: x(start), y: top, width: x(end) - x(start), height: bottom - top,
           class: "dash-chart-state" });
@@ -182,43 +173,74 @@ function initDashboardCharts() {
     overlay.addEventListener("pointerleave", () => { guide.setAttribute("visibility", "hidden"); summary(); });
     svg.append(guide, overlay); c.chart.replaceChildren(svg);
   }
-  function update(sample = false) {
-    const now = Date.now(), online = connected() && now - lastStatus <= timeoutMs;
+  let remoteRows = [], sequence = 0, boot = null, clockOffset = 0;
+  let requestId = 0, pending = null, timer, lastSync = 0;
+  const schedule = (callback, delay) => { clearTimeout(timer); timer = setTimeout(callback, delay); };
+  const retry = () => { pending = null; schedule(() => sync(true), 5000); };
+  function requestPage() {
+    if (!connected() || !pending) return;
+    ws.send(JSON.stringify({ elementId: "dashboard_history", value: `${pending.id}:${pending.cursor}:${pending.end}` }));
+    schedule(retry, 10000); // A full queue/lost response must not leave a half-loaded chart.
+  }
+  function sync(full = false) {
+    if (!connected() || (pending && !full)) return;
+    pending = { id: ++requestId, cursor: full ? 0 : sequence + 1, end: 0 };
+    requestPage();
+  }
+  function applyHistory() {
+    for (const c of charts) {
+      c.history.rows = remoteRows.map(row => [row[0], ...(row[1] & (1 << c.bit) ?
+        row.slice(3 + 2 * c.bit, 5 + 2 * c.bit).map(v => v / 10) : [null, null])]);
+    }
+    for (const [i, state] of Object.values(states).entries()) {
+      state.history.rows = remoteRows.map(row => [row[0], row[1] & (1 << state.bit) ? (row[2] >> i) & 1 : null]);
+      // Never extend an overlay across an interval the ESP did not sample.
+      state.history.rows = state.history.rows.flatMap((row, i, rows) =>
+        i && row[0] - rows[i - 1][0] > sampleMs * 1.5 ? [[rows[i - 1][0] + sampleMs, null], row] : [row]);
+    }
+    charts.forEach(draw);
+  }
+  window.addEventListener("webui:message", event => {
+    const data = event.detail;
+    if (data.type !== "dashboardHistory" || !pending || data.request !== pending.id) return;
+    if (![data.boot, data.end, data.next, data.nextIn].every(v => Number.isInteger(v) && v >= 0) ||
+        typeof data.reset !== "boolean" || data.nextIn > 60 || (data.next && data.next > data.end)) { retry(); return; }
+    if (boot !== null && boot !== data.boot && !data.reset) { sync(true); return; }
+    const offset = data.reset ? Date.now() - data.now * 1000 : clockOffset;
+    const rows = dashboardHistoryRows(data, offset);
+    if (!rows || (!data.reset && rows.length && remoteRows.length && rows[0][0] <= remoteRows.at(-1)[0])) { retry(); return; }
+    clearTimeout(timer);
+    if (data.reset) { remoteRows = []; clockOffset = offset; }
+    boot = data.boot;
+    remoteRows.push(...rows);
+    remoteRows = remoteRows.filter(row => row[0] >= Date.now() - 3600000).slice(-61);
+    applyHistory();
+    if (data.next) {
+      pending.cursor = data.next; pending.end = data.end; requestPage();
+    } else {
+      sequence = data.end; pending = null; lastSync = Date.now();
+      schedule(() => sync(), Math.max(1000, data.nextIn * 1000 + 250));
+    }
+  });
+  window.addEventListener("webui:connected", () => { mask = 0; sync(true); });
+  function updateLive() {
+    const online = connected() && Date.now() - lastStatus <= timeoutMs;
     let changed = false;
     for (const state of Object.values(states)) {
-      const value = number(state.element), valid = online && !!(mask & (1 << state.bit)) && [0, 1].includes(value);
-      if (state.valid && now - state.observed > sampleMs * 1.5) {
-        state.history.gap(state.observed + 1); state.valid = false; changed = true;
-      }
-      if (valid && (!state.valid || value !== state.history.rows.at(-1)?.[1])) {
-        state.history.push(now, value); changed = true;
-      } else if (state.valid && !valid) { state.history.gap(Math.min(now, state.observed + timeoutMs)); changed = true; }
+      const valid = online && !!(mask & (1 << state.bit));
+      changed ||= state.valid !== valid;
       state.valid = valid;
-      if (valid) state.observed = now;
     }
-    for (const c of charts) {
-      const values = c.fields.map(number), valid = online && !!(mask & (1 << c.bit)) && values.every(Number.isFinite);
-      if (valid && (sample || !c.valid)) {
-        const last = c.history.rows.at(-1);
-        if (last && now - last[0] > sampleMs * 1.5) c.history.gap(last[0] + 1);
-        c.history.push(now, ...values); changed = true;
-      } else if (c.valid && !valid) { c.history.gap(now); changed = true; }
-      c.valid = valid;
-    }
-    if (changed) save();
-    // Heartbeats only redraw on validity/status changes; sampling uses one shared timer.
-    if (sample || changed) charts.forEach(draw);
+    if (changed) charts.forEach(draw);
   }
   const observer = new MutationObserver(mutations => {
     if (mutations.some(m => m.target === ready || ready.contains(m.target))) {
       mask = number(ready) || 0; lastStatus = Date.now();
     }
-    // Once disconnected, a fresh readiness snapshot is required before rearming.
-    if (!connected()) mask = 0;
-    update();
+    if (!connected()) { mask = 0; pending = null; clearTimeout(timer); }
+    updateLive();
   });
-  for (const el of [ready, ...Object.values(states).map(s => s.element), ...charts.flatMap(c => c.fields)])
-    observer.observe(el, { childList: true, characterData: true, subtree: true });
+  observer.observe(ready, { childList: true, characterData: true, subtree: true });
   observer.observe(lost, { attributes: true, attributeFilter: ["style", "class"] });
   const resize = new ResizeObserver(() => charts.forEach(draw));
   charts.forEach(c => resize.observe(c.chart));
@@ -226,8 +248,13 @@ function initDashboardCharts() {
   const localeObserver = new MutationObserver(() => charts.forEach(draw));
   charts.forEach(c => localeObserver.observe(c.card.querySelector(".dash-header"), { childList: true, characterData: true, subtree: true }));
   get("cfg_lang").addEventListener("change", () => charts.forEach(draw));
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) update(true); });
-  window.addEventListener("pagehide", () => { for (const h of Object.values(histories)) h.gap(Date.now()); save(); });
-  setInterval(() => update(true), sampleMs);
-  charts.forEach(draw); // Axes (and restored samples) are visible before the first live sample.
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      if (Date.now() - lastSync > sampleMs * 1.5) sync(true);
+      updateLive(); charts.forEach(draw);
+    }
+  });
+  setInterval(() => { updateLive(); charts.forEach(draw); }, sampleMs);
+  charts.forEach(draw); // Axes are visible immediately; the first page fills the history.
+  sync(true); // The socket may already be open when the page initializes.
 }

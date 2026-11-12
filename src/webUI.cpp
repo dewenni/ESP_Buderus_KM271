@@ -1,4 +1,5 @@
 #include <LittleFS.h>
+#include <dashboardHistory.h>
 #include <Update.h>
 #include <basics.h>
 #include <favicon.h>
@@ -41,6 +42,7 @@ static bool onLoadRequest = false;
 // command. Use a small ring buffer guarded by a critical section, the same
 // shape already used for the MQTT command queue.
 struct s_webCallbackMsg {
+  uint32_t clientId;
   char elementID[32];
   char value[256];
 };
@@ -63,13 +65,14 @@ static auto &wdt = EspSysUtil::Wdt::getInstance();
 static auto &ota = EspSysUtil::OTA::getInstance();
 
 // WebSocket commands are executed on the loop task.
-static bool queueWebCommand(const char *elementID, const char *elementValue) {
+static bool queueWebCommand(uint32_t clientId, const char *elementID, const char *elementValue) {
   if (!elementID || !elementValue || strlen(elementID) >= sizeof(webCallbackQueue[0].elementID) ||
       strlen(elementValue) >= sizeof(webCallbackQueue[0].value)) return false;
   portENTER_CRITICAL(&webCallbackMux);
   uint8_t next = (webCallbackHead + 1) % WEB_CALLBACK_QUEUE_LEN;
   bool available = next != webCallbackTail;
   if (available) {
+    webCallbackQueue[webCallbackHead].clientId = clientId;
     snprintf(webCallbackQueue[webCallbackHead].elementID, sizeof(webCallbackQueue[0].elementID), "%s", elementID);
     snprintf(webCallbackQueue[webCallbackHead].value, sizeof(webCallbackQueue[0].value), "%s", elementValue);
     webCallbackHead = next;
@@ -138,8 +141,8 @@ void webUISetup() {
   webUI.setCallbackReload([]() { onLoadRequest = true; });
 
   // callback for web elements - queue elementID and value, executed by webCallback() in the cyclic loop
-  webUI.setCallbackWebElement([](const char *elementID, const char *elementValue) {
-    if (!queueWebCommand(elementID, elementValue)) ESP_LOGW(TAG, "Web command queue full or invalid input");
+  webUI.setCallbackWebElementClient([](uint32_t clientId, const char *elementID, const char *elementValue) {
+    if (!queueWebCommand(clientId, elementID, elementValue)) ESP_LOGW(TAG, "Web command queue full or invalid input");
   });
 
   applyWebAccessSettings();
@@ -156,6 +159,7 @@ void webUISetup() {
  * *******************************************************************/
 void webUICyclic() {
 
+  dashboardHistoryCyclic();
   webUI.loop();
 
   // request for update alle elements - not faster than every 1s
@@ -181,7 +185,8 @@ void webUICyclic() {
     if (!haveMsg) {
       break;
     }
-    webCallback(msg.elementID, msg.value);
+    if (strcmp(msg.elementID, "dashboard_history") == 0) dashboardHistoryReply(msg.clientId, msg.value);
+    else webCallback(msg.elementID, msg.value);
   }
 
   // Unwind a web OTA that was cut off mid-upload. Without this the watchdog

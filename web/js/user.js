@@ -1,3 +1,38 @@
+function initControlSliders() {
+  const sources = new Map();
+  const update = slider => {
+    const min = Number(slider.min), max = Number(slider.max);
+    const progress = max > min ? (Number(slider.value) - min) / (max - min) * 100 : 0;
+    slider.style.setProperty("--control-progress", `${Math.max(0, Math.min(100, progress))}%`);
+  };
+  // Existing input and WebSocket handlers both update the linked value text.
+  // One shared observer keeps the fill in sync without extra commands or timers.
+  const observer = new MutationObserver(mutations => {
+    const changed = new Set(mutations.map(m => sources.get(m.target.nodeType === 3 ? m.target.parentElement : m.target)));
+    changed.forEach(slider => { if (slider) update(slider); });
+  });
+  document.querySelectorAll(".control-page input[type=range]").forEach(slider => {
+    const source = document.getElementById(slider.dataset.valueId);
+    sources.set(source, slider);
+    observer.observe(source, { childList: true, characterData: true, subtree: true });
+    update(slider);
+  });
+}
+
+function initMobileNavigation() {
+  const menu = document.getElementById("topMenuDropdown").parentElement;
+  // Close explicitly without Pico's full-screen summary pseudo-element.
+  document.addEventListener("click", event => {
+    if (!menu.contains(event.target) || event.target.closest("a[data-tab]")) menu.open = false;
+  });
+  menu.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      menu.open = false;
+      menu.querySelector("summary").focus();
+    }
+  });
+}
+
 function initHomeAssistantSettings() {
   const mqtt = document.getElementById("cfg_mqtt_enable");
   const section = document.getElementById("p12_ha_settings");
@@ -90,20 +125,9 @@ function initLogType() {
 }
 
 function changeLogType(selectElem) {
-  // get log type
-  var selectedValue = selectElem.value;
-
-  // get element-id of logger-level and logger-filter
-  var levelSelect = document.getElementById("cfg_logger_level");
-  var filterSelect = document.getElementById("cfg_logger_filter");
-
-  if (selectedValue === "0") {
-    levelSelect.style.display = "inline-block";
-    filterSelect.style.display = "none";
-  } else if (selectedValue === "1") {
-    levelSelect.style.display = "none";
-    filterSelect.style.display = "inline-block";
-  }
+  const systemLog = selectElem.value === "0";
+  document.getElementById("log_level_field").hidden = !systemLog;
+  document.getElementById("log_filter_field").hidden = systemLog;
 }
 
 async function loadSimulatedData() {
@@ -307,4 +331,21 @@ function initWeeklyPrograms() {
     });
     render();
   });
+}
+
+// Native dialog shared by both heating circuits, hot water and the oil meter.
+function initControlHelp() {
+  const dialog = document.getElementById("control_help_dialog");
+  document.querySelectorAll("[data-control-help]").forEach(button => {
+    button.addEventListener("click", () => {
+      dialog.querySelector("h2").textContent = button.closest(".control-section-heading").querySelector("h2").textContent;
+      dialog.querySelectorAll("[data-control-help-content]").forEach(content => {
+        content.hidden = content.dataset.controlHelpContent !== button.dataset.controlHelp;
+      });
+      button.focus();
+      dialog.showModal();
+    });
+  });
+  dialog.querySelector("[data-control-help-close]").addEventListener("click", () => dialog.close());
+  dialog.addEventListener("click", event => { if (event.target === dialog) dialog.close(); });
 }

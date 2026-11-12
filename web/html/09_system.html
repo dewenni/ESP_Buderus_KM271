@@ -32,18 +32,18 @@
     <main class="container">
       <!--SECTION-START-->
       <!-- System-Inhalt hier -->
-      <div id="tab9" class="tab-content">
+      <div id="tab9" class="tab-content information-page information-page--compact">
         <header class="page-heading">
           <h1 data-i18n="system"></h1>
           <p data-i18n="system_subtitle"></p>
         </header>
-        <div class="grid">
-          <!-- Grid 1 -->
-          <article class="card">
-            <p class="table-header" data-i18n="network_info"></p>
-            <table class="striped">
+<div class="information-grid">
+<article class="card">
+<h2 class="table-header" data-i18n="wifi"></h2>
+<table class="striped">
               <tbody>
-                <tr>
+                <tr><td data-i18n="connection"></td><td id="p09_wifi_status" class="table-value" data-info-state="connection"></td></tr>
+<tr>
                   <td data-i18n="wifi_ip"></td>
                   <td id="p09_wifi_ip" class="table-value"></td>
                 </tr>
@@ -57,7 +57,10 @@
                 </tr>
               </tbody>
             </table>
-            <table class="striped">
+</article>
+<article class="card">
+<h2 class="table-header" data-i18n="info_ethernet"></h2>
+<table class="striped">
               <tbody>
                 <tr>
                   <td data-i18n="eth_ip"></td>
@@ -65,7 +68,7 @@
                 </tr>
                 <tr>
                   <td data-i18n="eth_status"></td>
-                  <td id="p09_eth_status" class="table-value"></td>
+                  <td id="p09_eth_status" class="table-value" data-info-state="connection" data-info-enabled="cfg_eth_enable"></td>
                 </tr>
                 <tr>
                   <td data-i18n="eth_link_speed"></td>
@@ -77,10 +80,9 @@
                 </tr>
               </tbody>
             </table>
-          </article>
-
-          <article class="card">
-            <p class="table-header" data-i18n="mqtt_info"></p>
+</article>
+<article class="card">
+            <h2 class="table-header" data-i18n="mqtt_info"></h2>
             <table class="striped">
               <tbody>
                 <tr>
@@ -89,7 +91,7 @@
                 </tr>
                 <tr>
                   <td data-i18n="connection"></td>
-                  <td id="p09_mqtt_connection" class="table-value"></td>
+                  <td id="p09_mqtt_connection" class="table-value" data-info-state="connection" data-info-enabled="cfg_mqtt_enable" data-info-disabled-source="p09_mqtt_status"></td>
                 </tr>
                 <tr>
                   <td data-i18n="last_error"></td>
@@ -97,20 +99,15 @@
                 </tr>
               </tbody>
             </table>
-          </article>
-        </div>
-        <!-- END Grid 1 -->
-
-        <div class="grid">
-          <!-- Grid 2 -->
-
-          <article class="card">
-            <p class="table-header" data-i18n="km271_info"></p>
+          <p class="information-note" data-i18n="info_mqtt_error_hint"></p>
+</article>
+<article class="card">
+            <h2 class="table-header" data-i18n="km271_info"></h2>
             <table class="striped">
               <tbody>
                 <tr>
                   <td data-i18n="connection"></td>
-                  <td id="p09_km271_logmode" class="table-value"></td>
+                  <td id="p09_km271_logmode" class="table-value" data-info-state="connection"></td>
                 </tr>
                 <tr>
                   <td data-i18n="sent"></td>
@@ -135,10 +132,9 @@
               </tbody>
             </table>
           </article>
-
-          <article class="card">
-            <p class="table-header" data-i18n="sysinfo"></p>
-            <table class="striped">
+<article class="card">
+<h2 class="table-header" data-i18n="sysinfo"></h2>
+<table class="striped">
               <tbody>
                 <tr>
                   <td data-i18n="sw_version"></td>
@@ -150,7 +146,7 @@
                 </tr>
               </tbody>
             </table>
-            <table class="striped">
+<table class="striped">
               <tbody>
                 <tr>
                   <td data-i18n="lifetime"></td>
@@ -162,34 +158,20 @@
                 </tr>
               </tbody>
             </table>
-            <table class="striped">
+</article>
+<article class="card">
+<h2 class="table-header" data-i18n="info_memory"></h2>
+<table class="striped memory-table">
               <tbody>
-                <tr>
-                  <td data-i18n="esp_flash_usage"></td>
-                  <td id="p09_esp_flash_usage" class="table-value"></td>
-                  <td>%</td>
-                </tr>
-                <tr>
-                  <td data-i18n="esp_heap_usage"></td>
-                  <td id="p09_esp_heap_usage" class="table-value"></td>
-                  <td>%</td>
-                </tr>
-                <tr>
-                  <td data-i18n="esp_maxallocheap"></td>
-                  <td id="p09_esp_maxallocheap" class="table-value"></td>
-                  <td>kB</td>
-                </tr>
-                <tr>
-                  <td data-i18n="esp_minfreeheap"></td>
-                  <td id="p09_esp_minfreeheap" class="table-value"></td>
-                  <td>kB</td>
-                </tr>
+                <tr><td data-i18n="info_firmware_used"></td><td class="table-value"><span id="p09_esp_flash_usage"></span><span class="information-unit">%</span><span class="memory-detail"><span id="p09_firmware_size"></span> / <span id="p09_firmware_capacity"></span> kB</span><progress data-info-meter="p09_esp_flash_usage" max="100" aria-label="Flash" hidden></progress></td></tr>
+                <tr><td data-i18n="info_ram_free"></td><td class="table-value"><span id="p09_heap_free"></span><span class="information-unit">kB</span><span class="memory-detail"><span id="p09_esp_heap_usage"></span> % <span data-i18n="info_memory_used"></span></span><progress data-info-meter="p09_esp_heap_usage" max="100" aria-label="Heap" hidden></progress></td></tr>
+                <tr><td data-i18n="info_largest_free_block"></td><td class="table-value"><span id="p09_esp_maxallocheap"></span><span class="information-unit">kB</span></td></tr>
+                <tr><td data-i18n="info_minimum_free_ram"></td><td class="table-value"><span id="p09_esp_minfreeheap"></span><span class="information-unit">kB</span></td></tr>
               </tbody>
             </table>
-          </article>
-        </div>
-        <!-- END Grid 2 -->
-      </div>
+</article>
+</div>
+</div>
       <!--SECTION-END-->
     </main>
     <!-- Footer -->

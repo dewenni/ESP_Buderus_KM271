@@ -30,14 +30,13 @@
     <!-- Tab-Content -->
     <main class="container">
       <!--SECTION-START-->
-      <div id="tab6" class="tab-content">
+      <div id="tab6" class="tab-content information-page information-page--compact">
         <header class="page-heading">
-          <h1 data-i18n="burner"></h1>
+          <h1 data-i18n="burner"></h1><p data-i18n="info_burner_subtitle"></p>
         </header>
-        <div class="grid">
-          <!-- Grid 1 -->
-          <article class="card">
-            <p class="table-header" data-i18n="status"></p>
+<div class="information-grid">
+<article class="card">
+            <h2 class="table-header" data-i18n="info_current_values"></h2>
             <table class="striped">
               <tbody>
                 <tr>
@@ -53,144 +52,110 @@
             <br />
             <table class="striped">
               <tbody>
-                <tr>
-                  <td data-i18n="boiler_temp"></td>
-                  <td id="p06_boil_temp" class="table-value"></td>
-                  <td>°C</td>
-                </tr>
-                <tr>
-                  <td data-i18n="boiler_setpoint"></td>
-                  <td id="p06_boil_set" class="table-value"></td>
-                  <td>°C</td>
-                </tr>
-                <tr>
-                  <td data-i18n="boiler_switch_off_temp"></td>
-                  <td id="p06_boil_sw_off_temp" class="table-value">--</td>
-                  <td>°C</td>
-                </tr>
-                <tr>
-                  <td data-i18n="boiler_switch_on_temp"></td>
-                  <td id="p06_boil_sw_on_temp" class="table-value"></td>
-                  <td>°C</td>
-                </tr>
+                <tr><td data-i18n="boiler_temp"></td><td class="table-value"><span id="p06_boil_temp"></span><span class="information-unit">°C</span></td></tr>
+                <tr><td data-i18n="boiler_setpoint"></td><td class="table-value"><span id="p06_boil_set"></span><span class="information-unit">°C</span></td></tr>
+                <tr><td data-i18n="boiler_switch_off_temp"></td><td class="table-value"><span id="p06_boil_sw_off_temp">--</span><span class="information-unit">°C</span></td></tr>
+                <tr><td data-i18n="boiler_switch_on_temp"></td><td class="table-value"><span id="p06_boil_sw_on_temp"></span><span class="information-unit">°C</span></td></tr>
               </tbody>
             </table>
           </article>
-
-          <article class="card">
-            <p class="table-header" data-i18n="operation"></p>
+<article class="card">
+            <h2 class="table-header" data-i18n="info_operating_states"></h2>
             <table class="striped">
               <tbody>
                 <tr>
                   <td data-i18n="boiler_state_exhaust_gas_test"></td>
-                  <td id="p06_boil_state_exh_gas_test" class="table-value">
+                  <td id="p06_boil_state_exh_gas_test" class="table-value" data-info-state="on">
                     --
                   </td>
                 </tr>
                 <tr>
                   <td data-i18n="boiler_state_stage1"></td>
-                  <td id="p06_boil_s_stage1" class="table-value"></td>
+                  <td id="p06_boil_s_stage1" class="table-value" data-info-state="on"></td>
                 </tr>
                 <tr>
                   <td data-i18n="boiler_state_boiler_protection"></td>
-                  <td id="p06_boil_st_boiler_prot" class="table-value">--</td>
+                  <td id="p06_boil_st_boiler_prot" class="table-value" data-info-state="on">--</td>
                 </tr>
                 <tr>
                   <td data-i18n="boiler_state_active"></td>
-                  <td id="p06_boil_s_active" class="table-value"></td>
+                  <td id="p06_boil_s_active" class="table-value" data-info-state="on"></td>
                 </tr>
                 <tr>
                   <td data-i18n="boiler_state_performance_free"></td>
-                  <td id="p06_boil_s_perf_free" class="table-value">--</td>
+                  <td id="p06_boil_s_perf_free" class="table-value" data-info-state="on">--</td>
                 </tr>
                 <tr>
                   <td data-i18n="boiler_state_performance_high"></td>
-                  <td id="p06_boil_s_perf_high" class="table-value">--</td>
+                  <td id="p06_boil_s_perf_high" class="table-value" data-info-state="on">--</td>
                 </tr>
                 <tr>
                   <td data-i18n="boiler_state_stage2"></td>
-                  <td id="p06_boil_s_stage2" class="table-value"></td>
+                  <td id="p06_boil_s_stage2" class="table-value" data-info-state="on"></td>
                 </tr>
               </tbody>
             </table>
           </article>
-        </div>
-        <!--END GRID-->
-
-        <div class="grid">
-          <!-- Grid 2 -->
-          <article class="card">
-            <p class="table-header" data-i18n="error_flags"></p>
+<article class="card">
+            <h2 class="table-header" data-i18n="info_monitoring"></h2>
             <table class="striped">
               <tbody>
                 <tr>
                   <td data-i18n="boiler_failure_burner"></td>
-                  <td id="p06_boil_fail_burner" class="table-value"></td>
+                  <td id="p06_boil_fail_burner" class="table-value" data-info-state="error"></td>
                 </tr>
                 <tr>
                   <td data-i18n="boiler_failure_boiler_sensor"></td>
-                  <td id="p06_boil_fail_boiler_sens" class="table-value">--</td>
+                  <td id="p06_boil_fail_boiler_sens" class="table-value" data-info-state="error">--</td>
                 </tr>
                 <tr>
                   <td data-i18n="boiler_failure_aux_sensor"></td>
-                  <td id="p06_boil_fail_aux_sens" class="table-value">--</td>
+                  <td id="p06_boil_fail_aux_sens" class="table-value" data-info-state="error">--</td>
                 </tr>
                 <tr>
                   <td data-i18n="boiler_failure_boiler_stays_cold"></td>
-                  <td id="p06_boil_fail_boiler_cold" class="table-value">--</td>
+                  <td id="p06_boil_fail_boiler_cold" class="table-value" data-info-state="error">--</td>
                 </tr>
                 <tr>
                   <td data-i18n="boiler_failure_exhaust_gas_sensor"></td>
-                  <td id="p06_boil_fail_exh_gas_sens" class="table-value">
+                  <td id="p06_boil_fail_exh_gas_sens" class="table-value" data-info-state="error">
                     --
                   </td>
                 </tr>
                 <tr>
                   <td data-i18n="boiler_failure_exhaust_gas_over_limit"></td>
-                  <td id="p06_boil_fail_exh_gas_over_limit" class="table-value">
+                  <td id="p06_boil_fail_exh_gas_over_limit" class="table-value" data-info-state="error">
                     --
                   </td>
                 </tr>
                 <tr>
                   <td data-i18n="boiler_failure_safety_chain"></td>
-                  <td id="p06_boil_fail_safety_chain" class="table-value">
+                  <td id="p06_boil_fail_safety_chain" class="table-value" data-info-state="error">
                     --
                   </td>
                 </tr>
                 <tr>
                   <td data-i18n="boiler_failure_external"></td>
-                  <td id="p06_boil_fail_ext" class="table-value">--</td>
+                  <td id="p06_boil_fail_ext" class="table-value" data-info-state="error">--</td>
                 </tr>
               </tbody>
             </table>
           </article>
-
-          <article class="card">
-            <p class="table-header" data-i18n="lifetimes"></p>
-            <table class="striped">
-              <tbody>
-                <tr>
-                  <td data-i18n="burner$ $runtime_years"></td>
-                  <td id="p06_burn_run_years" class="table-value">--</td>
-                </tr>
-                <tr>
-                  <td data-i18n="burner$ $runtime_days"></td>
-                  <td id="p06_burn_run_days" class="table-value">--</td>
-                </tr>
-                <tr>
-                  <td data-i18n="burner$ $runtime_hours"></td>
-                  <td id="p06_burn_run_hours" class="table-value">--</td>
-                </tr>
-                <tr>
-                  <td data-i18n="burner$ $runtime_minutes"></td>
-                  <td id="p06_burn_run_min" class="table-value">--</td>
-                </tr>
-              </tbody>
-            </table>
-          </article>
-        </div>
-        <!--END GRID-->
-      </div>
+<article class="card">
+<h2 class="table-header" data-i18n="lifetimes"></h2>
+<div class="information-runtime">
+<span>
+<span id="p06_burn_run_years">--</span> <small data-i18n="info_years"></small></span>
+<span>
+<span id="p06_burn_run_days">--</span> <small data-i18n="info_days"></small></span>
+<span>
+<span id="p06_burn_run_hours">--</span> <small data-i18n="info_hours"></small></span>
+<span>
+<span id="p06_burn_run_min">--</span> <small data-i18n="info_minutes"></small></span>
+</div>
+</article>
+</div>
+</div>
       <!--SECTION-END-->
     </main>
     <!-- Footer -->

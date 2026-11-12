@@ -1,0 +1,99 @@
+/* One responsive panel per category; existing IDs and handlers remain unchanged. */
+.control-page {
+  --control-surface: var(--ui-surface);
+  --control-field: var(--ui-rail);
+  --control-border: var(--ui-border);
+  --control-selection: color-mix(in srgb, var(--ui-hover), var(--ui-target) 20%);
+  --pico-form-element-background-color: var(--control-field);
+  --pico-form-element-active-background-color: var(--control-field);
+  --pico-form-element-border-color: var(--control-border);
+  --pico-range-border-color: var(--control-border);
+  --pico-range-active-border-color: var(--ui-target);
+  --pico-range-thumb-color: var(--ui-target);
+  --pico-range-thumb-border-color: var(--ui-target);
+  --pico-range-thumb-active-color: var(--ui-band);
+  container-type: inline-size;
+}
+.control-section {
+  margin: 0 0 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--control-border);
+  border-radius: 0.75rem;
+  background: var(--control-surface);
+}
+.control-section-heading { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.25rem; }
+.control-section-heading > h2 { margin: 0; font-size: 1.2rem; font-weight: 500; }
+.control-page .control-help-button { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: -0.5rem 0; padding: 10px; border: 0; background: transparent; color: var(--ui-muted); }
+.control-help-button .svg { width: 22px; height: 22px; }
+.control-help-dialog > article { width: min(42rem, calc(100vw - 2rem)); }
+.control-help-dialog h2 { margin: 0; font-size: 1.3rem; }
+.control-help-dialog dt { margin-top: 1rem; font-weight: 600; color: var(--ui-text); }
+.control-help-dialog dd { margin: 0.3rem 0 0; color: var(--ui-muted); line-height: 1.6; white-space: pre-line; }
+.control-help-dialog [hidden] { display: none; }
+.control-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 2rem; align-items: start; }
+.control-primary-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem 2rem; max-width: 64rem; }
+.control-temperature-grid { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--control-border); }
+.control-water-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 2rem; align-items: start; }
+.control-page .control-card { min-width: 0; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.control-page .control-compact-card input[type="number"] { width: 5rem; }
+.control-oil-set { max-width: 52rem; }
+.control-page .dash-main { min-width: 0; padding: 0; }
+.control-page .dash-header {
+  display: block;
+  margin: 0 0 0.8rem;
+  padding: 0;
+  text-align: left;
+  color: var(--ui-text);
+  font-size: max(14px, 0.9rem);
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.control-page .dash-content { display: block; margin: 0; padding: 0; text-align: left; }
+.control-page .control-label-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.6rem; min-height: 2.8rem; }
+.control-page .control-label-row .dash-header { min-width: 0; margin: 0; }
+.control-page .control-reading, .control-page .control-oil-reading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2rem;
+  flex-shrink: 0;
+  color: var(--ui-accent);
+  font-size: max(24px, 1.8rem);
+  font-weight: 500;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.control-page .control-oil-reading { font-size: max(18px, 1.15rem); }
+.control-page .control-unit { color: var(--ui-muted); font-size: max(12px, 0.8rem); font-weight: 400; white-space: nowrap; }
+.control-page .control-scale { display: flex; justify-content: space-between; gap: 0.5rem; margin-top: 0.15rem; color: var(--ui-muted); font-size: max(12px, 0.75rem); }
+.control-page .dash-footer { display: block; margin: 0.65rem 0 0; padding: 0; text-align: left; color: var(--ui-muted); font-size: max(12px, 0.75rem); line-height: 1.4; }
+.control-page input[type="range"] { width: 100%; height: 32px; margin: 0; accent-color: var(--ui-target); }
+.control-page input[type="range"]::-webkit-slider-runnable-track { background: linear-gradient(to right, var(--ui-target) 0 var(--control-progress, 0%), var(--control-border) var(--control-progress, 0%) 100%); }
+.control-page input[type="range"]::-moz-range-track { background: linear-gradient(to right, var(--ui-target) 0 var(--control-progress, 0%), var(--control-border) var(--control-progress, 0%) 100%); }
+.control-page select, .control-page input[type="number"] { margin: 0; min-width: 0; min-height: 44px; font-size: max(16px, 0.95rem); }
+.control-page input[type="number"] { width: min(100%, 8rem); }
+.control-page .radio-buttons { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; margin: 0; padding: 4px; border: 1px solid var(--control-border); border-radius: 0.6rem; background: var(--control-field); }
+.control-page .button-like { display: block; position: absolute; width: 1px; height: 1px; margin: 0; padding: 0; opacity: 0; clip-path: inset(50%); }
+.control-page .button-like-label { display: flex; align-items: center; justify-content: center; gap: 0.4rem; min-width: 0; min-height: 44px; margin: 0; padding: 0.45rem 0.2rem; border-radius: 0.4rem; color: var(--ui-muted); font-size: max(14px, 0.9rem); line-height: 1.3; text-align: center; }
+.control-page .button-like-label > i { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
+.control-page .button-like:checked + .button-like-label { color: var(--ui-text); background: var(--control-selection); border-radius: 0.4rem; }
+.control-page .button-like:focus-visible + .button-like-label { outline: 2px solid var(--ui-target); outline-offset: 1px; }
+.control-page .control-oil-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.control-page .control-oil-controls > [role="group"] { flex: 1 1 15rem; min-width: 0; margin: 0; }
+.control-page .control-oil-feedback { display: flex; align-items: baseline; gap: 0.5rem; color: var(--ui-muted); white-space: nowrap; }
+.control-page .control-oil-set input { width: 100%; }
+.control-page .control-oil-set button { width: auto; flex: 0 0 auto; white-space: nowrap; margin: 0; background: var(--control-selection); }
+@container (min-width: 1500px) {
+  .control-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@container (max-width: 1000px) {
+  .control-grid, .control-water-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .control-water-grid .control-mode-card { grid-column: 1 / -1; max-width: 32rem; width: 100%; }
+}
+@container (max-width: 600px) {
+  .control-grid, .control-primary-grid, .control-water-grid { grid-template-columns: minmax(0, 1fr); }
+  .control-section { padding: 1rem; }
+}
+@media (pointer: coarse) {
+  .control-page input[type="range"] { height: 44px; }
+}
