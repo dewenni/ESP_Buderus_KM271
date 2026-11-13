@@ -73,7 +73,7 @@ function initPageHeader() {
     const key = connected ? "ui_connected" : "ui_disconnected";
     indicator.classList.toggle("is-connected", connected);
     label.dataset.i18n = key;
-    label.textContent = user_translations[key][language];
+    label.textContent = (connected ? user_translations.ui_connected : user_translations.ui_disconnected)[language];
     reload.hidden = connected || isGitHubPages();
     reload.title = reload.ariaLabel = user_translations.ui_reload[language];
     // Inert preserves individual disabled states set by the ESP on reconnect.
