@@ -383,6 +383,7 @@ void configSaveToFile() {
   doc["mqtt"]["topic"] = config.mqtt.topic;
   doc["mqtt"]["port"] = config.mqtt.port;
   doc["mqtt"]["config_retain"] = config.mqtt.config_retain;
+  doc["mqtt"]["status_retain"] = config.mqtt.status_retain;
   doc["mqtt"]["language"] = config.mqtt.lang;
   doc["mqtt"]["cyclic_send"] = config.mqtt.cyclicSendMin;
   doc["mqtt"]["ha_enable"] = config.mqtt.ha_enable;
@@ -603,6 +604,7 @@ void configLoadFromFile() {
     EspStrUtil::readJSONstring(config.mqtt.topic, sizeof(config.mqtt.topic), doc["mqtt"]["topic"]);
     loadCfg(config.mqtt.port, doc["mqtt"]["port"]);
     loadCfg(config.mqtt.config_retain, doc["mqtt"]["config_retain"]);
+    loadCfg(config.mqtt.status_retain, doc["mqtt"]["status_retain"]);
     loadCfg(config.mqtt.lang, doc["mqtt"]["language"]);
     loadCfg(config.mqtt.cyclicSendMin, doc["mqtt"]["cyclic_send"]);
     loadCfg(config.mqtt.ha_enable, doc["mqtt"]["ha_enable"]);

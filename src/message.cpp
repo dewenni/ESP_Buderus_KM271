@@ -296,7 +296,7 @@ void km271Msg(e_kmMsgTyp typ, const char *desc, const char *value) {
     // desc = subtopic / value = value
     if (config.mqtt.enable) {
       snprintf(newCfgTopic, sizeof(newCfgTopic), "%s/status/%s", config.mqtt.topic, desc);
-      mqttPublish(newCfgTopic, value, false);
+      mqttPublish(newCfgTopic, value, config.mqtt.status_retain);
     }
     if (config.log.enable && config.log.filter == LOG_FILTER_VALUES) {
       snprintf(tmpMsg, sizeof(tmpMsg), "Status: %s = %s", desc, value);

@@ -84,6 +84,7 @@ struct s_cfg_mqtt {
   char topic[128];
   uint16_t port = 1883;
   bool config_retain;
+  bool status_retain;
   uint16_t cyclicSendMin;
   int lang;
   bool ha_enable;
