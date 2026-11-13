@@ -2,6 +2,7 @@
 // localization texts
 // --------------------------------------
 const user_translations = {
+  ui_reload: { de: "Seite neu laden", en: "Reload page" },
   info_firmware_used: { de: "Firmware-Speicher belegt", en: "Firmware storage used" },
   info_ram_free: { de: "RAM frei", en: "Free RAM" },
   info_largest_free_block: { de: "Größter freier Speicherblock", en: "Largest free memory block" },
@@ -73,7 +74,7 @@ const user_translations = {
   ha_mqtt_disabled: { de: "MQTT ist derzeit deaktiviert.", en: "MQTT is currently disabled." },
   ha_mqtt_open: { de: "MQTT-Einstellungen öffnen", en: "Open MQTT settings" },
   ui_connected: { de: "Verbunden", en: "Connected" },
-  ui_disconnected: { de: "Keine Verbindung", en: "Disconnected" },
+  ui_disconnected: { de: "Verbindung unterbrochen – verbinde erneut …", en: "Disconnected – reconnecting …" },
   dashboard_subtitle: { de: "Heizung im Überblick", en: "Heating at a glance" },
   system_subtitle: { de: "Verbindungen und Gerät", en: "Connections and device" },
   settings_subtitle: { de: "Konfiguration", en: "Configuration" },

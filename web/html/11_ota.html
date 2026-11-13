@@ -36,7 +36,7 @@
           <h1 data-i18n="tools"></h1><p data-i18n="info_tools_subtitle"></p>
         </header>
         <div class="information-grid tools-grid">
-          <article class="card tools">
+          <article class="card tools" data-connection-required>
             <h2 class="table-header" data-i18n="info_firmware_update"></h2>
             <form method="POST" action="#" enctype="multipart/form-data" id="ota_upload_form">
               <label class="tools-file-label" for="ota_file_input" data-i18n="info_firmware_file"></label>
@@ -50,7 +50,7 @@
             </form>
             <div class="tools-remote-update"><button type="button" id="p11_check_git_btn"><i class="svg i_github" aria-hidden="true"></i><span data-i18n="info_check_github"></span></button></div>
           </article>
-          <article class="card tools">
+          <article class="card tools" data-connection-required>
             <h2 class="table-header" data-i18n="info_configuration"></h2>
             <form method="POST" action="#" enctype="multipart/form-data" id="file_upload_form">
               <label class="tools-file-label" for="file_input" data-i18n="info_config_file"></label>

@@ -19,9 +19,12 @@
         <span class="simModeBar">SIMULATION</span>
         <span class="setupModeBar">SETUP-MODE</span>
       </div>
-      <span id="p00_web_connection" class="app-connection" role="status">
+      <div class="app-connection-actions">
+      <span id="p00_web_connection" class="app-connection" role="status" aria-live="polite">
         <span id="p00_web_connection_text" data-i18n="ui_disconnected"></span>
       </span>
+        <button id="p99_reloadButton" type="button" class="app-reload svg i_auto" data-ui-local aria-label="Reload" hidden></button>
+      </div>
     </header>
     <!-- Dialog Version -->
     <dialog id="version_dialog">
