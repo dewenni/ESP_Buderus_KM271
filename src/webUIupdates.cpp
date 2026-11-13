@@ -207,6 +207,7 @@ void updateGpioSettings() {
  * @return  none
  * *******************************************************************/
 void updateSystemInfoElements() {
+  if (EspSysUtil::OTA::getInstance().isActive()) return;
 
   webUI.initJsonBuffer(jsonDoc);
 
@@ -270,12 +271,13 @@ void updateSystemInfoElements() {
   }
 
   // ESP informations
-  const uint32_t firmwareSize = ESP.getSketchSize();
-  const uint32_t firmwareCapacity = ESP.getFreeSketchSpace(); // OTA target partition, not the entire flash chip
+  const auto &firmware = getFirmwareInfo();
+  const uint32_t firmwareSize = firmware.size;
+  const uint32_t firmwareCapacity = firmware.capacity;
   const uint32_t heapSize = ESP.getHeapSize();
   const uint32_t freeHeap = ESP.getFreeHeap();
   if (firmwareCapacity) {
-    webUI.addJson(jsonDoc, "p09_esp_flash_usage", firmwareSize * 100.0f / firmwareCapacity);
+    webUI.addJson(jsonDoc, "p09_esp_flash_usage", firmware.usagePercent);
   } else {
     webUI.addJson(jsonDoc, "p09_esp_flash_usage", "--");
   }

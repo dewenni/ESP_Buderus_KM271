@@ -21,6 +21,13 @@
 #include <stdlib.h>
 
 /* D E C L A R A T I O N S ****************************************************/
+// Firmware metrics stay constant until reboot; RAM metrics remain live.
+struct s_firmwareInfo {
+  uint32_t size = 0;
+  uint32_t capacity = 0;
+  float usagePercent = 0;
+};
+
 struct s_eth {
   bool connected = false;
   char ipAddress[20];
@@ -31,6 +38,8 @@ struct s_eth {
 extern s_eth eth;
 
 /* P R O T O T Y P E S ********************************************************/
+void initFirmwareInfo();
+const s_firmwareInfo &getFirmwareInfo();
 void basicSetup();
 void sendETHInfo();
 void storeData();
