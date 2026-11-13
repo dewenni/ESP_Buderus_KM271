@@ -392,6 +392,10 @@ const user_translations = {
     de: "Config Nachrichten als retain",
     en: "config messages as retain",
   },
+  mqtt_status_ret: {
+    de: "Status Nachrichten als retain",
+    en: "status messages as retain",
+  },
   mqtt_connection_test: {
     de: "Verbindung testen",
     en: "Test connection",

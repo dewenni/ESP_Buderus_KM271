@@ -378,6 +378,9 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "cfg_mqtt_config_retain") == 0) {
     config.mqtt.config_retain = EspStrUtil::stringToBool(value);
   }
+  if (strcmp(elementId, "cfg_mqtt_status_retain") == 0) {
+    config.mqtt.status_retain = EspStrUtil::stringToBool(value);
+  }
   if (strcmp(elementId, "cfg_mqtt_server") == 0) {
     snprintf(config.mqtt.server, sizeof(config.mqtt.server), "%s", value);
   }
