@@ -36,19 +36,30 @@
           <h1 data-i18n="tools"></h1><p data-i18n="info_tools_subtitle"></p>
         </header>
         <div class="information-grid tools-grid">
-          <article class="card tools" data-connection-required>
+          <article class="card tools tools-firmware" data-connection-required>
             <h2 class="table-header" data-i18n="info_firmware_update"></h2>
+            <div class="tools-update-methods">
+              <section class="tools-update-method">
+                <h3 class="tools-method-title"><svg class="tools-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5" /></svg><span data-i18n="info_update_local"></span></h3>
+                <p class="tools-method-description" data-i18n="info_update_local_hint"></p>
             <form method="POST" action="#" enctype="multipart/form-data" id="ota_upload_form">
               <label class="tools-file-label" for="ota_file_input" data-i18n="info_firmware_file"></label>
-              <input type="file" name="ota_update" id="ota_file_input" onchange="ota_sub_fun(this)" accept=".bin" />
+              <div class="tools-source-box"><input type="file" name="ota_update" id="ota_file_input" onchange="ota_sub_fun(this)" accept=".bin" /></div>
               <p class="information-note" hidden data-selected-file="ota_file_input" data-i18n="info_no_file"></p>
               <div class="tools-actions">
-                <input type="submit" id="ota_update_btn" disabled="disabled" value="Update" />
+                <input type="submit" id="ota_update_btn" disabled="disabled" value="Datei installieren" data-i18n="info_install_file" />
               </div>
               <div id="ota_status_txt" class="information-note" style="display:none" data-i18n="update_ready"></div>
               <progress id="ota_progress_bar" style="display:none" max="100" value="0"></progress>
             </form>
-            <div class="tools-remote-update"><button type="button" id="p11_check_git_btn"><i class="svg i_github" aria-hidden="true"></i><span data-i18n="info_check_github"></span></button></div>
+              </section>
+              <section class="tools-update-method">
+                <h3 class="tools-method-title"><i class="svg i_github" aria-hidden="true"></i><span data-i18n="info_update_github"></span></h3>
+                <p class="tools-method-description" data-i18n="info_update_github_hint"></p>
+                <div class="tools-source-box tools-version-info"><strong data-i18n="info_update_versions"></strong><span data-i18n="info_update_versions_hint"></span></div>
+                <div class="tools-actions"><button type="button" id="p11_check_git_btn" data-i18n="info_check_github"></button></div>
+              </section>
+            </div>
           </article>
           <article class="card tools" data-connection-required>
             <h2 class="table-header" data-i18n="info_configuration"></h2>

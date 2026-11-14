@@ -83,10 +83,34 @@
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip-path: inset(50%); white-space: nowrap;
 }
-.tools-remote-update { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--ui-border); }
-.tools-remote-update button { display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; width: auto; max-width: 100%; margin: 0; }
-.tools-remote-update .svg { width: 20px; height: 20px; flex: 0 0 20px; }
-@container (max-width: 420px) { .tools-remote-update button { width: 100%; } }
+/* Keep each update source and its action in a separate, labelled area. */
+.information-page .tools-firmware { grid-column: 1 / -1; padding: 0; overflow: hidden; }
+.information-page .tools > .table-header { padding: 1.25rem; margin: 0; border-bottom: 1px solid var(--ui-border); }
+.information-page .tools:not(.tools-firmware) > .table-header {
+  margin: -1.25rem -1.25rem 1.25rem;
+}
+@container (max-width: 420px) {
+  .information-page .tools:not(.tools-firmware) > .table-header { margin: -1rem -1rem 1rem; padding: 1rem; }
+}
+.tools-update-methods { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tools-update-method { min-width: 0; padding: 1.25rem; display: flex; flex-direction: column; }
+.tools-update-method + .tools-update-method { border-left: 1px solid var(--ui-border); }
+.tools-update-method h3 { font-size: 1rem; font-weight: 500; margin: 0 0 0.5rem; }
+.tools-method-description { color: var(--ui-muted); font-size: 0.85rem; margin: 0 0 1.25rem; flex-grow: 1; }
+.tools-method-title { display: flex; align-items: center; gap: 0.6rem; }
+.tools-method-title .svg, .tools-upload-icon { width: 22px; height: 22px; flex: 0 0 22px; color: var(--ui-target); }
+.tools-source-box { display: flex; align-items: center; min-height: 5rem; padding: 0.9rem; background: var(--ui-field); border: 1px solid var(--ui-border); border-radius: 0.6rem; }
+.tools-version-info { flex-direction: column; align-items: start; justify-content: center; gap: 0.3rem; font-size: 0.85rem; }
+.tools-version-info strong { font-weight: 500; }
+.tools-version-info span { color: var(--ui-muted); }
+@container (max-width: 700px) {
+  .tools-update-methods { grid-template-columns: minmax(0, 1fr); }
+  .tools-update-method + .tools-update-method { border-left: 0; border-top: 1px solid var(--ui-border); }
+}
+@container (max-width: 420px) {
+  .information-page .tools-firmware { padding: 0; }
+  .information-page .tools-firmware > .table-header, .tools-update-method { padding: 1rem; }
+}
 
 .memory-detail { display: block; margin-top: 0.25rem; color: var(--ui-muted); font-size: max(12px, 0.8rem); }
 

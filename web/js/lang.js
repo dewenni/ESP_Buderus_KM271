@@ -2,6 +2,13 @@
 // localization texts
 // --------------------------------------
 const user_translations = {
+  info_update_versions: { de: "Verfügbare Versionen", en: "Available versions" },
+  info_update_versions_hint: { de: "Die Versionsauswahl öffnet sich nach der Prüfung.", en: "The version selection opens after the check." },
+  info_update_local: { de: "Lokale Datei", en: "Local file" },
+  info_update_local_hint: { de: "Eine Firmware-Datei von deinem Computer auf den ESP übertragen.", en: "Upload a firmware file from your computer to the ESP." },
+  info_update_github: { de: "Von GitHub", en: "From GitHub" },
+  info_update_github_hint: { de: "Eine veröffentlichte Version direkt aus dem Projekt herunterladen.", en: "Download a published version directly from the project." },
+  info_install_file: { de: "Datei installieren", en: "Install file" },
   ui_reload: { de: "Seite neu laden", en: "Reload page" },
   info_firmware_used: { de: "Firmware-Speicher belegt", en: "Firmware storage used" },
   info_ram_free: { de: "RAM frei", en: "Free RAM" },
