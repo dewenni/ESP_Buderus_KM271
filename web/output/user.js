@@ -1,63 +1,69 @@
-// Browser-only, bounded histories: [timestamp, first temperature, second temperature]
-// or [timestamp, status]. null marks an unobserved interval.
+// Temperatures and states are sampled by the ESP, once per minute.
+// Browser timestamps are derived from ESP uptime, so NTP corrections on the ESP
+// cannot move historical points. No sessionStorage or browser-side sampling.
+const DASHBOARD_SAMPLE_MS = 60000;
+
 class DashboardHistory {
-  constructor(columns = 3, capacity = 120) {
-    this.columns = columns;
-    this.capacity = capacity;
-    this.rows = [];
-  }
+  constructor() { this.rows = []; }
   prune(now) {
     const cutoff = now - 3600000;
-    const baseline = this.columns === 2 ? this.rows.findLast(row => row[0] < cutoff) : null;
     this.rows = this.rows.filter(row => row[0] >= cutoff && row[0] <= now);
-    // Keep the known state at the left edge even if it has not changed for an hour.
-    if (baseline) this.rows.unshift([cutoff, baseline[1]]);
-    this.rows = this.rows.slice(-this.capacity);
-  }
-  push(now, ...values) {
-    this.prune(now);
-    this.rows.push([now, ...values]);
-    if (this.rows.length > this.capacity) this.rows.shift();
-  }
-  gap(now) {
-    if (this.rows.length && this.rows.at(-1)[1] !== null) this.push(now, ...Array(this.columns - 1).fill(null));
-  }
-  restore(rows, now) {
-    if (!Array.isArray(rows)) return;
-    let previous = -Infinity;
-    this.rows = rows.slice(-this.capacity).filter(row => {
-      if (!Array.isArray(row) || row.length !== this.columns || !Number.isFinite(row[0]) || row[0] <= previous ||
-          !row.slice(1).every(value => value === null || Number.isFinite(value)) ||
-          (this.columns === 2 && ![null, 0, 1].includes(row[1])) ||
-          (this.columns === 3 && !(row[1] === null && row[2] === null) &&
-           !row.slice(1).every(v => Number.isFinite(v) && v >= -100 && v <= 300))) return false;
-      previous = row[0];
-      return true;
-    });
-    this.rows = this.rows.filter(row => row[0] >= now - 3600000 && row[0] <= now);
-    this.prune(now);
-    // Preserve unknown intervals in storage and readouts, even when lines bridge them visually.
-    if (this.rows.length) this.gap(this.rows.at(-1)[0] + 1);
   }
 }
 
-// Separate measured paths from visual bridges; never add interpolated samples.
+// Validate a page before touching the displayed history.
+function dashboardHistoryRows(message, offset) {
+  if (!Array.isArray(message.rows) || message.rows.length > 4 || !Number.isInteger(message.now)) return null;
+  let previous = -Infinity;
+  for (const row of message.rows) {
+    if (!Array.isArray(row) || row.length !== 15 || !row.every(Number.isInteger) ||
+        row[0] <= previous || row[0] > message.now || message.now - row[0] > 3600 ||
+        row[1] < 0 || row[1] > 255 || row[2] < 0 || row[2] > 3 ||
+        row.slice(3).some(v => v < -32768 || v > 32767)) return null;
+    previous = row[0];
+  }
+  return message.rows.map(row => [offset + row[0] * 1000, ...row.slice(1)]);
+}
+
+// Bounded cubic interpolation: tangents flatten at extrema and cannot overshoot.
+function dashboardSmoothPath(points) {
+  if (!points.length) return "";
+  const point = p => p.map(v => v.toFixed(2)).join(",");
+  let path = `M${point(points[0])}`;
+  if (points.length === 2) return path + `L${point(points[1])}`;
+  const slopes = points.slice(1).map((p, i) => (p[1] - points[i][1]) / (p[0] - points[i][0]));
+  const tangent = i => i === 0 ? slopes[0] : i === slopes.length ? slopes.at(-1) :
+    slopes[i - 1] * slopes[i] > 0 ? Math.sign(slopes[i]) * Math.min(Math.abs(slopes[i - 1]), Math.abs(slopes[i])) : 0;
+  for (let i = 1; i < points.length; ++i) {
+    const a = points[i - 1], b = points[i], h = (b[0] - a[0]) / 3;
+    path += `C${point([a[0] + h, a[1] + h * tangent(i - 1)])} ${point([b[0] - h, b[1] - h * tangent(i)])} ${point(b)}`;
+  }
+  return path;
+}
+
+// Separate measured paths from straight visual bridges; never add samples.
 function dashboardChartPaths(rows, column, step, x, y) {
-  let line = "", gaps = "", previous = null, missing = false;
+  let line = "", gaps = "", previous = null, missing = false, segment = [];
   const point = row => `${x(row[0]).toFixed(2)},${y(row[column]).toFixed(2)}`;
+  const flush = () => { line += dashboardSmoothPath(segment); segment = []; };
   for (const row of rows) {
     if (row[column] === null) { missing = true; continue; }
-    const gap = previous && (missing || row[0] - previous[0] > 45000);
-    if (gap) gaps += `M${point(previous)}L${point(row)}`;
-    line += !previous || gap ? `M${point(row)}` : step ? `H${x(row[0]).toFixed(2)}V${y(row[column]).toFixed(2)}` : `L${point(row)}`;
+    const gap = previous && (missing || row[0] - previous[0] > DASHBOARD_SAMPLE_MS * 1.5);
+    if (gap) {
+      gaps += `M${point(previous)}L${point(row)}`;
+      if (!step) flush();
+    }
+    if (step) line += !previous || gap ? `M${point(row)}` : `H${x(row[0]).toFixed(2)}V${y(row[column]).toFixed(2)}`;
+    else segment.push([x(row[0]), y(row[column])]);
     previous = row;
     missing = false;
   }
+  if (!step) flush();
   return { line, gaps };
 }
 
 // Read real samples only. Every interval touching a gap remains unknown.
-function dashboardChartSample(rows, time, sampleMs = 30000) {
+function dashboardChartSample(rows, time, sampleMs = DASHBOARD_SAMPLE_MS) {
   const before = rows.findLast(row => row[0] <= time);
   const after = rows.find(row => row[0] >= time);
   if (!before || before[1] === null) return null;
@@ -69,22 +75,14 @@ function dashboardChartSample(rows, time, sampleMs = 30000) {
 function initDashboardCharts() {
   const get = id => document.getElementById(id);
   const ready = get("p01_chart_valid"), lost = get("connectionLostBar"), tab = get("tab1");
-  const sampleMs = 30000, timeoutMs = 15000, storageKey = "km271.dashboard.v1";
+  const sampleMs = DASHBOARD_SAMPLE_MS, timeoutMs = 15000;
   const language = () => get("cfg_lang").value === "1" ? "en" : "de";
   const text = key => user_translations[key][language()];
   const number = element => element.textContent.trim() === "" ? NaN : Number(element.textContent.trim());
-  const connected = () => getComputedStyle(lost).display === "none";
-  const histories = {};
-  let stored = {}, mask = 0, lastStatus = 0;
-  try { stored = JSON.parse(sessionStorage.getItem(storageKey)) || {}; } catch (_) { /* Storage may be blocked. */ }
-  function history(key, columns = 3, capacity = 120) {
-    const series = new DashboardHistory(columns, capacity);
-    series.restore(stored[key], Date.now());
-    histories[key] = series;
-    return series;
-  }
+  const connected = () => typeof ws !== "undefined" && ws && ws.readyState === WebSocket.OPEN;
+  let mask = 0, lastStatus = 0;
   const states = Object.fromEntries(["burner", "priority"].map((name, i) => [name, {
-    element: get(`p01_chart_${name}`), label: () => text(i === 0 ? "chart_burner" : "chart_priority"), bit: 6 + i, valid: false, observed: 0, history: history(name, 2, 256)
+    label: () => text(i === 0 ? "chart_burner" : "chart_priority"), bit: 6 + i, valid: false, history: new DashboardHistory()
   }]));
   const charts = Array.from(document.querySelectorAll("[data-chart]"), card => {
     const state = states[card.dataset.chartState];
@@ -97,15 +95,8 @@ function initDashboardCharts() {
     }
     return { card, chart: card.querySelector(".dash-chart"), status: card.querySelector(".dash-chart-status"),
       fields: card.dataset.chart.split(",").map(get), bit: Number(card.dataset.chartBit),
-      history: history(card.dataset.chart), primary: Number(card.dataset.chartPrimary ?? 1), state, legend, valid: false };
+      history: new DashboardHistory(), primary: Number(card.dataset.chartPrimary ?? 1), state, legend };
   });
-  function save() {
-    try {
-      sessionStorage.setItem(storageKey, JSON.stringify(Object.fromEntries(Object.entries(histories).map(([key, h]) => {
-        h.prune(Date.now()); return [key, h.rows];
-      }))));
-    } catch (_) { /* Charts continue in RAM if storage is unavailable. */ }
-  }
   const ns = "http://www.w3.org/2000/svg";
   function node(tag, attrs, content) {
     const element = document.createElementNS(ns, tag);
@@ -131,7 +122,7 @@ function initDashboardCharts() {
     const svg = node("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": title });
     svg.append(node("title", {}, `${title}: ${labels.join(" / ")}`));
     const summary = () => {
-      c.status.textContent = c.valid ? "" : text("chart_wait");
+      c.status.textContent = rows.some(row => row[1] !== null) ? "" : text("chart_wait");
     };
     summary();
     if (c.state) {
@@ -141,7 +132,7 @@ function initDashboardCharts() {
       c.state.history.prune(now);
       const events = c.state.history.rows;
       for (let i = 0; i < events.length; ++i) {
-        const [start, state] = events[i], end = events[i + 1]?.[0] ?? (c.state.valid ? now : start);
+        const [start, state] = events[i], end = events[i + 1]?.[0] ?? (c.state.valid ? Math.min(now, start + sampleMs) : start);
         if (state !== 1 || end <= start) continue;
         const rect = node("rect", { x: x(start), y: top, width: x(end) - x(start), height: bottom - top,
           class: "dash-chart-state" });
@@ -182,43 +173,74 @@ function initDashboardCharts() {
     overlay.addEventListener("pointerleave", () => { guide.setAttribute("visibility", "hidden"); summary(); });
     svg.append(guide, overlay); c.chart.replaceChildren(svg);
   }
-  function update(sample = false) {
-    const now = Date.now(), online = connected() && now - lastStatus <= timeoutMs;
+  let remoteRows = [], sequence = 0, boot = null, clockOffset = 0;
+  let requestId = 0, pending = null, timer, lastSync = 0;
+  const schedule = (callback, delay) => { clearTimeout(timer); timer = setTimeout(callback, delay); };
+  const retry = () => { pending = null; schedule(() => sync(true), 5000); };
+  function requestPage() {
+    if (!connected() || !pending) return;
+    ws.send(JSON.stringify({ elementId: "dashboard_history", value: `${pending.id}:${pending.cursor}:${pending.end}` }));
+    schedule(retry, 10000); // A full queue/lost response must not leave a half-loaded chart.
+  }
+  function sync(full = false) {
+    if (!connected() || (pending && !full)) return;
+    pending = { id: ++requestId, cursor: full ? 0 : sequence + 1, end: 0 };
+    requestPage();
+  }
+  function applyHistory() {
+    for (const c of charts) {
+      c.history.rows = remoteRows.map(row => [row[0], ...(row[1] & (1 << c.bit) ?
+        row.slice(3 + 2 * c.bit, 5 + 2 * c.bit).map(v => v / 10) : [null, null])]);
+    }
+    for (const [i, state] of Object.values(states).entries()) {
+      state.history.rows = remoteRows.map(row => [row[0], row[1] & (1 << state.bit) ? (row[2] >> i) & 1 : null]);
+      // Never extend an overlay across an interval the ESP did not sample.
+      state.history.rows = state.history.rows.flatMap((row, i, rows) =>
+        i && row[0] - rows[i - 1][0] > sampleMs * 1.5 ? [[rows[i - 1][0] + sampleMs, null], row] : [row]);
+    }
+    charts.forEach(draw);
+  }
+  window.addEventListener("webui:message", event => {
+    const data = event.detail;
+    if (data.type !== "dashboardHistory" || !pending || data.request !== pending.id) return;
+    if (![data.boot, data.end, data.next, data.nextIn].every(v => Number.isInteger(v) && v >= 0) ||
+        typeof data.reset !== "boolean" || data.nextIn > 60 || (data.next && data.next > data.end)) { retry(); return; }
+    if (boot !== null && boot !== data.boot && !data.reset) { sync(true); return; }
+    const offset = data.reset ? Date.now() - data.now * 1000 : clockOffset;
+    const rows = dashboardHistoryRows(data, offset);
+    if (!rows || (!data.reset && rows.length && remoteRows.length && rows[0][0] <= remoteRows.at(-1)[0])) { retry(); return; }
+    clearTimeout(timer);
+    if (data.reset) { remoteRows = []; clockOffset = offset; }
+    boot = data.boot;
+    remoteRows.push(...rows);
+    remoteRows = remoteRows.filter(row => row[0] >= Date.now() - 3600000).slice(-61);
+    applyHistory();
+    if (data.next) {
+      pending.cursor = data.next; pending.end = data.end; requestPage();
+    } else {
+      sequence = data.end; pending = null; lastSync = Date.now();
+      schedule(() => sync(), Math.max(1000, data.nextIn * 1000 + 250));
+    }
+  });
+  window.addEventListener("webui:connected", () => { mask = 0; sync(true); });
+  function updateLive() {
+    const online = connected() && Date.now() - lastStatus <= timeoutMs;
     let changed = false;
     for (const state of Object.values(states)) {
-      const value = number(state.element), valid = online && !!(mask & (1 << state.bit)) && [0, 1].includes(value);
-      if (state.valid && now - state.observed > sampleMs * 1.5) {
-        state.history.gap(state.observed + 1); state.valid = false; changed = true;
-      }
-      if (valid && (!state.valid || value !== state.history.rows.at(-1)?.[1])) {
-        state.history.push(now, value); changed = true;
-      } else if (state.valid && !valid) { state.history.gap(Math.min(now, state.observed + timeoutMs)); changed = true; }
+      const valid = online && !!(mask & (1 << state.bit));
+      changed ||= state.valid !== valid;
       state.valid = valid;
-      if (valid) state.observed = now;
     }
-    for (const c of charts) {
-      const values = c.fields.map(number), valid = online && !!(mask & (1 << c.bit)) && values.every(Number.isFinite);
-      if (valid && (sample || !c.valid)) {
-        const last = c.history.rows.at(-1);
-        if (last && now - last[0] > sampleMs * 1.5) c.history.gap(last[0] + 1);
-        c.history.push(now, ...values); changed = true;
-      } else if (c.valid && !valid) { c.history.gap(now); changed = true; }
-      c.valid = valid;
-    }
-    if (changed) save();
-    // Heartbeats only redraw on validity/status changes; sampling uses one shared timer.
-    if (sample || changed) charts.forEach(draw);
+    if (changed) charts.forEach(draw);
   }
   const observer = new MutationObserver(mutations => {
     if (mutations.some(m => m.target === ready || ready.contains(m.target))) {
       mask = number(ready) || 0; lastStatus = Date.now();
     }
-    // Once disconnected, a fresh readiness snapshot is required before rearming.
-    if (!connected()) mask = 0;
-    update();
+    if (!connected()) { mask = 0; pending = null; clearTimeout(timer); }
+    updateLive();
   });
-  for (const el of [ready, ...Object.values(states).map(s => s.element), ...charts.flatMap(c => c.fields)])
-    observer.observe(el, { childList: true, characterData: true, subtree: true });
+  observer.observe(ready, { childList: true, characterData: true, subtree: true });
   observer.observe(lost, { attributes: true, attributeFilter: ["style", "class"] });
   const resize = new ResizeObserver(() => charts.forEach(draw));
   charts.forEach(c => resize.observe(c.chart));
@@ -226,10 +248,15 @@ function initDashboardCharts() {
   const localeObserver = new MutationObserver(() => charts.forEach(draw));
   charts.forEach(c => localeObserver.observe(c.card.querySelector(".dash-header"), { childList: true, characterData: true, subtree: true }));
   get("cfg_lang").addEventListener("change", () => charts.forEach(draw));
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) update(true); });
-  window.addEventListener("pagehide", () => { for (const h of Object.values(histories)) h.gap(Date.now()); save(); });
-  setInterval(() => update(true), sampleMs);
-  charts.forEach(draw); // Axes (and restored samples) are visible before the first live sample.
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      if (Date.now() - lastSync > sampleMs * 1.5) sync(true);
+      updateLive(); charts.forEach(draw);
+    }
+  });
+  setInterval(() => { updateLive(); charts.forEach(draw); }, sampleMs);
+  charts.forEach(draw); // Axes are visible immediately; the first page fills the history.
+  sync(true); // The socket may already be open when the page initializes.
 }
 
 // --------------------------------------
@@ -237,7 +264,11 @@ function initDashboardCharts() {
 document.addEventListener("DOMContentLoaded", function () {
   // call user functions
   initPageHeader();
+  initMobileNavigation();
   initDashboardStatusIcons();
+  initControlSliders();
+  initControlHelp();
+  initInformationPages();
   initLogType();
   initDashboardCharts();
   initWeeklyPrograms();
@@ -301,15 +332,251 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+// GitHub OTA reuses the existing commands and WebSocket targets.
+function compareReleaseVersions(release, installed) {
+  const parse = value => /^v?(\d+)\.(\d+)\.(\d+)$/.exec(value.trim());
+  const a = parse(release), b = parse(installed);
+  if (!a || !b) return null;
+  for (let i = 1; i <= 3; i++) {
+    if (Number(a[i]) !== Number(b[i])) return Number(a[i]) > Number(b[i]) ? 1 : -1;
+  }
+  return 0;
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const state = document.getElementById('p11_git_state');
+  const progress = document.getElementById('p11_git_progress');
+  const release = document.getElementById('p00_dialog_git_version');
+  const installed = document.getElementById('p00_dialog_version');
+  const check = document.getElementById('p11_check_git_btn');
+  const install = document.getElementById('p00_update_btn');
+  const action = document.getElementById('p00_update_btn_hide');
+  const bar = document.getElementById('github_progress_bar');
+  const feedback = document.getElementById('p11_git_feedback');
+  const t = key => user_translations[key][document.getElementById('cfg_lang').value === '1' ? 'en' : 'de'];
+  const messages = {
+    idle: user_translations.info_git_idle,
+    checking: user_translations.info_git_checking,
+    ready: user_translations.info_git_ready,
+    current: user_translations.info_git_current,
+    error: user_translations.info_git_error,
+    noasset: user_translations.info_git_noasset,
+    updating: user_translations.info_git_updating,
+    done: user_translations.info_git_done,
+    failed: user_translations.info_git_failed,
+    offline: user_translations.info_git_offline,
+  };
+  const render = () => {
+    const mode = state.textContent.trim();
+    const order = compareReleaseVersions(release.textContent, installed.textContent);
+    const busy = mode === 'checking' || mode === 'updating';
+    check.disabled = busy || mode === 'done';
+    check.setAttribute('aria-busy', mode === 'checking' ? 'true' : 'false');
+    action.style.display = mode === 'ready' ? '' : 'none';
+    install.disabled = mode !== 'ready';
+    install.textContent = `${t(order === -1 ? 'info_git_downgrade' : 'info_git_install')} ${release.textContent}`;
+    let message = messages[mode] || messages.idle;
+    if (mode === 'ready') message = order === -1 ? user_translations.info_git_older : order === 1 ? user_translations.info_git_newer : messages.ready;
+    feedback.textContent = message[document.getElementById('cfg_lang').value === '1' ? 'en' : 'de'] + (mode === 'updating' ? `: ${progress.textContent}%` : '');
+    bar.hidden = mode !== 'updating' && mode !== 'done';
+    bar.value = Number(progress.textContent) || 0;
+  };
+  const observer = new MutationObserver(render);
+  [state, progress, release, installed].forEach(element => observer.observe(element, { childList: true, characterData: true, subtree: true }));
+  check.addEventListener('click', () => {
+    state.textContent = 'checking';
+    release.textContent = '—';
+    release.removeAttribute('href');
+    progress.textContent = '0';
+    render();
+    sendData('check_git_version', '');
+  });
+  install.addEventListener('click', () => {
+    if (state.textContent.trim() !== 'ready') return;
+    const older = compareReleaseVersions(release.textContent, installed.textContent) === -1;
+    if (!window.confirm(`${release.textContent}\n\n${t(older ? 'info_git_confirm_older' : 'info_git_confirm')}`)) return;
+    state.textContent = 'updating';
+    progress.textContent = '0';
+    render();
+    sendData('p00_update_btn', true);
+  });
+  document.getElementById('cfg_lang').addEventListener('change', render);
+  window.addEventListener('webui:connected', () => { state.textContent = 'idle'; release.textContent = '—'; release.removeAttribute('href'); render(); });
+  window.addEventListener('webui:disconnected', () => { state.textContent = 'offline'; render(); });
+  document.getElementById('p00_version').addEventListener('click', () => {
+    document.querySelector('.nav-list a[data-tab="tab11"]').click();
+    document.getElementById('github-update-info').scrollIntoView({ block: 'center', behavior: 'smooth' });
+    check.focus({ preventScroll: true });
+  });
+  render();
+});
+
+// Presentation only: reuse the existing received values; no polling or commands.
+function initInformationPages() {
+  const updates = new Map();
+  const observer = new MutationObserver(mutations => {
+    const changed = new Set();
+    mutations.forEach(mutation => {
+      let target = mutation.target.nodeType === 3 ? mutation.target.parentElement : mutation.target;
+      while (target && !updates.has(target)) target = target.parentElement;
+      if (target) changed.add(updates.get(target));
+    });
+    changed.forEach(update => update());
+  });
+  const watch = (source, update) => {
+    const previous = updates.get(source);
+    updates.set(source, previous ? () => { previous(); update(); } : update);
+    observer.observe(source, { childList: true, characterData: true, subtree: true });
+    update();
+  };
+  document.querySelectorAll('[data-info-state]').forEach(cell => {
+    const enabled = cell.dataset.infoEnabled && document.getElementById(cell.dataset.infoEnabled);
+    const disabledSource = cell.dataset.infoDisabledSource && document.getElementById(cell.dataset.infoDisabledSource);
+    const update = () => {
+      const value = cell.textContent.trim().toLowerCase();
+      const type = cell.dataset.infoState;
+      const connected = /^(verbunden|connected)$/.test(value);
+      const disabled = (enabled && !enabled.checked) || (disabledSource && /^(inaktiv|inactive)$/.test(disabledSource.textContent.trim().toLowerCase()));
+      cell.classList.toggle('is-active', type === 'number' ? value !== '' && Number(value) > 0 : type === 'on' && /^(ein|on)$/.test(value));
+      cell.classList.toggle('is-error', (type === 'error' && /^(fehler|error)$/.test(value)) || (type === 'alarm' && value.includes('>>') && !value.includes('<<')));
+      cell.classList.toggle('is-connected', type === 'connection' && connected);
+      cell.classList.toggle('is-disconnected', type === 'connection' && !disabled && /^(nicht verbunden|not connected)$/.test(value));
+    };
+    watch(cell, update);
+    if (enabled) enabled.addEventListener('change', update);
+    if (disabledSource) watch(disabledSource, update);
+  });
+  document.querySelectorAll('[data-info-meter]').forEach(meter => {
+    const source = document.getElementById(meter.dataset.infoMeter);
+    watch(source, () => {
+      const raw = source.textContent.trim();
+      const value = Number(raw.replace(',', '.'));
+      meter.hidden = raw === '' || !Number.isFinite(value) || value < 0 || value > 100;
+      if (!meter.hidden) meter.value = value;
+    });
+  });
+  document.querySelectorAll('[data-selected-file]').forEach(label => {
+    const input = document.getElementById(label.dataset.selectedFile);
+    input.addEventListener('change', () => {
+      label.hidden = !input.files.length;
+      if (input.files.length) {
+        label.removeAttribute('data-i18n');
+        label.textContent = input.files[0].name;
+      } else {
+        label.dataset.i18n = 'info_no_file';
+        const lang = document.getElementById('cfg_lang').value === '1' ? 'en' : 'de';
+        label.textContent = user_translations.info_no_file[lang];
+      }
+      // The existing file-selection handlers enable submission; keep empty selections disabled.
+      document.getElementById(input.id === 'ota_file_input' ? 'ota_update_btn' : 'file_upload_btn').disabled = !input.files.length;
+      if (!input.files.length) {
+        document.getElementById(input.id === 'ota_file_input' ? 'ota_status_txt' : 'upload_status_txt').style.display = 'none';
+        if (input.id === 'ota_file_input') document.getElementById('ota_progress_bar').style.display = 'none';
+      }
+    });
+  });
+}
+
 // --------------------------------------
 // localization texts
 // --------------------------------------
 const user_translations = {
+  info_git_installed: {"de": "Installiert:", "en": "Installed:"},
+  info_git_release: {"de": "Letztes Release:", "en": "Latest release:"},
+  info_git_idle: {"de": "Prüfe, welche Version auf GitHub verfügbar ist.", "en": "Check which version is available on GitHub."},
+  info_git_checking: {"de": "Version wird geprüft …", "en": "Checking version …"},
+  info_git_ready: {"de": "Eine andere Version ist verfügbar.", "en": "A different version is available."},
+  info_git_newer: {"de": "Eine neuere Version ist verfügbar.", "en": "A newer version is available."},
+  info_git_older: {"de": "Das Release ist älter als die installierte Version.", "en": "This release is older than the installed version."},
+  info_git_current: {"de": "Bereits aktuell.", "en": "Already up to date."},
+  info_git_error: {"de": "Prüfung fehlgeschlagen. Bitte erneut versuchen.", "en": "Check failed. Please try again."},
+  info_git_noasset: {"de": "Keine passende Firmware für dieses Gerät im Release gefunden.", "en": "No matching firmware for this device was found in the release."},
+  info_git_install: {"de": "Version installieren", "en": "Install version"},
+  info_git_downgrade: {"de": "Ältere Version installieren", "en": "Install older version"},
+  info_git_confirm: {"de": "Diese Version installieren? Der ESP wird anschließend neu gestartet.", "en": "Install this version? The ESP will restart afterwards."},
+  info_git_confirm_older: {"de": "Diese Version ist älter als die installierte Firmware. Trotzdem installieren?", "en": "This version is older than the installed firmware. Install anyway?"},
+  info_git_updating: {"de": "Installation läuft", "en": "Installing"},
+  info_git_done: {"de": "Installation erfolgreich. Neustart bestätigen.", "en": "Installation successful. Confirm restart."},
+  info_git_failed: {"de": "Installation fehlgeschlagen. Bitte vor einem weiteren Versuch erneut prüfen.", "en": "Installation failed. Check again before retrying."},
+  info_git_offline: {"de": "Verbindung unterbrochen. Bitte nach dem Wiederverbinden erneut prüfen.", "en": "Connection lost. Check again after reconnecting."},
+
+  info_update_local: { de: "Lokale Datei", en: "Local file" },
+  info_update_local_hint: { de: "Eine Firmware-Datei von deinem Computer auf den ESP übertragen.", en: "Upload a firmware file from your computer to the ESP." },
+  info_update_github: { de: "Von GitHub", en: "From GitHub" },
+  info_update_github_hint: { de: "Eine veröffentlichte Version direkt aus dem Projekt herunterladen.", en: "Download a published version directly from the project." },
+  info_install_file: { de: "Datei installieren", en: "Install file" },
+  ui_reload: { de: "Seite neu laden", en: "Reload page" },
+  info_firmware_used: { de: "Firmware-Speicher belegt", en: "Firmware storage used" },
+  info_ram_free: { de: "RAM frei", en: "Free RAM" },
+  info_largest_free_block: { de: "Größter freier Speicherblock", en: "Largest free memory block" },
+  info_minimum_free_ram: { de: "Niedrigster freier RAM seit Neustart", en: "Lowest free RAM since restart" },
+  info_memory_used: { de: "belegt", en: "used" },
+
+  info_log_recording: { de: "Aufzeichnung", en: "Recording" },
+  info_firmware_update: { de: "Firmware-Update", en: "Firmware update" },
+  info_configuration: { de: "Konfiguration", en: "Configuration" },
+  info_check_github: { de: "GitHub-Version prüfen", en: "Check GitHub version" },
+  info_import: { de: "Importieren", en: "Import" },
+  info_export: { de: "Exportieren", en: "Export" },
+  info_show: { de: "Anzeigen", en: "Show" },
+
+  info_ethernet: { de: "Ethernet", en: "Ethernet" },
+  info_current_values: { de: "Aktuelle Werte", en: "Current values" },
+  info_operating_states: { de: "Betriebszustände", en: "Operating states" },
+  info_monitoring: { de: "Überwachung", en: "Monitoring" },
+  info_memory: { de: "Speicher", en: "Memory" },
+  info_circuit_subtitle: { de: "Konfiguration und Betriebszustände", en: "Configuration and operating states" },
+  info_ww_subtitle: { de: "Speicher und Warmwasserbereitung", en: "Cylinder and hot water preparation" },
+  info_burner_subtitle: { de: "Kessel, Betrieb und Überwachung", en: "Boiler, operation and monitoring" },
+  info_solar_subtitle: { de: "Temperaturen und Anlagenzustand", en: "Temperatures and system status" },
+  info_general_subtitle: { de: "Übergreifende Einstellungen der Logamatic", en: "General Logamatic settings" },
+  info_alarm_subtitle: { de: "Meldungen der Logamatic", en: "Logamatic messages" },
+  info_tools_subtitle: { de: "Firmware und Konfigurationsverwaltung", en: "Firmware and configuration management" },
+  info_log_subtitle: { de: "Ereignisse und Fehlersuche", en: "Events and troubleshooting" },
+  info_alarm_memory: { de: "Meldespeicher", en: "Message memory" },
+  info_alarm_hint: { de: "Die Meldungen können auch bereits quittierte Störungen enthalten. Ein Eintrag bedeutet nicht automatisch, dass die Störung aktuell anliegt.", en: "Messages may include previously acknowledged faults. An entry does not necessarily mean the fault is currently active." },
+  info_mqtt_error_hint: { de: "Der letzte Fehler ist gespeichert und beschreibt nicht zwingend den aktuellen Verbindungszustand.", en: "The last error is stored and does not necessarily describe the current connection state." },
+  info_years: { de: "Jahre", en: "years" },
+  info_days: { de: "Tage", en: "days" },
+  info_hours: { de: "Std.", en: "hrs" },
+  info_minutes: { de: "Min.", en: "min" },
+  info_firmware_file: { de: "Firmware-Datei", en: "Firmware file" },
+  info_config_file: { de: "Konfigurationsdatei", en: "Configuration file" },
+  info_no_file: { de: "Keine Datei ausgewählt", en: "No file selected" },
+  info_log_source: { de: "Logbuch", en: "Log" },
+  info_log_level: { de: "Level", en: "Level" },
+  info_log_order: { de: "Reihenfolge", en: "Order" },
+  info_solar_status: { de: "Status 9147", en: "Status 9147" },
+
+  control_help: { de: "Hilfe", en: "Help" },
+  control_summer_threshold: { de: "Sommergrenze", en: "Summer threshold" },
+  control_frost_threshold: { de: "Frostschutz", en: "Frost protection" },
+  control_design_temp: { de: "Auslegungstemperatur", en: "Design temperature" },
+  control_help_hc_mode: { de: "Nacht und Tag wählen dauerhaft den jeweiligen Betrieb. Auto wechselt anhand des an der Logamatic gewählten Heizprogramms zwischen Tag- und Nachtbetrieb.", en: "Night and Day select the respective operating mode continuously. Auto switches between day and night operation according to the heating program selected on the Logamatic." },
+  control_help_program: { de: "Wählt das Zeitprogramm der Logamatic für den Automatikbetrieb. „Eigen“ verwendet das individuelle Programm der Regelung; die übrigen Einträge sind deren vordefinierte Programme. Die Schaltzeiten werden hier nicht bearbeitet.", en: "Selects the Logamatic schedule for automatic operation. Custom uses the controller’s individual program; the other entries are its predefined programs. Switching times are not edited here." },
+  control_help_holiday_days: { de: "Dauer des Urlaubsbetriebs: 0–99 Tage. Die Logamatic verringert den Wert täglich um einen Tag. 0 bedeutet keinen laufenden Urlaubszeitraum. Die zugehörige Temperatur wird separat eingestellt.", en: "Holiday operation duration: 0–99 days. The Logamatic decreases the value by one each day. 0 means no active holiday period. Its temperature is set separately." },
+  control_help_reduction: { de: "Bestimmt die Betriebsweise während der Absenkzeiten: Abschalt, Reduziert, Raumhalt oder Aussenhalt. Raumhalt berücksichtigt die Raumtemperatur, Aussenhalt die Außentemperatur. Die tatsächliche Wirkung hängt von der Ausstattung und Konfiguration der Logamatic ab.", en: "Selects operation during setback periods: Off, Reduced, Room hold or Outdoor hold. Room hold uses room temperature; Outdoor hold uses outdoor temperature. Actual behavior depends on the Logamatic equipment and configuration." },
+  control_help_day: { de: "Raum-Solltemperatur für den Tagbetrieb: 10–30 °C in Schritten von 0,5 °C. Es handelt sich nicht um die Vorlauftemperatur. Der Wert beeinflusst die Heizungsregelung auch über die Heizkennlinie.", en: "Room temperature setpoint for day operation: 10–30 °C in 0.5 °C steps. This is not the flow temperature. The value also affects heating control through the heating curve." },
+  control_help_night: { de: "Raum-Solltemperatur für den Nacht- bzw. reduzierten Betrieb: 10–30 °C in Schritten von 0,5 °C. Ob und wie geheizt wird, hängt zusätzlich von der Absenkungsart ab.", en: "Room temperature setpoint for night or reduced operation: 10–30 °C in 0.5 °C steps. Heating behavior also depends on the selected reduction mode." },
+  control_help_holiday_temp: { de: "Raum-Solltemperatur während des eingestellten Urlaubszeitraums: 10–30 °C in Schritten von 0,5 °C. Die Dauer wird über Urlaubstage festgelegt.", en: "Room temperature setpoint during the selected holiday period: 10–30 °C in 0.5 °C steps. Set its duration using Holiday days." },
+  control_help_summer: { de: "Außentemperaturgrenze für die Sommer-/Winterumschaltung. 10–30 °C: temperaturabhängige Umschaltung. Die Randstellungen sind Sonderwerte: 9 = dauerhaft Sommer, 31 = dauerhaft Winter.", en: "Outdoor temperature threshold for summer/winter switching. 10–30 °C: temperature-dependent switching. The end positions are special values: 9 = permanent summer, 31 = permanent winter." },
+  control_help_frost: { de: "Temperaturschwelle für den Frostschutz des Heizkreises: −20 bis +10 °C in Schritten von 1 °C.", en: "Temperature threshold for heating-circuit frost protection: −20 to +10 °C in 1 °C steps." },
+  control_help_design: { de: "Auslegungstemperatur der Heizkennlinie: 30–90 °C in Schritten von 1 °C. Sie beschreibt die Auslegung des Vorlaufs und ist keine Raum-Solltemperatur.", en: "Heating curve design temperature: 30–90 °C in 1 °C steps. It describes the flow temperature design point, not a room temperature setpoint." },
+  control_help_switch_on: { de: "Aufschalttemperatur des Heizkreises: 0–10 °C in Schritten von 1 °C. Dieser Parameter wird direkt an die Logamatic übertragen; seine genaue Wirkung richtet sich nach der verwendeten Regelung und deren Konfiguration.", en: "Heating-circuit switch-on temperature: 0–10 °C in 1 °C steps. This parameter is sent directly to the Logamatic; its exact effect depends on the controller and its configuration." },
+  control_help_switch_off: { de: "Außentemperaturschwelle für die Absenkungsart Aussenhalt: −20 bis +10 °C in Schritten von 1 °C. Der Wert gehört zur außentemperaturabhängigen Absenkung.", en: "Outdoor temperature threshold for Outdoor hold reduction: −20 to +10 °C in 1 °C steps. This value belongs to outdoor-temperature-dependent setback operation." },
+  control_help_ww_mode: { de: "Wählt Nacht-, Tag- oder Automatikbetrieb der Warmwasserbereitung. Auto nutzt die zeitabhängige Freigabe der Logamatic. Die genaue Freigabe ist von deren Konfiguration abhängig.", en: "Selects night, day or automatic operation for hot water. Auto uses the Logamatic’s timed enable. The exact enable behavior depends on its configuration." },
+  control_help_ww_temp: { de: "Solltemperatur für das Warmwasser: 30–60 °C in Schritten von 1 °C. Die aktuelle Speichertemperatur wird separat im Dashboard angezeigt.", en: "Hot-water setpoint: 30–60 °C in 1 °C steps. The current cylinder temperature is displayed separately on the dashboard." },
+  control_help_circulation: { de: "Ansteuerung der Warmwasser-Zirkulationspumpe. 0 = AUS; 1–6 = Anzahl der Zyklen pro Stunde; 7 = EIN. Die Zahlen 1–6 sind keine Temperaturwerte.", en: "Hot-water circulation pump control. 0 = OFF; 1–6 = cycles per hour; 7 = ON. Values 1–6 are not temperatures." },
+  control_help_oil_feedback: { de: "„Setzen“ überträgt den eingegebenen Zählerstand. Der Istwert daneben zeigt den vom ESP bestätigten Stand in Litern; er wird erst mit dessen Rückmeldung aktualisiert.", en: "Set sends the entered meter reading. The actual value beside it shows the reading confirmed by the ESP in liters and updates only after its response." },
+
+  control_subtitle: { de: "Betriebsarten und Temperaturen", en: "Operating modes and temperatures" },
+  control_oilmeter_set: { de: "Zählerstand setzen", en: "Set meter reading" },
+  summer: { de: "Sommer", en: "Summer" },
+  winter: { de: "Winter", en: "Winter" },
   ha_mqtt_hint: { de: "Benötigt eine aktivierte und konfigurierte MQTT-Verbindung.", en: "Requires an enabled and configured MQTT connection." },
   ha_mqtt_disabled: { de: "MQTT ist derzeit deaktiviert.", en: "MQTT is currently disabled." },
   ha_mqtt_open: { de: "MQTT-Einstellungen öffnen", en: "Open MQTT settings" },
   ui_connected: { de: "Verbunden", en: "Connected" },
-  ui_disconnected: { de: "Keine Verbindung", en: "Disconnected" },
+  ui_disconnected: { de: "Verbindung unterbrochen – verbinde erneut …", en: "Disconnected – reconnecting …" },
   dashboard_subtitle: { de: "Heizung im Überblick", en: "Heating at a glance" },
   system_subtitle: { de: "Verbindungen und Gerät", en: "Connections and device" },
   settings_subtitle: { de: "Konfiguration", en: "Configuration" },
@@ -426,14 +693,6 @@ const user_translations = {
     de: "Konfiguration",
     en: "Config",
   },
-  status: {
-    de: "Status",
-    en: "Status",
-  },
-  op_values: {
-    de: "Betriebswerte",
-    en: "Operating-States",
-  },
   temperatures: {
     de: "Temperaturen",
     en: "Temperatures",
@@ -462,10 +721,6 @@ const user_translations = {
     de: "HK2",
     en: "HC2",
   },
-  ww: {
-    de: "WW",
-    en: "WW",
-  },
   act_value: {
     de: "Istwert",
     en: "Actual Value",
@@ -482,10 +737,6 @@ const user_translations = {
     de: "Betriebsart",
     en: "Operation Mode",
   },
-  error_flags: {
-    de: "Fehlermeldungen",
-    en: "Error Flags",
-  },
   burner: {
     de: "Brenner",
     en: "Burner",
@@ -493,10 +744,6 @@ const user_translations = {
   pump: {
     de: "Umw\u00e4lzpumpe",
     en: "Flow Pump",
-  },
-  hw: {
-    de: "WW",
-    en: "HW",
   },
   hot_water: {
     de: "Warmwasser",
@@ -570,41 +817,9 @@ const user_translations = {
     de: "Senior",
     en: "senior",
   },
-  info_summer1: {
-    de: "Umschalttemperatur zwischen Sommer / Winter",
-    en: "Threshold to switch between Summer/Winter",
-  },
-  info_summer2: {
-    de: "9:Sommer | 10..30:Schwelle (\u00b0C) | 31:Winter",
-    en: "9:Summer | 10..30:Threshold (\u00b0C) | 31:Winter",
-  },
-  info_frost: {
-    de: "Umschalttemperatur Frostschutz",
-    en: "Threshold for Frostprotection",
-  },
-  info_designtemp: {
-    de: "Auslegungstemperatur Heizkennlinie",
-    en: "Design Temperature for heating curve",
-  },
-  info_switchoff: {
-    de: "Umschaltschwelle f\u00fcr Absenkung Aussenhalt",
-    en: "Threshold for reduction mode",
-  },
-  info_wwtemp: {
-    de: "Solltemperatur f\u00fcr Warmwasser",
-    en: "Setpoint for Hot Water",
-  },
   info_unit_c: {
-    de: "Einheit: \u00b0C",
-    en: "Unit: \u00b0C",
-  },
-  info_ww_pump_circ1: {
-    de: "Anzahl der Zyklen pro Stunde",
-    en: "count of operation cycles per hour",
-  },
-  info_ww_pump_circ2: {
-    de: "0:AUS | 1..6: Zyklen/Stunde | 7:EIN",
-    en: "0:OFF | 1..6: cycles/hour | 7:ON",
+    de: "\u00b0C",
+    en: "\u00b0C",
   },
   oilmeter: {
     de: "\u00d6lz\u00e4hler",
@@ -629,14 +844,6 @@ const user_translations = {
   alarm_info: {
     de: "Alarme + Info",
     en: "Alarms + Info",
-  },
-  alarminfo: {
-    de: "letzte Alarm Meldungen",
-    en: "latest Alarm Messages",
-  },
-  operation: {
-    de: "Betrieb",
-    en: "Operation",
   },
   lifetimes: {
     de: "Laufzeiten",
@@ -802,14 +1009,6 @@ const user_translations = {
     de: "Aussenhalt",
     en: "outdoors",
   },
-  frost_protection_threshold: {
-    de: "Frost ab",
-    en: "frost protection threshold",
-  },
-  summer_mode_threshold: {
-    de: "Sommer ab",
-    en: "summer mode threshold",
-  },
   night_temp: {
     de: "Nachttemperatur",
     en: "night temp",
@@ -829,10 +1028,6 @@ const user_translations = {
   max_temp: {
     de: "Max Temperatur",
     en: "max temp",
-  },
-  interpretation: {
-    de: "Auslegung",
-    en: "interpretation",
   },
   switch_on_temperature: {
     de: "Aufschalttemperatur",
@@ -859,8 +1054,8 @@ const user_translations = {
     en: "remote control",
   },
   holiday_days: {
-    de: "Ferien_Tage",
-    en: "holiday days",
+    de: "Urlaubstage",
+    en: "Holiday days",
   },
   time_offset: {
     de: "Uhrzeit_Offset",
@@ -915,61 +1110,49 @@ const user_translations = {
     en: "burner modulation runtime",
   },
   ov1_off_time_optimization: {
-    de: "BW1 Ausschaltoptimierung",
-    en: "OV1 off time optimization",
+    de: "Ausschaltoptimierung",
+    en: "off time optimization",
   },
   ov1_on_time_optimization: {
-    de: "BW1 Einschaltoptimierung",
-    en: "OV1 on time optimization",
+    de: "Einschaltoptimierung",
+    en: "on time optimization",
   },
   ov1_automatic: {
-    de: "BW1 Automatik",
-    en: "OV1 automatic",
+    de: "Automatik",
+    en: "automatic",
   },
   ov1_ww_priority: {
-    de: "BW1 Warmwasservorrang",
-    en: "OV1 WW priority",
+    de: "Warmwasservorrang",
+    en: "WW priority",
   },
   ov1_screed_drying: {
-    de: "BW1 Estrichtrocknung",
-    en: "OV1 screed drying",
+    de: "Estrichtrocknung",
+    en: "screed drying",
   },
   ov1_holiday: {
-    de: "BW1 Ferien",
-    en: "OV1 holiday",
+    de: "Ferien",
+    en: "holiday",
   },
   ov1_frost_protection: {
-    de: "BW1 Frostschutz",
-    en: "OV1 frost protection",
+    de: "Frostschutz",
+    en: "frost protection",
   },
   ov2_summer: {
-    de: "BW2 Sommer",
-    en: "OV2 summer",
+    de: "Sommer",
+    en: "summer",
   },
   ov2_day: {
-    de: "BW2 Tag",
-    en: "OV2 day",
+    de: "Tag",
+    en: "day",
   },
-  ov2_no_conn_to_remotectrl: {
-    de: "BW2 Keine Komm mit FB",
-    en: "OV2 no conn to remotectrl",
-  },
-  ov2_remotectrl_error: {
-    de: "BW2 FB fehlerhaft",
-    en: "OV2 remotectrl error",
-  },
-  ov2_failure_flow_sensor: {
-    de: "BW2 Fehler Vorlauffuehler",
-    en: "OV2 failure flow sensor",
-  },
+  ov2_no_conn_to_remotectrl: { de: "Keine Verbindung zur Fernbedienung", en: "No connection to remote control" },
+  ov2_remotectrl_error: { de: "Fernbedienung fehlerhaft", en: "Remote control fault" },
+  ov2_failure_flow_sensor: { de: "Vorlauffühler fehlerhaft", en: "Flow sensor fault" },
   ov2_flow_at_maximum: {
-    de: "BW2 Maximaler Vorlauf",
-    en: "OV2 flow at maximum",
+    de: "Maximaler Vorlauf",
+    en: "flow at maximum",
   },
-  ov2_external_signal_input: {
-    de: "BW2 Externer Stoereingang",
-    en: "OV2 external signal input",
-  },
+  ov2_external_signal_input: { de: "Externer Störeingang", en: "External fault input" },
   flow_setpoint: {
     de: "Vorlaufsolltemperatur",
     en: "Flow setpoint",
@@ -1007,60 +1190,48 @@ const user_translations = {
     en: "Heat curve -10C",
   },
   ov1_auto: {
-    de: "BW1 Automatik",
-    en: "OV1 auto",
+    de: "Automatik",
+    en: "auto",
   },
   ov1_disinfection: {
-    de: "BW1 Desinfektion",
-    en: "OV1 disinfection",
+    de: "Desinfektion",
+    en: "disinfection",
   },
   ov1_reload: {
-    de: "BW1 Nachladung",
-    en: "OV1 reload",
+    de: "Nachladung",
+    en: "reload",
   },
-  ov1_err_disinfection: {
-    de: "BW1 Fehler Desinfektion",
-    en: "OV1 err disinfection",
-  },
-  ov1_err_sensor: {
-    de: "BW1 Fehler Fuehler",
-    en: "OV1 err sensor",
-  },
-  ov1_stays_cold: {
-    de: "BW1 Fehler bleibt kalt",
-    en: "OV1 stays cold",
-  },
-  ov1_err_anode: {
-    de: "BW1 Fehler Anode",
-    en: "OV1 err anode",
-  },
+  ov1_err_disinfection: { de: "Desinfektion fehlerhaft", en: "Disinfection fault" },
+  ov1_err_sensor: { de: "Temperaturfühler fehlerhaft", en: "Temperature sensor fault" },
+  ov1_stays_cold: { de: "Speicher bleibt kalt", en: "Cylinder stays cold" },
+  ov1_err_anode: { de: "Anodenfehler", en: "Anode fault" },
   ov2_load: {
-    de: "BW2 Laden",
-    en: "OV2 load",
+    de: "Laden",
+    en: "load",
   },
   ov2_manual: {
-    de: "BW2 Manuell",
-    en: "OV2 manual",
+    de: "Manuell",
+    en: "manual",
   },
   ov2_reload: {
-    de: "BW2 Nachladen",
-    en: "OV2 reload",
+    de: "Nachladen",
+    en: "reload",
   },
   ov2_off_time_opt_duration: {
-    de: "BW2 Ausschaltoptimierung",
-    en: "OV2 off time opt duration",
+    de: "Ausschaltoptimierung",
+    en: "off time opt duration",
   },
   ov2_on_time_opt_duration: {
-    de: "BW2 Einschaltoptimierung",
-    en: "OV2 on time opt duration",
+    de: "Einschaltoptimierung",
+    en: "on time opt duration",
   },
   ov2_hot: {
-    de: "BW2 Warm",
-    en: "OV2 hot",
+    de: "Warm",
+    en: "hot",
   },
   ov2_priority: {
-    de: "BW2 Vorrang",
-    en: "OV2 priority",
+    de: "Vorrang",
+    en: "priority",
   },
   on_time_opt_duration: {
     de: "Einschaltoptimierung",
@@ -1161,22 +1332,6 @@ const user_translations = {
   exhaust_gas_temp: {
     de: "Abgastemperatur",
     en: "Exhaust gas temp",
-  },
-  runtime_years: {
-    de: "Laufzeit Jahre",
-    en: "runtime years",
-  },
-  runtime_days: {
-    de: "Laufzeit Tage",
-    en: "runtime days",
-  },
-  runtime_hours: {
-    de: "Laufzeit Stunden",
-    en: "runtime hours",
-  },
-  runtime_minutes: {
-    de: "Laufzeit Minuten",
-    en: "runtime minutes",
   },
   outside_temp: {
     de: "Außentemperatur",
@@ -1287,14 +1442,79 @@ const user_translations = {
     en: "received",
   },
   act_prg: {
-    de: "aktives Programm",
-    en: "active program",
-  },
-  man_prg_timer: {
-    de: "Timer des manuellen Programms",
-    en: "timer of manual program",
+    de: "Aktives Programm",
+    en: "Active program",
   },
 };
+
+// Reuse received network classes and RSSI; no additional requests or timers.
+document.addEventListener('DOMContentLoaded', () => {
+  const wifi = document.getElementById('p00_wifi_icon');
+  const eth = document.getElementById('p00_eth_icon');
+  const rssi = document.getElementById('p09_wifi_rssi');
+  const language = document.getElementById('cfg_lang');
+  const version = document.getElementById('p00_version');
+  const logout = document.querySelector('.sidebar-logout');
+  const update = () => {
+    const en = language?.value === '1';
+    const connected = en ? 'connected' : 'verbunden';
+    const disconnected = en ? 'not connected' : 'nicht verbunden';
+    const wifiConnected = /\bi_wifi_[1-4]\b/.test(wifi.className);
+    const signal = rssi?.textContent.match(/-?\d+/)?.[0];
+    const wifiText = `WLAN ${wifiConnected ? connected : disconnected}${wifiConnected && signal ? ` · ${signal} dBm` : ''}`;
+    wifi.title = wifiText;
+    wifi.setAttribute('aria-label', wifiText);
+    const ethText = `Ethernet ${eth.classList.contains('i_eth_ok') ? connected : disconnected}`;
+    eth.title = ethText;
+    eth.setAttribute('aria-label', ethText);
+    version.title = en ? 'Version and GitHub updates' : 'Version und GitHub-Updates';
+    logout.title = en ? 'Log out' : 'Abmelden';
+    logout.setAttribute('aria-label', logout.title);
+  };
+  const observer = new MutationObserver(update);
+  [wifi, eth].forEach(icon => observer.observe(icon, { attributes: true, attributeFilter: ['class'] }));
+  if (rssi) observer.observe(rssi, { childList: true, characterData: true, subtree: true });
+  if (language) {
+    language.addEventListener('change', update);
+    observer.observe(language, { attributes: true, attributeFilter: ['value'] });
+  }
+  update();
+});
+
+function initControlSliders() {
+  const sources = new Map();
+  const update = slider => {
+    const min = Number(slider.min), max = Number(slider.max);
+    const progress = max > min ? (Number(slider.value) - min) / (max - min) * 100 : 0;
+    slider.style.setProperty("--control-progress", `${Math.max(0, Math.min(100, progress))}%`);
+  };
+  // Existing input and WebSocket handlers both update the linked value text.
+  // One shared observer keeps the fill in sync without extra commands or timers.
+  const observer = new MutationObserver(mutations => {
+    const changed = new Set(mutations.map(m => sources.get(m.target.nodeType === 3 ? m.target.parentElement : m.target)));
+    changed.forEach(slider => { if (slider) update(slider); });
+  });
+  document.querySelectorAll(".control-page input[type=range]").forEach(slider => {
+    const source = document.getElementById(slider.dataset.valueId);
+    sources.set(source, slider);
+    observer.observe(source, { childList: true, characterData: true, subtree: true });
+    update(slider);
+  });
+}
+
+function initMobileNavigation() {
+  const menu = document.getElementById("topMenuDropdown").parentElement;
+  // Close explicitly without Pico's full-screen summary pseudo-element.
+  document.addEventListener("click", event => {
+    if (!menu.contains(event.target) || event.target.closest("a[data-tab]")) menu.open = false;
+  });
+  menu.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      menu.open = false;
+      menu.querySelector("summary").focus();
+    }
+  });
+}
 
 function initHomeAssistantSettings() {
   const mqtt = document.getElementById("cfg_mqtt_enable");
@@ -1315,21 +1535,42 @@ function initHomeAssistantSettings() {
 }
 
 function initPageHeader() {
+  const status = document.querySelector(".app-connection-actions");
   const indicator = document.getElementById("p00_web_connection");
   const label = document.getElementById("p00_web_connection_text");
-  const update = () => {
-    const connected = typeof ws !== "undefined" && ws && ws.readyState === WebSocket.OPEN;
-    const language = document.getElementById("cfg_lang").value === "1" ? "en" : "de";
-    indicator.classList.toggle("is-connected", !!connected);
-    label.dataset.i18n = connected ? "ui_connected" : "ui_disconnected";
-    label.textContent = (connected ? user_translations.ui_connected : user_translations.ui_disconnected)[language];
+  const reload = document.getElementById("p99_reloadButton");
+  const desktop = document.querySelector(".app-header");
+  const mobile = document.querySelector(".topMenu");
+  const content = document.querySelector(".home-section");
+  const narrow = window.matchMedia("(max-width: 768px)");
+  const controls = document.querySelectorAll("[data-connection-required]");
+  const layout = () => {
+    const host = narrow.matches ? mobile : desktop;
+    if (status.parentElement !== host) host.append(status);
+    if (narrow.matches) content.style.top = (mobile.getBoundingClientRect().bottom + 20) + "px";
+    else content.style.removeProperty("top");
   };
-  // The first socket may open while the existing disconnect bar is already hidden.
-  if (typeof ws !== "undefined" && ws) ws.addEventListener("open", update);
+  const update = () => {
+    const connected = !!(typeof ws !== "undefined" && ws && ws.readyState === WebSocket.OPEN);
+    const language = document.getElementById("cfg_lang").value === "1" ? "en" : "de";
+    const key = connected ? "ui_connected" : "ui_disconnected";
+    indicator.classList.toggle("is-connected", connected);
+    label.dataset.i18n = key;
+    label.textContent = (connected ? user_translations.ui_connected : user_translations.ui_disconnected)[language];
+    reload.hidden = connected || isGitHubPages();
+    reload.title = reload.ariaLabel = user_translations.ui_reload[language];
+    // Inert preserves individual disabled states set by the ESP on reconnect.
+    controls.forEach(control => { control.inert = !connected && !isGitHubPages(); });
+    layout();
+  };
+  window.addEventListener("webui:connected", update);
+  // Retain the existing library's reconnect signal without displaying a footer bar.
   new MutationObserver(update).observe(document.getElementById("connectionLostBar"), {
     attributes: true, attributeFilter: ["style", "class"],
   });
   document.getElementById("cfg_lang").addEventListener("change", update);
+  narrow.addEventListener("change", layout);
+  new ResizeObserver(layout).observe(mobile);
   update();
 }
 
@@ -1388,20 +1629,9 @@ function initLogType() {
 }
 
 function changeLogType(selectElem) {
-  // get log type
-  var selectedValue = selectElem.value;
-
-  // get element-id of logger-level and logger-filter
-  var levelSelect = document.getElementById("cfg_logger_level");
-  var filterSelect = document.getElementById("cfg_logger_filter");
-
-  if (selectedValue === "0") {
-    levelSelect.style.display = "inline-block";
-    filterSelect.style.display = "none";
-  } else if (selectedValue === "1") {
-    levelSelect.style.display = "none";
-    filterSelect.style.display = "inline-block";
-  }
+  const systemLog = selectElem.value === "0";
+  document.getElementById("log_level_field").hidden = !systemLog;
+  document.getElementById("log_filter_field").hidden = systemLog;
 }
 
 async function loadSimulatedData() {
@@ -1605,6 +1835,23 @@ function initWeeklyPrograms() {
     });
     render();
   });
+}
+
+// Native dialog shared by both heating circuits, hot water and the oil meter.
+function initControlHelp() {
+  const dialog = document.getElementById("control_help_dialog");
+  document.querySelectorAll("[data-control-help]").forEach(button => {
+    button.addEventListener("click", () => {
+      dialog.querySelector("h2").textContent = button.closest(".control-section-heading").querySelector("h2").textContent;
+      dialog.querySelectorAll("[data-control-help-content]").forEach(content => {
+        content.hidden = content.dataset.controlHelpContent !== button.dataset.controlHelp;
+      });
+      button.focus();
+      dialog.showModal();
+    });
+  });
+  dialog.querySelector("[data-control-help-close]").addEventListener("click", () => dialog.close());
+  dialog.addEventListener("click", event => { if (event.target === dialog) dialog.close(); });
 }
 
 function validateWiFiBssid(input) {
