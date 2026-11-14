@@ -56,8 +56,18 @@
               <section class="tools-update-method">
                 <h3 class="tools-method-title"><i class="svg i_github" aria-hidden="true"></i><span data-i18n="info_update_github"></span></h3>
                 <p class="tools-method-description" data-i18n="info_update_github_hint"></p>
-                <div class="tools-source-box tools-version-info"><strong data-i18n="info_update_versions"></strong><span data-i18n="info_update_versions_hint"></span></div>
-                <div class="tools-actions"><button type="button" id="p11_check_git_btn" data-i18n="info_check_github"></button></div>
+                <div class="tools-source-box tools-version-info" id="github-update-info">
+                  <div><span data-i18n="info_git_installed"></span> <strong id="p00_dialog_version"></strong></div>
+                  <div><span data-i18n="info_git_release"></span> <a id="p00_dialog_git_version" target="_blank" rel="noopener noreferrer">—</a></div>
+                  <span id="p11_git_feedback" role="status" aria-live="polite"></span>
+                </div>
+                <span id="p11_git_state" hidden>idle</span>
+                <span id="p11_git_progress" hidden>0</span>
+                <div class="tools-actions">
+                  <button type="button" id="p11_check_git_btn" data-ui-local data-i18n="info_check_github"></button>
+                  <span id="p00_update_btn_hide" style="display: none"><button type="button" id="p00_update_btn" data-ui-local></button></span>
+                </div>
+                <progress id="github_progress_bar" max="100" value="0" hidden></progress>
               </section>
             </div>
           </article>

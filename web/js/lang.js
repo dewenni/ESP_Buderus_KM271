@@ -2,8 +2,25 @@
 // localization texts
 // --------------------------------------
 const user_translations = {
-  info_update_versions: { de: "Verfügbare Versionen", en: "Available versions" },
-  info_update_versions_hint: { de: "Die Versionsauswahl öffnet sich nach der Prüfung.", en: "The version selection opens after the check." },
+  info_git_installed: {"de": "Installiert:", "en": "Installed:"},
+  info_git_release: {"de": "Letztes Release:", "en": "Latest release:"},
+  info_git_idle: {"de": "Prüfe, welche Version auf GitHub verfügbar ist.", "en": "Check which version is available on GitHub."},
+  info_git_checking: {"de": "Version wird geprüft …", "en": "Checking version …"},
+  info_git_ready: {"de": "Eine andere Version ist verfügbar.", "en": "A different version is available."},
+  info_git_newer: {"de": "Eine neuere Version ist verfügbar.", "en": "A newer version is available."},
+  info_git_older: {"de": "Das Release ist älter als die installierte Version.", "en": "This release is older than the installed version."},
+  info_git_current: {"de": "Bereits aktuell.", "en": "Already up to date."},
+  info_git_error: {"de": "Prüfung fehlgeschlagen. Bitte erneut versuchen.", "en": "Check failed. Please try again."},
+  info_git_noasset: {"de": "Keine passende Firmware für dieses Gerät im Release gefunden.", "en": "No matching firmware for this device was found in the release."},
+  info_git_install: {"de": "Version installieren", "en": "Install version"},
+  info_git_downgrade: {"de": "Ältere Version installieren", "en": "Install older version"},
+  info_git_confirm: {"de": "Diese Version installieren? Der ESP wird anschließend neu gestartet.", "en": "Install this version? The ESP will restart afterwards."},
+  info_git_confirm_older: {"de": "Diese Version ist älter als die installierte Firmware. Trotzdem installieren?", "en": "This version is older than the installed firmware. Install anyway?"},
+  info_git_updating: {"de": "Installation läuft", "en": "Installing"},
+  info_git_done: {"de": "Installation erfolgreich. Neustart bestätigen.", "en": "Installation successful. Confirm restart."},
+  info_git_failed: {"de": "Installation fehlgeschlagen. Bitte vor einem weiteren Versuch erneut prüfen.", "en": "Installation failed. Check again before retrying."},
+  info_git_offline: {"de": "Verbindung unterbrochen. Bitte nach dem Wiederverbinden erneut prüfen.", "en": "Connection lost. Check again after reconnecting."},
+
   info_update_local: { de: "Lokale Datei", en: "Local file" },
   info_update_local_hint: { de: "Eine Firmware-Datei von deinem Computer auf den ESP übertragen.", en: "Upload a firmware file from your computer to the ESP." },
   info_update_github: { de: "Von GitHub", en: "From GitHub" },

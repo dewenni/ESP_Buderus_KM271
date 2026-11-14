@@ -972,9 +972,7 @@ void updateKm271StatusElements(bool forceUpdate) {
 void otaProgressCallback(int progress) {
   if (otaProgessTimer.cycleTrigger(1000)) {
     webUI.wsSendHeartbeat();
-    char buttonTxt[32];
-    snprintf(buttonTxt, sizeof(buttonTxt), "updating: %i%%", progress);
-    webUI.wsUpdateWebText("p00_update_btn", buttonTxt, false);
+    webUI.wsUpdateWebText("p11_git_progress", progress, false);
   }
 }
 
@@ -985,24 +983,30 @@ void otaProgressCallback(int progress) {
  * @return  none
  * *******************************************************************/
 bool startCheckGitHubVersion;
-void requestGitHubVersion() { startCheckGitHubVersion = true; }
+static bool gitReleaseReady = false;
+void requestGitHubVersion() {
+  if (ota.isActive()) return;
+  gitReleaseReady = false;
+  startCheckGitHubVersion = true;
+}
 void processGitHubVersion() {
-  if (startCheckGitHubVersion) {
+  if (startCheckGitHubVersion && !ota.isActive()) {
     startCheckGitHubVersion = false;
+    gitReleaseReady = false;
+    ghFreeRelease(ghLatestRelease);
+    ghReleaseInfo = {};
+    webUI.wsUpdateWebText("p11_git_state", "checking", false);
     if (ghGetLatestRelease(&ghLatestRelease, &ghReleaseInfo)) {
-      webUI.wsUpdateWebBusy("p00_dialog_git_version", false);
       webUI.wsUpdateWebText("p00_dialog_git_version", ghReleaseInfo.tag, false);
       webUI.wsUpdateWebHref("p00_dialog_git_version", ghReleaseInfo.url);
-      // if new version is available, show update button
-      if (strcmp(ghReleaseInfo.tag, VERSION) != 0) {
-        char buttonTxt[32];
-        snprintf(buttonTxt, sizeof(buttonTxt), "Update %s", ghReleaseInfo.tag);
-        webUI.wsUpdateWebText("p00_update_btn", buttonTxt, false);
-        webUI.wsUpdateWebHideElement("p00_update_btn_hide", false);
-      }
+      const bool different = strcmp(ghReleaseInfo.tag, VERSION) != 0;
+      gitReleaseReady = different && (ghReleaseInfo.asset[0] != '\0');
+      webUI.wsUpdateWebText("p11_git_state", !different ? "current" : gitReleaseReady ? "ready" : "noasset", false);
+      if (!gitReleaseReady) ghFreeRelease(ghLatestRelease);
     } else {
-      webUI.wsUpdateWebBusy("p00_dialog_git_version", false);
-      webUI.wsUpdateWebText("p00_dialog_git_version", "error", false);
+      webUI.wsUpdateWebText("p00_dialog_git_version", "—", false);
+      webUI.wsUpdateWebText("p11_git_state", "error", false);
+      ghFreeRelease(ghLatestRelease);
     }
   }
 }
@@ -1014,19 +1018,23 @@ void processGitHubVersion() {
  * @return  none
  * *******************************************************************/
 bool startGitHubUpdate;
-void requestGitHubUpdate() { startGitHubUpdate = true; }
+void requestGitHubUpdate() {
+  if (gitReleaseReady && !startCheckGitHubVersion && !ota.isActive()) startGitHubUpdate = true;
+}
 void processGitHubUpdate() {
-  if (startGitHubUpdate) {
+  if (startGitHubUpdate && !ota.isActive()) {
     startGitHubUpdate = false;
+    if (!gitReleaseReady) return;
+    gitReleaseReady = false;
     ghSetProgressCallback(otaProgressCallback);
-    webUI.wsUpdateWebText("p00_update_btn", "updating: 0%", false);
-    webUI.wsUpdateWebDisabled("p00_update_btn", true);
+    webUI.wsUpdateWebText("p11_git_progress", 0L, false);
+    webUI.wsUpdateWebText("p11_git_state", "updating", false);
     ota.setActive(true);
     wdt.disable();
     int result = ghStartOtaUpdate(ghLatestRelease, ghReleaseInfo.asset);
     if (result == OTA_SUCCESS) {
-      webUI.wsUpdateWebText("p00_update_btn", "updating: 100%", false);
-      webUI.wsUpdateWebDialog("version_dialog", "close");
+      webUI.wsUpdateWebText("p11_git_progress", 100L, false);
+      webUI.wsUpdateWebText("p11_git_state", "done", false);
       webUI.wsUpdateWebDialog("ota_update_done_dialog", "open");
       ESP_LOGI(TAG, "GitHub OTA-Update successful");
     } else {
@@ -1052,10 +1060,11 @@ void processGitHubUpdate() {
         break;
       }
       webUI.wsUpdateWebText("p00_ota_upd_err", errMsg, false);
-      webUI.wsUpdateWebDialog("version_dialog", "close");
+      webUI.wsUpdateWebText("p11_git_state", "failed", false);
       webUI.wsUpdateWebDialog("ota_update_failed_dialog", "open");
       ESP_LOGE(TAG, "GitHub OTA-Update failed: %s", errMsg);
     }
+    ghFreeRelease(ghLatestRelease);
     ota.setActive(false);
     wdt.enable();
   }

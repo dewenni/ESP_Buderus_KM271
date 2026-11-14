@@ -117,3 +117,9 @@
 .memory-table { table-layout: fixed; }
 
 .information-stack { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+
+.tools-version-info > div { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; }
+.tools-version-info a:visited { color: var(--pico-primary); }
+#p00_update_btn_hide { margin: 0; }
+#p00_update_btn { width: auto; margin: 0; }
+#github_progress_bar { --pico-progress-color: var(--ui-accent); }

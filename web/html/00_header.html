@@ -27,41 +27,7 @@
       </div>
     </header>
     <!-- Dialog Version -->
-    <dialog id="version_dialog">
-      <article class="dash">
-        <div class="dash-main">
-          <div class="dash-header" data-i18n="version_info"></div>
-          <br />
-          <div class="leftright">
-            <span data-i18n="act_version"></span>
-            <span id="p00_dialog_version"></span>
-          </div>
-          <div class="leftright">
-            <span data-i18n="github_version"></span>
-            <a id="p00_dialog_git_version" aria-busy="true"></a>
-          </div>
-          <br />
-          <div
-            id="p00_update_btn_hide"
-            class="dash-footer"
-            style="display: none">
-            <button
-              id="p00_update_btn"
-              style="width: 75%"
-              aria-busy="false"></button>
-          </div>
-          <div class="dash-footer">
-            <button
-              id="close_version_Dialog_btn"
-              data-i18n="close"
-              style="width: 75%"></button>
-          </div>
-        </div>
-        <div class="dash-icon">
-          <div class="svg i_github"></div>
-        </div>
-      </article>
-    </dialog>
+
     <!-- Dialog OTA-FAILED -->
     <dialog id="ota_update_failed_dialog">
       <article class="dash">
@@ -237,7 +203,7 @@
         </li>
       </ul>
       <div class="sidebar-status">
-        <button type="button" id="p00_version" class="sidebar-version" data-ui-local aria-haspopup="dialog" aria-controls="version_dialog"></button>
+        <button type="button" id="p00_version" class="sidebar-version" data-ui-local aria-controls="tab11"></button>
         <i id="p00_wifi_icon" role="img"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="wifi-outer" d="M3 8a14 14 0 0 1 18 0"/><path class="wifi-middle" d="M6 11.5a9 9 0 0 1 12 0"/><path class="wifi-inner" d="M9 15a4.6 4.6 0 0 1 6 0"/><circle class="wifi-dot" cx="12" cy="19" r="0.8"/></svg></i>
         <i id="p00_eth_icon" role="img"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v11h-3v4H9v-4H6zM9 3v4m3-4v4m3-4v4M12 18v3M8 21h8"/></svg></i>
         <a href="/logout" class="sidebar-logout OPT_AUTH" aria-label="Abmelden" title="Abmelden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4H5v16h9M10 12h11m-4-4 4 4-4 4"/></svg></a>
