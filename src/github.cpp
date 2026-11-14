@@ -7,8 +7,7 @@
 // but the server certificate is NOT verified, and the image itself is
 // unsigned. Anyone able to spoof DNS or MITM the device's egress can serve
 // arbitrary firmware here. Treat this button as trusted-network-only.
-// Note also that the version check below is "tag != VERSION" rather than "tag
-// is newer", so the update button also offers downgrades.
+// Older releases are labelled explicitly in the Tools page before installation.
 #define GITHUB_OWNER "dewenni"
 #define GITHUB_REPO "ESP_Buderus_KM271"
 
@@ -52,7 +51,7 @@ bool ghGetLatestRelease(GithubRelease *release, GithubReleaseInfo *info) {
     return true;
   } else {
     ESP_LOGE(TAG, "No OTA Asset found!");
-    return false;
+    return true;
   }
 }
 
@@ -63,7 +62,11 @@ int ghStartOtaUpdate(GithubRelease release, const char *asset) {
     ESP_LOGI(TAG, "Firmware updated successfully");
   } else {
     ESP_LOGE(TAG, "Firmware update failed: %i", result);
-    ota.freeRelease(release);
+
   }
   return result;
+}
+void ghFreeRelease(GithubRelease &release) {
+  ota.freeRelease(release);
+  release = {};
 }

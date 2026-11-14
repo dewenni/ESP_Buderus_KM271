@@ -23,6 +23,7 @@
       <main class="container-fluid">
         <!--SECTION-START-->
       </main>
+    </section>
       <footer>
         <div
           id="refreshBar"
@@ -31,18 +32,9 @@
           <div class="svg i_pulse" style="width: 50px"></div>
           <div data-i18n="km271_refresh" style="color: white"></div>
         </div>
-        <div
-          id="connectionLostBar"
-          class="footerBar"
-          style="display: none; background-color: #732e2e">
-          <div data-i18n="lost_connection"></div>
-          <button
-            id="p99_reloadButton"
-            class="svg i_auto"
-            style="width: 50px"></button>
-        </div>
+        <!-- Compatibility signal for the existing EspWebUI reconnect handlers. -->
+        <span id="connectionLostBar" hidden style="display: none"></span>
       </footer>
-    </section>
   </body>
 </html>
 <!--SECTION-END-->

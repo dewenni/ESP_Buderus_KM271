@@ -1,6 +1,8 @@
 // --------------------------------------
 // --------------------------------------
 document.addEventListener("DOMContentLoaded", function () {
+  initializeSettingsNavigation();
+
   // call functions on refresh
   setupWS();
   synchronizeDataSyncFields();
@@ -174,7 +176,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Event-Listener for Buttons
-  document.querySelectorAll("button").forEach(function (button) {
+  document.querySelectorAll("button:not([data-ui-local])").forEach(function (button) {
     button.addEventListener("click", function () {
       sendData(button.id, true);
     });
@@ -212,7 +214,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
   // Event-Listener for Select Elements
-  document.querySelectorAll("select").forEach(function (selectElement) {
+  document.querySelectorAll("select:not([data-ui-local])").forEach(function (selectElement) {
     selectElement.addEventListener("change", function () {
       sendData(selectElement.id, selectElement.value);
     });
@@ -221,6 +223,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 let ws;
 let heartbeatTimeout;
+let reconnectTimer;
+const heartbeatTimeoutMs = 30000;
 const maxReconnectDelay = 5000;
 const minReconnectDelay = 1000;
 let reconnectDelay = minReconnectDelay;
@@ -241,26 +245,37 @@ function setupWS() {
     console.log("WebSocket setup started");
   }
 
-  ws = new WebSocket("ws://" + window.location.host + "/ws");
+  // Only one connection attempt and reconnect timer may be active.
+  if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.CLOSING)) return;
+  clearTimeout(reconnectTimer);
+  reconnectTimer = undefined;
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  const socket = ws = new WebSocket(protocol + "//" + window.location.host + "/ws");
 
-  ws.onopen = function () {
+  socket.onopen = function () {
+    if (ws !== socket) return;
     console.log("WebSocket connected");
     resetHeartbeat();
     hideReloadBar();
     reconnectDelay = minReconnectDelay;
   };
 
-  ws.onclose = function () {
+  socket.onclose = function () {
+    if (ws !== socket) return;
+    clearTimeout(heartbeatTimeout);
     console.log("WebSocket disconnected. Retrying...");
     attemptReconnect();
     showReloadBar();
   };
 
-  ws.onerror = function (error) {
+  socket.onerror = function (error) {
+    if (ws !== socket) return;
     console.log("WebSocket error:", error);
   };
 
-  ws.onmessage = function (event) {
+  socket.onmessage = function (event) {
+    if (ws !== socket) return;
+    resetHeartbeat(); // Every received frame proves the connection is alive.
     let message = JSON.parse(event.data);
     //console.log(message);
     if (message.type === "redirect") {
@@ -268,7 +283,7 @@ function setupWS() {
       ws.close();
       window.location.href = message.url;
     } else if (message.type === "heartbeat") {
-      resetHeartbeat();
+      // Already handled above, like all other messages.
     } else if (message.type === "loadConfig") {
       loadConfig();
     } else if (message.type === "updateText") {
@@ -331,23 +346,41 @@ function showMsgBar(message) {
   }, 2500);
 }
 
-// heartbeat function
+// Watch only visible pages: background suspension must not close a healthy socket.
 function resetHeartbeat() {
   clearTimeout(heartbeatTimeout);
+  const socket = ws;
+  if (document.hidden || !socket || socket.readyState !== WebSocket.OPEN) return;
   heartbeatTimeout = setTimeout(() => {
-    console.warn("No heartbeat received, reconnecting...");
-    ws.close();
+    if (document.hidden || ws !== socket || socket.readyState !== WebSocket.OPEN) return;
+    console.warn("No WebSocket data received, reconnecting...");
+    socket.close();
     showReloadBar();
-  }, 5000);
+  }, heartbeatTimeoutMs);
 }
 
 function attemptReconnect() {
-  setTimeout(() => {
-    console.log(`Attempting reconnect in ${reconnectDelay / 1000} seconds...`);
+  if (reconnectTimer !== undefined) return;
+  const delay = reconnectDelay;
+  console.log(`Attempting reconnect in ${delay / 1000} seconds...`);
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = undefined;
+    reconnectDelay = Math.min(delay * 2, maxReconnectDelay);
     setupWS();
-    reconnectDelay = Math.min(reconnectDelay * 2, maxReconnectDelay);
-  }, reconnectDelay);
+  }, delay);
 }
+
+document.addEventListener("visibilitychange", () => {
+  if (isGitHubPages()) return;
+  if (document.hidden) {
+    clearTimeout(heartbeatTimeout);
+  } else if (ws && ws.readyState === WebSocket.OPEN) {
+    // Allow fresh messages to arrive after resuming, even after a long pause.
+    resetHeartbeat();
+  } else {
+    setupWS();
+  }
+});
 
 function restartFunction() {
   const activeElement = document.activeElement;
@@ -855,6 +888,13 @@ function toggleEdit(button, inputId) {
 // localization texts
 // --------------------------------------
 const lib_translations = {
+  settings_area: { de: "Bereich", en: "Category" },
+  settings_general: { de: "Allgemein", en: "General" },
+  settings_network: { de: "Netzwerk", en: "Network" },
+  settings_integrations: { de: "Integrationen", en: "Integrations" },
+  settings_device: { de: "Gerät", en: "Device" },
+  settings_maintenance: { de: "Zugriff & Wartung", en: "Access & maintenance" },
+  settings_time: { de: "Datum & Uhrzeit", en: "Date & time" },
   system: {
     de: "System",
     en: "System",
@@ -1152,4 +1192,56 @@ const lib_translations = {
     en: "Check for GitHub OTA Update",
   },
 };
+
+// Settings categories change presentation only; the existing fields stay in the DOM.
+function initializeSettingsNavigation() {
+  document.querySelectorAll('[data-settings]').forEach(root => {
+    if (root.classList.contains('settings-ready')) return;
+    const groups = Array.from(root.querySelectorAll('[data-settings-group]'));
+    const list = root.querySelector('[data-settings-list]');
+    const select = root.querySelector('[data-settings-select]');
+    if (!groups.length || !list || !select) return;
+    const buttons = groups.map(group => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.dataset.uiLocal = '';
+      button.dataset.i18n = group.dataset.settingsLabel;
+      button.setAttribute('aria-controls', group.id);
+      button.textContent = group.querySelector('h2').textContent;
+      list.append(button);
+      const option = document.createElement('option');
+      option.value = group.dataset.settingsGroup;
+      option.dataset.i18n = group.dataset.settingsLabel;
+      option.textContent = button.textContent;
+      select.append(option);
+      button.addEventListener('click', () => activate(group.dataset.settingsGroup));
+      return button;
+    });
+    function activate(key) {
+      groups.forEach((group, index) => {
+        const active = group.dataset.settingsGroup === key;
+        group.hidden = !active;
+        buttons[index].setAttribute('aria-pressed', String(active));
+      });
+      select.value = key;
+    }
+    select.addEventListener('change', () => activate(select.value));
+    const initial = groups.find(group => group.dataset.settingsGroup === root.dataset.settingsInitial) || groups[0];
+    activate(initial.dataset.settingsGroup);
+    root.classList.add('settings-ready');
+    // Opt-in: horizontal categories collapse when their actual labels no longer fit.
+    if (root.dataset.settingsLayout === 'tabs') {
+      const navigation = root.querySelector('.settings-category-nav');
+      const updateLayout = () => {
+        if (!navigation.clientWidth) return; // Main page is currently hidden.
+        const compact = list.scrollWidth > navigation.clientWidth + 1;
+        root.classList.toggle('settings-compact', compact);
+        list.setAttribute('aria-hidden', String(compact));
+      };
+      new ResizeObserver(updateLayout).observe(navigation);
+      new MutationObserver(updateLayout).observe(list, { childList: true, characterData: true, subtree: true });
+      updateLayout();
+    }
+  });
+}
 

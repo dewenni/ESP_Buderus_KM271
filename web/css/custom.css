@@ -88,11 +88,11 @@
 
 .weekly-program-block {
   position: absolute;
-  inset-inline: 0.2rem;
+  inset-inline: 15%;
   min-height: 2px;
   border-radius: 0.25rem;
-  background: var(--pico-primary-background);
-  color: var(--pico-primary-inverse);
+  background: color-mix(in srgb, var(--ui-accent) 35%, var(--ui-surface));
+  color: var(--ui-text);
   padding-inline: 0.15rem;
   text-align: center;
   overflow: hidden;
@@ -124,32 +124,87 @@
 }
 
 .weekly-program-key-on {
-  background: var(--pico-primary-background);
+  background: color-mix(in srgb, var(--ui-accent) 35%, var(--ui-surface));
 }
 
-/* Temperature history stays within the existing dashboard card width. */
-#tab1 > .grid {
-  align-items: flex-start;
-}
-
+/* Compact instrument cards; histories and rendering stay in the browser. */
 .dash.dash-history {
+  --dash-heading-height: 4.8rem;
+  --dash-legend-height: 1.4rem;
+  --dash-trend-actual: var(--ui-accent);
+  --dash-trend-target: var(--ui-target);
+  --dash-trend-band: var(--ui-band);
+  --dash-trend-surface: var(--ui-surface);
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: 96px minmax(0, 1fr);
+  grid-template-rows: var(--dash-heading-height) auto auto;
+  padding: 0;
+  overflow: hidden;
+  background: var(--dash-trend-surface);
 }
 
-.dash-history > .dash-main {
-  min-width: 0;
+.dash-history > .dash-header {
+  display: flex;
+  align-items: center;
+  line-height: 1.4;
+  overflow: hidden;
+  background: var(--pico-card-background-color);
+  grid-column: 1 / -1;
+  padding: 1rem;
+  margin: 0;
+  text-align: left;
 }
+
+.dash-readings {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2rem;
+  padding: 1rem 10px;
+  border-right: 1px solid var(--ui-border);
+}
+
+.dash-reading-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--pico-muted-color);
+  overflow-wrap: anywhere;
+}
+
+.dash-reading-label::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  flex: 0 0 12px;
+  border-top: 2px solid var(--dash-trend-actual);
+}
+
+.dash-reading-secondary .dash-reading-label::before {
+  border-top: 2px dashed var(--dash-trend-target);
+}
+
+.dash-reading-value {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 3px;
+  line-height: 1.15;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-reading-value .value { font-size: 2rem; }
+.dash-reading-secondary .value { font-size: 1.5rem; color: var(--pico-muted-color); }
+.dash-reading-unit { font-size: 11px; color: var(--pico-muted-color); }
 
 .dash-history-plot {
-  grid-column: 1 / -1;
   min-width: 0;
-  padding: 0 6px 3px;
+  padding: 12px 8px 5px 0;
 }
 
-.dash-chart {
-  height: 126px;
-}
+.dash-chart { height: 220px; }
 
 .dash-chart svg {
   display: block;
@@ -163,40 +218,34 @@
   font: 11px var(--pico-font-family);
 }
 
-.dash-chart-grid {
-  stroke: var(--pico-form-element-border-color);
-  stroke-width: 1;
-}
+.dash-chart-grid { stroke: var(--pico-form-element-border-color); stroke-width: 1; }
 
 .dash-chart-actual,
 .dash-chart-target {
   fill: none;
-  stroke: var(--pico-color);
-  stroke-width: 1.8;
+  stroke: var(--dash-trend-actual);
+  stroke-width: 2;
   stroke-linejoin: round;
 }
 
 .dash-chart-target {
-  stroke: var(--pico-muted-color);
-  stroke-width: 1.4;
-  stroke-dasharray: 5 4;
+  stroke: var(--dash-trend-target);
+  stroke-width: 1.6;
+  stroke-dasharray: 5 5;
 }
 
-.dash-chart circle {
-  stroke: none;
-}
-
-.dash-chart circle.dash-chart-actual { fill: var(--pico-color); }
-.dash-chart circle.dash-chart-target { fill: var(--pico-muted-color); }
-
-.dash-chart-guide {
-  stroke: var(--pico-muted-color);
-  stroke-width: 1;
-}
+.dash-chart .dash-chart-gap { stroke-width: 1; opacity: 0.38; }
+.dash-chart circle { stroke: none; }
+.dash-chart circle.dash-chart-actual { fill: var(--dash-trend-actual); }
+.dash-chart circle.dash-chart-target { fill: var(--dash-trend-target); }
+.dash-chart-guide { stroke: var(--pico-muted-color); stroke-width: 1; }
 
 .dash-chart-status {
+  grid-column: 1 / -1;
   height: 1.5em;
   line-height: 1.5;
+  padding: 5px 6px;
+  box-sizing: content-box;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -205,28 +254,44 @@
   text-align: center;
 }
 
-.dash-chart-state {
-  fill: var(--pico-primary-background);
-  opacity: 0.28;
-}
+.dash-chart-state { fill: var(--dash-trend-band); opacity: 0.2; }
 
 .dash-chart-legend {
+  height: var(--dash-legend-height);
+  line-height: var(--dash-legend-height);
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 0.25rem 0.75rem;
-  margin: 0.25rem 8px 0 29px;
+  white-space: nowrap;
+  gap: 6px 9px;
+  margin: 0 8px 7px 29px;
   font-size: 11px;
   color: var(--pico-muted-color);
+}
+
+.dash-history:not([data-chart-state]) .dash-history-plot::before {
+  content: "";
+  display: block;
+  height: var(--dash-legend-height);
+  margin-bottom: 7px;
 }
 
 .dash-chart-state-name {
   display: inline-flex;
   align-items: center;
+  min-width: 0;
   gap: 4px;
   margin-right: auto;
   color: var(--pico-color);
 }
+
+.dash-chart-state-name span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-chart-key-on,
+.dash-chart-key-off,
+.dash-chart-legend .svg { flex-shrink: 0; }
 
 .dash-chart-legend .svg {
   display: inline-block;
@@ -242,22 +307,26 @@
   width: 12px;
   height: 8px;
   margin-right: 4px;
-  background: var(--pico-primary-background);
+  background: var(--dash-trend-band);
 }
 
-.dash-chart-key-off::before {
-  background: var(--pico-form-element-border-color);
-  opacity: 1;
-}
+.dash-chart-key-off::before { background: var(--pico-form-element-border-color); }
 
-.dash-history .dash-footer > div::before {
-  content: "";
-  display: inline-block;
-  width: 12px;
-  margin-right: 3px;
-  vertical-align: middle;
-  border-top: 2px solid var(--pico-color);
+/* Distinguish the received active program from the manual schedule below. */
+.program-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem 1rem; margin-bottom: 1rem; }
+.information-page .program-heading .table-header { margin: 0; }
+.program-status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.5rem;
+  background: var(--ui-field);
+  color: var(--ui-muted);
+  font-size: 0.85rem;
 }
-.dash-history .dash-footer > div:first-child::before {
-  border-top: 2px dashed var(--pico-muted-color);
-}
+.program-status-value { color: var(--ui-text); font-size: 1.25rem; font-weight: 500; overflow-wrap: anywhere; }

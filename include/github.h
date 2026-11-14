@@ -9,3 +9,4 @@ struct GithubReleaseInfo {
 bool ghGetLatestRelease(GithubRelease *release, GithubReleaseInfo *info);
 int ghStartOtaUpdate(GithubRelease release, const char *asset);
 void ghSetProgressCallback(void (*callback)(int));
+void ghFreeRelease(GithubRelease &release);

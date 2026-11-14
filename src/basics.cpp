@@ -15,6 +15,18 @@ s_eth eth; // global ETH Informations
 
 static const char *TAG = "SETUP"; // LOG TAG
 
+// ESP.getSketchSize() verifies the image. Read it before networking/OTA starts,
+// then use this immutable snapshot for WebUI, MQTT and Telnet.
+static s_firmwareInfo firmwareInfo;
+
+void initFirmwareInfo() {
+  firmwareInfo.size = ESP.getSketchSize();
+  firmwareInfo.capacity = ESP.getFreeSketchSpace(); // OTA partition size
+  firmwareInfo.usagePercent = firmwareInfo.capacity ? firmwareInfo.size * 100.0f / firmwareInfo.capacity : 0.0f;
+}
+
+const s_firmwareInfo &getFirmwareInfo() { return firmwareInfo; }
+
 /**
  * *******************************************************************
  * @brief   Setup for NTP Server
@@ -147,6 +159,7 @@ void sendETHInfo() {
  * @return  none
  * *******************************************************************/
 void sendSysInfo() {
+  if (EspSysUtil::OTA::getInstance().isActive()) return;
 
   // Uptime and restart reason
   char uptimeStr[64];
@@ -155,7 +168,7 @@ void sendSysInfo() {
   char heap[10];
   snprintf(heap, sizeof(heap), "%.1f %%", (float)(ESP.getHeapSize() - ESP.getFreeHeap()) * 100 / ESP.getHeapSize());
   char flash[10];
-  snprintf(flash, sizeof(flash), "%.1f %%", (float)ESP.getSketchSize() * 100 / ESP.getFreeSketchSpace());
+  snprintf(flash, sizeof(flash), "%.1f %%", getFirmwareInfo().usagePercent);
 
   JsonDocument sysInfoJSON;
   sysInfoJSON["uptime"] = uptimeStr;

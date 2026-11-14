@@ -13,6 +13,305 @@
   --pico-font-size-override: -5%;
 }
 
+/* Limit both heating circuits to two readable columns and a compact program. */
+.heating-circuit {
+  max-width: 64rem;
+}
+
+.heating-circuit-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+  align-items: start;
+  gap: var(--pico-grid-column-gap);
+  margin-bottom: var(--pico-block-spacing-vertical);
+}
+
+.heating-circuit-info > article {
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+/* Weekly view of the manual heating program. */
+.weekly-program {
+  --weekly-program-border: color-mix(in srgb, var(--pico-color) 25%, transparent);
+}
+
+.weekly-program-scroll {
+  overflow-x: auto;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+}
+
+.weekly-program-chart {
+  min-width: 36rem;
+}
+
+.weekly-program-header,
+.weekly-program-body {
+  display: grid;
+  grid-template-columns: 3rem repeat(7, minmax(0, 1fr));
+}
+
+.weekly-program-header {
+  padding-bottom: 0.75rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+.weekly-program-body {
+  height: 28rem;
+  margin-block: 0.5rem;
+  border-block: 1px solid var(--weekly-program-border);
+}
+
+.weekly-program-axis,
+.weekly-program-day {
+  position: relative;
+}
+
+.weekly-program-axis > span {
+  position: absolute;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  color: var(--pico-muted-color);
+  font-size: 0.7rem;
+}
+
+.weekly-program-day {
+  border-left: 1px solid var(--weekly-program-border);
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(12.5% - 1px), var(--weekly-program-border) calc(12.5% - 1px), var(--weekly-program-border) 12.5%);
+}
+
+.weekly-program-day:last-child {
+  border-right: 1px solid var(--weekly-program-border);
+}
+
+.weekly-program-block {
+  position: absolute;
+  inset-inline: 0.2rem;
+  min-height: 2px;
+  border-radius: 0.25rem;
+  background: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+  padding-inline: 0.15rem;
+  text-align: center;
+  overflow: hidden;
+  font-size: 0.7rem;
+}
+
+.weekly-program-block > span {
+  display: block;
+}
+
+.weekly-program-block > span:last-child {
+  position: absolute;
+  bottom: 0;
+  inset-inline: 0;
+}
+
+.weekly-program-legend {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+}
+
+.weekly-program-legend i {
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.8rem;
+  border: 1px solid var(--weekly-program-border);
+  border-radius: 0.15rem;
+}
+
+.weekly-program-key-on {
+  background: var(--pico-primary-background);
+}
+
+/* Compact instrument cards; histories and rendering stay in the browser. */
+.dash.dash-history {
+  --dash-heading-height: 4.8rem;
+  --dash-legend-height: 1.4rem;
+  --dash-trend-actual: var(--ui-accent);
+  --dash-trend-target: var(--ui-target);
+  --dash-trend-band: var(--ui-band);
+  --dash-trend-surface: var(--ui-surface);
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  grid-template-rows: var(--dash-heading-height) auto auto;
+  padding: 0;
+  overflow: hidden;
+  background: var(--dash-trend-surface);
+}
+
+.dash-history > .dash-header {
+  display: flex;
+  align-items: center;
+  line-height: 1.4;
+  overflow: hidden;
+  background: var(--pico-card-background-color);
+  grid-column: 1 / -1;
+  padding: 1rem;
+  margin: 0;
+  text-align: left;
+}
+
+.dash-readings {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2rem;
+  padding: 1rem 10px;
+  border-right: 1px solid var(--ui-border);
+}
+
+.dash-reading-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--pico-muted-color);
+  overflow-wrap: anywhere;
+}
+
+.dash-reading-label::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  flex: 0 0 12px;
+  border-top: 2px solid var(--dash-trend-actual);
+}
+
+.dash-reading-secondary .dash-reading-label::before {
+  border-top: 2px dashed var(--dash-trend-target);
+}
+
+.dash-reading-value {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 3px;
+  line-height: 1.15;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-reading-value .value { font-size: 2rem; }
+.dash-reading-secondary .value { font-size: 1.5rem; color: var(--pico-muted-color); }
+.dash-reading-unit { font-size: 11px; color: var(--pico-muted-color); }
+
+.dash-history-plot {
+  min-width: 0;
+  padding: 12px 8px 5px 0;
+}
+
+.dash-chart { height: 220px; }
+
+.dash-chart svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+}
+
+.dash-chart text {
+  fill: var(--pico-muted-color);
+  font: 11px var(--pico-font-family);
+}
+
+.dash-chart-grid { stroke: var(--pico-form-element-border-color); stroke-width: 1; }
+
+.dash-chart-actual,
+.dash-chart-target {
+  fill: none;
+  stroke: var(--dash-trend-actual);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.dash-chart-target {
+  stroke: var(--dash-trend-target);
+  stroke-width: 1.6;
+  stroke-dasharray: 5 5;
+}
+
+.dash-chart .dash-chart-gap { stroke-width: 1; opacity: 0.38; }
+.dash-chart circle { stroke: none; }
+.dash-chart circle.dash-chart-actual { fill: var(--dash-trend-actual); }
+.dash-chart circle.dash-chart-target { fill: var(--dash-trend-target); }
+.dash-chart-guide { stroke: var(--pico-muted-color); stroke-width: 1; }
+
+.dash-chart-status {
+  grid-column: 1 / -1;
+  height: 1.5em;
+  line-height: 1.5;
+  padding: 5px 6px;
+  box-sizing: content-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 11px;
+  color: var(--pico-muted-color);
+  text-align: center;
+}
+
+.dash-chart-state { fill: var(--dash-trend-band); opacity: 0.2; }
+
+.dash-chart-legend {
+  height: var(--dash-legend-height);
+  line-height: var(--dash-legend-height);
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  gap: 6px 9px;
+  margin: 0 8px 7px 29px;
+  font-size: 11px;
+  color: var(--pico-muted-color);
+}
+
+.dash-history:not([data-chart-state]) .dash-history-plot::before {
+  content: "";
+  display: block;
+  height: var(--dash-legend-height);
+  margin-bottom: 7px;
+}
+
+.dash-chart-state-name {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  gap: 4px;
+  margin-right: auto;
+  color: var(--pico-color);
+}
+
+.dash-chart-state-name span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-chart-key-on,
+.dash-chart-key-off,
+.dash-chart-legend .svg { flex-shrink: 0; }
+
+.dash-chart-legend .svg {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-size: contain;
+}
+
+.dash-chart-key-on::before,
+.dash-chart-key-off::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 8px;
+  margin-right: 4px;
+  background: var(--dash-trend-band);
+}
+
+.dash-chart-key-off::before { background: var(--pico-form-element-border-color); }
+
 .i_flame {
   background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path fill="%23ffffff" d="M20 15c0 4.255-2.618 6.122-4.641 6.751-.432.134-.715-.369-.457-.74.88-1.265 1.898-3.195 1.898-5.01 0-1.951-1.644-4.254-2.928-5.675-.293-.324-.805-.11-.821.328-.053 1.45-.282 3.388-1.268 4.908a.412.412 0 0 1-.677.036c-.308-.39-.616-.871-.924-1.252-.166-.204-.466-.207-.657-.026-.747.707-1.792 1.809-1.792 3.18 0 .93.36 1.905.767 2.69.224.43-.174.95-.604.724C6.113 19.98 4 18.084 4 15c0-3.146 4.31-7.505 5.956-11.623.26-.65 1.06-.955 1.617-.531C14.943 5.414 20 10.378 20 15Z"/></svg>');
 }
@@ -46,4 +345,229 @@
 .i_solar {
   background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" fill="%23fff" viewBox="0 0 260 196"><path d="M98 54v-8H73.153a23.062 23.062 0 0 0-3.86-9.306l17.806-17.806-5.657-5.657L63.64 31.032A23.071 23.071 0 0 0 54 27.097V2h-8v25.207a23.064 23.064 0 0 0-9.021 3.82l-17.78-17.779-5.656 5.657 17.781 17.78A23.083 23.083 0 0 0 27.457 46H2v8h25.457a23.063 23.063 0 0 0 3.88 9.334L13.56 81.112l5.657 5.657 17.782-17.782A23.076 23.076 0 0 0 46 72.793V98h8V72.903a23.069 23.069 0 0 0 9.62-3.921l17.804 17.805 5.657-5.656-17.802-17.805A23.068 23.068 0 0 0 73.153 54H98zM50.305 34.8c8.381 0 15.2 6.819 15.2 15.2s-6.818 15.2-15.2 15.2-15.2-6.819-15.2-15.2 6.819-15.2 15.2-15.2zM242 178v-64h-20v44l-36-36H74L2 194h128l56-56 56 56h16l-16-16zM71.529 153H88.51l-10 10H61.529l10-10zm22.638 0h16.982l-10 10H84.166l10.001-10zm22.638 0h16.982l-10 10h-16.982l10-10zm20.982-4h-16.982l11-11h16.982l-11 11zm-22.639 0H98.167l11-11h16.981l-11 11zm-22.638 0H75.529l11-11h16.981l-11 11zm-34.981 18H74.51l-11 11H46.529l11-11zm22.637 0h16.982l-11 11H69.166l11-11zm22.638 0h16.982l-11 11H91.804l11-11z"/></svg>');
 }
+
+/* Buderus design trial. Keep the palette here until it is shared with Jarolift. */
+:root,
+[data-theme="light"],
+[data-theme="dark"] {
+  --ui-background: light-dark(#edf0f3, #141a22);
+  --ui-surface: light-dark(#fafbfc, #1c2530);
+  --ui-field: light-dark(#ffffff, #17212c);
+  --ui-rail: light-dark(#e4eaf0, #273545);
+  --ui-hover: light-dark(#d5e0eb, #33485e);
+  --ui-selected: light-dark(#e2e8ee, #2b3948);
+  --ui-text: light-dark(#293746, #d8e1eb);
+  --ui-muted: light-dark(#596b7c, #9eafbf);
+  --ui-border: light-dark(#cdd7e0, #334355);
+  --ui-accent: light-dark(#9b6a4f, #c9a58b);
+  --ui-target: light-dark(#6b8298, #8ea5bb);
+  --ui-band: light-dark(#96adc3, #819fbc);
+  --ui-connected: light-dark(#2f7d62, #83bd9a);
+  --ui-sidebar-width: 200px;
+  --ui-icon-filter: none;
+
+  --pico-background-color: var(--ui-background);
+  --pico-color: var(--ui-text);
+  --pico-muted-color: var(--ui-muted);
+  --pico-muted-border-color: var(--ui-border);
+  --pico-h1-color: var(--ui-text);
+  --pico-h2-color: var(--ui-text);
+  --pico-h3-color: var(--ui-text);
+  --pico-h4-color: var(--ui-text);
+  --pico-h5-color: var(--ui-text);
+  --pico-h6-color: var(--ui-text);
+  --pico-primary: var(--ui-accent);
+  --pico-primary-hover: var(--ui-text);
+  --pico-primary-background: var(--ui-rail);
+  --pico-primary-border: var(--ui-border);
+  --pico-primary-inverse: var(--ui-text);
+  --pico-primary-hover-background: var(--ui-hover);
+  --pico-primary-hover-border: var(--ui-target);
+  --pico-primary-focus: color-mix(in srgb, var(--ui-target) 30%, transparent);
+  --pico-secondary: var(--ui-muted);
+  --pico-secondary-background: var(--ui-rail);
+  --pico-secondary-border: var(--ui-border);
+  --pico-secondary-inverse: var(--ui-text);
+  --pico-secondary-hover-background: var(--ui-hover);
+  --pico-card-background-color: var(--ui-surface);
+  --pico-card-sectioning-background-color: var(--ui-rail);
+  --pico-card-box-shadow: none;
+  --pico-form-element-background-color: var(--ui-field);
+  --pico-form-element-border-color: var(--ui-border);
+  --pico-form-element-color: var(--ui-text);
+  --pico-form-element-placeholder-color: var(--ui-muted);
+  --pico-form-element-active-background-color: var(--ui-field);
+  --pico-form-element-active-border-color: var(--ui-target);
+  --pico-form-element-focus-color: var(--pico-primary-focus);
+  --pico-form-element-spacing-vertical: 0.65rem;
+  --pico-form-element-spacing-horizontal: 0.8rem;
+  --pico-dropdown-background-color: var(--ui-surface);
+  --pico-dropdown-border-color: var(--ui-border);
+  --pico-dropdown-color: var(--ui-text);
+  --pico-dropdown-hover-background-color: var(--ui-hover);
+  --pico-table-border-color: var(--ui-border);
+  --pico-table-row-stripped-background-color: transparent;
+  --pico-switch-background-color: var(--ui-rail);
+  --pico-switch-checked-background-color: var(--ui-target);
+  --pico-range-border-color: var(--ui-rail);
+  --pico-range-active-border-color: var(--ui-target);
+  --pico-border-radius: 0.65rem;
+}
+
+[data-theme="light"] { --ui-icon-filter: brightness(0.35); }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) { --ui-icon-filter: brightness(0.35); }
+}
+
+/* Shared surfaces and forms; Pico still owns control behaviour and validation. */
+article { border: 1px solid var(--ui-border); }
+hr { border-top: 1px solid var(--ui-border); margin-block: 1.25rem; }
+details[open] { background: var(--ui-surface); }
+.info-box { background: var(--ui-field); border-color: var(--ui-border); }
+.info-box, .info-icon, .info-text { color: var(--ui-text); }
+.button-like:checked + .button-like-label { color: var(--ui-text); background: var(--ui-selected); }
+.svg { filter: var(--ui-icon-filter); }
+
+/* Keep the existing desktop sidebar and mobile top-menu breakpoints. */
+.sidebar { width: var(--ui-sidebar-width); background: var(--ui-background); color: var(--ui-text); border-right: 1px solid var(--ui-border); }
+.sidebar li a { background: transparent; color: var(--ui-muted); padding: 0.65rem 0.8rem; min-height: 44px; border-radius: 8px; }
+.sidebar li a:hover { background: var(--ui-rail); color: var(--ui-text); }
+.sidebar li a.active { background: var(--ui-selected); color: var(--ui-text); }
+.sidebar li a:hover .links_name, .sidebar li a.active .links_name { filter: none; }
+.sidebar-status i { min-width: 0; flex-shrink: 0; }
+.topMenu { background: var(--ui-surface); border-bottom: 1px solid var(--ui-border); color: var(--ui-text); }
+
+/* Desktop app bar; on mobile the existing top menu provides the compact header. */
+.app-header {
+  position: fixed;
+  inset: 0 0 auto;
+  height: 56px;
+  z-index: 100;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-inline: 1.25rem;
+  background: var(--ui-background);
+  border-bottom: 1px solid var(--ui-border);
+}
+.app-header .app-brand, .topMenu .app-brand { font-size: max(11px, 0.75rem); font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ui-muted); }
+.app-modes { display: flex; align-items: center; gap: 0.5rem; }
+.app-modes .simModeBar, .app-modes .setupModeBar {
+  align-items: center;
+  margin: 0;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--ui-accent) 35%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ui-accent) 14%, var(--ui-surface));
+  color: var(--ui-accent);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.app-modes .setupModeBar { color: var(--ui-target); border-color: color-mix(in srgb, var(--ui-target) 35%, transparent); background: color-mix(in srgb, var(--ui-target) 14%, var(--ui-surface)); }
+.app-header .app-connection { justify-self: end; }
+.app-connection { color: var(--ui-muted); font-size: 0.85rem; white-space: nowrap; }
+.app-connection::before { content: ""; display: inline-block; width: 0.65em; height: 0.65em; border-radius: 50%; background: currentColor; margin-right: 0.5em; }
+.app-connection.is-connected::before { background: var(--ui-connected); }
+.sidebar { top: 56px; height: calc(100% - 56px); }
+.home-section { position: fixed; top: 71px; bottom: var(--pico-spacing); margin-bottom: 0; left: var(--ui-sidebar-width); width: calc(100% - var(--ui-sidebar-width)); overflow-y: auto; }
+.page-heading { margin-bottom: 1.5rem; }
+.page-heading h1 { margin: 0; font-size: 1.8rem; font-weight: 500; letter-spacing: -0.025em; }
+.page-heading p { margin: 0.3rem 0 0; color: var(--ui-muted); font-size: 0.95rem; }
+@media (max-width: 768px) {
+  .app-header { display: none; }
+  .topMenu { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: 0.5rem; padding: 0.5rem 1rem; }
+  .topMenu > ul { min-width: 0; margin: 0; padding: 0; }
+  .topMenu > ul > li { padding: 0; }
+  .topMenu details.dropdown { margin: 0; }
+  .topMenu > ul:first-child, .topMenu > ul:first-child > li { width: 100%; }
+  .topMenu > ul:last-child { justify-self: end; }
+  .topMenu .app-brand { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .home-section { top: 70px; left: 10px; width: calc(100% - 20px); }
+}
+
+/* Quiet tables, including the existing striped system-information tables. */
+table.striped tbody tr:nth-child(odd) td,
+table.striped tbody tr:nth-child(odd) th,
+table td, table th { background: transparent; }
+table td, table th { padding: 0.85rem 0.4rem; border-color: var(--ui-border); font-size: max(12px, 0.85rem); }
+table td:first-child { color: var(--ui-muted); }
+table tr:last-child td, table tr:last-child th { border-bottom: 0; }
+.table-header { font-weight: 500; text-align: left; }
+
+/* Grouped dashboard status: the existing OPT_* visibility controls the grid. */
+.dashboard-status {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  max-width: calc(3 * 512px + 2rem);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+.dashboard-status > .dash {
+  display: block;
+  position: relative;
+  min-width: 0;
+  max-width: none;
+  min-height: 6rem;
+  margin: 0;
+  padding: 1rem;
+  border: 0;
+  border-right: 1px solid var(--ui-border);
+  border-bottom: 1px solid var(--ui-border);
+  border-radius: 0;
+  background: transparent;
+}
+.dashboard-status .dash-main { padding: 0; }
+.dashboard-status .dash-header { text-align: left; color: var(--ui-muted); font-size: max(11px, 0.8rem); font-weight: 400; padding-right: 1.5rem; margin-bottom: 0.65rem; }
+.dashboard-status .dash-content { display: block; text-align: left; margin: 0; }
+.dashboard-status .dash-content .value { margin: 0; font-size: 1.6rem; font-weight: 500; line-height: 1.2; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.dashboard-status .dash-footer { display: block; margin: 0.4rem 0 0; text-align: left; color: var(--ui-muted); font-size: max(11px, 0.75rem); }
+.dashboard-status .dash-icon { position: absolute; top: 0.9rem; right: 0.9rem; width: 18px; min-width: 0; height: 18px; background: transparent; opacity: 0.65; }
+.dashboard-status .dash-icon i { width: 100%; height: 100%; background-size: contain; }
+.dashboard-status > .is-active .dash-content .value { color: var(--ui-accent); }
+#ota_progress_bar { --pico-progress-color: var(--ui-accent); accent-color: var(--ui-accent); }
+.dashboard-trends { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); max-width: calc(3 * 512px + 2rem); gap: 1rem; align-items: start; }
+.dashboard-trends > .dash { width: 100%; min-width: 0; max-width: none; border-radius: 0.75rem; }
+
+/* Existing settings sections remain simple details/summary elements. */
+.settings-panel > details { padding: 0; margin-bottom: 0.75rem; background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: 0.65rem; }
+.settings-panel > details > summary { margin: 0; padding: 1rem 1.15rem; font-size: 1rem; font-weight: 500; }
+.settings-panel > details[open] { padding: 0 1.15rem 1.15rem; }
+.settings-panel > details[open] > summary { margin: 0 -1.15rem 1rem; border-bottom: 1px solid var(--ui-border); }
+.settings-panel > hr { display: none; }
+/* Field widths: compact GPIOs, medium numeric values, wide text inputs. */
+.settings-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 1rem;
+  max-width: 42rem;
+  margin-bottom: 1.5rem;
+}
+.settings-field { min-width: 0; }
+.settings-fields .settings-field { display: flex; flex-direction: column; align-items: flex-start; }
+.settings-field > label, .settings-field > .leftright {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+.settings-fields .settings-field > label, .settings-fields .settings-field > .leftright {
+  min-height: 1.5em;
+  line-height: 1.5;
+}
+.settings-field > .leftright { justify-content: flex-start; align-items: center; gap: 0.5rem; margin: 0 0 0.5rem; }
+.settings-field > .leftright > label { margin: 0; }
+.settings-field > .leftright > button { width: 1.25rem; height: 1.25rem; min-width: 1.25rem; padding: 0; margin: 0; border: 0; background-color: transparent; background-size: contain; }
+.settings-field > input { max-width: 100%; }
+.settings-fields .settings-field > input { margin-top: auto; margin-bottom: 0; }
+.settings-field--compact > input { width: 7rem; }
+.settings-field--medium > input { width: 12rem; }
+.settings-field--wide { grid-column: 1 / -1; }
+.settings-field--wide > input { width: 100%; }
+.settings-category-list button[aria-pressed="true"] { background: var(--ui-selected); color: var(--ui-text); }
+.settings-category-list button:hover { background: var(--ui-rail); color: var(--ui-text); }
 

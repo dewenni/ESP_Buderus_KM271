@@ -131,6 +131,9 @@ void setup() {
   // Message Service Setup (before use of ESP_LOGx)
   messageSetup();
 
+  // Cache firmware metrics before any network service or OTA can run.
+  initFirmwareInfo();
+
   // check for multiple reset
   mrd = new EspSysUtil::MRD32(MRD_TIMEOUT, MRD_RETRIES);
   if (mrd->detectMultipleResets()) {

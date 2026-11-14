@@ -207,11 +207,13 @@ void updateGpioSettings() {
  * @return  none
  * *******************************************************************/
 void updateSystemInfoElements() {
+  if (EspSysUtil::OTA::getInstance().isActive()) return;
 
   webUI.initJsonBuffer(jsonDoc);
 
   // Network information
   webUI.addJson(jsonDoc, "p09_wifi_ip", wifi.ipAddress);
+  webUI.addJson(jsonDoc, "p09_wifi_status", wifiIsConnected() ? WEB_TXT::CONNECTED[config.lang] : WEB_TXT::NOT_CONNECTED[config.lang]);
   snprintf(tmpMessage, sizeof(tmpMessage), "%i %%", wifi.signal);
   webUI.addJson(jsonDoc, "p09_wifi_signal", tmpMessage);
   snprintf(tmpMessage, sizeof(tmpMessage), "%ld dbm", wifi.rssi);
@@ -269,8 +271,24 @@ void updateSystemInfoElements() {
   }
 
   // ESP informations
-  webUI.addJson(jsonDoc, "p09_esp_flash_usage", ESP.getSketchSize() * 100.0f / ESP.getFreeSketchSpace());
-  webUI.addJson(jsonDoc, "p09_esp_heap_usage", (ESP.getHeapSize() - ESP.getFreeHeap()) * 100.0f / ESP.getHeapSize());
+  const auto &firmware = getFirmwareInfo();
+  const uint32_t firmwareSize = firmware.size;
+  const uint32_t firmwareCapacity = firmware.capacity;
+  const uint32_t heapSize = ESP.getHeapSize();
+  const uint32_t freeHeap = ESP.getFreeHeap();
+  if (firmwareCapacity) {
+    webUI.addJson(jsonDoc, "p09_esp_flash_usage", firmware.usagePercent);
+  } else {
+    webUI.addJson(jsonDoc, "p09_esp_flash_usage", "--");
+  }
+  webUI.addJson(jsonDoc, "p09_firmware_size", firmwareSize / 1000.0f);
+  webUI.addJson(jsonDoc, "p09_firmware_capacity", firmwareCapacity / 1000.0f);
+  webUI.addJson(jsonDoc, "p09_heap_free", freeHeap / 1000.0f);
+  if (heapSize) {
+    webUI.addJson(jsonDoc, "p09_esp_heap_usage", (heapSize - freeHeap) * 100.0f / heapSize);
+  } else {
+    webUI.addJson(jsonDoc, "p09_esp_heap_usage", "--");
+  }
   webUI.addJson(jsonDoc, "p09_esp_maxallocheap", ESP.getMaxAllocHeap() / 1000.0f);
   webUI.addJson(jsonDoc, "p09_esp_minfreeheap", ESP.getMinFreeHeap() / 1000.0f);
 
@@ -381,7 +399,9 @@ void generateKm271ConfigJSON() {
     webUI.addJson(kmCfgJsonDoc, "p03_hc1_remotecontrol", pkmConfigStr->hc1_remotecontrol);
     webUI.addJson(kmCfgJsonDoc, "p02_hc1_prg", pkmConfigNum->hc1_program);
     webUI.addJson(kmCfgJsonDoc, "p02_hc1_holiday_days", pkmConfigNum->hc1_holiday_days);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_act_prg", KM_CFG_ARRAY::HC_PROGRAM[config.lang][constrain(pkmConfigNum->hc1_program, 0, 8)]);
+    const char *program = KM_CFG_ARRAY::HC_PROGRAM[config.lang][constrain(pkmConfigNum->hc1_program, 0, 8)];
+    webUI.addJson(kmCfgJsonDoc, "p01_hc1_program", program);
+    webUI.addJson(kmCfgJsonDoc, "p03_hc1_act_prg", program);
     webUI.addJson(kmCfgJsonDoc, "p03_hc1_t01", pkmConfigStr->hc1_timer01);
     webUI.addJson(kmCfgJsonDoc, "p03_hc1_t02", pkmConfigStr->hc1_timer02);
     webUI.addJson(kmCfgJsonDoc, "p03_hc1_t03", pkmConfigStr->hc1_timer03);
@@ -428,7 +448,9 @@ void generateKm271ConfigJSON() {
     webUI.addJson(kmCfgJsonDoc, "p04_hc2_remotecontrol", pkmConfigStr->hc2_remotecontrol);
     webUI.addJson(kmCfgJsonDoc, "p02_hc2_prg", pkmConfigNum->hc2_program);
     webUI.addJson(kmCfgJsonDoc, "p02_hc2_holiday_days", pkmConfigNum->hc2_holiday_days);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_act_prg", KM_CFG_ARRAY::HC_PROGRAM[config.lang][constrain(pkmConfigNum->hc2_program, 0, 8)]);
+    const char *program = KM_CFG_ARRAY::HC_PROGRAM[config.lang][constrain(pkmConfigNum->hc2_program, 0, 8)];
+    webUI.addJson(kmCfgJsonDoc, "p01_hc2_program", program);
+    webUI.addJson(kmCfgJsonDoc, "p04_hc2_act_prg", program);
     webUI.addJson(kmCfgJsonDoc, "p04_hc2_t01", pkmConfigStr->hc2_timer01);
     webUI.addJson(kmCfgJsonDoc, "p04_hc2_t02", pkmConfigStr->hc2_timer02);
     webUI.addJson(kmCfgJsonDoc, "p04_hc2_t03", pkmConfigStr->hc2_timer03);
@@ -950,9 +972,7 @@ void updateKm271StatusElements(bool forceUpdate) {
 void otaProgressCallback(int progress) {
   if (otaProgessTimer.cycleTrigger(1000)) {
     webUI.wsSendHeartbeat();
-    char buttonTxt[32];
-    snprintf(buttonTxt, sizeof(buttonTxt), "updating: %i%%", progress);
-    webUI.wsUpdateWebText("p00_update_btn", buttonTxt, false);
+    webUI.wsUpdateWebText("p11_git_progress", progress, false);
   }
 }
 
@@ -963,24 +983,30 @@ void otaProgressCallback(int progress) {
  * @return  none
  * *******************************************************************/
 bool startCheckGitHubVersion;
-void requestGitHubVersion() { startCheckGitHubVersion = true; }
+static bool gitReleaseReady = false;
+void requestGitHubVersion() {
+  if (ota.isActive()) return;
+  gitReleaseReady = false;
+  startCheckGitHubVersion = true;
+}
 void processGitHubVersion() {
-  if (startCheckGitHubVersion) {
+  if (startCheckGitHubVersion && !ota.isActive()) {
     startCheckGitHubVersion = false;
+    gitReleaseReady = false;
+    ghFreeRelease(ghLatestRelease);
+    ghReleaseInfo = {};
+    webUI.wsUpdateWebText("p11_git_state", "checking", false);
     if (ghGetLatestRelease(&ghLatestRelease, &ghReleaseInfo)) {
-      webUI.wsUpdateWebBusy("p00_dialog_git_version", false);
       webUI.wsUpdateWebText("p00_dialog_git_version", ghReleaseInfo.tag, false);
       webUI.wsUpdateWebHref("p00_dialog_git_version", ghReleaseInfo.url);
-      // if new version is available, show update button
-      if (strcmp(ghReleaseInfo.tag, VERSION) != 0) {
-        char buttonTxt[32];
-        snprintf(buttonTxt, sizeof(buttonTxt), "Update %s", ghReleaseInfo.tag);
-        webUI.wsUpdateWebText("p00_update_btn", buttonTxt, false);
-        webUI.wsUpdateWebHideElement("p00_update_btn_hide", false);
-      }
+      const bool different = strcmp(ghReleaseInfo.tag, VERSION) != 0;
+      gitReleaseReady = different && (ghReleaseInfo.asset[0] != '\0');
+      webUI.wsUpdateWebText("p11_git_state", !different ? "current" : gitReleaseReady ? "ready" : "noasset", false);
+      if (!gitReleaseReady) ghFreeRelease(ghLatestRelease);
     } else {
-      webUI.wsUpdateWebBusy("p00_dialog_git_version", false);
-      webUI.wsUpdateWebText("p00_dialog_git_version", "error", false);
+      webUI.wsUpdateWebText("p00_dialog_git_version", "—", false);
+      webUI.wsUpdateWebText("p11_git_state", "error", false);
+      ghFreeRelease(ghLatestRelease);
     }
   }
 }
@@ -992,19 +1018,23 @@ void processGitHubVersion() {
  * @return  none
  * *******************************************************************/
 bool startGitHubUpdate;
-void requestGitHubUpdate() { startGitHubUpdate = true; }
+void requestGitHubUpdate() {
+  if (gitReleaseReady && !startCheckGitHubVersion && !ota.isActive()) startGitHubUpdate = true;
+}
 void processGitHubUpdate() {
-  if (startGitHubUpdate) {
+  if (startGitHubUpdate && !ota.isActive()) {
     startGitHubUpdate = false;
+    if (!gitReleaseReady) return;
+    gitReleaseReady = false;
     ghSetProgressCallback(otaProgressCallback);
-    webUI.wsUpdateWebText("p00_update_btn", "updating: 0%", false);
-    webUI.wsUpdateWebDisabled("p00_update_btn", true);
+    webUI.wsUpdateWebText("p11_git_progress", 0L, false);
+    webUI.wsUpdateWebText("p11_git_state", "updating", false);
     ota.setActive(true);
     wdt.disable();
     int result = ghStartOtaUpdate(ghLatestRelease, ghReleaseInfo.asset);
     if (result == OTA_SUCCESS) {
-      webUI.wsUpdateWebText("p00_update_btn", "updating: 100%", false);
-      webUI.wsUpdateWebDialog("version_dialog", "close");
+      webUI.wsUpdateWebText("p11_git_progress", 100L, false);
+      webUI.wsUpdateWebText("p11_git_state", "done", false);
       webUI.wsUpdateWebDialog("ota_update_done_dialog", "open");
       ESP_LOGI(TAG, "GitHub OTA-Update successful");
     } else {
@@ -1030,10 +1060,11 @@ void processGitHubUpdate() {
         break;
       }
       webUI.wsUpdateWebText("p00_ota_upd_err", errMsg, false);
-      webUI.wsUpdateWebDialog("version_dialog", "close");
+      webUI.wsUpdateWebText("p11_git_state", "failed", false);
       webUI.wsUpdateWebDialog("ota_update_failed_dialog", "open");
       ESP_LOGE(TAG, "GitHub OTA-Update failed: %s", errMsg);
     }
+    ghFreeRelease(ghLatestRelease);
     ota.setActive(false);
     wdt.enable();
   }

@@ -28,19 +28,21 @@
     <!-- Tab-Content -->
     <main class="container">
       <!--SECTION-START-->
-      <div id="tab13" class="tab-content">
-        <div class="grid">
-          <!-- Grid 1 -->
-          <article class="card">
-            <p class="table-header" data-i18n="config"></p>
+      <div id="tab13" class="tab-content information-page information-page--compact">
+        <header class="page-heading">
+          <h1 data-i18n="solar"></h1><p data-i18n="info_solar_subtitle"></p>
+        </header>
+<div class="information-grid">
+<article class="card">
+            <h2 class="table-header" data-i18n="config"></h2>
             <table class="striped">
               <tbody>
                 <tr>
-                  <td data-i18n="solar$ $on"></td>
+                  <td data-i18n="on"></td>
                   <td id="p13_solar_enable" class="table-value">--</td>
                 </tr>
                 <tr>
-                  <td data-i18n="solar$ $opmode"></td>
+                  <td data-i18n="opmode"></td>
                   <td id="p13_solar_opmode" class="table-value">--</td>
                 </tr>
                 <tr>
@@ -54,64 +56,32 @@
               </tbody>
             </table>
           </article>
-
-          <article class="card">
-            <p class="table-header" data-i18n="status"></p>
+<article class="card">
+            <h2 class="table-header" data-i18n="info_current_values"></h2>
             <table class="striped">
               <tbody>
-                <tr>
-                  <td data-i18n="solar$ $load"></td>
-                  <td id="p13_solar_load" class="table-value">--</td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td data-i18n="solar$ $hot_water"></td>
-                  <td id="p13_solar_ww" class="table-value">--</td>
-                  <td>°C</td>
-                </tr>
-                <tr>
-                  <td data-i18n="solar$ $collector"></td>
-                  <td id="p13_solar_collector" class="table-value">--</td>
-                  <td>°C</td>
-                </tr>
-                <tr>
-                  <td data-i18n="solar++ 9147"></td>
-                  <td id="p13_solar_9147" class="table-value">--</td>
-                  <td></td>
-                </tr>
+                <tr><td data-i18n="load"></td><td class="table-value"><span id="p13_solar_load" data-info-state="on">--</span></td></tr>
+                <tr><td data-i18n="hot_water"></td><td class="table-value"><span id="p13_solar_ww">--</span><span class="information-unit">°C</span></td></tr>
+                <tr><td data-i18n="collector"></td><td class="table-value"><span id="p13_solar_collector">--</span><span class="information-unit">°C</span></td></tr>
+                <tr><td data-i18n="info_solar_status"></td><td class="table-value"><span id="p13_solar_9147">--</span></td></tr>
               </tbody>
             </table>
           </article>
-        </div>
-        <!-- END Grid 1 -->
-        <div class="grid">
-          <!-- Grid 2 -->
-          <article class="card">
-            <p class="table-header" data-i18n="lifetimes"></p>
-            <table class="striped">
-              <tbody>
-                <tr>
-                  <td data-i18n="solar$ $runtime_years"></td>
-                  <td id="p13_solar_run_years" class="table-value">--</td>
-                </tr>
-                <tr>
-                  <td data-i18n="solar$ $runtime_days"></td>
-                  <td id="p13_solar_run_days" class="table-value">--</td>
-                </tr>
-                <tr>
-                  <td data-i18n="solar$ $runtime_hours"></td>
-                  <td id="p13_solar_run_hours" class="table-value">--</td>
-                </tr>
-                <tr>
-                  <td data-i18n="solar$ $runtime_minutes"></td>
-                  <td id="p13_solar_run_min" class="table-value">--</td>
-                </tr>
-              </tbody>
-            </table>
-          </article>
-        </div>
-        <!--END GRID-->
-      </div>
+<article class="card">
+<h2 class="table-header" data-i18n="lifetimes"></h2>
+<div class="information-runtime">
+<span>
+<span id="p13_solar_run_years">--</span> <small data-i18n="info_years"></small></span>
+<span>
+<span id="p13_solar_run_days">--</span> <small data-i18n="info_days"></small></span>
+<span>
+<span id="p13_solar_run_hours">--</span> <small data-i18n="info_hours"></small></span>
+<span>
+<span id="p13_solar_run_min">--</span> <small data-i18n="info_minutes"></small></span>
+</div>
+</article>
+</div>
+</div>
       <!--SECTION-END-->
     </main>
     <!-- Footer -->

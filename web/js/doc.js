@@ -2,10 +2,17 @@
 // --------------------------------------
 document.addEventListener("DOMContentLoaded", function () {
   // call user functions
+  initPageHeader();
+  initMobileNavigation();
+  initDashboardStatusIcons();
+  initControlSliders();
+  initControlHelp();
+  initInformationPages();
   initLogType();
   initDashboardCharts();
   initWeeklyPrograms();
   initMqttConnectionStatus();
+  initHomeAssistantSettings();
   initWiFiApDialog();
   initWiFiSsidDialog();
   loadSimulatedData();
