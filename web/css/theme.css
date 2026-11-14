@@ -16,6 +16,7 @@
   --ui-band: light-dark(#96adc3, #819fbc);
   --ui-connected: light-dark(#2f7d62, #83bd9a);
   --ui-sidebar-width: 200px;
+  --ui-footer-height: calc(44px + 1rem + 7px);
   --ui-icon-filter: none;
 
   --pico-background-color: var(--ui-background);
@@ -131,6 +132,8 @@ details[open] { background: var(--ui-surface); }
 .home-section { position: fixed; top: 71px; bottom: var(--pico-spacing); margin-bottom: 0; left: var(--ui-sidebar-width); width: calc(100% - var(--ui-sidebar-width)); overflow-y: auto; }
 .page-heading { margin-bottom: 1.5rem; }
 .footerBar {
+  height: var(--ui-footer-height);
+  box-sizing: border-box;
   left: var(--ui-sidebar-width);
   bottom: 0;
   margin: 0;
@@ -269,3 +272,17 @@ table tr:last-child td, table tr:last-child th { border-bottom: 0; }
   .topMenu:has(> .app-connection-actions) { height: auto; grid-template-rows: 44px auto; padding-bottom: 0.5rem; }
   .topMenu > .app-connection-actions { grid-column: 1 / -1; }
 }
+
+/* Quiet navigation footer; signal classes continue to come from the ESP. */
+.sidebar-status { display: flex; align-items: center; gap: 0; box-sizing: border-box; height: calc(var(--ui-footer-height) - 6px); flex-shrink: 0; margin-top: auto; padding: 0.5rem 0; border-top: 1px solid var(--ui-border); }
+.sidebar-status #p00_version { display: inline-flex; align-items: center; width: auto; min-height: 44px; margin: 0 auto 0 0; padding: 0 0.45rem; border: 0; border-radius: 0.4rem; background: transparent; box-shadow: none; color: var(--ui-muted); font: inherit; font-size: max(12px, 0.8rem); font-variant-numeric: tabular-nums; text-decoration: none; white-space: nowrap; }
+.sidebar-status #p00_version:hover { color: var(--ui-text); background: var(--ui-surface); }
+.sidebar-status #p00_version:focus-visible, .sidebar-status .sidebar-logout:focus-visible { outline: 2px solid var(--ui-target); outline-offset: 1px; }
+.sidebar-status #p00_wifi_icon, .sidebar-status #p00_eth_icon { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 44px; flex: 0 0 28px; margin: 0; background-image: none; filter: none; color: var(--ui-target); }
+.sidebar-status svg { display: block; width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+#p00_wifi_icon .wifi-dot { fill: currentColor; stroke: none; }
+#p00_wifi_icon:not([class*="i_wifi_"]), #p00_eth_icon:not([class*="i_eth_"]) { display: none; }
+#p00_wifi_icon.i_wifi_nok, #p00_eth_icon.i_eth_nok { color: var(--ui-muted); opacity: 0.45; }
+#p00_wifi_icon.i_wifi_1 path, #p00_wifi_icon.i_wifi_2 .wifi-outer, #p00_wifi_icon.i_wifi_2 .wifi-middle, #p00_wifi_icon.i_wifi_3 .wifi-outer { color: var(--ui-muted); opacity: 0.25; }
+.sidebar-status .sidebar-logout, .sidebar-status .sidebar-logout:visited { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 44px; width: 44px; height: 44px; padding: 0 0 0 4px; margin-left: 4px; border-left: 1px solid var(--ui-border); color: var(--ui-muted); text-decoration: none; }
+.sidebar-status .sidebar-logout:hover { color: var(--ui-text); background: var(--ui-surface); }
