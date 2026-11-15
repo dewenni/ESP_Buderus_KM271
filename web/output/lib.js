@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", function () {
   setupWS();
   synchronizeDataSyncFields();
   initializeVisibilityBasedOnSwitches();
-  localizePage("de");
   loadConfig();
 
   // Event Listener for Reload-Button
@@ -17,25 +16,20 @@ document.addEventListener("DOMContentLoaded", function () {
       window.location.reload();
     });
 
-  // VERSION: is called when version dialog is opened
-  document.getElementById("p00_version").addEventListener("click", function () {
-    document.getElementById("version_dialog").showModal();
-    sendData("check_git_version", "");
-  });
-
-  // VERSION: is called when github ota button is clicked
-  document
-    .getElementById("p11_check_git_btn")
-    .addEventListener("click", function () {
-      document.getElementById("version_dialog").showModal();
+  // Older project UIs can still provide the optional version dialog.
+  const versionDialog = document.getElementById("version_dialog");
+  if (versionDialog) {
+    document.getElementById("p00_version").addEventListener("click", function () {
+      versionDialog.showModal();
+      sendData("check_git_version", "");
     });
-
-  // VERSION: close version dialog on button click
-  document
-    .getElementById("close_version_Dialog_btn")
-    .addEventListener("click", function () {
-      document.getElementById("version_dialog").close();
+    document.getElementById("p11_check_git_btn").addEventListener("click", function () {
+      versionDialog.showModal();
     });
+    document.getElementById("close_version_Dialog_btn").addEventListener("click", function () {
+      versionDialog.close();
+    });
+  }
 
   // OTA: close ota-failed dialog on button click
   document
@@ -258,6 +252,7 @@ function setupWS() {
     resetHeartbeat();
     hideReloadBar();
     reconnectDelay = minReconnectDelay;
+    window.dispatchEvent(new Event("webui:connected"));
   };
 
   socket.onclose = function () {
@@ -266,6 +261,7 @@ function setupWS() {
     console.log("WebSocket disconnected. Retrying...");
     attemptReconnect();
     showReloadBar();
+    window.dispatchEvent(new Event("webui:disconnected"));
   };
 
   socket.onerror = function (error) {
@@ -318,6 +314,8 @@ function setupWS() {
       updateDialog(message);
     } else if (message.type === "showInfoMsg") {
       showMsgBar(message);
+    } else {
+      window.dispatchEvent(new CustomEvent("webui:message", { detail: message }));
     }
   };
 }
@@ -829,6 +827,8 @@ async function loadConfig() {
 
     // update UI-Elementes based on config.json
     updateUI(config);
+    // Use the device configuration for the first translation, even without WebSocket.
+    localizePage(String(config.lang) === "1" ? "en" : "de");
   } catch (error) {
     console.error("Error loading config:", error);
   }

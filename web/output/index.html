@@ -125,6 +125,7 @@
                 <li>
                   <a data-tab="tab12" href="#" data-i18n="settings"></a>
                 </li>
+                <li><a data-tab="tab14" href="#" data-i18n="help"></a></li>
               </ul>
             </details>
           </li>
@@ -200,6 +201,7 @@
             <span class="links_name" data-i18n="settings"></span>
           </a>
         </li>
+        <li><a href="#" data-tab="tab14"><span class="links_name" data-i18n="help"></span></a></li>
       </ul>
       <div class="sidebar-status">
         <button type="button" id="p00_version" class="sidebar-version" data-ui-local aria-controls="tab11"></button>
@@ -2150,10 +2152,13 @@
                 <p class="tools-method-description" data-i18n="info_update_local_hint"></p>
             <form method="POST" action="#" enctype="multipart/form-data" id="ota_upload_form">
               <label class="tools-file-label" for="ota_file_input" data-i18n="info_firmware_file"></label>
-              <div class="tools-source-box"><input type="file" name="ota_update" id="ota_file_input" onchange="ota_sub_fun(this)" accept=".bin" /></div>
-              <p class="information-note" hidden data-selected-file="ota_file_input" data-i18n="info_no_file"></p>
+              <div class="tools-source-box tools-file-picker">
+                <input type="file" name="ota_update" id="ota_file_input" onchange="ota_sub_fun(this)" accept=".bin" hidden />
+                <button type="button" data-ui-local data-i18n="info_choose_file" onclick="document.getElementById('ota_file_input').click()"></button>
+                <span data-selected-file="ota_file_input" data-i18n="info_no_file" aria-live="polite"></span>
+              </div>
               <div class="tools-actions">
-                <input type="submit" id="ota_update_btn" disabled="disabled" value="Datei installieren" data-i18n="info_install_file" />
+                <button type="submit" id="ota_update_btn" disabled data-i18n="info_install_file"></button>
               </div>
               <div id="ota_status_txt" class="information-note" style="display:none" data-i18n="update_ready"></div>
               <progress id="ota_progress_bar" style="display:none" max="100" value="0"></progress>
@@ -2181,8 +2186,11 @@
             <h2 class="table-header" data-i18n="info_configuration"></h2>
             <form method="POST" action="#" enctype="multipart/form-data" id="file_upload_form">
               <label class="tools-file-label" for="file_input" data-i18n="info_config_file"></label>
-              <input type="file" name="file_update" id="file_input" accept=".json" onchange="file_sub_fun(this)" />
-              <p class="information-note" hidden data-selected-file="file_input" data-i18n="info_no_file"></p>
+              <div class="tools-file-picker">
+                <input type="file" name="file_update" id="file_input" accept=".json" onchange="file_sub_fun(this)" hidden />
+                <button type="button" data-ui-local data-i18n="info_choose_file" onclick="document.getElementById('file_input').click()"></button>
+                <span data-selected-file="file_input" data-i18n="info_no_file" aria-live="polite"></span>
+              </div>
               <div class="tools-actions">
                 <button type="submit" id="file_upload_btn" data-i18n="info_import" disabled></button>
                 <button type="button" id="p11_export_btn" data-i18n="info_export" onclick="exportConfig()"></button>
@@ -3224,6 +3232,198 @@
 </div>
 </article>
 </div>
+</div>
+<div id="tab14" class="tab-content information-page information-page--compact buderus-help">
+<header class="page-heading">
+<h1 data-i18n="help">
+</h1>
+<p data-i18n="help_subtitle">
+</p>
+</header>
+<p class="help-intro" data-i18n="help_intro">
+</p>
+<nav class="help-shortcuts">
+<a href="#help-operation" data-help-open="help-operation">
+<strong data-i18n="help_operate">
+</strong>
+<span data-i18n="help_operate_hint">
+</span>
+</a>
+<a href="#help-setup" data-help-open="help-setup">
+<strong data-i18n="help_setup">
+</strong>
+<span data-i18n="help_setup_hint">
+</span>
+</a>
+<a href="#help-problems" data-help-open="help-problems">
+<strong data-i18n="help_solve">
+</strong>
+<span data-i18n="help_solve_hint">
+</span>
+</a>
+</nav>
+<details id="help-operation" class="help-panel" name="buderus-help" open>
+<summary data-i18n="help_operation">
+</summary>
+<div class="help-content">
+<p data-i18n="help_dashboard">
+</p>
+<p data-i18n="help_controls">
+</p>
+<p data-i18n="help_weekly">
+</p>
+<p data-i18n="help_trends">
+</p>
+<div class="tools-actions">
+<button type="button" data-ui-local data-help-page="tab2" data-i18n="help_control">
+</button>
+</div>
+</div>
+</details>
+<details id="help-setup" class="help-panel" name="buderus-help">
+<summary data-i18n="help_setup_title">
+</summary>
+<div class="help-content">
+<p data-i18n="help_setup_network">
+</p>
+<p data-i18n="help_wifi">
+</p>
+<p data-i18n="help_setup_device">
+</p>
+<p data-i18n="help_setup_time">
+</p>
+<div class="tools-actions">
+<button type="button" data-ui-local data-help-page="tab12" data-i18n="help_settings">
+</button>
+</div>
+</div>
+</details>
+<details id="help-wiring" class="help-panel" name="buderus-help">
+<summary data-i18n="help_wiring_title">
+</summary>
+<div class="help-content">
+<p data-i18n="help_wiring_intro">
+</p>
+<p data-i18n="help_wiring_ttl">
+</p>
+<p data-i18n="help_wiring_rs232">
+</p>
+<h3 data-i18n="help_wiring_flow">
+</h3>
+<p data-i18n="help_wiring_tx">
+</p>
+<p data-i18n="help_wiring_rx">
+</p>
+<p class="help-note" data-i18n="help_gpio_note">
+</p>
+<div class="help-table">
+<table>
+<thead>
+<tr>
+<th data-i18n="help_board">
+</th>
+<th>RX</th>
+<th>TX</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Generic ESP32</td>
+<td>16</td>
+<td>17</td>
+</tr>
+<tr>
+<td>KM271-WiFi v0.0.5 / ≥ v0.0.6</td>
+<td>4</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="tools-actions">
+<button type="button" data-ui-local data-help-page="tab12" data-i18n="help_settings">
+</button>
+</div>
+</div>
+</details>
+<details id="help-problems" class="help-panel" name="buderus-help">
+<summary data-i18n="help_problems">
+</summary>
+<div class="help-content">
+<h3 data-i18n="help_diagnosis_steps">
+</h3>
+<ol>
+<li data-i18n="help_diag_gpio">
+</li>
+<li data-i18n="help_diag_status">
+</li>
+<li data-i18n="help_diag_bytes">
+</li>
+<li data-i18n="help_diag_log">
+</li>
+</ol>
+<p class="help-note" data-i18n="help_diag_timeout">
+</p>
+<p data-i18n="help_diag_network">
+</p>
+<div class="tools-actions">
+<button type="button" data-ui-local data-help-page="tab9" data-i18n="help_system">
+</button>
+<button type="button" data-ui-local data-help-page="tab10" data-i18n="help_logger">
+</button>
+</div>
+</div>
+</details>
+<details id="help-mqtt" class="help-panel" name="buderus-help">
+<summary data-i18n="help_mqtt_title">
+</summary>
+<div class="help-content">
+<p data-i18n="help_mqtt_ha">
+</p>
+<p data-i18n="help_mqtt_language">
+</p>
+<p data-i18n="help_mqtt_commands">
+</p>
+<div class="tools-actions">
+<button type="button" data-ui-local data-help-page="tab12" data-i18n="help_settings">
+</button>
+</div>
+</div>
+</details>
+<details id="help-connections" class="help-panel" name="buderus-help">
+<summary data-i18n="help_connections">
+</summary>
+<div class="help-content">
+<p data-i18n="help_access">
+</p>
+<p data-i18n="help_setup_access">
+</p>
+<p data-i18n="help_updates">
+</p>
+<p data-i18n="help_backup">
+</p>
+<div class="tools-actions">
+<button type="button" data-ui-local data-help-page="tab11" data-i18n="help_tools">
+</button>
+<button type="button" data-ui-local data-help-page="tab12" data-i18n="help_settings">
+</button>
+</div>
+</div>
+</details>
+<section class="card help-docs">
+<h2 data-i18n="help_docs">
+</h2>
+<div class="help-doc-links">
+<a href="https://github.com/dewenni/ESP_Buderus_KM271/blob/main/README.md" target="_blank" rel="noopener noreferrer" data-i18n="help_readme">
+</a>
+<a href="https://github.com/dewenni/ESP_Buderus_KM271/blob/main/README.md#hardware" target="_blank" rel="noopener noreferrer" data-i18n="help_doc_hardware">
+</a>
+<a href="https://github.com/dewenni/ESP_Buderus_KM271/blob/main/README.md#mqtt" target="_blank" rel="noopener noreferrer" data-i18n="help_doc_mqtt">
+</a>
+</div>
+<p class="information-note" data-i18n="help_doc_hint">
+</p>
+</section>
 </div>
 </main>
     </section>

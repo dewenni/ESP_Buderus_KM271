@@ -431,6 +431,33 @@
 }
 .program-status-value { color: var(--ui-text); font-size: 1.25rem; font-weight: 500; overflow-wrap: anywhere; }
 
+/* Compact, offline-readable help using the project surfaces and native details. */
+.buderus-help .help-intro { max-width: 56rem; color: var(--ui-muted); }
+.help-shortcuts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; margin: 1.25rem 0; }
+.help-shortcuts a { margin: 0; display: flex; flex-direction: column; gap: 0.3rem; padding: 1rem; color: var(--ui-text); text-decoration: none; background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: 0.65rem; }
+.help-shortcuts a:hover { background: var(--ui-rail); }
+.help-shortcuts span { color: var(--ui-muted); font-size: 0.85rem; }
+.buderus-help .help-panel { padding: 0; margin: 0 0 0.75rem; border: 1px solid var(--ui-border); border-radius: 0.65rem; background: var(--ui-surface); scroll-margin-top: 1rem; }
+.help-panel > summary { margin: 0; padding: 1rem 1.15rem; font-weight: 500; }
+.help-panel[open] > summary { border-bottom: 1px solid var(--ui-border); }
+.help-content { padding: 1.15rem; }
+.help-content > :last-child { margin-bottom: 0; }
+.help-content h3, .help-docs h2 { font-size: 1rem; font-weight: 500; }
+.help-content p, .help-content li, .help-content dd { font-size: 0.9rem; line-height: 1.6; }
+.help-content li + li { margin-top: 0.4rem; }
+.help-note { padding-left: 0.85rem; border-left: 2px solid var(--ui-accent); color: var(--ui-muted); }
+.help-content dt { margin-top: 1rem; font-weight: 500; }
+.help-content dt:first-child { margin-top: 0; }
+.help-content dd { margin: 0.3rem 0 0; color: var(--ui-muted); }
+.help-table { overflow-x: auto; margin: 1rem 0; }
+.buderus-help .help-table td:first-child { width: auto; }
+.help-table table { font-size: 0.85rem; }
+.help-doc-links { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; }
+@container (max-width: 520px) {
+  .help-shortcuts { grid-template-columns: minmax(0, 1fr); }
+  .help-shortcuts a { padding: 0.8rem 1rem; }
+}
+
 .i_flame {
   background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path fill="%23ffffff" d="M20 15c0 4.255-2.618 6.122-4.641 6.751-.432.134-.715-.369-.457-.74.88-1.265 1.898-3.195 1.898-5.01 0-1.951-1.644-4.254-2.928-5.675-.293-.324-.805-.11-.821.328-.053 1.45-.282 3.388-1.268 4.908a.412.412 0 0 1-.677.036c-.308-.39-.616-.871-.924-1.252-.166-.204-.466-.207-.657-.026-.747.707-1.792 1.809-1.792 3.18 0 .93.36 1.905.767 2.69.224.43-.174.95-.604.724C6.113 19.98 4 18.084 4 15c0-3.146 4.31-7.505 5.956-11.623.26-.65 1.06-.955 1.617-.531C14.943 5.414 20 10.378 20 15Z"/></svg>');
 }
@@ -590,6 +617,11 @@
 #p00_update_btn_hide { margin: 0; }
 #p00_update_btn { width: auto; margin: 0; }
 #github_progress_bar { --pico-progress-color: var(--ui-accent); }
+
+/* Translate the file picker in the WebUI instead of using browser-language text. */
+.tools-file-picker { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; }
+.tools-file-picker > button { width: auto; margin: 0; flex-shrink: 0; }
+.tools-file-picker > span { min-width: 0; overflow-wrap: anywhere; color: var(--ui-muted); }
 
 /* Buderus design trial. Keep the palette here until it is shared with Jarolift. */
 :root,

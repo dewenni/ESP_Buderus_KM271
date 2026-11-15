@@ -410,6 +410,23 @@ document.addEventListener('DOMContentLoaded', () => {
   render();
 });
 
+// Local help actions reuse navigation; they never send actuator commands.
+document.addEventListener("DOMContentLoaded", () => {
+  const help = document.getElementById("tab14");
+  help.addEventListener("click", event => {
+    const shortcut = event.target.closest("[data-help-open]");
+    if (shortcut) {
+      event.preventDefault();
+      const panel = document.getElementById(shortcut.dataset.helpOpen);
+      panel.open = true;
+      panel.querySelector("summary").focus({ preventScroll: true });
+      panel.scrollIntoView({ block: "start", behavior: "smooth" });
+    }
+    const button = event.target.closest("[data-help-page]");
+    if (button) document.querySelector(`.nav-list a[data-tab="${button.dataset.helpPage}"]`).click();
+  });
+});
+
 // Presentation only: reuse the existing received values; no polling or commands.
 function initInformationPages() {
   const updates = new Map();
@@ -457,7 +474,6 @@ function initInformationPages() {
   document.querySelectorAll('[data-selected-file]').forEach(label => {
     const input = document.getElementById(label.dataset.selectedFile);
     input.addEventListener('change', () => {
-      label.hidden = !input.files.length;
       if (input.files.length) {
         label.removeAttribute('data-i18n');
         label.textContent = input.files[0].name;
@@ -480,6 +496,62 @@ function initInformationPages() {
 // localization texts
 // --------------------------------------
 const user_translations = {
+  help_operate: {"de": "Bedienen", "en": "Operate"},
+  help_setup: {"de": "Einrichten", "en": "Set up"},
+  help_solve: {"de": "Probleme lösen", "en": "Troubleshoot"},
+  help_solve_hint: {"de": "Status und Verbindungen", "en": "Status and connections"},
+  help_settings: {"de": "Zu den Einstellungen", "en": "Go to Settings"},
+  help_system: {"de": "Zum Systemstatus", "en": "Go to System"},
+  help_logger: {"de": "Zum Logbuch", "en": "Go to Logger"},
+  help_problems: {"de": "Probleme eingrenzen", "en": "Troubleshoot"},
+  help_access: {"de": "WebUI-Anmeldung ist optional und hat eigene Zugangsdaten. Telnet und Remote-OTA über ArduinoOTA verwenden ein separates Service-Passwort; ohne dieses bleiben beide im Normalbetrieb aus. Telnet muss zusätzlich eingeschaltet werden.", "en": "WebUI login is optional and has its own credentials. Telnet and remote OTA through ArduinoOTA share a separate service password; without it, both stay disabled in normal operation. Telnet must also be explicitly enabled."},
+  help_updates: {"de": "Unter Tools sind Lokale Datei und Von GitHub getrennte Updatewege. Eine passende OTA-Datei auswählen und installieren oder zuerst die GitHub-Version prüfen und anschließend ausdrücklich installieren. WebUI-Updates verwenden nur die WebUI-Anmeldung, kein zusätzliches Service-Passwort.", "en": "Tools separates Local file and From GitHub updates. Select and install a matching OTA file, or check the GitHub version and then explicitly install it. WebUI updates use only WebUI authentication, without an extra service password."},
+  help_tools: {"de": "Zu den Tools", "en": "Go to Tools"},
+  help_connections: {"de": "Zugänge und Updates", "en": "Access and updates"},
+  help_docs: {"de": "Ausführliche Dokumentation", "en": "Detailed documentation"},
+  help_readme: {"de": "Projektanleitung", "en": "Project documentation"},
+  help_wiring_title: {"de": "Anschlussreferenz", "en": "Wiring reference"},
+  help_mqtt_title: {"de": "MQTT und Home Assistant", "en": "MQTT and Home Assistant"},
+  help: {"de": "Hilfe", "en": "Help"},
+  help_subtitle: {"de": "Bedienung, Anschluss und Fehlersuche", "en": "Operation, wiring and troubleshooting"},
+  help_intro: {"de": "Die wichtigsten Schritte für Einrichtung und Bedienung findest du hier auch ohne Internet. Diese Hilfe beschreibt vorhandene Funktionen; sie führt keine Prüfungen am Gerät automatisch aus.", "en": "Find the main setup and operating steps here, even without internet. This help describes existing functions; it does not automatically run device diagnostics."},
+  help_operate_hint: {"de": "Dashboard, Bedienung und Wochenplan", "en": "Dashboard, controls and weekly schedule"},
+  help_setup_hint: {"de": "Netzwerk, Module und GPIO", "en": "Network, modules and GPIO"},
+  help_operation: {"de": "Heizung bedienen und Werte verstehen", "en": "Operate the heating and understand readings"},
+  help_dashboard: {"de": "Das Dashboard zeigt die konfigurierten Heizkreise, Warmwasser, Brenner und optionalen Sensoren. Der Punkt im Header zeigt nur die WebSocket-Verbindung zwischen Browser und ESP, nicht die Verbindung zur Logamatic oder zum MQTT-Broker.", "en": "The dashboard shows configured heating circuits, hot water, burner and optional sensors. The header dot indicates only the browser-to-ESP WebSocket connection, not the connection to the Logamatic or MQTT broker."},
+  help_controls: {"de": "Unter Bedienung Betriebsart, Temperaturen und weitere Parameter des jeweiligen Heizkreises einstellen. Änderungen werden an die Logamatic gesendet; der zurückgelesene Wert zeigt, was die Regelung übernommen hat. Die Bedeutung der Parameter steht im Hilfe-Dialog der jeweiligen Kategorie.", "en": "Use Control to set the operating mode, temperatures and other parameters of each heating circuit. Changes are sent to the Logamatic; the value read back shows what the controller accepted. Each category has a help dialog explaining its parameters."},
+  help_weekly: {"de": "Der Wochenplan unter Heizkreis 1/2 zeigt die Schaltpunkte des Eigen-Programms. Welches Programm tatsächlich aktiv ist, steht darüber und im Dashboard. Die Darstellung bearbeitet keine Schaltzeiten.", "en": "The weekly schedule on Heating Circuit 1/2 shows switching points of the custom program. The active program is shown above it and on the dashboard. This view does not edit switching times."},
+  help_trends: {"de": "Die Trends zeigen die letzten 60 Minuten im Minutenraster. Der Verlauf liegt im RAM des ESP, wird beim Öffnen und nach Wiederverbindung geladen und geht bei einem ESP-Neustart verloren. Schwach gezeichnete Verbindungen über Lücken sind keine zusätzlichen Messwerte.", "en": "Trends show the last 60 minutes at one-minute intervals. History is held in ESP RAM, loaded on page opening and reconnection, and lost after an ESP restart. Faint connections across gaps are not additional measurements."},
+  help_control: {"de": "Zur Bedienung", "en": "Go to Control"},
+  help_setup_title: {"de": "Ersteinrichtung und Einstellungen", "en": "Initial setup and settings"},
+  help_setup_network: {"de": "Im Setup-Mode mit dem WLAN ESP-Buderus-km271 verbinden und http://192.168.4.1 öffnen. Unter Einstellungen → Netzwerk WLAN oder Ethernet konfigurieren. Nach der Verbindung die im Router vergebene beziehungsweise selbst eingestellte Adresse verwenden.", "en": "In Setup Mode, connect to Wi-Fi ESP-Buderus-km271 and open http://192.168.4.1. Configure Wi-Fi or Ethernet under Settings → Network. Once connected, use the address assigned by the router or configured on the device."},
+  help_wifi: {"de": "Die WLAN-Suche übernimmt die SSID; versteckte WLAN-Namen bleiben manuell eingebbar. Eine BSSID ist optional und legt einen bestimmten Access Point fest. Leer lassen für die automatische Auswahl. Eine feste IP muss frei und im Router reserviert oder vom DHCP-Vergabebereich ausgeschlossen sein.", "en": "Wi-Fi search fills in the SSID; hidden network names can still be entered manually. An optional BSSID selects a specific access point. Leave it empty for automatic selection. A static IP must be unused and reserved in the router or excluded from its DHCP range."},
+  help_setup_device: {"de": "Unter Einstellungen → Gerät die tatsächlich vorhandenen Heizkreise, Warmwasser, Solar und Alarmmeldungen auswählen. Danach das passende Board-Preset und die tatsächlichen RX-/TX-GPIO prüfen. Bei Verwendung von W5500 dessen separate Pin-Einstellungen ebenfalls prüfen. Nach Änderungen an Anschluss oder GPIO den ESP neu starten.", "en": "Under Settings → Device, select the heating circuits, hot water, solar and alarm messages actually available. Then verify the board preset and actual RX/TX GPIOs. For W5500, check its separate pin settings as well. Restart the ESP after wiring or GPIO changes."},
+  help_setup_time: {"de": "Unter Allgemein Sprache, NTP-Server und Zeitzone prüfen. Gerätezeit und Datum/Uhrzeit der Logamatic sind zu unterscheiden; die Einstellung der Logamatic-Zeit befindet sich ebenfalls unter Allgemein.", "en": "Check language, NTP server and time zone under General. ESP time and Logamatic date/time are separate; the Logamatic time controls are also under General."},
+  help_wiring_intro: {"de": "Zuerst die Hardware unterscheiden: Ein KM271-WiFi-Board steckt direkt an der Logamatic und enthält die passende Schnittstelle. Beim originalen KM271 mit RS232-Anschluss wird ein geeigneter RS232/TTL-Wandler benötigt.", "en": "First identify the hardware: a KM271-WiFi board plugs directly into the Logamatic and includes its interface. An original KM271 with an RS232 connector requires a suitable RS232/TTL converter."},
+  help_wiring_ttl: {"de": "Auf der ESP-Seite muss dessen TX-Ausgang zum TTL-Eingang des Wandlers führen; dessen TTL-Ausgang führt zum RX-Eingang des ESP. GND verbinden. Die Wandlerbeschriftung ist nicht bei allen Modulen gleich: Signalrichtung anhand der jeweiligen Dokumentation prüfen, nicht allein nach gleichen oder gekreuzten Buchstaben verdrahten.", "en": "On the ESP side, its TX output must feed the converter’s TTL input; the converter’s TTL output feeds the ESP RX input. Connect GND. Converter labels differ between modules: check signal direction in the relevant documentation rather than relying only on matching or crossed labels."},
+  help_wiring_rs232: {"de": "Auf der RS232-Seite müssen Sender und Empfänger von Wandler und KM271 zusammenpassen. Je nach Wandler und Kabel kann eine gerade oder gekreuzte Verbindung erforderlich sein. Steckernummern und Kabeldurchgang prüfen; nicht pauschal ein Nullmodemkabel voraussetzen. RS232-Pegel dürfen nicht direkt an ESP-GPIO angeschlossen werden.", "en": "On the RS232 side, converter and KM271 transmitters must feed the corresponding receivers. A straight or crossed connection may be required depending on the converter and cable. Check connector pin numbering and cable continuity; do not assume a null-modem cable is always needed. Never connect RS232 voltage levels directly to ESP GPIOs."},
+  help_wiring_flow: {"de": "Signalweg bei separatem Wandler", "en": "Signal path with a separate converter"},
+  help_wiring_tx: {"de": "ESP TX → TTL-Eingang des Wandlers → RS232-Ausgang → KM271-Empfang", "en": "ESP TX → converter TTL input → RS232 output → KM271 receive"},
+  help_wiring_rx: {"de": "ESP RX ← TTL-Ausgang des Wandlers ← RS232-Eingang ← KM271-Senden", "en": "ESP RX ← converter TTL output ← RS232 input ← KM271 transmit"},
+  help_gpio_note: {"de": "Die folgenden GPIO sind Board-Presets, keine ausgelesene Gerätekonfiguration. Eigene Platinen können andere Pins verwenden. Maßgeblich sind die tatsächliche Verdrahtung und Einstellungen → Gerät → GPIO.", "en": "The following GPIOs are board presets, not readings of the current device configuration. Custom boards may use different pins. Actual wiring and Settings → Device → GPIO must match."},
+  help_board: {"de": "Board-Preset", "en": "Board preset"},
+  help_diagnosis_steps: {"de": "Keine Verbindung zur Logamatic?", "en": "No connection to the Logamatic?"},
+  help_diag_gpio: {"de": "Unter Gerät prüfen: richtiges Board-Preset, RX/TX passend angeschlossen und keine doppelt belegten GPIO. Versorgung und Steckkontakte kontrollieren.", "en": "Under Device, verify the board preset, matching RX/TX wiring and absence of duplicate GPIO assignments. Check power supply and connectors."},
+  help_diag_status: {"de": "Auf System die KM271-Verbindung sowie gesendete und empfangene Daten prüfen. WLAN, Ethernet und MQTT können verbunden sein, obwohl keine Heizungsdaten ankommen.", "en": "On System, check the KM271 connection and transmitted/received data. Wi-Fi, Ethernet and MQTT may be connected while no heating data is arriving."},
+  help_diag_bytes: {"de": "Empfangene Bytes allein beweisen noch keine gültigen Telegramme. Ein erfolgreicher Loopbacktest prüft ebenfalls nicht die komplette Verbindung bis zur Logamatic. Maßgeblich sind der erfolgreiche Protokollaufbau und anschließend aktuelle Heizungswerte.", "en": "Received bytes alone do not prove valid telegrams. A successful loopback test also does not test the complete connection to the Logamatic. Look for successful protocol establishment followed by current heating values."},
+  help_diag_log: {"de": "Im Logbuch KM271 und den passenden Filter wählen. Bei fehlenden Werten zunächst Verbindungsaufbau und Meldungen prüfen; für Support Modell, Board, RX/TX-GPIO, Firmware-Version und einen kurzen Logauszug angeben. Zugangsdaten vor dem Weitergeben entfernen.", "en": "Select KM271 and the appropriate filter in Logger. If values are missing, first inspect connection setup and messages. For support, provide controller model, board, RX/TX GPIOs, firmware version and a short log excerpt. Remove credentials before sharing."},
+  help_diag_timeout: {"de": "Nach zwei Minuten ohne seriellen Empfang wird die Verbindung als getrennt gewertet und der Aufbau erneut versucht. Das beweist keinen Stromausfall der Heizung: Auch Kabel, Wandler oder Konfiguration können die Ursache sein. Im Simulationsmodus sind angezeigte Werte Testdaten.", "en": "After two minutes without serial reception, the link is treated as disconnected and setup is retried. This does not prove a heating power failure: wiring, converter or configuration can also cause it. In simulation mode, displayed values are test data."},
+  help_diag_network: {"de": "Bei sporadischen Ausfällen Versorgung und Kabel prüfen. Wenn WLAN funktioniert, Ethernet aber ausfällt, unter anderem doppelte IP-Adressen ausschließen. Für eine erste Trennung von Netzwerk- und Heizungsproblemen die Statusanzeigen einzeln betrachten.", "en": "For intermittent failures, check power and cables. If Wi-Fi works but Ethernet fails, check for duplicate IP addresses among other causes. Inspect connection statuses separately to distinguish network problems from heating-interface problems."},
+  help_mqtt_ha: {"de": "Unter Einstellungen → Integrationen MQTT mit Broker-Adresse, MQTT-Port, Zugangsdaten und Topic einrichten. Zuerst den Verbindungstest und den MQTT-Status auf System prüfen. Home Assistant im eigenen Abschnitt aktivieren; Discovery benötigt eine funktionierende MQTT-Verbindung. Der MQTT-Port ist nicht der Port der Home-Assistant-Webseite.", "en": "Configure MQTT with broker address, MQTT port, credentials and topic under Settings → Integrations. First use the connection test and check MQTT status on System. Enable Home Assistant in its own section; discovery requires a working MQTT connection. The MQTT port is not the Home Assistant web page port."},
+  help_mqtt_language: {"de": "WebUI- und MQTT-Sprache sind unabhängig. Die MQTT-Sprache beeinflusst Topic-Namen und Textwerte; ein Wechsel kann bestehende Automationen betreffen. Welche Werte verfügbar sind, hängt von Modulen und aktivierten Funktionen ab.", "en": "WebUI and MQTT languages are independent. MQTT language affects topic names and text values; changing it can affect existing automations. Available values depend on modules and enabled functions."},
+  help_mqtt_commands: {"de": "MQTT-Befehle ohne Retain senden. Alte retained Befehle können beim Wiederverbinden erneut zugestellt werden. Topic-Namen, Einheiten und zulässige Werte vor Schreibzugriffen in der MQTT-Dokumentation nachlesen.", "en": "Send MQTT commands without retain. Old retained commands may be delivered again on reconnection. Check topic names, units and allowed values in the MQTT documentation before writing."},
+  help_setup_access: {"de": "Im Setup-Mode ist die WebUI-Anmeldung immer admin / km271-2026!, unabhängig von der gespeicherten Konfiguration. Der Accesspoint heißt ESP-Buderus-km271; die WebUI ist unter 192.168.4.1 erreichbar.", "en": "In Setup Mode, WebUI login is always admin / km271-2026!, independently of the saved configuration. The access point is ESP-Buderus-km271; the WebUI is available at 192.168.4.1."},
+  help_backup: {"de": "Vor einem Firmware-Update unter Tools die Konfiguration exportieren. Für lokale WebUI-Updates die passende OTA-Datei verwenden, nicht das kombinierte Flash-Image für die USB-Erstinstallation.", "en": "Export the configuration under Tools before updating firmware. For local WebUI updates, use the matching OTA file, not the combined flash image used for initial USB installation."},
+  help_doc_mqtt: {"de": "MQTT-Referenz", "en": "MQTT reference"},
+  help_doc_hardware: {"de": "Hardware und Anschluss", "en": "Hardware and wiring"},
+  help_doc_hint: {"de": "Die Hilfe auf dieser Seite ist im Gerät enthalten. Die folgenden Links öffnen GitHub und benötigen Internet; die Projektanleitung ist auf Englisch.", "en": "Help on this page is included on the device. The links below open GitHub and require internet; project documentation is in English."},
+
   info_git_installed: {"de": "Installiert:", "en": "Installed:"},
   info_git_release: {"de": "Letztes Release:", "en": "Latest release:"},
   info_git_idle: {"de": "Prüfe, welche Version auf GitHub verfügbar ist.", "en": "Check which version is available on GitHub."},
@@ -541,6 +613,7 @@ const user_translations = {
   info_minutes: { de: "Min.", en: "min" },
   info_firmware_file: { de: "Firmware-Datei", en: "Firmware file" },
   info_config_file: { de: "Konfigurationsdatei", en: "Configuration file" },
+  info_choose_file: { de: "Datei auswählen", en: "Choose file" },
   info_no_file: { de: "Keine Datei ausgewählt", en: "No file selected" },
   info_log_source: { de: "Logbuch", en: "Log" },
   info_log_level: { de: "Level", en: "Level" },
