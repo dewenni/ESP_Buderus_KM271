@@ -45,7 +45,6 @@ function initInformationPages() {
   document.querySelectorAll('[data-selected-file]').forEach(label => {
     const input = document.getElementById(label.dataset.selectedFile);
     input.addEventListener('change', () => {
-      label.hidden = !input.files.length;
       if (input.files.length) {
         label.removeAttribute('data-i18n');
         label.textContent = input.files[0].name;

@@ -63,6 +63,7 @@ const user_translations = {
   info_minutes: { de: "Min.", en: "min" },
   info_firmware_file: { de: "Firmware-Datei", en: "Firmware file" },
   info_config_file: { de: "Konfigurationsdatei", en: "Configuration file" },
+  info_choose_file: { de: "Datei auswählen", en: "Choose file" },
   info_no_file: { de: "Keine Datei ausgewählt", en: "No file selected" },
   info_log_source: { de: "Logbuch", en: "Log" },
   info_log_level: { de: "Level", en: "Level" },

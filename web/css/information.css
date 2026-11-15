@@ -123,3 +123,8 @@
 #p00_update_btn_hide { margin: 0; }
 #p00_update_btn { width: auto; margin: 0; }
 #github_progress_bar { --pico-progress-color: var(--ui-accent); }
+
+/* Translate the file picker in the WebUI instead of using browser-language text. */
+.tools-file-picker { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; }
+.tools-file-picker > button { width: auto; margin: 0; flex-shrink: 0; }
+.tools-file-picker > span { min-width: 0; overflow-wrap: anywhere; color: var(--ui-muted); }

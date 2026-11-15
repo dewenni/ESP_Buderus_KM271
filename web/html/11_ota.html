@@ -44,10 +44,13 @@
                 <p class="tools-method-description" data-i18n="info_update_local_hint"></p>
             <form method="POST" action="#" enctype="multipart/form-data" id="ota_upload_form">
               <label class="tools-file-label" for="ota_file_input" data-i18n="info_firmware_file"></label>
-              <div class="tools-source-box"><input type="file" name="ota_update" id="ota_file_input" onchange="ota_sub_fun(this)" accept=".bin" /></div>
-              <p class="information-note" hidden data-selected-file="ota_file_input" data-i18n="info_no_file"></p>
+              <div class="tools-source-box tools-file-picker">
+                <input type="file" name="ota_update" id="ota_file_input" onchange="ota_sub_fun(this)" accept=".bin" hidden />
+                <button type="button" data-ui-local data-i18n="info_choose_file" onclick="document.getElementById('ota_file_input').click()"></button>
+                <span data-selected-file="ota_file_input" data-i18n="info_no_file" aria-live="polite"></span>
+              </div>
               <div class="tools-actions">
-                <input type="submit" id="ota_update_btn" disabled="disabled" value="Datei installieren" data-i18n="info_install_file" />
+                <button type="submit" id="ota_update_btn" disabled data-i18n="info_install_file"></button>
               </div>
               <div id="ota_status_txt" class="information-note" style="display:none" data-i18n="update_ready"></div>
               <progress id="ota_progress_bar" style="display:none" max="100" value="0"></progress>
@@ -75,8 +78,11 @@
             <h2 class="table-header" data-i18n="info_configuration"></h2>
             <form method="POST" action="#" enctype="multipart/form-data" id="file_upload_form">
               <label class="tools-file-label" for="file_input" data-i18n="info_config_file"></label>
-              <input type="file" name="file_update" id="file_input" accept=".json" onchange="file_sub_fun(this)" />
-              <p class="information-note" hidden data-selected-file="file_input" data-i18n="info_no_file"></p>
+              <div class="tools-file-picker">
+                <input type="file" name="file_update" id="file_input" accept=".json" onchange="file_sub_fun(this)" hidden />
+                <button type="button" data-ui-local data-i18n="info_choose_file" onclick="document.getElementById('file_input').click()"></button>
+                <span data-selected-file="file_input" data-i18n="info_no_file" aria-live="polite"></span>
+              </div>
               <div class="tools-actions">
                 <button type="submit" id="file_upload_btn" data-i18n="info_import" disabled></button>
                 <button type="button" id="p11_export_btn" data-i18n="info_export" onclick="exportConfig()"></button>
