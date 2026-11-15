@@ -86,6 +86,7 @@ This can be accessed via the following link: [WebUI-DEMO](https://dewenni.github
   - [Setup-Mode](#setup-mode)
   - [Configuration](#configuration)
   - [Filemanager](#filemanager)
+- [WebUI Help](#help)
 - [MQTT](#mqtt)
   - [Config and Status values](#config-and-status-values)
   - [Commands](#commands)
@@ -142,10 +143,14 @@ Logamatic R2107 => KM271 => RS232/TTL Adapter => ESP
 
 Example configuration:
 
+The arrows below describe signal direction. Converter labels and RS232 pinouts
+depend on the module; verify them against its documentation. Do not assume that
+matching TX/RX labels or a particular straight/null-modem cable will always work.
+
 ```text
-(ESP32)GPIO17/TXD2  -> (MAX3232)TXD -> (serial cable) -> (KM271-SUBD)PIN2:RXD
-(ESP32)GPIO16/RXD2 <- (MAX3232)RXD <- (serial cable) <- (KM271-SUBD)PIN3:TXD
-(ESP32)GND <-> (MAX3232)GND <-> (serial cable) <-> (KM271-SUBD)PIN5:GND
+(ESP32) TX output -> converter TTL input -> RS232 output -> KM271 receive
+(ESP32) RX input <- converter TTL output <- RS232 input <- KM271 transmit
+(ESP32) GND <-> converter GND <-> RS232 signal ground
 ```
 
 ![km271_orig](/Doc/esp32_with_km271.jpeg)
@@ -312,9 +317,15 @@ There is a "Setup Mode" available. The "Setup Mode" is activated, when you press
 The "Setup Mode" will also activated if there is no (initial or wrong) wifi connection configured.
 
 If the ESP goes into "Setup Mode", it will automatically create a own network access point with ssid  
-📶 `"ESP-Buderus-KM271"`  
+📶 `"ESP-Buderus-km271"`<br>
 After you are connected to this network, you can open the webUI on ip-address  
 **"http://192.168.4.1"**
+
+Setup Mode always uses the WebUI credentials **admin / km271-2026!**, independently
+of `config.json`. After configuring a network connection, use the ESP's network
+address instead of the setup address. Normal WebUI authentication is optional;
+Telnet and remote ArduinoOTA use the separate service password configured under
+Settings → Access & maintenance.
 
 ## Configuration
 
@@ -375,6 +386,17 @@ there is also a builtin file manager to open (show), download (export) and uploa
 The configuration is stored in the ```config.json``` file. To backup and restore the configuration you can download and upload this file.
 
 ![filemanager](/Doc/tools.png)
+
+## Help
+
+The Help page is available in German and English using the selected WebUI language.
+Three shortcuts lead to operation, setup and troubleshooting. Expandable sections
+cover dashboard values and trends, GPIO presets and RS232 wiring, MQTT/Home Assistant,
+and WebUI, Setup Mode, Telnet and OTA access. Only one section opens at a time.
+The help text is stored on the ESP and works without internet; links to the full
+project documentation require internet access.
+
+<!-- New screenshot requested: Help page with the wiring or troubleshooting section open. -->
 
 -----
 
@@ -677,11 +699,14 @@ If you are interested my dashboard, you can use this export file:
 
 ## No connection to the Logamatic / No values from the Logamatic
 
-1) Check the GPIO setting for your setup. When using the78mole boards, at least the following must be set:
-`KM271-RX = 4` and `KM271-2X = 2`
+1. **Identify the hardware.** A KM271-WiFi board plugs into the controller directly. An original KM271 with an RS232 connector requires a suitable RS232/TTL converter. Never connect RS232 voltage levels directly to ESP GPIOs.
+2. **Check the GPIO settings under Settings → Device.** Generic ESP32 defaults are RX 16 / TX 17; KM271-WiFi v0.0.5 and ≥ v0.0.6 presets use RX 4 / TX 2. These are presets, not automatic detection: wiring must match the configured pins. Check for duplicate assignments and restart after wiring or GPIO changes.
+3. **Check signal direction, not just labels.** ESP TX must feed the converter's TTL input, and its TTL output must feed ESP RX, with common ground. Labels on converter boards vary. On the RS232 side, verify the actual converter pinout and cable continuity: depending on the module, straight or crossed wiring may be required. A null-modem cable is not universally correct. See the hardware case in [discussion #174](https://github.com/dewenni/ESP_Buderus_KM271/discussions/174).
+4. **Check the KM271 status on System.** A working WebUI or MQTT connection does not prove communication with the heating controller. Received bytes and a successful loopback test do not by themselves prove valid Logamatic telegrams; look for successful protocol setup followed by current heating values.
+5. **Inspect Logger → KM271.** Select the appropriate filter. For support, include the heating controller model, board, firmware version, configured RX/TX GPIOs and a short log excerpt. Remove credentials before sharing. After two minutes without serial reception, the firmware considers the link down and retries setup; this does not distinguish loss of heating power from a wiring or converter fault.
+6. **Check supply and connectors.** For plug-in boards, check the identification resistor required by that board's documentation. For example, the approximately 10 kΩ resistance between pins 4 and 8 of the relevant plug-in header is important for recognition; do not confuse these with ESP GPIO numbers. Electrical checks must be performed with the equipment powered off.
 
-2) Check that the resistance between pin 4 and pin 8 on the pin header where the board is plugged in is approx. 10kOhm.
-This resistance is important for the Logamatic to recognise the board.
+The WebUI **Help** page contains an offline checklist and wiring reference in German and English. Simulation values are test data and do not establish that the physical heating connection works.
 
 ## ESP restarts automatically
 

@@ -1,0 +1,26 @@
+/* Compact, offline-readable help using the project surfaces and native details. */
+.buderus-help .help-intro { max-width: 56rem; color: var(--ui-muted); }
+.help-shortcuts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; margin: 1.25rem 0; }
+.help-shortcuts a { margin: 0; display: flex; flex-direction: column; gap: 0.3rem; padding: 1rem; color: var(--ui-text); text-decoration: none; background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: 0.65rem; }
+.help-shortcuts a:hover { background: var(--ui-rail); }
+.help-shortcuts span { color: var(--ui-muted); font-size: 0.85rem; }
+.buderus-help .help-panel { padding: 0; margin: 0 0 0.75rem; border: 1px solid var(--ui-border); border-radius: 0.65rem; background: var(--ui-surface); scroll-margin-top: 1rem; }
+.help-panel > summary { margin: 0; padding: 1rem 1.15rem; font-weight: 500; }
+.help-panel[open] > summary { border-bottom: 1px solid var(--ui-border); }
+.help-content { padding: 1.15rem; }
+.help-content > :last-child { margin-bottom: 0; }
+.help-content h3, .help-docs h2 { font-size: 1rem; font-weight: 500; }
+.help-content p, .help-content li, .help-content dd { font-size: 0.9rem; line-height: 1.6; }
+.help-content li + li { margin-top: 0.4rem; }
+.help-note { padding-left: 0.85rem; border-left: 2px solid var(--ui-accent); color: var(--ui-muted); }
+.help-content dt { margin-top: 1rem; font-weight: 500; }
+.help-content dt:first-child { margin-top: 0; }
+.help-content dd { margin: 0.3rem 0 0; color: var(--ui-muted); }
+.help-table { overflow-x: auto; margin: 1rem 0; }
+.buderus-help .help-table td:first-child { width: auto; }
+.help-table table { font-size: 0.85rem; }
+.help-doc-links { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; }
+@container (max-width: 520px) {
+  .help-shortcuts { grid-template-columns: minmax(0, 1fr); }
+  .help-shortcuts a { padding: 0.8rem 1rem; }
+}

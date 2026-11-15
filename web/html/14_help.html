@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ESP Async Web Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../css/pico.css" />
+    <link rel="stylesheet" type="text/css" href="../css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../css/icons.css" />
+    <script src="../js/fun.js" defer></script>
+    <script src="../js/doc.js" defer></script>
+    <script src="../js/lang.js" defer></script>
+    <style></style>
+    <script>
+      function test() {
+        document.getElementById("tab14").classList.add("active");
+        localizePage("de");
+      }
+      setInterval(test, 1000);
+    </script>
+  </head>
+  <body>
+    <!-- Layout -->
+    <header
+      style="
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "></header>
+    <!-- Tab-Content -->
+    <main class="container">
+      <!--SECTION-START-->
+<div id="tab14" class="tab-content information-page information-page--compact buderus-help">
+<header class="page-heading">
+<h1 data-i18n="help">
+</h1>
+<p data-i18n="help_subtitle">
+</p>
+</header>
+<p class="help-intro" data-i18n="help_intro">
+</p>
+<nav class="help-shortcuts">
+<a href="#help-operation" data-help-open="help-operation">
+<strong data-i18n="help_operate">
+</strong>
+<span data-i18n="help_operate_hint">
+</span>
+</a>
+<a href="#help-setup" data-help-open="help-setup">
+<strong data-i18n="help_setup">
+</strong>
+<span data-i18n="help_setup_hint">
+</span>
+</a>
+<a href="#help-problems" data-help-open="help-problems">
+<strong data-i18n="help_solve">
+</strong>
+<span data-i18n="help_solve_hint">
+</span>
+</a>
+</nav>
+<details id="help-operation" class="help-panel" name="buderus-help" open>
+<summary data-i18n="help_operation">
+</summary>
+<div class="help-content">
+<p data-i18n="help_dashboard">
+</p>
+<p data-i18n="help_controls">
+</p>
+<p data-i18n="help_weekly">
+</p>
+<p data-i18n="help_trends">
+</p>
+<div class="tools-actions">
+<button type="button" data-ui-local data-help-page="tab2" data-i18n="help_control">
+</button>
+</div>
+</div>
+</details>
+<details id="help-setup" class="help-panel" name="buderus-help">
+<summary data-i18n="help_setup_title">
+</summary>
+<div class="help-content">
+<p data-i18n="help_setup_network">
+</p>
+<p data-i18n="help_wifi">
+</p>
+<p data-i18n="help_setup_device">
+</p>
+<p data-i18n="help_setup_time">
+</p>
+<div class="tools-actions">
+<button type="button" data-ui-local data-help-page="tab12" data-i18n="help_settings">
+</button>
+</div>
+</div>
+</details>
+<details id="help-wiring" class="help-panel" name="buderus-help">
+<summary data-i18n="help_wiring_title">
+</summary>
+<div class="help-content">
+<p data-i18n="help_wiring_intro">
+</p>
+<p data-i18n="help_wiring_ttl">
+</p>
+<p data-i18n="help_wiring_rs232">
+</p>
+<h3 data-i18n="help_wiring_flow">
+</h3>
+<p data-i18n="help_wiring_tx">
+</p>
+<p data-i18n="help_wiring_rx">
+</p>
+<p class="help-note" data-i18n="help_gpio_note">
+</p>
+<div class="help-table">
+<table>
+<thead>
+<tr>
+<th data-i18n="help_board">
+</th>
+<th>RX</th>
+<th>TX</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Generic ESP32</td>
+<td>16</td>
+<td>17</td>
+</tr>
+<tr>
+<td>KM271-WiFi v0.0.5 / ≥ v0.0.6</td>
+<td>4</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="tools-actions">
+<button type="button" data-ui-local data-help-page="tab12" data-i18n="help_settings">
+</button>
+</div>
+</div>
+</details>
+<details id="help-problems" class="help-panel" name="buderus-help">
+<summary data-i18n="help_problems">
+</summary>
+<div class="help-content">
+<h3 data-i18n="help_diagnosis_steps">
+</h3>
+<ol>
+<li data-i18n="help_diag_gpio">
+</li>
+<li data-i18n="help_diag_status">
+</li>
+<li data-i18n="help_diag_bytes">
+</li>
+<li data-i18n="help_diag_log">
+</li>
+</ol>
+<p class="help-note" data-i18n="help_diag_timeout">
+</p>
+<p data-i18n="help_diag_network">
+</p>
+<div class="tools-actions">
+<button type="button" data-ui-local data-help-page="tab9" data-i18n="help_system">
+</button>
+<button type="button" data-ui-local data-help-page="tab10" data-i18n="help_logger">
+</button>
+</div>
+</div>
+</details>
+<details id="help-mqtt" class="help-panel" name="buderus-help">
+<summary data-i18n="help_mqtt_title">
+</summary>
+<div class="help-content">
+<p data-i18n="help_mqtt_ha">
+</p>
+<p data-i18n="help_mqtt_language">
+</p>
+<p data-i18n="help_mqtt_commands">
+</p>
+<div class="tools-actions">
+<button type="button" data-ui-local data-help-page="tab12" data-i18n="help_settings">
+</button>
+</div>
+</div>
+</details>
+<details id="help-connections" class="help-panel" name="buderus-help">
+<summary data-i18n="help_connections">
+</summary>
+<div class="help-content">
+<p data-i18n="help_access">
+</p>
+<p data-i18n="help_setup_access">
+</p>
+<p data-i18n="help_updates">
+</p>
+<p data-i18n="help_backup">
+</p>
+<div class="tools-actions">
+<button type="button" data-ui-local data-help-page="tab11" data-i18n="help_tools">
+</button>
+<button type="button" data-ui-local data-help-page="tab12" data-i18n="help_settings">
+</button>
+</div>
+</div>
+</details>
+<section class="card help-docs">
+<h2 data-i18n="help_docs">
+</h2>
+<div class="help-doc-links">
+<a href="https://github.com/dewenni/ESP_Buderus_KM271/blob/main/README.md" target="_blank" rel="noopener noreferrer" data-i18n="help_readme">
+</a>
+<a href="https://github.com/dewenni/ESP_Buderus_KM271/blob/main/README.md#hardware" target="_blank" rel="noopener noreferrer" data-i18n="help_doc_hardware">
+</a>
+<a href="https://github.com/dewenni/ESP_Buderus_KM271/blob/main/README.md#mqtt" target="_blank" rel="noopener noreferrer" data-i18n="help_doc_mqtt">
+</a>
+</div>
+<p class="information-note" data-i18n="help_doc_hint">
+</p>
+</section>
+</div>
+      <!--SECTION-END-->
+    </main>
+    <!-- Footer -->
+    <footer
+      style="
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      ">
+      <div id="status">STATUS</div>
+    </footer>
+  </body>
+</html>
