@@ -355,6 +355,14 @@ void updateKm271AlarmElements() {
   }
 }
 
+// Keep WebUI state labels consistent without changing MQTT payloads.
+static const char *webUIConfigText(const char *text) {
+  if (strcmp(text, "on") == 0) return "ON";
+  if (strcmp(text, "off") == 0) return "OFF";
+  if (strcmp(text, "auto") == 0) return "AUTO";
+  return text;
+}
+
 /**
  * *******************************************************************
  * @brief   update status values of KM271
@@ -381,19 +389,19 @@ void generateKm271ConfigJSON() {
     webUI.addJson(kmCfgJsonDoc, "p02_hc1_opmode_night", pkmConfigNum->hc1_operation_mode == 0 ? true : false);
     webUI.addJson(kmCfgJsonDoc, "p02_hc1_opmode_day", pkmConfigNum->hc1_operation_mode == 1 ? true : false);
     webUI.addJson(kmCfgJsonDoc, "p02_hc1_opmode_auto", pkmConfigNum->hc1_operation_mode == 2 ? true : false);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_op_mode", KM_CFG_ARRAY::OPMODE[config.lang][constrain(pkmConfigNum->hc1_operation_mode, 0, 2)]);
+    webUI.addJson(kmCfgJsonDoc, "p03_hc1_op_mode", webUIConfigText(KM_CFG_ARRAY::OPMODE[config.lang][constrain(pkmConfigNum->hc1_operation_mode, 0, 2)]));
     webUI.addJson(kmCfgJsonDoc, "p03_hc1_max_temp", pkmConfigStr->hc1_max_temp);
     webUI.addJson(kmCfgJsonDoc, "p02_hc1_interp", pkmConfigNum->hc1_interpretation);
     webUI.addJson(kmCfgJsonDoc, "p03_hc1_interp", pkmConfigStr->hc1_interpretation);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_sw_on_temp", KM_CFG_ARRAY::SWITCH_ON_TEMP[config.lang][constrain(pkmConfigNum->hc1_switch_on_temperature, 0, 10)]);
+    webUI.addJson(kmCfgJsonDoc, "p03_hc1_sw_on_temp", webUIConfigText(KM_CFG_ARRAY::SWITCH_ON_TEMP[config.lang][constrain(pkmConfigNum->hc1_switch_on_temperature, 0, 10)]));
     webUI.addJson(kmCfgJsonDoc, "p02_hc1_sw_on_temp", pkmConfigNum->hc1_switch_on_temperature);
     webUI.addJson(kmCfgJsonDoc, "p02_hc1_sw_off_th", pkmConfigNum->hc1_switch_off_threshold);
     webUI.addJson(kmCfgJsonDoc, "p03_hc1_sw_off_th", pkmConfigStr->hc1_switch_off_threshold);
     webUI.addJson(kmCfgJsonDoc, "p03_hc1_red_mode", KM_CFG_ARRAY::REDUCT_MODE[config.lang][constrain(pkmConfigNum->hc1_reduction_mode, 0, 3)]);
     webUI.addJson(kmCfgJsonDoc, "p02_hc1_reduct_mode", pkmConfigNum->hc1_reduction_mode);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_heatsys", KM_CFG_ARRAY::HEATING_SYSTEM[config.lang][constrain(pkmConfigNum->hc1_heating_system, 0, 3)]);
+    webUI.addJson(kmCfgJsonDoc, "p03_hc1_heatsys", webUIConfigText(KM_CFG_ARRAY::HEATING_SYSTEM[config.lang][constrain(pkmConfigNum->hc1_heating_system, 0, 3)]));
     webUI.addJson(kmCfgJsonDoc, "p03_hc1_temp_offset", pkmConfigStr->hc1_temp_offset);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_remotecontrol", KM_CFG_ARRAY::ON_OFF[config.lang][constrain(pkmConfigNum->hc1_remotecontrol, 0, 1)]);
+    webUI.addJson(kmCfgJsonDoc, "p03_hc1_remotecontrol", webUIConfigText(KM_CFG_ARRAY::ON_OFF[config.lang][constrain(pkmConfigNum->hc1_remotecontrol, 0, 1)]));
     webUI.addJson(kmCfgJsonDoc, "p02_hc1_prg", pkmConfigNum->hc1_program);
     webUI.addJson(kmCfgJsonDoc, "p02_hc1_holiday_days", pkmConfigNum->hc1_holiday_days);
     const char *program = KM_CFG_ARRAY::HC_PROGRAM[config.lang][constrain(pkmConfigNum->hc1_program, 0, 8)];
@@ -430,19 +438,19 @@ void generateKm271ConfigJSON() {
     webUI.addJson(kmCfgJsonDoc, "p02_hc2_opmode_night", pkmConfigNum->hc2_operation_mode == 0 ? true : false);
     webUI.addJson(kmCfgJsonDoc, "p02_hc2_opmode_day", pkmConfigNum->hc2_operation_mode == 1 ? true : false);
     webUI.addJson(kmCfgJsonDoc, "p02_hc2_opmode_auto", pkmConfigNum->hc2_operation_mode == 2 ? true : false);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_op_mode", KM_CFG_ARRAY::OPMODE[config.lang][constrain(pkmConfigNum->hc2_operation_mode, 0, 2)]);
+    webUI.addJson(kmCfgJsonDoc, "p04_hc2_op_mode", webUIConfigText(KM_CFG_ARRAY::OPMODE[config.lang][constrain(pkmConfigNum->hc2_operation_mode, 0, 2)]));
     webUI.addJson(kmCfgJsonDoc, "p04_hc2_max_temp", pkmConfigStr->hc2_max_temp);
     webUI.addJson(kmCfgJsonDoc, "p02_hc2_interp", pkmConfigNum->hc2_interpretation);
     webUI.addJson(kmCfgJsonDoc, "p04_hc2_interp", pkmConfigStr->hc2_interpretation);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_sw_on_temp", KM_CFG_ARRAY::SWITCH_ON_TEMP[config.lang][constrain(pkmConfigNum->hc2_switch_on_temperature, 0, 10)]);
+    webUI.addJson(kmCfgJsonDoc, "p04_hc2_sw_on_temp", webUIConfigText(KM_CFG_ARRAY::SWITCH_ON_TEMP[config.lang][constrain(pkmConfigNum->hc2_switch_on_temperature, 0, 10)]));
     webUI.addJson(kmCfgJsonDoc, "p02_hc2_sw_on_temp", pkmConfigNum->hc2_switch_on_temperature);
     webUI.addJson(kmCfgJsonDoc, "p02_hc2_sw_off_th", pkmConfigNum->hc2_switch_off_threshold);
     webUI.addJson(kmCfgJsonDoc, "p04_hc2_sw_off_th", pkmConfigStr->hc2_switch_off_threshold);
     webUI.addJson(kmCfgJsonDoc, "p04_hc2_red_mode", KM_CFG_ARRAY::REDUCT_MODE[config.lang][constrain(pkmConfigNum->hc2_reduction_mode, 0, 3)]);
     webUI.addJson(kmCfgJsonDoc, "p02_hc2_reduct_mode", pkmConfigNum->hc2_reduction_mode);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_heatsys", KM_CFG_ARRAY::HEATING_SYSTEM[config.lang][constrain(pkmConfigNum->hc2_heating_system, 0, 3)]);
+    webUI.addJson(kmCfgJsonDoc, "p04_hc2_heatsys", webUIConfigText(KM_CFG_ARRAY::HEATING_SYSTEM[config.lang][constrain(pkmConfigNum->hc2_heating_system, 0, 3)]));
     webUI.addJson(kmCfgJsonDoc, "p04_hc2_temp_offset", pkmConfigStr->hc2_temp_offset);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_remotecontrol", KM_CFG_ARRAY::ON_OFF[config.lang][constrain(pkmConfigNum->hc2_remotecontrol, 0, 1)]);
+    webUI.addJson(kmCfgJsonDoc, "p04_hc2_remotecontrol", webUIConfigText(KM_CFG_ARRAY::ON_OFF[config.lang][constrain(pkmConfigNum->hc2_remotecontrol, 0, 1)]));
     webUI.addJson(kmCfgJsonDoc, "p02_hc2_prg", pkmConfigNum->hc2_program);
     webUI.addJson(kmCfgJsonDoc, "p02_hc2_holiday_days", pkmConfigNum->hc2_holiday_days);
     const char *program = KM_CFG_ARRAY::HC_PROGRAM[config.lang][constrain(pkmConfigNum->hc2_program, 0, 8)];
@@ -466,16 +474,16 @@ void generateKm271ConfigJSON() {
 
   // hot-water config values
   if (config.km271.use_ww) {
-    webUI.addJson(kmCfgJsonDoc, "p05_hw_prio", KM_CFG_ARRAY::ON_OFF[config.lang][constrain(pkmConfigNum->ww_priority, 0, 1)]);
+    webUI.addJson(kmCfgJsonDoc, "p05_hw_prio", webUIConfigText(KM_CFG_ARRAY::ON_OFF[config.lang][constrain(pkmConfigNum->ww_priority, 0, 1)]));
     webUI.addJson(kmCfgJsonDoc, "p02_ww_temp", pkmConfigNum->ww_temp);
     webUI.addJson(kmCfgJsonDoc, "p05_hw_temp", pkmConfigStr->ww_temp);
     webUI.addJson(kmCfgJsonDoc, "p02_ww_opmode_night", pkmConfigNum->ww_operation_mode == 0 ? true : false);
     webUI.addJson(kmCfgJsonDoc, "p02_ww_opmode_day", pkmConfigNum->ww_operation_mode == 1 ? true : false);
     webUI.addJson(kmCfgJsonDoc, "p02_ww_opmode_auto", pkmConfigNum->ww_operation_mode == 2 ? true : false);
-    webUI.addJson(kmCfgJsonDoc, "p05_hw_op_mode", KM_CFG_ARRAY::OPMODE[config.lang][constrain(pkmConfigNum->ww_operation_mode, 0, 2)]);
-    webUI.addJson(kmCfgJsonDoc, "p05_hw_proccess", KM_CFG_ARRAY::ON_OFF[config.lang][constrain(pkmConfigNum->ww_processing, 0, 1)]);
+    webUI.addJson(kmCfgJsonDoc, "p05_hw_op_mode", webUIConfigText(KM_CFG_ARRAY::OPMODE[config.lang][constrain(pkmConfigNum->ww_operation_mode, 0, 2)]));
+    webUI.addJson(kmCfgJsonDoc, "p05_hw_proccess", webUIConfigText(KM_CFG_ARRAY::ON_OFF[config.lang][constrain(pkmConfigNum->ww_processing, 0, 1)]));
     webUI.addJson(kmCfgJsonDoc, "p02_ww_circ", pkmConfigNum->ww_circulation);
-    webUI.addJson(kmCfgJsonDoc, "p05_hw_circ", KM_CFG_ARRAY::CIRC_INTERVAL[config.lang][constrain(pkmConfigNum->ww_circulation, 0, 7)]);
+    webUI.addJson(kmCfgJsonDoc, "p05_hw_circ", webUIConfigText(KM_CFG_ARRAY::CIRC_INTERVAL[config.lang][constrain(pkmConfigNum->ww_circulation, 0, 7)]));
   }
 
   // general config values
@@ -484,7 +492,7 @@ void generateKm271ConfigJSON() {
   webUI.addJson(kmCfgJsonDoc, "p07_burner_type", KM_CFG_ARRAY::BURNER_TYPE[config.lang][constrain(pkmConfigNum->burner_type - 1, 0, 2)]);
   webUI.addJson(kmCfgJsonDoc, "p06_max_boil_temp", pkmConfigStr->max_boiler_temperature);
   webUI.addJson(kmCfgJsonDoc, "p07_pump_logic_temp", pkmConfigStr->pump_logic_temp);
-  webUI.addJson(kmCfgJsonDoc, "p07_exh_gas_temp_th", KM_CFG_ARRAY::EXHAUST_GAS_THRESHOLD[config.lang][constrain(pkmConfigNum->exhaust_gas_temperature_threshold - 9, 0, 41)]);
+  webUI.addJson(kmCfgJsonDoc, "p07_exh_gas_temp_th", webUIConfigText(KM_CFG_ARRAY::EXHAUST_GAS_THRESHOLD[config.lang][constrain(pkmConfigNum->exhaust_gas_temperature_threshold - 9, 0, 41)]));
   webUI.addJson(kmCfgJsonDoc, "p07_burner_min_mod", pkmConfigStr->burner_min_modulation);
   webUI.addJson(kmCfgJsonDoc, "p07_burner_mod_run", pkmConfigStr->burner_modulation_runtime);
   webUI.addJson(kmCfgJsonDoc, "p07_building_type", KM_CFG_ARRAY::BUILDING_TYPE[config.lang][constrain(pkmConfigNum->building_type, 0, 2)]);
@@ -506,8 +514,8 @@ void generateKm271ConfigJSON() {
     }
     webUI.addJson(kmCfgJsonDoc, "p01_solar_opmode", tmpMessage);
 
-    webUI.addJson(kmCfgJsonDoc, "p13_solar_enable", KM_CFG_ARRAY::ON_OFF[config.lang][constrain(pkmConfigNum->solar_activation, 0, 1)]);
-    webUI.addJson(kmCfgJsonDoc, "p13_solar_opmode", KM_CFG_ARRAY::OPMODE[config.lang][constrain(pkmConfigNum->solar_operation_mode, 0, 2)]);
+    webUI.addJson(kmCfgJsonDoc, "p13_solar_enable", webUIConfigText(KM_CFG_ARRAY::ON_OFF[config.lang][constrain(pkmConfigNum->solar_activation, 0, 1)]));
+    webUI.addJson(kmCfgJsonDoc, "p13_solar_opmode", webUIConfigText(KM_CFG_ARRAY::OPMODE[config.lang][constrain(pkmConfigNum->solar_operation_mode, 0, 2)]));
     webUI.addJson(kmCfgJsonDoc, "p13_solar_min", pkmConfigStr->solar_min);
     webUI.addJson(kmCfgJsonDoc, "p13_solar_max", pkmConfigStr->solar_max);
   }
