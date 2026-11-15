@@ -334,6 +334,8 @@ s_km271_status *km271GetStatusValueAdr();
 s_km271_config_str *km271GetConfigStringsAdr();
 s_km271_config_num *km271GetConfigValueAdr();
 s_km271_alarm_str *km271GetAlarmMsgAdr();
+// Alarm index 0..3; empty until its telegram has been received.
+void km271GetAlarmText(uint8_t index, char *text, unsigned int size, uint8_t language);
 
 void sendKM271Info();
 void sendKM271Debug();

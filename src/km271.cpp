@@ -19,7 +19,7 @@ void parseInfo(uint8_t *data, int len);
 float decode05cTemp(uint8_t data);
 int8_t decodeNegValue(uint8_t data);
 void decodeTimer(char *timerInfo, unsigned int size, uint8_t dateOnOff, uint8_t time);
-bool decodeErrorMsg(char *errorMsg, unsigned int size, uint8_t *data);
+bool decodeErrorMsg(char *errorMsg, unsigned int size, const uint8_t *data, uint8_t language);
 uint8_t getErrorTextIndex(uint8_t errorNr);
 uint8_t limit(uint8_t lower, uint8_t value, uint8_t upper);
 int compareHexValues(const char *filter, uint8_t data[]);
@@ -36,6 +36,8 @@ s_km271_status kmStatus;        // All Status values
 s_km271_config_str kmConfigStr; // All Config values (String)
 s_km271_config_num kmConfigNum; // All Config values (Number)
 s_km271_alarm_str kmAlarmMsg;   // Alarm Messages
+static uint8_t alarmTelegrams[4][9] = {}; // Raw alarms for language-independent WebUI formatting
+static uint8_t alarmsReceived = 0;
 
 // Status machine handling
 e_rxBlockState KmRxBlockState = KM_TSK_START; // The RX block state
@@ -1011,7 +1013,9 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x0300: // 0x0300 : Error Buffer 1
     if (config.km271.use_alarmMsg) {
-      if (decodeErrorMsg(kmAlarmMsg.alarm1, sizeof(kmAlarmMsg.alarm1), data)) {
+      memcpy(alarmTelegrams[0], data, sizeof(alarmTelegrams[0]));
+      alarmsReceived |= 1U << 0;
+      if (decodeErrorMsg(kmAlarmMsg.alarm1, sizeof(kmAlarmMsg.alarm1), data, config.mqtt.lang)) {
         km271Msg(KM_TYP_ALARM, KM_ERR_TOPIC::ERR_BUFF_1[config.mqtt.lang], kmAlarmMsg.alarm1); // unacknowledged alarm
       } else {
         km271Msg(KM_TYP_ALARM_H, KM_ERR_TOPIC::ERR_BUFF_1[config.mqtt.lang],
@@ -1022,7 +1026,9 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x0307: // 0x0307 : Error Buffer 2
     if (config.km271.use_alarmMsg) {
-      if (decodeErrorMsg(kmAlarmMsg.alarm2, sizeof(kmAlarmMsg.alarm2), data)) {
+      memcpy(alarmTelegrams[1], data, sizeof(alarmTelegrams[1]));
+      alarmsReceived |= 1U << 1;
+      if (decodeErrorMsg(kmAlarmMsg.alarm2, sizeof(kmAlarmMsg.alarm2), data, config.mqtt.lang)) {
         km271Msg(KM_TYP_ALARM, KM_ERR_TOPIC::ERR_BUFF_2[config.mqtt.lang], kmAlarmMsg.alarm2); // unacknowledged alarm
       } else {
         km271Msg(KM_TYP_ALARM_H, KM_ERR_TOPIC::ERR_BUFF_2[config.mqtt.lang],
@@ -1033,7 +1039,9 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x030e: // 0x030e : Error Buffer 3
     if (config.km271.use_alarmMsg) {
-      if (decodeErrorMsg(kmAlarmMsg.alarm3, sizeof(kmAlarmMsg.alarm3), data)) {
+      memcpy(alarmTelegrams[2], data, sizeof(alarmTelegrams[2]));
+      alarmsReceived |= 1U << 2;
+      if (decodeErrorMsg(kmAlarmMsg.alarm3, sizeof(kmAlarmMsg.alarm3), data, config.mqtt.lang)) {
         km271Msg(KM_TYP_ALARM, KM_ERR_TOPIC::ERR_BUFF_3[config.mqtt.lang], kmAlarmMsg.alarm3); // unacknowledged alarm
       } else {
         km271Msg(KM_TYP_ALARM_H, KM_ERR_TOPIC::ERR_BUFF_3[config.mqtt.lang],
@@ -1044,7 +1052,9 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x0315: // 0x0315 : Error Buffer 4
     if (config.km271.use_alarmMsg) {
-      if (decodeErrorMsg(kmAlarmMsg.alarm4, sizeof(kmAlarmMsg.alarm4), data)) {
+      memcpy(alarmTelegrams[3], data, sizeof(alarmTelegrams[3]));
+      alarmsReceived |= 1U << 3;
+      if (decodeErrorMsg(kmAlarmMsg.alarm4, sizeof(kmAlarmMsg.alarm4), data, config.mqtt.lang)) {
         km271Msg(KM_TYP_ALARM, KM_ERR_TOPIC::ERR_BUFF_4[config.mqtt.lang], kmAlarmMsg.alarm4); // unacknowledged alarm
       } else {
         km271Msg(KM_TYP_ALARM_H, KM_ERR_TOPIC::ERR_BUFF_4[config.mqtt.lang],
@@ -2640,16 +2650,25 @@ void decodeTimer(char *timerInfo, unsigned int size, uint8_t dateOnOff, uint8_t 
  * *******************************************************************/
 uint8_t getErrorTextIndex(uint8_t errorNr) { return limit(0, errorNr, 214); }
 
+// Format the last received alarm in the requested language without changing MQTT messages.
+void km271GetAlarmText(uint8_t index, char *text, unsigned int size, uint8_t language) {
+  if (size == 0) return;
+  text[0] = '\0';
+  if (index < 4 && (alarmsReceived & (1U << index))) {
+    decodeErrorMsg(text, size, alarmTelegrams[index], constrain(language, 0, MAX_LANG - 1));
+  }
+}
+
 /**
  * *******************************************************************
  * @brief   generate error message
  * @param   errorNr Error Number from Logamatic
  * @return  true = unackloaded alarm / false = acknowled alarm
  * *******************************************************************/
-bool decodeErrorMsg(char *errorMsg, unsigned int size, uint8_t *data) {
+bool decodeErrorMsg(char *errorMsg, unsigned int size, const uint8_t *data, uint8_t language) {
   // no error
   if (data[2] == 0) {
-    snprintf(errorMsg, size, "%s", errMsgText.idx[config.mqtt.lang][0]);
+    snprintf(errorMsg, size, "%s", errMsgText.idx[language][0]);
     return false;
   } else {
     uint8_t errIndex = getErrorTextIndex(data[2]);
@@ -2669,15 +2688,15 @@ bool decodeErrorMsg(char *errorMsg, unsigned int size, uint8_t *data) {
     // error already acknowledged
     if (data[6] != 0xFF) {
       // Aussenfuehler defekt (>> 16:31 -3 Tage | << 20:40 -2 Tage)
-      snprintf(errorMsg, size, "%s%s (>> %02i:%02i -%i %s | << %02i:%02i -%i %s)", errMsgText.idx[config.mqtt.lang][errIndex], codeSuffix, data[3],
-               data[4], (data[5] + data[8]), MQTT_MSG::DAYS[config.mqtt.lang], data[6], data[7], data[8], MQTT_MSG::DAYS[config.mqtt.lang]);
+      snprintf(errorMsg, size, "%s%s (>> %02i:%02i -%i %s | << %02i:%02i -%i %s)", errMsgText.idx[language][errIndex], codeSuffix, data[3],
+               data[4], (data[5] + data[8]), MQTT_MSG::DAYS[language], data[6], data[7], data[8], MQTT_MSG::DAYS[language]);
       return false;
     }
     // unacknowledged error
     else {
       // example: Aussenfuehler defekt (>> 16:31 -3 Tage)
-      snprintf(errorMsg, size, "%s%s (>> %02i:%02i -%i %s)", errMsgText.idx[config.mqtt.lang][errIndex], codeSuffix, data[3], data[4], data[5],
-               MQTT_MSG::DAYS[config.mqtt.lang]);
+      snprintf(errorMsg, size, "%s%s (>> %02i:%02i -%i %s)", errMsgText.idx[language][errIndex], codeSuffix, data[3], data[4], data[5],
+               MQTT_MSG::DAYS[language]);
       return true;
     }
   }

@@ -24,7 +24,6 @@ static s_km271_status kmStatusCpy;
 static s_km271_status *pkmStatus = km271GetStatusValueAdr();
 static s_km271_config_str *pkmConfigStr = km271GetConfigStringsAdr();
 static s_km271_config_num *pkmConfigNum = km271GetConfigValueAdr();
-static s_km271_alarm_str *pkmAlarmStr = km271GetAlarmMsgAdr();
 
 static char tmpMessage[300] = {'\0'};
 static unsigned int KmAlarmHash[4] = {0};
@@ -345,17 +344,14 @@ void updateSystemInfoElementsStatic() {
  * *******************************************************************/
 void updateKm271AlarmElements() {
 
-  if (EspStrUtil::strDiff(&KmAlarmHash[0], pkmAlarmStr->alarm1)) {
-    webUI.wsUpdateWebText("p08_err_msg1", pkmAlarmStr->alarm1, false);
-  }
-  if (EspStrUtil::strDiff(&KmAlarmHash[1], pkmAlarmStr->alarm2)) {
-    webUI.wsUpdateWebText("p08_err_msg2", pkmAlarmStr->alarm2, false);
-  }
-  if (EspStrUtil::strDiff(&KmAlarmHash[2], pkmAlarmStr->alarm3)) {
-    webUI.wsUpdateWebText("p08_err_msg3", pkmAlarmStr->alarm3, false);
-  }
-  if (EspStrUtil::strDiff(&KmAlarmHash[3], pkmAlarmStr->alarm4)) {
-    webUI.wsUpdateWebText("p08_err_msg4", pkmAlarmStr->alarm4, false);
+  char text[CFG_MAX_CHAR_ALARM];
+  for (uint8_t i = 0; i < 4; ++i) {
+    km271GetAlarmText(i, text, sizeof(text), config.lang);
+    if (EspStrUtil::strDiff(&KmAlarmHash[i], text)) {
+      char elementId[16];
+      snprintf(elementId, sizeof(elementId), "p08_err_msg%u", i + 1);
+      webUI.wsUpdateWebText(elementId, text, false);
+    }
   }
 }
 
@@ -492,7 +488,8 @@ void generateKm271ConfigJSON() {
   webUI.addJson(kmCfgJsonDoc, "p07_burner_min_mod", pkmConfigStr->burner_min_modulation);
   webUI.addJson(kmCfgJsonDoc, "p07_burner_mod_run", pkmConfigStr->burner_modulation_runtime);
   webUI.addJson(kmCfgJsonDoc, "p07_building_type", KM_CFG_ARRAY::BUILDING_TYPE[config.lang][constrain(pkmConfigNum->building_type, 0, 2)]);
-  webUI.addJson(kmCfgJsonDoc, "p07_time_offset", pkmConfigStr->time_offset);
+  snprintf(tmpMessage, sizeof(tmpMessage), "%0.1f %s", pkmConfigNum->time_offset, MQTT_MSG::HOURS[config.lang]);
+  webUI.addJson(kmCfgJsonDoc, "p07_time_offset", tmpMessage);
 
   // solar config values
   if (config.km271.use_solar) {
