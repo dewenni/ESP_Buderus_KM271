@@ -59,6 +59,10 @@ Repositories ebenfalls zu ändern. Den Umfang aus dem aktuellen Auftrag ableiten
 - Lokale EspWebUI-Änderungen nur dann als übernommen betrachten, wenn die
   Abhängigkeit tatsächlich auf die lokale Library zeigt. Gepinnte Releases und
   Kopien unter `.pio/libdeps/` unterscheiden.
+- Für das erzeugen eines neues Releases stehen github flows zur verfügung.
+- Enthält ein Push einen neuen Versios-Tag, wird automatisch ein release erzeugt.
+- Die Release Information wird aus der changeNew.md genutzt.
+- changelog.md sollte immer die gesamte release historie enthalten.
 
 ## Code und gemeinsame Komponenten
 
