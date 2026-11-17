@@ -2,8 +2,8 @@
 
 ## Geltungsbereich
 
-Diese Datei gilt für `ESP_Buderus_KM271`. Gemeinsame Komponenten liegen in
-`EspWebUI`; das verwandte Projekt heißt `ESP32-Jarolift-Controller`.
+Diese Datei gilt für `ESP-Projekte`. Gemeinsame Komponenten liegen in
+`EspWebUI`; verwandte Projekte heißen z.B. `ESP_Buderus_KM271` und `ESP32-Jarolift-Controller`.
 Änderungen an einem Repository sind nicht automatisch ein Auftrag, die anderen
 Repositories ebenfalls zu ändern. Den Umfang aus dem aktuellen Auftrag ableiten.
 
@@ -21,14 +21,39 @@ Repositories ebenfalls zu ändern. Den Umfang aus dem aktuellen Auftrag ableiten
 - Bereits erteilte Freigaben berücksichtigen und für notwendige, abgedeckte
   Arbeitsschritte nicht erneut nach inhaltlicher Bestätigung fragen.
 
+## Modellauswahl und Reasoning-Aufwand
+
+- Die folgenden Aufgaben verbindlich an Subagenten delegieren; der Hauptagent übernimmt die Koordination und Ergebnisprüfung.
+- Für komplexe Programmierung **GPT Sol (`gpt-6-sol`) mit `reasoning_effort=medium`**
+  verwenden. Dazu gehören Architekturentscheidungen, anspruchsvolle Fehleranalyse,
+  Firmware- und Protokolländerungen sowie Änderungen an zeitkritischen Abläufen.
+- Für einfache organisatorische und redaktionelle Aufgaben **Luna (`gpt-6-luna`)
+  mit `reasoning_effort=high`** verwenden. Dazu gehören Builds, bestehende Tests
+  ausführen, Commit, Merge, Push, GitHub-Verwaltung, Dokumentation sowie Texte
+  lesen und schreiben.
+- Der Hauptagent koordiniert Anforderungen, teilt passende Aufgaben zu, prüft die
+  Ergebnisse der Subagenten und berichtet das Gesamtergebnis. Kurze, direkte
+  Antworten brauchen keinen zusätzlichen Subagenten.
+- Bei gemischten Aufgaben die Teile nach Anspruch trennen. Erfordert beispielsweise
+  ein fehlgeschlagener Build eine komplexe Codeanalyse, diese Analyse mit Sol
+  bearbeiten und einfache Build- oder Dokumentationsarbeit Luna zuweisen.
+- Modell und `reasoning_effort` beim Start eines Subagenten ausdrücklich setzen.
+  Nur bei konkretem Nutzen parallelisieren; konkurrierende Schreibzugriffe und
+  gleichzeitige Builds vermeiden.
+- Modell und Effort über die verfügbaren Modell- oder Delegationsfunktionen
+  einstellen. Diese Datei allein schaltet das aktive Modell nicht um. Wenn die
+  Umgebung die gewünschte Auswahl nicht unterstützt, die Einschränkung kurz
+  nennen und keinen erfolgten Modellwechsel behaupten.
+- Die Modellauswahl erweitert keine Berechtigungen: Bestehende Regeln für
+  Änderungen, Commits, Pushes und Veröffentlichungen gelten unverändert.
+
 ## Branches und Commits
 
 - Vor Änderungen den aktuellen Branch und offene Änderungen prüfen.
-- Für größere Features, Umbauten und Experimente früh einen eigenen Branch
-  vorschlagen. Ist die Umsetzung beauftragt, vor den Änderungen einen passenden
-  Feature- oder Test-Branch anlegen, sofern noch keiner besteht.
-- Kleine, zusammengehörige Korrekturen benötigen nicht zwingend einen neuen
-  Branch. Größere unfertige Änderungen nicht auf `main` ansammeln.
+- Für neue Features immer einen neuen Branch anlegen `feature/xy`
+- Für einen Fix immer einen neuen Branch anlegen `fix/xy`
+- Features und Fixes weiterhin auf eigenen Branches `feature/xy` bzw. `fix/xy` bearbeiten; dafür im bestehenden Projektcheckout den Branch wechseln. Keine zusätzlichen Worktrees anlegen, außer der Nutzer beauftragt sie ausdrücklich.
+- Offene Nutzeränderungen vor einem Branchwechsel schützen. Nicht ungefragt stashen, committen oder verwerfen; wenn ein Wechsel dadurch kollidiert oder Änderungen gefährdet, zuerst klären.
 - Unabhängige Themen getrennt halten. Wenn eine Aufgabe ein neues Thema berührt,
   die Trennung direkt ansprechen, bevor weitere Änderungen vermischt werden.
 - Nach abgeschlossenen Teilaufgaben aktiv einen sinnvollen Commit und eine kurze
@@ -46,9 +71,12 @@ Repositories ebenfalls zu ändern. Den Umfang aus dem aktuellen Auftrag ableiten
 - `web/output/` und die Firmware-Binaries im jeweiligen Release-Verzeichnis
   werden durch Build-Skripte erzeugt. Änderungen an den Quellen vornehmen,
   nicht ausschließlich an generierten Dateien.
-- Während der Entwicklung generierte Web-Dateien und Binaries standardmäßig
+- Während der Entwicklung generierte Web-Dateien (/web/output/) und Binaries (/release) standardmäßig
   nicht in normale Quellcode-Commits aufnehmen. Lokal dürfen sie für Tests
   aktualisiert werden.
+- Nur weiterhin gültige Tests mit dauerhaftem Nutzen für künftige Regressions-
+  oder Systemprüfungen aufheben und committen. Temporäre Prüfskripte, überholte
+  Experimente und reine Darstellungsprüfungen nach Abschluss entfernen.
 - Bei einem fertigen Release gehören sowohl die erzeugten Web-Dateien als auch
   die passenden `.bin`-Dateien in den Release-Stand und müssen mit gepusht werden.
 - Keine Versionsanhebung, Tags oder Veröffentlichung ohne entsprechenden Auftrag.
@@ -83,6 +111,7 @@ Repositories ebenfalls zu ändern. Den Umfang aus dem aktuellen Auftrag ableiten
 - Umfangreiche Nebenbereinigungen getrennt vorschlagen und nicht mit einer
   funktionalen Änderung vermischen.
 
+
 ## WebUI und Bedienung
 
 - Das vorhandene Grau-Blau-Design mit dezentem Orange weiterführen. Bestehende
@@ -102,8 +131,12 @@ Repositories ebenfalls zu ändern. Den Umfang aus dem aktuellen Auftrag ableiten
 
 - Prüfungen passend zur Änderung wählen: etwa Syntax und Darstellung bei UI-
   Änderungen, Builds und gezielte Verhaltenstests bei Firmware-Änderungen.
-- Tests sollen relevantes Verhalten absichern. Keine umfangreichen Tests nur für
-  triviale Format- oder Abstandsänderungen hinzufügen. Wenn die Funtkion fertig ist, können die zusätzlich erstellten Tests auch wieder gelöscht werden.
+- Tests sollen relevantes Verhalten absichern. Nur gültige und künftig wertvolle
+  Regressions- oder Systemtests dauerhaft behalten und committen; nicht automatisch
+  jeden bei der Entwicklung entstandenen Test übernehmen. Temporäre, doppelte oder
+  überholte Prüfungen entfernen. Keine umfangreichen Tests nur für triviale Format-
+  oder Abstandsänderungen hinzufügen. Dauerhafte Tests ausführbar halten und ihre
+  Voraussetzungen, Ausführung sowie Aussagegrenzen dokumentieren.
 - Erfolgreicher Build, Softwaretest und Test auf realer Hardware sind verschiedene
   Nachweise. Nicht behaupten, ein OTA-Update, Funkempfang oder eine Motorfahrt sei
   praktisch getestet worden, wenn nur der Build oder ein Test mit Nachbildungen lief.
