@@ -1,6 +1,7 @@
 #include <basics.h>
 #include <config.h>
 #include <message.h>
+#include <new>
 
 /* D E C L A R A T I O N S ****************************************************/
 
@@ -300,14 +301,9 @@ void configGPIO() {
  * *******************************************************************/
 void configInitValue() {
 
-  // Assigning a value-initialised instance restores every default declared
-  // in config.h. This used to be a memset() to zero, which silently discarded
-  // all of them - most seriously auth.enable = true, so "config reset" (telnet)
-  // left the device with web authentication switched OFF and wrote that to
-  // flash. The oilmeter defaults (2.0 kg/h, 0.85 kg/l, 50 pulses, 500 ms) and
-  // ntp/log/debug enable flags were lost the same way. Doing it this way also
-  // means defaults added to config.h later can no longer be missed here.
-  config = s_config{};
+  // Reconstruct in place: assignment would create a full s_config on the stack.
+  config.~s_config();
+  new (&config) s_config{};
 
   // fields that have no in-class default
   snprintf(config.wifi.hostname, sizeof(config.wifi.hostname), "ESP-Buderus-KM271");
