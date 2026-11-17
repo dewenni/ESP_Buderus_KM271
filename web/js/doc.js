@@ -17,6 +17,16 @@ document.addEventListener("DOMContentLoaded", function () {
   initWiFiSsidDialog();
   loadSimulatedData();
 
+  // ETH: hover info for the level shifter option (text follows the selected language)
+  const ethLvlShiftInfo = document.getElementById("p12_eth_lvl_shift_info");
+  const setEthLvlShiftInfo = () => {
+    const lang = document.getElementById("cfg_lang").value === "1" ? "en" : "de";
+    ethLvlShiftInfo.dataset.tooltip = user_translations.eth_lvl_shift_info[lang];
+  };
+  setEthLvlShiftInfo();
+  ethLvlShiftInfo.addEventListener("pointerenter", setEthLvlShiftInfo);
+  ethLvlShiftInfo.addEventListener("focus", setEthLvlShiftInfo);
+
   // ETH: open dialog to show w5500 configuration
   document
     .getElementById("p12_eth_open_dialog_btn")

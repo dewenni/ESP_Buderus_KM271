@@ -267,6 +267,12 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "cfg_eth_gpio_rst") == 0) {
     config.eth.gpio_rst = strtoul(value, NULL, 10);
   }
+  if (strcmp(elementId, "cfg_eth_lvl_shift_en") == 0) {
+    config.eth.lvl_shift_en = EspStrUtil::stringToBool(value);
+  }
+  if (strcmp(elementId, "cfg_eth_gpio_lvl_shift") == 0) {
+    config.eth.gpio_lvl_shift = strtoul(value, NULL, 10);
+  }
   if (strcmp(elementId, "cfg_eth_static_ip") == 0) {
     config.eth.static_ip = EspStrUtil::stringToBool(value);
   }
