@@ -223,6 +223,9 @@ void webCallback(const char *elementId, const char *value) {
   if (strcmp(elementId, "cfg_wifi_password") == 0) {
     snprintf(config.wifi.password, sizeof(config.wifi.password), "%s", value);
   }
+  if (strcmp(elementId, "cfg_wifi_power_save") == 0) {
+    config.wifi.power_save = EspStrUtil::stringToBool(value);
+  }
   if (strcmp(elementId, "cfg_wifi_static_ip") == 0) {
     config.wifi.static_ip = EspStrUtil::stringToBool(value);
   }

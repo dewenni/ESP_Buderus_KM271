@@ -32,21 +32,10 @@ static const char *TAG = "MAIN"; // LOG TAG
 static auto &wdt = EspSysUtil::Wdt::getInstance();
 static auto &ota = EspSysUtil::OTA::getInstance();
 
-// The bootloader is built with rollback enabled, but the Arduino core cancels
-// it inside initArduino() - before setup() runs - by marking the freshly
-// flashed image valid immediately. That means rollback only ever caught images
-// that fail to boot at all, not the far more likely case of an image that
-// boots and then cannot reach the network or dies later in startup. Since OTA
-// is the only update channel to this device, that is the difference between
-// "reboots into the previous firmware" and "someone has to travel to it with a
-// USB cable".
-//
-// Overriding this weak symbol defers the decision to us; markAppValid() below
-// makes it once the device has proven it actually works.
-bool verifyRollbackLater() { return true; }
+// The core otherwise confirms a pending image before setup() runs.
+extern "C" bool verifyRollbackLater() { return true; }
 
-#define OTA_VALIDATE_MIN_UPTIME 120000 // healthy for 2 min with a network
-#define OTA_VALIDATE_MAX_UPTIME 600000 // ... or 10 min regardless, see below
+static constexpr uint32_t OTA_VALIDATE_UPTIME = 30000;
 static bool otaImageValidated = false;
 
 static void handleArduinoOTA() {
@@ -82,28 +71,31 @@ static void handleArduinoOTA() {
  * @return  none
  * *******************************************************************/
 static void markAppValid() {
-  if (otaImageValidated) {
+  if (otaImageValidated || ota.isActive())
     return;
-  }
-
-  // Normal case: the network came up and we have been alive for a while, so
-  // the image is good. The fallback on uptime alone covers a device that is
-  // legitimately offline - in setup/AP mode, or with no WiFi configured yet -
-  // which must not be rolled back just for having no network.
-  bool healthy = (millis() > OTA_VALIDATE_MIN_UPTIME) && (wifi.connected || eth.connected);
-  if (!healthy && millis() < OTA_VALIDATE_MAX_UPTIME) {
+  const uint32_t uptime = millis();
+  if (uptime < OTA_VALIDATE_UPTIME)
     return;
-  }
 
-  otaImageValidated = true;
-
+  static uint32_t lastAttempt = 0;
+  if (uptime - lastAttempt < 10000)
+    return;
+  lastAttempt = uptime;
   const esp_partition_t *running = esp_ota_get_running_partition();
   esp_ota_img_states_t state;
-  if (esp_ota_get_state_partition(running, &state) == ESP_OK && state == ESP_OTA_IMG_PENDING_VERIFY) {
-    if (esp_ota_mark_app_valid_cancel_rollback() == ESP_OK) {
+  if (running == nullptr)
+    return;
+  const esp_err_t result = esp_ota_get_state_partition(running, &state);
+  if (result == ESP_ERR_NOT_FOUND || result == ESP_ERR_NOT_SUPPORTED) {
+    otaImageValidated = true; // No rollback state on this installation.
+  } else if (result == ESP_OK) {
+    if (state != ESP_OTA_IMG_PENDING_VERIFY) {
+      otaImageValidated = true;
+    } else if (esp_ota_mark_app_valid_cancel_rollback() == ESP_OK) {
+      otaImageValidated = true;
       ESP_LOGI(TAG, "OTA image confirmed - rollback cancelled");
     } else {
-      ESP_LOGE(TAG, "failed to confirm OTA image");
+      ESP_LOGE(TAG, "failed to confirm OTA image; will retry");
     }
   }
 }

@@ -52,6 +52,7 @@ struct s_cfg_wifi {
   char ssid[128];
   char password[128];
   char hostname[128];
+  bool power_save = true;
   bool static_ip = false;
   char ipaddress[17];
   char subnet[17];
