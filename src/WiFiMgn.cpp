@@ -100,7 +100,7 @@ bool setWiFiBssid(const char *value) {
  * *******************************************************************/
 static void beginWiFiConnection() {
   // Reapply these settings after the reconnect path resets the WiFi stack.
-  WiFi.setSleep(WIFI_PS_NONE);
+  WiFi.setSleep(config.wifi.power_save ? WIFI_PS_MIN_MODEM : WIFI_PS_NONE);
   esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N);
   uint8_t bssid[6];
   if (strlen(config.wifi.bssid) == 17 && parseBSSID(config.wifi.bssid, bssid)) {

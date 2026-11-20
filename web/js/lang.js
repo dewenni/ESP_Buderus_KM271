@@ -207,6 +207,11 @@ const user_translations = {
     de: "Keine WLAN-Netze gefunden.",
     en: "No Wi-Fi networks found.",
   },
+  wifi_power_save: { de: "WLAN-Energiesparmodus", en: "Wi-Fi power saving" },
+  wifi_power_save_hint: {
+    de: "Reduziert den Stromverbrauch. Bei Verbindungsproblemen testweise ausschalten. Gilt ab der nächsten WLAN-Verbindung oder nach einem Neustart.",
+    en: "Reduces power consumption. Try switching it off if you have connection problems. Applies on the next Wi-Fi connection or after a restart.",
+  },
   wifi_ap_bssid: {
     de: "Access Point (BSSID, optional)",
     en: "Access point (BSSID, optional)",

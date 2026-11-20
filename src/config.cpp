@@ -346,6 +346,7 @@ void configSaveToFile() {
   }
 
   doc["wifi"]["hostname"] = config.wifi.hostname;
+  doc["wifi"]["power_save"] = config.wifi.power_save;
   doc["wifi"]["static_ip"] = config.wifi.static_ip;
   doc["wifi"]["ipaddress"] = config.wifi.ipaddress;
   doc["wifi"]["subnet"] = config.wifi.subnet;
@@ -571,6 +572,7 @@ void configLoadFromFile() {
     }
 
     EspStrUtil::readJSONstring(config.wifi.hostname, sizeof(config.wifi.hostname), doc["wifi"]["hostname"]);
+    loadCfg(config.wifi.power_save, doc["wifi"]["power_save"]);
     loadCfg(config.wifi.static_ip, doc["wifi"]["static_ip"]);
     EspStrUtil::readJSONstring(config.wifi.ipaddress, sizeof(config.wifi.ipaddress), doc["wifi"]["ipaddress"]);
     EspStrUtil::readJSONstring(config.wifi.subnet, sizeof(config.wifi.subnet), doc["wifi"]["subnet"]);
