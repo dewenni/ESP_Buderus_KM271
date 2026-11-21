@@ -758,23 +758,19 @@ void updateKm271StatusElements(bool forceUpdate) {
 
   // hot-water values
   if (config.km271.use_ww) {
-    if (forceUpdate || kmStatusCpy.HotWaterOperatingStates_1 != pkmStatus->HotWaterOperatingStates_1) {
-      kmStatusCpy.HotWaterOperatingStates_1 = pkmStatus->HotWaterOperatingStates_1;
-      // WW-Operating State
-      if (bitRead(kmStatusCpy.HotWaterOperatingStates_1, 0)) { // AUTOMATIC
-        snprintf(tmpMessage, sizeof(tmpMessage), "%s", WEB_TXT::AUTOMATIC[config.lang]);
-        webUI.addJson(jsonDoc, "p01_ww_opmode_icon", "i_auto");
-      } else {                                                   // MANUAL
-        if (bitRead(kmStatusCpy.HotWaterOperatingStates_2, 5)) { // DAY
-          snprintf(tmpMessage, sizeof(tmpMessage), "%s: %s", WEB_TXT::MANUAL[config.lang], WEB_TXT::DAY[config.lang]);
-          webUI.addJson(jsonDoc, "p01_ww_opmode_icon", "i_manual");
-        } else { // NIGHT
-          snprintf(tmpMessage, sizeof(tmpMessage), "%s: %s", WEB_TXT::MANUAL[config.lang], WEB_TXT::NIGHT[config.lang]);
-          webUI.addJson(jsonDoc, "p01_ww_opmode_icon", "i_manual");
-        }
-      }
-      webUI.addJson(jsonDoc, "p01_ww_opmode", tmpMessage);
+    const uint8_t operatingStates1 = pkmStatus->HotWaterOperatingStates_1;
+    const uint8_t operatingStates2 = pkmStatus->HotWaterOperatingStates_2;
+    const bool automatic = bitRead(operatingStates1, 0);
+    const bool day = bitRead(operatingStates2, 5);
+    if (forceUpdate || automatic != bitRead(kmStatusCpy.HotWaterOperatingStates_1, 0) ||
+        day != bitRead(kmStatusCpy.HotWaterOperatingStates_2, 5)) {
+      const char *mode = automatic ? WEB_TXT::AUTOMATIC[config.lang] : (day ? WEB_TXT::MAN_DAY[config.lang] : WEB_TXT::MAN_NIGHT[config.lang]);
+      webUI.addJson(jsonDoc, "p01_ww_opmode", mode);
+      webUI.addJson(jsonDoc, "p01_ww_opmode_icon", automatic ? "i_auto" : "i_manual");
+    }
 
+    if (forceUpdate || kmStatusCpy.HotWaterOperatingStates_1 != operatingStates1) {
+      kmStatusCpy.HotWaterOperatingStates_1 = operatingStates1;
       webUI.addJson(jsonDoc, "p05_hw_ov1_auto", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 0)));
       webUI.addJson(jsonDoc, "p05_hw_ov1_disinfect", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 1)));
       webUI.addJson(jsonDoc, "p05_hw_ov1_reload", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 2)));
@@ -784,8 +780,8 @@ void updateKm271StatusElements(bool forceUpdate) {
       webUI.addJson(jsonDoc, "p05_hw_ov1_stays_cold", errOkString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 6)));
       webUI.addJson(jsonDoc, "p05_hw_ov1_err_anode", errOkString(bitRead(kmStatusCpy.HotWaterOperatingStates_1, 7)));
     }
-    if (forceUpdate || kmStatusCpy.HotWaterOperatingStates_2 != pkmStatus->HotWaterOperatingStates_2) {
-      kmStatusCpy.HotWaterOperatingStates_2 = pkmStatus->HotWaterOperatingStates_2;
+    if (forceUpdate || kmStatusCpy.HotWaterOperatingStates_2 != operatingStates2) {
+      kmStatusCpy.HotWaterOperatingStates_2 = operatingStates2;
       webUI.addJson(jsonDoc, "p05_hw_ov2_load", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 0)));
       webUI.addJson(jsonDoc, "p05_hw_ov2_manual", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 1)));
       webUI.addJson(jsonDoc, "p05_hw_ov2_reload", onOffString(bitRead(kmStatusCpy.HotWaterOperatingStates_2, 2)));
