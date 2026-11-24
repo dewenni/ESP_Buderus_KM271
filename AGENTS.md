@@ -23,29 +23,18 @@ Repositories ebenfalls zu ändern. Den Umfang aus dem aktuellen Auftrag ableiten
 
 ## Modellauswahl und Reasoning-Aufwand
 
-- Die folgenden Aufgaben verbindlich an Subagenten delegieren; der Hauptagent übernimmt die Koordination und Ergebnisprüfung.
-- Für komplexe Programmierung **GPT Sol (`gpt-6-sol`) mit `reasoning_effort=medium`**
-  verwenden. Dazu gehören Architekturentscheidungen, anspruchsvolle Fehleranalyse,
-  Firmware- und Protokolländerungen sowie Änderungen an zeitkritischen Abläufen.
-- Für einfache organisatorische und redaktionelle Aufgaben **Luna (`gpt-6-luna`)
-  mit `reasoning_effort=high`** verwenden. Dazu gehören Builds, bestehende Tests
-  ausführen, Commit, Merge, Push, GitHub-Verwaltung, Dokumentation sowie Texte
-  lesen und schreiben.
-- Der Hauptagent koordiniert Anforderungen, teilt passende Aufgaben zu, prüft die
-  Ergebnisse der Subagenten und berichtet das Gesamtergebnis. Kurze, direkte
-  Antworten brauchen keinen zusätzlichen Subagenten.
-- Bei gemischten Aufgaben die Teile nach Anspruch trennen. Erfordert beispielsweise
-  ein fehlgeschlagener Build eine komplexe Codeanalyse, diese Analyse mit Sol
-  bearbeiten und einfache Build- oder Dokumentationsarbeit Luna zuweisen.
-- Modell und `reasoning_effort` beim Start eines Subagenten ausdrücklich setzen.
-  Nur bei konkretem Nutzen parallelisieren; konkurrierende Schreibzugriffe und
-  gleichzeitige Builds vermeiden.
-- Modell und Effort über die verfügbaren Modell- oder Delegationsfunktionen
-  einstellen. Diese Datei allein schaltet das aktive Modell nicht um. Wenn die
-  Umgebung die gewünschte Auswahl nicht unterstützt, die Einschränkung kurz
-  nennen und keinen erfolgten Modellwechsel behaupten.
-- Die Modellauswahl erweitert keine Berechtigungen: Bestehende Regeln für
-  Änderungen, Commits, Pushes und Veröffentlichungen gelten unverändert.
+- Die Modellwahl richtet sich nach der Aufgabe. Die folgenden Angaben sind
+  Präferenzen. Eine Delegation an Subagenten ist optional.
+- Für Programmierung, Fehleranalyse, Lösungsfindung und Konzepte das
+  aktuell verfügbare Sol-Modell bevorzugen. `reasoning_effort=medium`
+  ist der Standard. `high` bei besonders komplexen Aufgaben erwägen,
+  etwa bei unklarer Fehlerursache, mehreren beteiligten Komponenten
+  oder Änderungen an zeitkritischen Abläufen.
+- Luna kann für einfache, klar umrissene Routineaufgaben eingesetzt werden,
+  etwa für einen Build oder einen Commit mit feststehendem Umfang.
+  Erfordert die Aufgabe eine Diagnose oder Abwägung, Sol bevorzugen.
+- Falls die gewünschte Modellwahl oder der Reasoning-Aufwand nicht
+  einstellbar ist, mit dem verfügbaren Modell weiterarbeiten.
 
 ## Branches und Commits
 
