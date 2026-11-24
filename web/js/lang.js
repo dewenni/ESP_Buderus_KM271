@@ -470,8 +470,24 @@ const user_translations = {
     en: "Enable level shifter",
   },
   eth_lvl_shift_info: {
-    de: "Nötig, wenn der Level-Shifter (PCA9306) bestückt ist: Der W5500-Reset an J7.6 läuft über ihn und kommt sonst nicht an. Ist der Level-Shifter nicht bestückt, stattdessen die Brücke R67 einlöten, dann bleibt diese Option aus. GPIO EN: KM271-WiFi mit ESP32 = 12, mit ESP32-S3 (v2.0) = 2.",
-    en: "Required if the level shifter (PCA9306) is populated: the W5500 reset on J7.6 is routed through it and does not arrive otherwise. If the level shifter is not populated, solder the bridge R67 instead and leave this option off. GPIO EN: KM271-WiFi with ESP32 = 12, with ESP32-S3 (v2.0) = 2.",
+    de: "Bei KM271-WiFi-Boards mit bestücktem PCA9306 diese Option aktivieren und GPIO EN eintragen. Die Firmware setzt diesen Pin beim Ethernet-Start auf HIGH, damit das Reset-Signal an J7.6 den W5500 erreicht. Änderungen werden nach einem Neustart wirksam.",
+    en: "On KM271-WiFi boards with a populated PCA9306, enable this option and enter GPIO EN. The firmware drives this pin HIGH when Ethernet starts so that the reset signal on J7.6 reaches the W5500. Changes take effect after a restart.",
+  },
+  eth_help_title: {
+    de: "Ethernet: Anschluss und Level-Shifter",
+    en: "Ethernet: wiring and level shifter",
+  },
+  eth_lvl_shift_bridge: {
+    de: "Bei Boards ohne PCA9306 muss die Brücke R67 bestückt sein. Die Option bleibt dann ausgeschaltet.",
+    en: "On boards without a PCA9306, bridge R67 must be populated. Leave this option off for these boards.",
+  },
+  eth_lvl_shift_gpio: {
+    de: "GPIO EN bei KM271-WiFi-Boards: vor V2.0 = GPIO 12; ab V2.0 = GPIO 2.",
+    en: "GPIO EN on KM271-WiFi boards: before V2.0 = GPIO 12; V2.0 and later = GPIO 2.",
+  },
+  eth_wiring_esp32: {
+    de: "Die folgende Anschlusstabelle gilt für das KM271-WiFi-Board mit ESP32.",
+    en: "The following wiring table applies to the KM271-WiFi board with ESP32.",
   },
   gpio: {
     de: "GPIO-Zuweisung",

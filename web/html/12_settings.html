@@ -349,6 +349,11 @@
                 <label for="cfg_eth_gpio_sck">GPIO CLK</label>
                 <button
                   id="p12_eth_open_dialog_btn"
+                  type="button"
+                  data-ui-local
+                  aria-haspopup="dialog"
+                  aria-controls="p12_eth_dialog"
+                  aria-labelledby="p12_eth_help_title"
                   class="i_help"></button>
               </div>
 <input type="number" id="cfg_eth_gpio_sck" name="eth_gpio_sck" />
@@ -386,8 +391,11 @@
                   <button
                     id="p12_eth_lvl_shift_info"
                     type="button"
-                    class="i_info"
-                    data-placement="top"></button>
+                    class="i_help"
+                    data-ui-local
+                    aria-haspopup="dialog"
+                    aria-controls="p12_eth_dialog"
+                    aria-labelledby="p12_eth_help_title p12_eth_lvl_shift_heading"></button>
                 </div>
                 <div class="switch-container">
                   <input
@@ -919,8 +927,14 @@
       </div>
     </div>
   </div>
-<dialog id="p12_eth_dialog">
+<dialog id="p12_eth_dialog" aria-labelledby="p12_eth_help_title">
               <article>
+                <h2 id="p12_eth_help_title" data-i18n="eth_help_title"></h2>
+                <h3 id="p12_eth_lvl_shift_heading" data-i18n="eth_lvl_shift"></h3>
+                <p data-i18n="eth_lvl_shift_info"></p>
+                <p data-i18n="eth_lvl_shift_bridge"></p>
+                <p data-i18n="eth_lvl_shift_gpio"></p>
+                <p data-i18n="eth_wiring_esp32"></p>
                 <table>
                   <tbody>
                     <tr>
@@ -978,6 +992,8 @@
                 <div class="dash-footer">
                   <button
                     id="p12_eth_close_dialog_btn"
+                    type="button"
+                    data-ui-local
                     data-i18n="close"
                     style="width: 75%"></button>
                 </div>
