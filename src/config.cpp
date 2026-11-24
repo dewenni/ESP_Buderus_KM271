@@ -203,6 +203,15 @@ void checkGPIO() {
     ESP_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_rst)", config.eth.gpio_rst);
   }
 
+  if (config.eth.gpio_lvl_shift == 0) {
+    config.eth.gpio_lvl_shift = -1;
+    if (config.eth.lvl_shift_en) {
+      ESP_LOGE(TAG, "invalid GPIO settings for ETH level shifter");
+    }
+  } else if (config.eth.lvl_shift_en && isDuplicate(config.eth.gpio_lvl_shift)) {
+    ESP_LOGE(TAG, "GPIO %d is used multiple times (eth.gpio_lvl_shift)", config.eth.gpio_lvl_shift);
+  }
+
   if (config.eth.gpio_sck == 0) {
     config.eth.gpio_sck = -1;
     invalidETH = true;
@@ -367,6 +376,8 @@ void configSaveToFile() {
   doc["eth"]["gpio_cs"] = config.eth.gpio_cs;
   doc["eth"]["gpio_irq"] = config.eth.gpio_irq;
   doc["eth"]["gpio_rst"] = config.eth.gpio_rst;
+  doc["eth"]["lvl_shift_en"] = config.eth.lvl_shift_en;
+  doc["eth"]["gpio_lvl_shift"] = config.eth.gpio_lvl_shift;
 
   doc["mqtt"]["enable"] = config.mqtt.enable;
   doc["mqtt"]["server"] = config.mqtt.server;
@@ -594,6 +605,8 @@ void configLoadFromFile() {
     loadCfg(config.eth.gpio_cs, doc["eth"]["gpio_cs"]);
     loadCfg(config.eth.gpio_irq, doc["eth"]["gpio_irq"]);
     loadCfg(config.eth.gpio_rst, doc["eth"]["gpio_rst"]);
+    loadCfg(config.eth.lvl_shift_en, doc["eth"]["lvl_shift_en"]);
+    loadCfg(config.eth.gpio_lvl_shift, doc["eth"]["gpio_lvl_shift"]);
 
     loadCfg(config.mqtt.enable, doc["mqtt"]["enable"]);
     EspStrUtil::readJSONstring(config.mqtt.server, sizeof(config.mqtt.server), doc["mqtt"]["server"]);

@@ -380,6 +380,33 @@
 <input type="number" id="cfg_eth_gpio_rst" name="eth_gpio_rst" />
 </div>
 </div>
+              <div class="section-header">
+                <div class="leftright">
+                  <label for="cfg_eth_lvl_shift_en" data-i18n="eth_lvl_shift"></label>
+                  <button
+                    id="p12_eth_lvl_shift_info"
+                    type="button"
+                    class="i_info"
+                    data-placement="top"></button>
+                </div>
+                <div class="switch-container">
+                  <input
+                    name="eth_lvl_shift_en"
+                    type="checkbox"
+                    role="switch"
+                    hideOpt="ETH_LVL_SHIFT"
+                    id="cfg_eth_lvl_shift_en" />
+                </div>
+              </div>
+              <div class="ETH_LVL_SHIFT settings-fields">
+                <div class="settings-field settings-field--compact">
+                  <label for="cfg_eth_gpio_lvl_shift">GPIO EN</label>
+                  <input
+                    type="number"
+                    id="cfg_eth_gpio_lvl_shift"
+                    name="eth_gpio_lvl_shift" />
+                </div>
+              </div>
 <div class="section-header">
                 <label for="man_ip_enable" data-i18n="static_ip"></label>
                 <div class="switch-container">
@@ -940,6 +967,11 @@
                       <td>RST</td>
                       <td>J7.6</td>
                       <td>13</td>
+                    </tr>
+                    <tr>
+                      <td>EN (Level-Shifter)</td>
+                      <td>--</td>
+                      <td>12</td>
                     </tr>
                   </tbody>
                 </table>

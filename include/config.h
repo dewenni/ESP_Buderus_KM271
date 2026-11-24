@@ -75,6 +75,8 @@ struct s_cfg_eth {
   int gpio_cs;
   int gpio_irq;
   int gpio_rst;
+  bool lvl_shift_en = false; // drive the enable pin of a level shifter (e.g. PCA9306) in front of W5500 RST
+  int gpio_lvl_shift;
 };
 
 struct s_cfg_mqtt {
