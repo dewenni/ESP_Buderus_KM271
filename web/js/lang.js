@@ -465,6 +465,14 @@ const user_translations = {
     de: "Uhrzeit setzen",
     en: "set time",
   },
+  eth_lvl_shift: {
+    de: "Level-Shifter aktivieren",
+    en: "Enable level shifter",
+  },
+  eth_lvl_shift_info: {
+    de: "Nötig, wenn der Level-Shifter (PCA9306) bestückt ist: Der W5500-Reset an J7.6 läuft über ihn und kommt sonst nicht an. Ist der Level-Shifter nicht bestückt, stattdessen die Brücke R67 einlöten, dann bleibt diese Option aus. GPIO EN: KM271-WiFi mit ESP32 = 12, mit ESP32-S3 (v2.0) = 2.",
+    en: "Required if the level shifter (PCA9306) is populated: the W5500 reset on J7.6 is routed through it and does not arrive otherwise. If the level shifter is not populated, solder the bridge R67 instead and leave this option off. GPIO EN: KM271-WiFi with ESP32 = 12, with ESP32-S3 (v2.0) = 2.",
+  },
   gpio: {
     de: "GPIO-Zuweisung",
     en: "GPIO-Settings",

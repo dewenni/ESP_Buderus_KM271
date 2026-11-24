@@ -82,6 +82,13 @@ void onEthEvent(arduino_event_id_t event, arduino_event_info_t info) {
  * *******************************************************************/
 void setupETH() {
 
+  // KM271-WiFi: W5500 RST (J7.6) is routed through the I2C level shifter (PCA9306).
+  // Enable it before ETH.begin(), otherwise the reset pulse does not reach the W5500.
+  if (config.eth.lvl_shift_en && config.eth.gpio_lvl_shift >= 0) {
+    pinMode(config.eth.gpio_lvl_shift, OUTPUT);
+    digitalWrite(config.eth.gpio_lvl_shift, HIGH);
+  }
+
   pinMode(config.eth.gpio_irq, INPUT_PULLUP);
   pinMode(config.eth.gpio_rst, OUTPUT);
 
