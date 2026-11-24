@@ -23,6 +23,8 @@ void webCallback(const char *elementId, const char *value) {
 
   ESP_LOGD(TAG, "Received - Element ID: %s", elementId);
 
+  if (webUI.handleConfigFileCommand(elementId, value)) return;
+
   // ------------------------------------------------------------------
   // GitHub / Version
   // ------------------------------------------------------------------

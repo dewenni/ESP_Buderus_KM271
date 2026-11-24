@@ -342,7 +342,13 @@ Im normalen Betrieb benötigen Telnet und Remote ArduinoOTA ein nicht leeres Ser
 
 ## Konfiguration sichern und wiederherstellen
 
-Unter **Tools → Konfiguration** kannst du die `config.json` mit **Exportieren** sichern, eine ausgewählte Datei **Importieren** oder den Inhalt **Anzeigen**. Erstelle vor Firmware-Updates und größeren Änderungen eine Sicherung. Behandle exportierte Konfigurationen vertraulich und veröffentliche sie nicht unbereinigt in Issues.
+Unter **Tools → Konfiguration** lässt sich `config.json` anzeigen, exportieren und importieren. Der Name der ausgewählten Importdatei ist beliebig; übernommen wird sie immer als `config.json`. Vor dem Ersetzen wird gültiges JSON mit dem projektspezifischen Abschnitt geprüft. Nach erfolgreichem Import oder Wiederherstellen startet das Gerät automatisch neu.
+
+**Backup auf dem Gerät** kopiert die bereits gespeicherte Konfiguration nach `config_backup.json`. Das Wiederherstellen ersetzt die aktuelle Konfiguration; das Backup bleibt erhalten. Beide Dateien zeigen ihren letzten Speicherzeitpunkt, bei fehlender gültiger Gerätezeit „Zeitpunkt unbekannt“. Schreib- oder Platzfehler lassen die bisherige Zieldatei bestehen.
+
+Mit **Backup exportieren** lässt sich der gesicherte Stand direkt als `config_backup.json` herunterladen, ohne ihn vorher wiederherzustellen.
+
+Das lokale Backup liegt auf demselben Flash und ersetzt keinen Export auf den Computer. Es enthält Zugangsdaten und sichert ausschließlich die Konfiguration, keine separat gespeicherten Zähler oder Verlaufsdaten. Exportierte Dateien vertraulich behandeln und nicht unbereinigt veröffentlichen.
 
 # WebUI
 

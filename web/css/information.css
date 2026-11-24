@@ -84,13 +84,13 @@
   overflow: hidden; clip-path: inset(50%); white-space: nowrap;
 }
 /* Keep each update source and its action in a separate, labelled area. */
-.information-page .tools-firmware { grid-column: 1 / -1; padding: 0; overflow: hidden; }
+.information-page .tools-firmware, .information-page .tools-configuration { grid-column: 1 / -1; padding: 0; overflow: hidden; }
 .information-page .tools > .table-header { padding: 1.25rem; margin: 0; border-bottom: 1px solid var(--ui-border); }
-.information-page .tools:not(.tools-firmware) > .table-header {
+.information-page .tools:not(.tools-firmware):not(.tools-configuration) > .table-header {
   margin: -1.25rem -1.25rem 1.25rem;
 }
 @container (max-width: 420px) {
-  .information-page .tools:not(.tools-firmware) > .table-header { margin: -1rem -1rem 1rem; padding: 1rem; }
+  .information-page .tools:not(.tools-firmware):not(.tools-configuration) > .table-header { margin: -1rem -1rem 1rem; padding: 1rem; }
 }
 .tools-update-methods { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .tools-update-method { min-width: 0; padding: 1.25rem; display: flex; flex-direction: column; }
@@ -108,8 +108,8 @@
   .tools-update-method + .tools-update-method { border-left: 0; border-top: 1px solid var(--ui-border); }
 }
 @container (max-width: 420px) {
-  .information-page .tools-firmware { padding: 0; }
-  .information-page .tools-firmware > .table-header, .tools-update-method { padding: 1rem; }
+  .information-page .tools-firmware, .information-page .tools-configuration { padding: 0; }
+  .information-page .tools-firmware > .table-header, .information-page .tools-configuration > .table-header, .tools-update-method { padding: 1rem; }
 }
 
 .memory-detail { display: block; margin-top: 0.25rem; color: var(--ui-muted); font-size: max(12px, 0.8rem); }
@@ -128,3 +128,26 @@
 .tools-file-picker { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; }
 .tools-file-picker > button { width: auto; margin: 0; flex-shrink: 0; }
 .tools-file-picker > span { min-width: 0; overflow-wrap: anywhere; color: var(--ui-muted); }
+
+/* Keep configuration actions in clearly separated, evenly sized groups. */
+.tools-config-picker { margin-top: 1rem; }
+.tools-config-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
+.tools-config-file-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.tools-configuration .tools-config-actions > button { width: 100%; }
+/* Share row heights, including wrapped filenames and button labels. */
+.tools-configuration .tools-update-methods { grid-template-rows: repeat(4, auto); }
+.tools-configuration .tools-update-method { display: grid; grid-template-rows: subgrid; grid-row: span 4; }
+.tools-configuration form { display: contents; }
+@container (max-width: 700px) {
+  .tools-configuration .tools-update-methods { grid-template-rows: none; }
+  .tools-configuration .tools-update-method { display: flex; grid-row: auto; }
+  .tools-configuration form { display: block; }
+  .tools-config-picker-placeholder { display: none; }
+}
+@container (max-width: 420px) {
+  .tools-config-actions { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Override the shared footer surface only while the message flies in/out. */
+.footerBar.msgBar { transform: translateY(100%); }
+.footerBar.msgBar.visible { transform: translateY(0); }

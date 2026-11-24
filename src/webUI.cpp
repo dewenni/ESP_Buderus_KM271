@@ -93,6 +93,9 @@ void applyWebAccessSettings() {
  * @return  none
  * *******************************************************************/
 void webUISetup() {
+  webUI.setConfigFileSection("km271");
+  webUI.setCallbackConfigFileReady([]() { return !ota.isActive(); });
+
   webUI.setCallbackOta([](EspWebUI::otaStatus otaState, const char *msg) {
     switch (otaState) {
     case EspWebUI::OTA_BEGIN:
@@ -125,11 +128,12 @@ void webUISetup() {
       webUI.wsUpdateWebText("upload_status_txt", msg, false);
       break;
     case EspWebUI::UPLOAD_FINISH:
-      webUI.wsUpdateWebText("upload_status_txt", msg, false);
-      configLoadFromFile(); // load configuration
-      applyWebAccessSettings();
-      webUI.wsUpdateWebLanguage(LANG::CODE[config.lang]);
-      webUI.wsLoadConfigWebUI(); // update webUI settings
+      // Executed on the loop task after the checked file was committed.
+      // Reboot before configCyclic can save the old in-memory configuration.
+      EspSysUtil::RestartReason::saveLocal("configuration restored/imported");
+      storeData();
+      delay(300);
+      ESP.restart();
       break;
     case EspWebUI::UPLOAD_ERROR:
       webUI.wsUpdateWebText("upload_status_txt", msg, false);

@@ -74,27 +74,50 @@
               </section>
             </div>
           </article>
-          <article class="card tools" data-connection-required>
+          <article class="card tools tools-configuration" data-connection-required>
             <h2 class="table-header" data-i18n="info_configuration"></h2>
-            <form method="POST" action="#" enctype="multipart/form-data" id="file_upload_form">
-              <label class="tools-file-label" for="file_input" data-i18n="info_config_file"></label>
-              <div class="tools-file-picker">
-                <input type="file" name="file_update" id="file_input" accept=".json" onchange="file_sub_fun(this)" hidden />
-                <button type="button" data-ui-local data-i18n="info_choose_file" onclick="document.getElementById('file_input').click()"></button>
-                <span data-selected-file="file_input" data-i18n="info_no_file" aria-live="polite"></span>
-              </div>
-              <div class="tools-actions">
-                <button type="submit" id="file_upload_btn" data-i18n="info_import" disabled></button>
-                <button type="button" id="p11_export_btn" data-i18n="info_export" onclick="exportConfig()"></button>
-                <button type="button" id="p11_file_show_btn" data-i18n="info_show"></button>
-              </div>
-              <div id="upload_status_txt" class="information-note" style="display:none" data-i18n="import_ready"></div>
-            </form>
+            <div class="tools-update-methods">
+              <section class="tools-update-method">
+                <h3 data-i18n="config_files_computer"></h3>
+                <form method="POST" action="#" enctype="multipart/form-data" id="file_upload_form">
+                  <div class="tools-source-box tools-version-info">
+                    <strong>config.json</strong>
+                    <div><span data-i18n="config_files_saved_at"></span>: <span id="config_saved_at" data-i18n="config_files_unknown"></span></div>
+                  </div>
+                  <label class="tools-file-label" for="file_input" data-i18n="info_config_file"></label>
+                  <div class="tools-file-picker tools-config-picker">
+                    <input type="file" name="file_update" id="file_input" accept=".json" onchange="file_sub_fun(this)" hidden />
+                    <button type="button" data-ui-local data-i18n="info_choose_file" onclick="document.getElementById('file_input').click()"></button>
+                    <span data-selected-file="file_input" data-i18n="info_no_file" aria-live="polite"></span>
+                  </div>
+                  <div class="tools-actions tools-config-actions tools-config-file-actions">
+                    <button type="submit" id="file_upload_btn" data-ui-local data-i18n="info_import" disabled></button>
+                    <button type="button" id="p11_export_btn" data-i18n="info_export" onclick="exportConfig()"></button>
+                    <button type="button" id="p11_file_show_btn" data-i18n="info_show"></button>
+                  </div>
+                  <div id="upload_status_txt" class="information-note" style="display:none" data-i18n="import_ready"></div>
+                </form>
+              </section>
+              <section class="tools-update-method">
+                <h3 data-i18n="config_files_device"></h3>
+                <div class="tools-source-box tools-version-info">
+                  <strong>config_backup.json</strong>
+                  <div><span data-i18n="config_files_backup_at"></span>: <span id="config_backup_at" data-i18n="config_files_missing"></span></div>
+                </div>
+                <div class="tools-config-picker-placeholder" aria-hidden="true"></div>
+                <div class="tools-actions tools-config-actions tools-config-file-actions">
+                  <button type="button" id="config_backup_btn" data-ui-local data-i18n="config_files_create"></button>
+                  <button type="button" id="config_restore_btn" data-ui-local data-i18n="config_files_restore" disabled></button>
+                  <button type="button" id="config_backup_export_btn" data-ui-local data-i18n="config_files_export" disabled></button>
+                </div>
+              </section>
+            </div>
           </article>
         </div>
         <dialog id="open_config_dialog">
             <article>
               <header><strong>config.json</strong></header>
+              <p><span data-i18n="config_files_saved_at"></span>: <span id="config_dialog_saved_at" data-i18n="config_files_unknown"></span></p>
               <pre id="config_output"></pre>
               <div class="dash-footer">
                 <button
