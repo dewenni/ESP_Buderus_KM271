@@ -1,72 +1,88 @@
 name: Create Release
 
-# Erstellt ein Release bei einem Push mit Tag
-# Prüft ob die Version im Code und in der changeNew.md mit dem Tag übereinstimmen
-# liest die changeNew.md und nutzt diese als Beschreibung für das Release
-# upload aller Files aus ./release/ als Assets im Release
-
 on:
-  workflow_dispatch: # Ermöglicht das manuelle Anstoßen des Workflows
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to build and release (for example v6.0.2)
+        required: true
+        type: string
   push:
     tags:
       - 'v*.*.*'
 
+permissions:
+  contents: write
+
+env:
+  RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
   create_release:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout tagged source
+        uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ env.RELEASE_TAG }}
 
-      - name: Extract version from header file
-        id: extract_version
-        run: |
-          # Liest die Version aus der Header-Datei aus und entfernt Anführungszeichen
-          VERSION=$(grep '#define VERSION' ./include/config.h | awk '{print $3}' | tr -d '"')
-          echo "Extracted version: $VERSION"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      - name: Check if version matches tag
-        id: check_version
-        run: |
-          echo "Current tag: ${{ github.ref_name }}"
-          echo "Project version: $VERSION"
-          if [ "$VERSION" != "${{ github.ref_name }}" ]; then
-            echo "Version mismatch: $VERSION does not match tag ${{ github.ref_name }}"
-            exit 1
-          fi
-
-      - name: Check changelog header and prepare release notes
-        id: check_changelog
-        run: |
-          # Lese die erste Zeile der changeNew.md und vergleiche sie mit dem Tag
-          header=$(grep -m 1 . changeNew.md | sed 's/^# //')
-          echo "Changelog header: $header"
-
-          if [[ "$header" != "$VERSION" ]]; then
-            echo "Changelog header $header does not match the tag $VERSION"
-            exit 1
-          fi
-
-          # Entferne die erste Zeile und speichere den Rest in einer temporären Datei
-          tail -n +2 changeNew.md > release_notes.md
+      - name: Check version and prepare release notes
         shell: bash
-
-      - name: Create release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref_name }}
         run: |
-          # Erstelle die Release-Dateien-Variable
-          files=$(ls ./release/*)
-          
-          # Erstelle das Release und lade die Assets hoch
-          gh release create "$tag" $files \
-              --repo="$GITHUB_REPOSITORY" \
-              --title="${tag}" \
-              -F release_notes.md
+          version=$(sed -n 's/^#define VERSION[[:space:]]*"\([^"]*\)".*/\1/p' include/config.h)
+          header=$(grep -m 1 . changeNew.md | sed 's/^# //')
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || [[ "$version" != "$RELEASE_TAG" ]] || [[ "$header" != "$RELEASE_TAG" ]]; then
+            echo "Version mismatch: tag=$RELEASE_TAG config=$version release-notes=$header"
+            exit 1
+          fi
+          tail -n +2 changeNew.md > "$RUNNER_TEMP/release_notes.md"
 
-      - name: Clean up
-        run: rm release_notes.md
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: .github/requirements-build.txt
 
+      - name: Cache PlatformIO packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio/.cache
+            ~/.platformio/packages
+            ~/.platformio/platforms
+          key: ${{ runner.os }}-pio-py313-${{ hashFiles('platformio.ini', '.github/requirements-build.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pio-py313-
+
+      - name: Install PlatformIO
+        run: python -m pip install -r .github/requirements-build.txt
+
+      - name: Run host checks
+        run: python -B -m unittest discover -s tests
+
+      - name: Build release from source
+        run: pio run -e esp32
+
+      - name: Create release and upload binaries
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          flash="release/buderus_km271_esp32_flash_${RELEASE_TAG}.bin"
+          ota="release/buderus_km271_ota_update_${RELEASE_TAG}.bin"
+          test -s "$flash"
+          test -s "$ota"
+          gh release create "$RELEASE_TAG" "$flash" "$ota" \
+            --verify-tag \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$RELEASE_TAG" \
+            --notes-file "$RUNNER_TEMP/release_notes.md"
+
+      - name: Clean generated files
+        if: always()
+        run: rm -rf release web/output

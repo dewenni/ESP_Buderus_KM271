@@ -4,19 +4,76 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Check out the repository
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
-      # 4. Deploy to GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Set up Python
+        uses: actions/setup-python@v7
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: web/output
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: .github/requirements-build.txt
+
+      - name: Cache PlatformIO packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio/.cache
+            ~/.platformio/packages
+            ~/.platformio/platforms
+          key: ${{ runner.os }}-pio-py313-${{ hashFiles('platformio.ini', '.github/requirements-build.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pio-py313-
+
+      - name: Install PlatformIO
+        run: python -m pip install -r .github/requirements-build.txt
+
+      - name: Run host checks
+        run: python -B -m unittest discover -s tests
+
+      - name: Build firmware and WebUI
+        run: pio run -e esp32
+
+      - name: Prepare demo
+        run: |
+          cp .github/pages/config.json web/output/config.json
+          for asset in index.html lib.css lib.js user.css user.js config.json sim.json; do
+            test -s "web/output/$asset"
+          done
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: web/output
+
+      - name: Clean generated files
+        if: always()
+        run: rm -rf release web/output
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
