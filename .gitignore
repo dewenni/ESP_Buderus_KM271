@@ -11,3 +11,7 @@ Todo.txt
 zTemp
 web/temp
 work
+
+# Generated locally and by CI; published as release/Pages artifacts
+/web/output/
+/release/

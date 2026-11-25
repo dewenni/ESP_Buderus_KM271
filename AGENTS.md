@@ -60,14 +60,18 @@ Repositories ebenfalls zu ändern. Den Umfang aus dem aktuellen Auftrag ableiten
 - `web/output/` und die Firmware-Binaries im jeweiligen Release-Verzeichnis
   werden durch Build-Skripte erzeugt. Änderungen an den Quellen vornehmen,
   nicht ausschließlich an generierten Dateien.
-- Während der Entwicklung generierte Web-Dateien (/web/output/) und Binaries (/release) standardmäßig
-  nicht in normale Quellcode-Commits aufnehmen. Lokal dürfen sie für Tests
-  aktualisiert werden.
+- `web/output/` und `release/` sind lokale bzw. CI-Build-Ausgaben und werden
+  nicht versioniert. Lokal dürfen sie für Tests aktualisiert werden.
+- Demo-Quellen liegen in `web/sim.json` und `.github/pages/config.json`.
+  Der Pages-Workflow baut auf `main` und veröffentlicht die erzeugte WebUI
+  als Pages-Artefakt. Keine generierten Dateien zurück ins Repository committen.
 - Nur weiterhin gültige Tests mit dauerhaftem Nutzen für künftige Regressions-
   oder Systemprüfungen aufheben und committen. Temporäre Prüfskripte, überholte
   Experimente und reine Darstellungsprüfungen nach Abschluss entfernen.
-- Bei einem fertigen Release gehören sowohl die erzeugten Web-Dateien als auch
-  die passenden `.bin`-Dateien in den Release-Stand und müssen mit gepusht werden.
+- Der Release-Workflow baut den Versions-Tag aus den Quellen und lädt die
+  erzeugten `.bin`-Dateien direkt als GitHub-Release-Assets hoch. Ein Release
+  benötigt keine eingecheckten Build-Ausgaben. Nach Upload werden die temporären
+  Ausgaben auf dem Runner entfernt.
 - Keine Versionsanhebung, Tags oder Veröffentlichung ohne entsprechenden Auftrag.
 - Build-Skripte können alte Binaries entfernen oder gemeinsame erzeugte Header
   überschreiben. Solche Nebeneffekte prüfen und keine fremden Änderungen bereinigen.
