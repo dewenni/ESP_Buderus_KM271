@@ -2,6 +2,7 @@ import re
 import logging
 import sys
 import json
+from pathlib import Path
 
 # Logger konfigurieren
 logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
@@ -45,13 +46,13 @@ if changenew_version != config_version:
 
 
 # Funktion zum Ersetzten der Version in der sim.json für github-pages
-def update_json_version(json_path, config_path, keys):
+def update_json_version(json_path, output_path, config_path, keys):
 
     version = get_version_from_config(config_path)
     if not version:
         raise ValueError("Keine Version in der Config-Datei gefunden!")
 
-    with open(json_path, 'r') as f:
+    with open(json_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
     for key in keys:
@@ -60,12 +61,15 @@ def update_json_version(json_path, config_path, keys):
         else:
             print(f"Warnung: Schlüssel '{key}' nicht in der JSON-Datei gefunden!")
 
-    with open(json_path, 'w') as f:
-        json.dump(data, f, indent=4)
+    output = Path(output_path)
+    content = json.dumps(data, indent=4).encode('utf-8')
+    if not output.exists() or output.read_bytes() != content:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_bytes(content)
     
 keys= [
     'p00_version',
     'p09_sw_version',
     'p00_dialog_version',
 ]
-update_json_version("web/output/sim.json", "include/config.h", keys)
+update_json_version("web/sim.json", "web/output/sim.json", "include/config.h", keys)
