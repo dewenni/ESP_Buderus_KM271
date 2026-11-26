@@ -12,6 +12,7 @@ extern s_wifi wifi;
 void setupWiFi();
 void wifiCyclic();
 bool wifiIsConnected();
+void updateWiFiSignal();
 void sendWiFiInfo();
 
 // BSSID settings and asynchronous WLAN searches.

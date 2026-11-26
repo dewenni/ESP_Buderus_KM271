@@ -211,14 +211,21 @@ void updateSystemInfoElements() {
   webUI.initJsonBuffer(jsonDoc);
 
   // Network information
+  updateWiFiSignal();
+  const bool wifiConnected = wifiIsConnected();
   webUI.addJson(jsonDoc, "p09_wifi_ip", wifi.ipAddress);
-  webUI.addJson(jsonDoc, "p09_wifi_status", wifiIsConnected() ? WEB_TXT::CONNECTED[config.lang] : WEB_TXT::NOT_CONNECTED[config.lang]);
-  snprintf(tmpMessage, sizeof(tmpMessage), "%i %%", wifi.signal);
-  webUI.addJson(jsonDoc, "p09_wifi_signal", tmpMessage);
-  snprintf(tmpMessage, sizeof(tmpMessage), "%ld dbm", wifi.rssi);
-  webUI.addJson(jsonDoc, "p09_wifi_rssi", tmpMessage);
+  webUI.addJson(jsonDoc, "p09_wifi_status", wifiConnected ? WEB_TXT::CONNECTED[config.lang] : WEB_TXT::NOT_CONNECTED[config.lang]);
+  if (wifiConnected) {
+    snprintf(tmpMessage, sizeof(tmpMessage), "%i %%", wifi.signal);
+    webUI.addJson(jsonDoc, "p09_wifi_signal", tmpMessage);
+    snprintf(tmpMessage, sizeof(tmpMessage), "%ld dbm", wifi.rssi);
+    webUI.addJson(jsonDoc, "p09_wifi_rssi", tmpMessage);
+  } else {
+    webUI.addJson(jsonDoc, "p09_wifi_signal", "—");
+    webUI.addJson(jsonDoc, "p09_wifi_rssi", "—");
+  }
 
-  if (!wifiIsConnected()) {
+  if (!wifiConnected) {
     webUI.addJson(jsonDoc, "p00_wifi_icon", "i_wifi_nok");
   } else if (wifi.rssi < -80) {
     webUI.addJson(jsonDoc, "p00_wifi_icon", "i_wifi_1");
