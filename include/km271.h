@@ -46,8 +46,11 @@ enum e_rxState {
 // The higher level states used in handleRxBlock();
 enum e_rxBlockState {
   KM_TSK_START,   // Switch to logging mode
+  KM_TSK_LG_READY, // Wait for permission to send the log command
   KM_TSK_LG_CMD,  // Receive confirmation from KM
   KM_TSK_LOGGING, // Logging active
+  KM_TSK_WRITE_READY, // Wait for permission to send a queued telegram
+  KM_TSK_WRITE_ACK, // Wait for the queued telegram's final acknowledgement
 };
 
 struct KmRx_s {               // Rx structure for one rx block
@@ -346,12 +349,17 @@ void sendKM271Debug();
 void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara);
 void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara);
 bool km271sendServiceCmd(uint8_t cmdPara[8]);
+// Atomically queue one request of count 8-byte telegrams in the given order.
+// false: invalid/empty, disconnected or insufficient capacity; nothing queued.
+// true means queued, not acknowledged or confirmed by a returned value.
+bool km271QueueWrite(const uint8_t (*telegrams)[8], size_t count);
 bool km271GetLogMode();
 // Bits: boiler, WW, solar, HC1, HC2, outside, burner, HC1 WW priority.
 uint8_t km271ChartValidity();
 unsigned long km271GetTxBytes();
 unsigned long km271GetRxBytes();
-void km271SetDateTimeNTP();
+// true only if a valid current time was queued.
+bool km271SetDateTimeNTP();
 void km271SetDateTimeDTI(tm dti);
 void parseInfo(uint8_t *data, int len);
 bool km271GetRefreshState();

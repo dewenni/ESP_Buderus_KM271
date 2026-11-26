@@ -279,17 +279,19 @@ void loop() {
       }
 
       if (dst_old != dti.tm_isdst && !main_reboot) { // check if DST has changed
-        km271SetDateTimeNTP();                       // change date and time on buderus
+        // Keep the previous DST reference if admission failed; retry on the
+        // next existing hourly check instead of silently losing the update.
+        if (km271SetDateTimeNTP()) dst_old = dti.tm_isdst;
+      } else {
+        dst_old = dti.tm_isdst;
       }
-      dst_old = dti.tm_isdst;
     }
     // set ntp time on logamatic after bootup and successful ntp sync
     if (ntpTimer.cycleTrigger(10000)) {
       struct tm timeInfo;
       ntpSynced = getLocalTime(&timeInfo, 5);
-      if (ntpSynced && !ntpInit && config.ntp.auto_sync) {
-        km271SetDateTimeNTP();
-        ntpInit = true;
+      if (ntpSynced && !ntpInit && config.ntp.auto_sync && km271GetLogMode()) {
+        ntpInit = km271SetDateTimeNTP();
       }
     }
   }

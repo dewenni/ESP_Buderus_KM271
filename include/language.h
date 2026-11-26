@@ -53,7 +53,7 @@ constexpr const char *OILCNT[MAX_LANG] = {"/setvalue/oilcounter", "/setvalue/oil
 // mqtt messages : texts that are used for mqtt messages from KM271
 // ======================================================================================
 namespace MQTT_MSG {
-constexpr const char *DATETIME_CHANGED[MAX_LANG] = {"Datum und Uhrzeit geändert auf", "date and time set to"};
+constexpr const char *DATETIME_QUEUED[MAX_LANG] = {"Datum und Uhrzeit zum Schreiben vorgemerkt", "date and time queued for writing"};
 constexpr const char *ON[MAX_LANG] = {"An", "On"};
 constexpr const char *OFF[MAX_LANG] = {"Aus", "Off"};
 constexpr const char *MON[MAX_LANG] = {"Mo", "Mon"};
