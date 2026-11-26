@@ -32,33 +32,18 @@
         <header class="page-heading">
           <h1 data-i18n="alarm"></h1><p data-i18n="info_alarm_subtitle"></p>
         </header>
-<div class="information-grid">
-<article class="card">
-            <h2 class="table-header" data-i18n="info_alarm_memory"></h2>
-            <table class="striped">
-              <tbody>
-                <tr>
-                  <td data-i18n="message++ 1"></td>
-                  <td id="p08_err_msg1" class="table-value" data-info-state="alarm"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="message++ 2"></td>
-                  <td id="p08_err_msg2" class="table-value" data-info-state="alarm"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="message++ 3"></td>
-                  <td id="p08_err_msg3" class="table-value" data-info-state="alarm"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="message++ 4"></td>
-                  <td id="p08_err_msg4" class="table-value" data-info-state="alarm"></td>
-                </tr>
-              </tbody>
-            </table>
-          <p class="information-note" data-i18n="info_alarm_hint"></p>
-</article>
-</div>
-</div>
+        <div id="p08_alarm_content" aria-live="polite" aria-atomic="true"></div>
+        <p class="information-note" data-i18n="alarm_scope"></p>
+        <details class="alarm-originals">
+          <summary data-i18n="alarm_originals"></summary>
+          <table class="alarm-raw"><tbody>
+            <tr><th scope="row" data-i18n="message++ 1"></th><td id="p08_err_msg1"></td></tr>
+            <tr><th scope="row" data-i18n="message++ 2"></th><td id="p08_err_msg2"></td></tr>
+            <tr><th scope="row" data-i18n="message++ 3"></th><td id="p08_err_msg3"></td></tr>
+            <tr><th scope="row" data-i18n="message++ 4"></th><td id="p08_err_msg4"></td></tr>
+          </tbody></table>
+        </details>
+      </div>
       <!--SECTION-END-->
     </main>
     <!-- Footer -->

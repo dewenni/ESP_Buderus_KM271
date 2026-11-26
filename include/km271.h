@@ -336,6 +336,10 @@ s_km271_config_num *km271GetConfigValueAdr();
 s_km271_alarm_str *km271GetAlarmMsgAdr();
 // Alarm index 0..3; empty until its telegram has been received.
 void km271GetAlarmText(uint8_t index, char *text, unsigned int size, uint8_t language);
+// Raw cached telegram and validity within the current logging session.
+bool km271GetAlarmData(uint8_t index, uint8_t *data);
+uint8_t km271GetAlarmValidity();
+const char *km271GetAlarmTitle(uint8_t code, uint8_t language);
 
 void sendKM271Info();
 void sendKM271Debug();

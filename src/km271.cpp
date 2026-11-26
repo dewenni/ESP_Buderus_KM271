@@ -38,6 +38,7 @@ s_km271_config_num kmConfigNum; // All Config values (Number)
 s_km271_alarm_str kmAlarmMsg;   // Alarm Messages
 static uint8_t alarmTelegrams[4][9] = {}; // Raw alarms for language-independent WebUI formatting
 static uint8_t alarmsReceived = 0;
+static uint8_t alarmsCurrent = 0;
 
 // Status machine handling
 e_rxBlockState KmRxBlockState = KM_TSK_START; // The RX block state
@@ -157,6 +158,8 @@ void cyclicKM271() {
     } // end-case
   }   // end-if
 
+  if (!config.km271.use_alarmMsg) alarmsCurrent = 0;
+
   // Global status logmode active. KmRxBlockState is only ever advanced by
   // *received* blocks, so on its own it stays at KM_TSK_LOGGING forever once
   // the link dies - if the ribbon cable works loose or the Logamatic is
@@ -172,6 +175,7 @@ void cyclicKM271() {
     }
     kmSerialStats.logModeActive = false;
     chartValuesReceived = 0;
+    alarmsCurrent = 0;
     KmRxBlockState = KM_TSK_START;
   } else {
     kmSerialStats.logModeActive = (KmRxBlockState == KM_TSK_LOGGING);
@@ -208,6 +212,7 @@ void handleRxBlock(uint8_t *data, int len, uint8_t bcc) {
     if (data[0] != KM_DLE) {         // No DLE, not accepted, try again
       KmRxBlockState = KM_TSK_START; // Back to START state
     } else {
+      alarmsCurrent = 0; // A new logging session must refresh all four memory slots.
       km271RefreshActive = true;
       KmRxBlockState = KM_TSK_LOGGING; // Command accepted, ready to log!
     }
@@ -1012,9 +1017,10 @@ void parseInfo(uint8_t *data, int len) {
     break;
 
   case 0x0300: // 0x0300 : Error Buffer 1
-    if (config.km271.use_alarmMsg) {
+    if (config.km271.use_alarmMsg && len >= 9) {
       memcpy(alarmTelegrams[0], data, sizeof(alarmTelegrams[0]));
       alarmsReceived |= 1U << 0;
+      alarmsCurrent |= 1U << 0;
       if (decodeErrorMsg(kmAlarmMsg.alarm1, sizeof(kmAlarmMsg.alarm1), data, config.mqtt.lang)) {
         km271Msg(KM_TYP_ALARM, KM_ERR_TOPIC::ERR_BUFF_1[config.mqtt.lang], kmAlarmMsg.alarm1); // unacknowledged alarm
       } else {
@@ -1025,9 +1031,10 @@ void parseInfo(uint8_t *data, int len) {
     break;
 
   case 0x0307: // 0x0307 : Error Buffer 2
-    if (config.km271.use_alarmMsg) {
+    if (config.km271.use_alarmMsg && len >= 9) {
       memcpy(alarmTelegrams[1], data, sizeof(alarmTelegrams[1]));
       alarmsReceived |= 1U << 1;
+      alarmsCurrent |= 1U << 1;
       if (decodeErrorMsg(kmAlarmMsg.alarm2, sizeof(kmAlarmMsg.alarm2), data, config.mqtt.lang)) {
         km271Msg(KM_TYP_ALARM, KM_ERR_TOPIC::ERR_BUFF_2[config.mqtt.lang], kmAlarmMsg.alarm2); // unacknowledged alarm
       } else {
@@ -1038,9 +1045,10 @@ void parseInfo(uint8_t *data, int len) {
     break;
 
   case 0x030e: // 0x030e : Error Buffer 3
-    if (config.km271.use_alarmMsg) {
+    if (config.km271.use_alarmMsg && len >= 9) {
       memcpy(alarmTelegrams[2], data, sizeof(alarmTelegrams[2]));
       alarmsReceived |= 1U << 2;
+      alarmsCurrent |= 1U << 2;
       if (decodeErrorMsg(kmAlarmMsg.alarm3, sizeof(kmAlarmMsg.alarm3), data, config.mqtt.lang)) {
         km271Msg(KM_TYP_ALARM, KM_ERR_TOPIC::ERR_BUFF_3[config.mqtt.lang], kmAlarmMsg.alarm3); // unacknowledged alarm
       } else {
@@ -1051,9 +1059,10 @@ void parseInfo(uint8_t *data, int len) {
     break;
 
   case 0x0315: // 0x0315 : Error Buffer 4
-    if (config.km271.use_alarmMsg) {
+    if (config.km271.use_alarmMsg && len >= 9) {
       memcpy(alarmTelegrams[3], data, sizeof(alarmTelegrams[3]));
       alarmsReceived |= 1U << 3;
+      alarmsCurrent |= 1U << 3;
       if (decodeErrorMsg(kmAlarmMsg.alarm4, sizeof(kmAlarmMsg.alarm4), data, config.mqtt.lang)) {
         km271Msg(KM_TYP_ALARM, KM_ERR_TOPIC::ERR_BUFF_4[config.mqtt.lang], kmAlarmMsg.alarm4); // unacknowledged alarm
       } else {
@@ -2649,6 +2658,18 @@ void decodeTimer(char *timerInfo, unsigned int size, uint8_t dateOnOff, uint8_t 
  * @return  index for error message in errMsgText
  * *******************************************************************/
 uint8_t getErrorTextIndex(uint8_t errorNr) { return limit(0, errorNr, 214); }
+
+bool km271GetAlarmData(uint8_t index, uint8_t *data) {
+  if (index >= 4 || !(alarmsReceived & (1U << index))) return false;
+  memcpy(data, alarmTelegrams[index], sizeof(alarmTelegrams[index]));
+  return true;
+}
+
+uint8_t km271GetAlarmValidity() { return alarmsCurrent; }
+
+const char *km271GetAlarmTitle(uint8_t code, uint8_t language) {
+  return errMsgText.idx[constrain(language, 0, MAX_LANG - 1)][getErrorTextIndex(code)];
+}
 
 // Format the last received alarm in the requested language without changing MQTT messages.
 void km271GetAlarmText(uint8_t index, char *text, unsigned int size, uint8_t language) {

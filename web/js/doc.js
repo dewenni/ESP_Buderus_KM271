@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initControlSliders();
   initControlHelp();
   initInformationPages();
+  initAlarms();
   initLogType();
   initDashboardCharts();
   initWeeklyPrograms();
