@@ -41,3 +41,32 @@ completed downloads without implicit erase, and cancelled deletion. The Python
 host suite includes them when Node.js is available. They do not test flash,
 ESP-IDF panic capture or browser layout. Hardware procedure and ELF archive
 requirements are documented in `Doc/Absturzdiagnose.md`.
+
+KM271 write queue and serial handshake replay (C++11 compiler `c++`, Python 3.9+):
+
+```sh
+python3 -B -m unittest discover -s tests -p 'test_km271_writes.py'
+```
+
+The full Python suite includes this check and skips it if `c++` is unavailable.
+It compiles the actual production prefix of `src/km271.cpp` up to the application
+decoder `parseInfo`, with the real `km271.h` and `km271WriteQueue.h`. Only Arduino
+clock/UART, critical sections, hardware configuration and message delivery are
+stubbed. The production helpers and 27 parameter senders are compiled too,
+using the real DE/EN dictionaries. The value decoder is replaced except for
+the actual received WW config case. Test sources and the executable are
+generated in a temporary directory.
+
+It covers atomic batch admission, capacity and FIFO wrap-around, owned command
+bytes, sequential requests, distinct send permission/final ACK, no log restart
+on success, preserved validity, NAK retries and group cancellation, timeouts,
+late ACK, reconnect, incoming framing/checksum and clock rollover. It also
+checks all 27 parameter updates and config-message topic/payload in DE/EN,
+ACK-only cache updates, untouched neighbouring/status values, partial failure,
+keep bytes, unknown commands and subsequent real WW config reception. MQTT
+publication uses the existing production message path; no broker is contacted.
+Critical
+section stubs verify that UART/logging run outside the lock; they do not model
+real scheduling or prove thread safety on the ESP32. The checks do not confirm
+device timing, parameter adoption, actual MQTT delivery, browser refresh or ID04
+timer write encoding. Hardware procedure and limits are in `Doc/KM271-Schreiben.md`.

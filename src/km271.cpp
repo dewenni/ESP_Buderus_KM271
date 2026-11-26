@@ -9,11 +9,13 @@
 
 #include <basics.h>
 #include <km271.h>
+#include <km271WriteQueue.h>
 #include <language.h>
 #include <message.h>
 
 /* P R O T O T Y P E S ********************************************************/
 void sendTxBlock(uint8_t *data, int len);
+static void applyAcknowledgedConfig(const uint8_t data[8]);
 void handleRxBlock(uint8_t *data, int len, uint8_t bcc);
 void parseInfo(uint8_t *data, int len);
 float decode05cTemp(uint8_t data);
@@ -23,7 +25,7 @@ bool decodeErrorMsg(char *errorMsg, unsigned int size, const uint8_t *data, uint
 uint8_t getErrorTextIndex(uint8_t errorNr);
 uint8_t limit(uint8_t lower, uint8_t value, uint8_t upper);
 int compareHexValues(const char *filter, uint8_t data[]);
-KmSerialStats kmSerialStats = {0, 0, false};
+KmSerialStats kmSerialStats = {0, 0, 0, false};
 
 /* V A R I A B L E S ********************************************************/
 s_err_array errMsgText; // Array of error messages
@@ -54,32 +56,91 @@ static uint8_t rxByte;                      // The received character. We are re
 static e_rxState kmRxStatus = KM_RX_RESYNC; // Status in Rx reception
 static uint8_t kmRxBcc = 0;                 // BCC value for Rx Block
 static KmRx_s kmRxBuf;                      // Rx block storag
-static uint8_t send_buf[8] = {};
+static Km271WriteQueue writeQueue;
+static Km271WriteQueue::Telegram activeWrite = {};
+static bool writeActive = false;
+static uint8_t writeRetries = 0;
+static size_t requestAcknowledged = 0;
+static uint32_t handshakeStarted = 0;
+static constexpr uint32_t KM271_ACK_TIMEOUT = 2000;
+static constexpr uint8_t KM271_WRITE_RETRIES = 2;
 static char kmTmpMsg[256];
 static bool kmInitDone = false;
 // Bits 0..11: six temperature pairs; bits 12/13: burner / HC1 WW priority.
 static uint16_t chartValuesReceived = 0;
 static bool km271RefreshActive = false;
 
-// send_buf is written from whatever task handles the caller (loop() for
-// MQTT/date-sync, but the AsyncTCP task for WebUI/WebSocket commands) and
-// read/cleared from the loop task's cyclicKM271()/handleRxBlock() - a short
-// critical section keeps a command's 8 bytes from being read half-written,
-// or two concurrent commands from interleaving into the same buffer.
+// WebSocket callers run on AsyncTCP; MQTT and the serial state machine run
+// on loop(). Only queue operations/session admission are inside this lock.
 static portMUX_TYPE sendBufMux = portMUX_INITIALIZER_UNLOCKED;
+static bool writesAccepted = false;
 
-/**
- * *******************************************************************
- * @brief   atomically publish a fully-prepared 8-byte command into
- *          send_buf, so the loop-task reader never observes a partial
- *          write
- * @param   buf: the 8 command bytes to publish
- * @return  none
- * *******************************************************************/
-static void commitSendBuf(const uint8_t buf[8]) {
+bool km271QueueWrite(const uint8_t (*telegrams)[8], size_t count) {
   portENTER_CRITICAL(&sendBufMux);
-  memcpy(send_buf, buf, sizeof(send_buf));
+  const bool connected = writesAccepted;
+  const bool queued = connected && writeQueue.enqueue(telegrams, count);
   portEXIT_CRITICAL(&sendBufMux);
+  if (queued) {
+    km271Msg(KM_TYP_DEBUG, "write request queued", "");
+  } else {
+    km271Msg(KM_TYP_MESSAGE, connected ? "write request rejected: invalid request or queue full"
+                                     : "write request rejected: Logamatic not connected", "");
+  }
+  return queued;
+}
+
+static bool commitSendBuf(const uint8_t buf[8]) {
+  return km271QueueWrite(reinterpret_cast<const uint8_t (*)[8]>(buf), 1);
+}
+
+// A lost/ambiguous handshake invalidates all pending requests: never replay old
+// writes after reconnect. Keep cached values, but invalidate their live status.
+static void restartKmLogging(const char *reason) {
+  portENTER_CRITICAL(&sendBufMux);
+  writesAccepted = false;
+  const size_t discarded = writeQueue.size();
+  writeQueue.clear();
+  portEXIT_CRITICAL(&sendBufMux);
+  if (reason && (discarded || kmSerialStats.logModeActive)) {
+    char message[192];
+    if (discarded) {
+      snprintf(message, sizeof(message), "write aborted: %u pending, %u acknowledged; %s",
+               static_cast<unsigned>(discarded), static_cast<unsigned>(requestAcknowledged), reason);
+      km271Msg(KM_TYP_MESSAGE, message, "");
+    } else {
+      km271Msg(KM_TYP_MESSAGE, reason, "");
+    }
+  }
+  writeActive = false;
+  writeRetries = 0;
+  requestAcknowledged = 0;
+  kmSerialStats.logModeActive = false;
+  chartValuesReceived = 0;
+  alarmsCurrent = 0;
+  km271RefreshActive = false;
+  KmRxBlockState = KM_TSK_START;
+  kmRxStatus = KM_RX_RESYNC;
+}
+
+static void rejectKmWrite() {
+  // NAK explicitly rejects this transfer. Retry the retained bytes only; never
+  // substitute another queued telegram. Later independent requests may proceed.
+  if (writeRetries < KM271_WRITE_RETRIES) {
+    ++writeRetries;
+    KmRxBlockState = KM_TSK_LOGGING;
+    return;
+  }
+  portENTER_CRITICAL(&sendBufMux);
+  writeQueue.discardRequest();
+  portEXIT_CRITICAL(&sendBufMux);
+  char message[128];
+  snprintf(message, sizeof(message), "write request aborted after NAK retries: %u acknowledged; remaining request discarded",
+           static_cast<unsigned>(requestAcknowledged));
+  km271Msg(KM_TYP_MESSAGE, message, "");
+  writeActive = false;
+  writeRetries = 0;
+  requestAcknowledged = 0;
+  KmRxBlockState = KM_TSK_LOGGING;
 }
 
 /**
@@ -90,8 +151,15 @@ static void commitSendBuf(const uint8_t buf[8]) {
  * @return  none
  * *******************************************************************/
 void cyclicKM271() {
-  // >>>>>>>>> KM271 Main Handling
-  // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  const uint32_t now = millis();
+  if (static_cast<uint32_t>(now - kmSerialStats.lastRxTime) > KM271_RX_TIMEOUT) {
+    restartKmLogging("no data from Logamatic - serial link considered down");
+  } else if ((KmRxBlockState == KM_TSK_LG_READY || KmRxBlockState == KM_TSK_LG_CMD ||
+              KmRxBlockState == KM_TSK_WRITE_READY || KmRxBlockState == KM_TSK_WRITE_ACK) &&
+             now - handshakeStarted >= KM271_ACK_TIMEOUT) {
+    restartKmLogging("Logamatic handshake timeout; result unknown");
+  }
+
   if (Serial2.readBytes(&rxByte, 1)) { // Wait for RX byte, if timeout, just loop and read again
 
     kmSerialStats.RxBytes++;             // increase received bytes
@@ -148,38 +216,22 @@ void cyclicKM271() {
       }
       break;
     case KM_RX_BCC:                                      // Last stage, BCC verification, "received BCC" ^ "calculated BCC" shall be 0
+      kmRxStatus = KM_RX_IDLE; // Handler may explicitly request resynchronisation.
       if (!kmRxBcc) {                                    // Block is valid
         handleRxBlock(kmRxBuf.buf, kmRxBuf.len, rxByte); // Handle RX block, provide BCC for debug logging, too
       } else {
         sendTxBlock(KmCNAK, sizeof(KmCNAK)); // Send NAK, ask for re-sending the block
       }
-      kmRxStatus = KM_RX_IDLE; // Wait for next data or re-sent block
       break;
     } // end-case
   }   // end-if
 
   if (!config.km271.use_alarmMsg) alarmsCurrent = 0;
 
-  // Global status logmode active. KmRxBlockState is only ever advanced by
-  // *received* blocks, so on its own it stays at KM_TSK_LOGGING forever once
-  // the link dies - if the ribbon cable works loose or the Logamatic is
-  // switched off, the module would keep reporting "connected" and keep
-  // republishing its cached values with fresh timestamps. From Home Assistant
-  // that is indistinguishable from a healthy boiler, which is the worst
-  // possible failure mode for someone watching remotely. Require recent
-  // traffic as well, and drop back to KM_TSK_START so the link is
-  // re-negotiated automatically when it returns.
-  if (millis() - kmSerialStats.lastRxTime > KM271_RX_TIMEOUT) {
-    if (kmSerialStats.logModeActive) {
-      km271Msg(KM_TYP_MESSAGE, "no data from Logamatic - serial link considered down", "");
-    }
-    kmSerialStats.logModeActive = false;
-    chartValuesReceived = 0;
-    alarmsCurrent = 0;
-    KmRxBlockState = KM_TSK_START;
-  } else {
-    kmSerialStats.logModeActive = (KmRxBlockState == KM_TSK_LOGGING);
-  }
+  // A parameter transfer does not end the established logging session.
+  kmSerialStats.logModeActive = (KmRxBlockState == KM_TSK_LOGGING ||
+                                 KmRxBlockState == KM_TSK_WRITE_READY ||
+                                 KmRxBlockState == KM_TSK_WRITE_ACK);
 }
 
 /**
@@ -196,48 +248,93 @@ void cyclicKM271() {
  * @return  none
  * **************************************************************************************************************/
 void handleRxBlock(uint8_t *data, int len, uint8_t bcc) {
+  if (len <= 0) return;
+  const bool stx = (len == 1 && data[0] == KM_STX);
+  const bool dle = (len == 1 && data[0] == KM_DLE);
+  const bool nak = (len == 1 && data[0] == KM_NAK);
+
   switch (KmRxBlockState) {
-  case KM_TSK_START: // We need to switch to logging mode, first
-    switch (data[0]) {
-    case KM_STX:                           // First step: wait for STX
-      sendTxBlock(KmCSTX, sizeof(KmCSTX)); // Send STX to KM271
-      break;
-    case KM_DLE:                                   // DLE received, KM ready to receive command
-      sendTxBlock(KmCLogMode, sizeof(KmCLogMode)); // Send logging command
-      KmRxBlockState = KM_TSK_LG_CMD;              // Switch to check for logging mode state
-      break;
+  case KM_TSK_START:
+    if (stx) {
+      sendTxBlock(KmCSTX, sizeof(KmCSTX));
+      handshakeStarted = millis();
+      KmRxBlockState = KM_TSK_LG_READY;
     }
     break;
-  case KM_TSK_LG_CMD:                // Check if logging mode is accepted by KM
-    if (data[0] != KM_DLE) {         // No DLE, not accepted, try again
-      KmRxBlockState = KM_TSK_START; // Back to START state
+  case KM_TSK_LG_READY:
+    if (dle) {
+      sendTxBlock(KmCLogMode, sizeof(KmCLogMode));
+      handshakeStarted = millis();
+      KmRxBlockState = KM_TSK_LG_CMD;
     } else {
-      alarmsCurrent = 0; // A new logging session must refresh all four memory slots.
-      km271RefreshActive = true;
-      KmRxBlockState = KM_TSK_LOGGING; // Command accepted, ready to log!
+      restartKmLogging(nullptr);
     }
     break;
-  case KM_TSK_LOGGING:                       // We have reached logging state
-    if (data[0] == KM_STX) {                 // If STX, this is a send request
+  case KM_TSK_LG_CMD:
+    if (dle) {
+      alarmsCurrent = 0;
+      km271RefreshActive = true;
+      KmRxBlockState = KM_TSK_LOGGING;
       portENTER_CRITICAL(&sendBufMux);
-      bool sendPending = (send_buf[0] != 0); // If a send-request is active,
+      writesAccepted = true;
       portEXIT_CRITICAL(&sendBufMux);
-      if (sendPending) {
-        sendTxBlock(KmCSTX, sizeof(KmCSTX)); // send STX to KM271 to request for send data
-      } else {
-        sendTxBlock(KmCDLE, sizeof(KmCDLE)); // Confirm handling of block by sending DLE
+    } else {
+      restartKmLogging(nullptr);
+    }
+    break;
+  case KM_TSK_LOGGING:
+    if (stx) {
+      if (!writeActive) {
+        portENTER_CRITICAL(&sendBufMux);
+        writeActive = writeQueue.front(activeWrite);
+        portEXIT_CRITICAL(&sendBufMux);
+        writeRetries = 0;
       }
-    } else if (data[0] == KM_DLE) { // KM271 is ready to receive
-      uint8_t txBuf[8];
+      if (writeActive) {
+        sendTxBlock(KmCSTX, sizeof(KmCSTX));
+        handshakeStarted = millis();
+        KmRxBlockState = KM_TSK_WRITE_READY;
+      } else {
+        sendTxBlock(KmCDLE, sizeof(KmCDLE));
+      }
+    } else if (!dle && !nak) {
+      // Only payload blocks reach the decoder, never single control bytes.
+      if (len >= 3) parseInfo(data, len);
+      sendTxBlock(KmCDLE, sizeof(KmCDLE));
+    }
+    break;
+  case KM_TSK_WRITE_READY:
+    if (dle) {
+      sendTxBlock(activeWrite.data, sizeof(activeWrite.data));
+      handshakeStarted = millis();
+      KmRxBlockState = KM_TSK_WRITE_ACK;
+    } else if (nak) {
+      rejectKmWrite();
+    } else {
+      restartKmLogging("unexpected response to write request");
+    }
+    break;
+  case KM_TSK_WRITE_ACK:
+    if (dle) {
+      applyAcknowledgedConfig(activeWrite.data);
       portENTER_CRITICAL(&sendBufMux);
-      memcpy(txBuf, send_buf, sizeof(send_buf));
-      memset(send_buf, 0, sizeof(send_buf)); // clear buffer
+      writeQueue.pop();
       portEXIT_CRITICAL(&sendBufMux);
-      sendTxBlock(txBuf, sizeof(txBuf));   // send buffer (outside the critical section - it does blocking Serial2 I/O)
-      KmRxBlockState = KM_TSK_START;       // start log-mode again, to get all new values
-    } else {                               // If not STX, it should be valid data block
-      parseInfo(data, len);                    // Handle data block with event information
-      sendTxBlock(KmCDLE, sizeof(KmCDLE));     // Confirm handling of block by sending DLE
+      ++requestAcknowledged;
+      if (activeWrite.last) {
+        char message[96];
+        snprintf(message, sizeof(message), "write request acknowledged: %u telegram(s)",
+                 static_cast<unsigned>(requestAcknowledged));
+        km271Msg(KM_TYP_DEBUG, message, "");
+        requestAcknowledged = 0;
+      }
+      writeActive = false;
+      writeRetries = 0;
+      KmRxBlockState = KM_TSK_LOGGING;
+    } else if (nak) {
+      rejectKmWrite();
+    } else {
+      restartKmLogging("unexpected write acknowledgement; result unknown");
     }
     break;
   }
@@ -296,6 +393,230 @@ void sendTxBlock(uint8_t *data, int len) {
 
   Serial2.write(buf, txLen); // Send the complete block
   kmSerialStats.TxBytes += txLen;
+}
+
+// Shared by real receive telegrams and acknowledged local writes. Updating
+// one field keeps numerical cache, formatted WebUI text and MQTT consistent.
+static void updateKmConfigField(uint16_t reg, uint8_t offset, uint8_t value) {
+  switch ((static_cast<uint32_t>(reg) << 8) | offset) {
+  case 0x000001: // 0000:1 hc1_summer_mode_threshold
+    kmConfigNum.hc1_summer_mode_threshold = value;
+    snprintf(kmConfigStr.hc1_summer_mode_threshold, sizeof(kmConfigStr.hc1_summer_mode_threshold), "%s",
+             KM_CFG_ARRAY::SUMMER[config.mqtt.lang][limit(0, kmConfigNum.hc1_summer_mode_threshold - 9, 22)]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_SUMMER_THRESHOLD[config.mqtt.lang],
+             kmConfigStr.hc1_summer_mode_threshold); // "CFG_Sommer_ab"            => "0000:1,p:-9,a"
+    break;
+  case 0x000002: // 0000:2 hc1_night_temp
+    kmConfigNum.hc1_night_temp = decode05cTemp(value);
+    snprintf(kmConfigStr.hc1_night_temp, sizeof(kmConfigStr.hc1_night_temp), "%0.1f °C", kmConfigNum.hc1_night_temp);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_NIGHT_TEMP[config.mqtt.lang],
+             kmConfigStr.hc1_night_temp); // "CFG_HK1_Nachttemperatur"  => "0000:2,d:2"
+    break;
+  case 0x000003: // 0000:3 hc1_day_temp
+    kmConfigNum.hc1_day_temp = decode05cTemp(value);
+    snprintf(kmConfigStr.hc1_day_temp, sizeof(kmConfigStr.hc1_day_temp), "%0.1f °C", kmConfigNum.hc1_day_temp);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_DAY_TEMP[config.mqtt.lang],
+             kmConfigStr.hc1_day_temp); // "CFG_HK1_Tagtemperatur"     => "0000:3,d:2"
+    break;
+  case 0x000004: // 0000:4 hc1_operation_mode
+    kmConfigNum.hc1_operation_mode = value;
+    snprintf(kmConfigStr.hc1_operation_mode, sizeof(kmConfigStr.hc1_operation_mode), "%s",
+             KM_CFG_ARRAY::OPMODE[config.mqtt.lang][limit(0, kmConfigNum.hc1_operation_mode, 2)]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_OPMODE[config.mqtt.lang],
+             kmConfigStr.hc1_operation_mode); // "CFG_HK1_Betriebsart"       => "0000:4,a:4"
+    break;
+  case 0x000005: // 0000:5 hc1_holiday_temp
+    kmConfigNum.hc1_holiday_temp = decode05cTemp(value);
+    snprintf(kmConfigStr.hc1_holiday_temp, sizeof(kmConfigStr.hc1_holiday_temp), "%0.1f °C", kmConfigNum.hc1_holiday_temp);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_HOLIDAY_TEMP[config.mqtt.lang],
+             kmConfigStr.hc1_holiday_temp); // "CFG_HK1_Urlaubtemperatur"   => "0000:5,d:2"
+    break;
+  case 0x000e04: // 000e:4 hc1_interpretation
+    kmConfigNum.hc1_interpretation = value;
+    snprintf(kmConfigStr.hc1_interpretation, sizeof(kmConfigStr.hc1_interpretation), "%i °C", kmConfigNum.hc1_interpretation);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_INTERPR[config.mqtt.lang],
+             kmConfigStr.hc1_interpretation); // CFG_HK1_Auslegung"          => "000e:4"
+    break;
+  case 0x001500: // 0015:0 hc1_switch_on_temperature
+    kmConfigNum.hc1_switch_on_temperature = value;
+    snprintf(kmConfigStr.hc1_switch_on_temperature, sizeof(kmConfigStr.hc1_switch_on_temperature), "%s",
+             KM_CFG_ARRAY::SWITCH_ON_TEMP[config.mqtt.lang][limit(0, kmConfigNum.hc1_switch_on_temperature, 10)]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_SWITCH_ON_TEMP[config.mqtt.lang],
+             kmConfigStr.hc1_switch_on_temperature); // "CFG_HK1_Aufschalttemperatur"  => "0015:0,a"
+    break;
+  case 0x001502: // 0015:2 hc1_switch_off_threshold
+    kmConfigNum.hc1_switch_off_threshold = decodeNegValue(value);
+    snprintf(kmConfigStr.hc1_switch_off_threshold, sizeof(kmConfigStr.hc1_switch_off_threshold), "%i °C", kmConfigNum.hc1_switch_off_threshold);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_SWITCH_OFF_THRESHOLD[config.mqtt.lang],
+             kmConfigStr.hc1_switch_off_threshold); // CFG_HK1_Aussenhalt_ab"         => "0015:2,s"
+    break;
+  case 0x001c01: // 001c:1 hc1_reduction_mode
+    kmConfigNum.hc1_reduction_mode = value;
+    snprintf(kmConfigStr.hc1_reduction_mode, sizeof(kmConfigStr.hc1_reduction_mode), "%s",
+             KM_CFG_ARRAY::REDUCT_MODE[config.mqtt.lang][limit(0, kmConfigNum.hc1_reduction_mode, 3)]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_REDUCTION_MODE[config.mqtt.lang],
+             kmConfigStr.hc1_reduction_mode); // "CFG_HK1_Absenkungsart"    => "001c:1,a"
+    break;
+  case 0x003105: // 0031:5 hc1_frost_protection_threshold
+    kmConfigNum.hc1_frost_protection_threshold = decodeNegValue(value);
+    snprintf(kmConfigStr.hc1_frost_protection_threshold, sizeof(kmConfigStr.hc1_frost_protection_threshold), "%i °C",
+             kmConfigNum.hc1_frost_protection_threshold);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_FROST_THRESHOLD[config.mqtt.lang],
+             kmConfigStr.hc1_frost_protection_threshold); // "CFG_Frost_ab"                 => "0031:5,s"
+    break;
+  case 0x010000: // 0100:0 hc1_program
+    kmConfigNum.hc1_program = value;
+    snprintf(kmConfigStr.hc1_program, sizeof(kmConfigStr.hc1_program), "%s",
+             KM_CFG_ARRAY::HC_PROGRAM[config.mqtt.lang][limit(0, kmConfigNum.hc1_program, 8)]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_PROGRAM[config.mqtt.lang],
+             kmConfigStr.hc1_program); // "CFG_HK1_Programm"  => "0100:0"
+    break;
+  case 0x010003: // 0100:3 hc1_holiday_days
+    kmConfigNum.hc1_holiday_days = value;
+    snprintf(kmConfigStr.hc1_holiday_days, sizeof(kmConfigStr.hc1_holiday_days), "%i %s", kmConfigNum.hc1_holiday_days,
+             MQTT_MSG::DAYS[config.mqtt.lang]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_HOLIDAY_DAYS[config.mqtt.lang],
+             kmConfigStr.hc1_holiday_days); // "CFG_HK1_Ferien_Tage"  => "0100:5"
+    break;
+  case 0x003801: // 0038:1 hc2_summer_mode_threshold
+    kmConfigNum.hc2_summer_mode_threshold = value;
+    snprintf(kmConfigStr.hc2_summer_mode_threshold, sizeof(kmConfigStr.hc2_summer_mode_threshold), "%s",
+             KM_CFG_ARRAY::SUMMER[config.mqtt.lang][limit(0, kmConfigNum.hc2_summer_mode_threshold - 9, 22)]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_SUMMER_THRESHOLD[config.mqtt.lang],
+             kmConfigStr.hc2_summer_mode_threshold); // "CFG_Sommer_ab"            => "0038:1,p:-9,a"
+    break;
+  case 0x003802: // 0038:2 hc2_night_temp
+    kmConfigNum.hc2_night_temp = decode05cTemp(value);
+    snprintf(kmConfigStr.hc2_night_temp, sizeof(kmConfigStr.hc2_night_temp), "%0.1f °C", kmConfigNum.hc2_night_temp);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_NIGHT_TEMP[config.mqtt.lang],
+             kmConfigStr.hc2_night_temp); // "CFG_HK2_Nachttemperatur"   => "0038:2,d:2"
+    break;
+  case 0x003803: // 0038:3 hc2_day_temp
+    kmConfigNum.hc2_day_temp = decode05cTemp(value);
+    snprintf(kmConfigStr.hc2_day_temp, sizeof(kmConfigStr.hc2_day_temp), "%0.1f °C", kmConfigNum.hc2_day_temp);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_DAY_TEMP[config.mqtt.lang],
+             kmConfigStr.hc2_day_temp); // "CFG_HK2_Tagtemperatur"     => "0038:3,d:2"
+    break;
+  case 0x003804: // 0038:4 hc2_operation_mode
+    kmConfigNum.hc2_operation_mode = value;
+    snprintf(kmConfigStr.hc2_operation_mode, sizeof(kmConfigStr.hc2_operation_mode), "%s",
+             KM_CFG_ARRAY::OPMODE[config.mqtt.lang][limit(0, kmConfigNum.hc2_operation_mode, 2)]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_OPMODE[config.mqtt.lang],
+             kmConfigStr.hc2_operation_mode); // "CFG_HK2_Betriebsart"       => "0038:4,a:4"
+    break;
+  case 0x003805: // 0038:5 hc2_holiday_temp
+    kmConfigNum.hc2_holiday_temp = decode05cTemp(value);
+    snprintf(kmConfigStr.hc2_holiday_temp, sizeof(kmConfigStr.hc2_holiday_temp), "%0.1f °C", kmConfigNum.hc2_holiday_temp);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_HOLIDAY_TEMP[config.mqtt.lang],
+             kmConfigStr.hc2_holiday_temp); // "CFG_HK2_Urlaubtemperatur"  => "0038:5,d:2"
+    break;
+  case 0x004604: // 0046:4 hc2_interpretation
+    kmConfigNum.hc2_interpretation = value;
+    snprintf(kmConfigStr.hc2_interpretation, sizeof(kmConfigStr.hc2_interpretation), "%i °C", kmConfigNum.hc2_interpretation);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_INTERPR[config.mqtt.lang],
+             kmConfigStr.hc2_interpretation); // "CFG_HK2_Auslegung"         => "0046:4"
+    break;
+  case 0x004d00: // 004d:0 hc2_switch_on_temperature
+    kmConfigNum.hc2_switch_on_temperature = value;
+    snprintf(kmConfigStr.hc2_switch_on_temperature, sizeof(kmConfigStr.hc2_switch_on_temperature), "%s",
+             KM_CFG_ARRAY::SWITCH_ON_TEMP[config.mqtt.lang][limit(0, kmConfigNum.hc2_switch_on_temperature, 10)]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_SWITCH_ON_TEMP[config.mqtt.lang],
+             kmConfigStr.hc2_switch_on_temperature); // "CFG_HK1_Aufschalttemperatur"  => "004d:0,a"
+    break;
+  case 0x004d02: // 004d:2 hc2_switch_off_threshold
+    kmConfigNum.hc2_switch_off_threshold = decodeNegValue(value);
+    snprintf(kmConfigStr.hc2_switch_off_threshold, sizeof(kmConfigStr.hc2_switch_off_threshold), "%i °C", kmConfigNum.hc2_switch_off_threshold);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_SWITCH_OFF_THRESHOLD[config.mqtt.lang],
+             kmConfigStr.hc2_switch_off_threshold); // CFG_HK1_Aussenhalt_ab"         => "004d:2,s"
+    break;
+  case 0x005401: // 0054:1 hc2_reduction_mode
+    kmConfigNum.hc2_reduction_mode = value;
+    snprintf(kmConfigStr.hc2_reduction_mode, sizeof(kmConfigStr.hc2_reduction_mode), "%s",
+             KM_CFG_ARRAY::REDUCT_MODE[config.mqtt.lang][limit(0, kmConfigNum.hc2_reduction_mode, 3)]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_REDUCTION_MODE[config.mqtt.lang],
+             kmConfigStr.hc2_reduction_mode); // "CFG_HK1_Absenkungsart"    => "0054:1,a"
+    break;
+  case 0x006905: // 0069:5 hc2_frost_protection_threshold
+    kmConfigNum.hc2_frost_protection_threshold = decodeNegValue(value);
+    snprintf(kmConfigStr.hc2_frost_protection_threshold, sizeof(kmConfigStr.hc2_frost_protection_threshold), "%i °C",
+             kmConfigNum.hc2_frost_protection_threshold);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_FROST_THRESHOLD[config.mqtt.lang],
+             kmConfigStr.hc2_frost_protection_threshold); // "CFG_Frost_ab"                 => "0069:5,s"
+    break;
+  case 0x016900: // 0169:0 hc2_program
+    kmConfigNum.hc2_program = value;
+    snprintf(kmConfigStr.hc2_program, sizeof(kmConfigStr.hc2_program), "%s",
+             KM_CFG_ARRAY::HC_PROGRAM[config.mqtt.lang][limit(0, kmConfigNum.hc2_program, 8)]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_PROGRAM[config.mqtt.lang],
+             kmConfigStr.hc2_program); // "CFG_HK2_Programm"  => "0169:0"
+    break;
+  case 0x016903: // 0169:3 hc2_holiday_days
+    kmConfigNum.hc2_holiday_days = value;
+    snprintf(kmConfigStr.hc2_holiday_days, sizeof(kmConfigStr.hc2_holiday_days), "%i %s", kmConfigNum.hc2_holiday_days,
+             MQTT_MSG::DAYS[config.mqtt.lang]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_HOLIDAY_DAYS[config.mqtt.lang],
+             kmConfigStr.hc2_holiday_days); // "CFG_HK2_Ferien_Tage"  => "0169:5"
+    break;
+  case 0x007e03: // 007e:3 ww_temp
+    kmConfigNum.ww_temp = value;
+    snprintf(kmConfigStr.ww_temp, sizeof(kmConfigStr.ww_temp), "%i °C", kmConfigNum.ww_temp);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::WW_TEMP[config.mqtt.lang],
+             kmConfigStr.ww_temp); // "CFG_WW_Temperatur"  => "007e:3"
+    break;
+  case 0x008500: // 0085:0 ww_operation_mode
+    kmConfigNum.ww_operation_mode = value;
+    snprintf(kmConfigStr.ww_operation_mode, sizeof(kmConfigStr.ww_operation_mode), "%s",
+             KM_CFG_ARRAY::OPMODE[config.mqtt.lang][limit(0, kmConfigNum.ww_operation_mode, 2)]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::WW_OPMODE[config.mqtt.lang],
+             kmConfigStr.ww_operation_mode); // "CFG_WW_Betriebsart"  => "0085:0,a"
+    break;
+  case 0x008505: // 0085:5 ww_circulation
+    kmConfigNum.ww_circulation = value;
+    snprintf(kmConfigStr.ww_circulation, sizeof(kmConfigStr.ww_circulation), "%s",
+             KM_CFG_ARRAY::CIRC_INTERVAL[config.mqtt.lang][limit(0, kmConfigNum.ww_circulation, 7)]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::WW_CIRCULATION[config.mqtt.lang],
+             kmConfigStr.ww_circulation); // "CFG_WW_Zirkulation"   => "0085:5,a"
+    break;
+  }
+}
+
+// This is an assumed adoption after transport ACK, not a synthetic receive
+// block. Unknown writes/date-time/timer data never invent configuration values.
+static void applyAcknowledgedConfig(const uint8_t data[8]) {
+  if ((data[0] == 0x07 || data[0] == 0x08) && data[1] != 0x00 &&
+      data[1] != 0x0e && data[1] != 0x15 && data[1] != 0x1c && data[1] != 0x31) return;
+  uint16_t reg;
+  switch (data[0]) {
+  case 0x07:
+    reg = data[1];
+    break;
+  case 0x08:
+    if (!config.km271.use_hc2) return;
+    reg = 0x0038 + data[1];
+    break;
+  case 0x0c:
+    if (data[1] == 0x07) reg = 0x007e;
+    else if (data[1] == 0x0e) reg = 0x0085;
+    else return;
+    break;
+  case 0x11:
+    if (!config.km271.use_hc1 || data[1] != 0) return;
+    reg = 0x0100;
+    break;
+  case 0x12:
+    if (!config.km271.use_hc2 || data[1] != 0) return;
+    reg = 0x0169;
+    break;
+  default:
+    return;
+  }
+  for (uint8_t offset = 0; offset < 6; ++offset) {
+    if (data[2 + offset] == 0x65) continue; // Keep the previously known value.
+    // These two HK1 fields are also received when HK1 is disabled.
+    if (data[0] == 0x07 && !config.km271.use_hc1 &&
+        !((reg == 0x0000 && offset == 1) || (reg == 0x0031 && offset == 5))) continue;
+    updateKmConfigField(reg, offset, data[2 + offset]);
+  }
 }
 
 /**
@@ -359,33 +680,13 @@ void parseInfo(uint8_t *data, int len) {
      */
 
   case 0x0000:
-    kmConfigNum.hc1_summer_mode_threshold = data[2 + 1];
-    snprintf(kmConfigStr.hc1_summer_mode_threshold, sizeof(kmConfigStr.hc1_summer_mode_threshold), "%s",
-             KM_CFG_ARRAY::SUMMER[config.mqtt.lang][limit(0, kmConfigNum.hc1_summer_mode_threshold - 9, 22)]);
-    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_SUMMER_THRESHOLD[config.mqtt.lang],
-             kmConfigStr.hc1_summer_mode_threshold); // "CFG_Sommer_ab"            => "0000:1,p:-9,a"
+    updateKmConfigField(0x0000, 1, data[2 + 1]);
 
     if (config.km271.use_hc1) {
-      kmConfigNum.hc1_night_temp = decode05cTemp(data[2 + 2]);
-      snprintf(kmConfigStr.hc1_night_temp, sizeof(kmConfigStr.hc1_night_temp), "%0.1f °C", kmConfigNum.hc1_night_temp);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_NIGHT_TEMP[config.mqtt.lang],
-               kmConfigStr.hc1_night_temp); // "CFG_HK1_Nachttemperatur"  => "0000:2,d:2"
-
-      kmConfigNum.hc1_day_temp = decode05cTemp(data[2 + 3]);
-      snprintf(kmConfigStr.hc1_day_temp, sizeof(kmConfigStr.hc1_day_temp), "%0.1f °C", kmConfigNum.hc1_day_temp);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_DAY_TEMP[config.mqtt.lang],
-               kmConfigStr.hc1_day_temp); // "CFG_HK1_Tagtemperatur"     => "0000:3,d:2"
-
-      kmConfigNum.hc1_operation_mode = data[2 + 4];
-      snprintf(kmConfigStr.hc1_operation_mode, sizeof(kmConfigStr.hc1_operation_mode), "%s",
-               KM_CFG_ARRAY::OPMODE[config.mqtt.lang][limit(0, kmConfigNum.hc1_operation_mode, 2)]);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_OPMODE[config.mqtt.lang],
-               kmConfigStr.hc1_operation_mode); // "CFG_HK1_Betriebsart"       => "0000:4,a:4"
-
-      kmConfigNum.hc1_holiday_temp = decode05cTemp(data[2 + 5]);
-      snprintf(kmConfigStr.hc1_holiday_temp, sizeof(kmConfigStr.hc1_holiday_temp), "%0.1f °C", kmConfigNum.hc1_holiday_temp);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_HOLIDAY_TEMP[config.mqtt.lang],
-               kmConfigStr.hc1_holiday_temp); // "CFG_HK1_Urlaubtemperatur"   => "0000:5,d:2"
+      updateKmConfigField(0x0000, 2, data[2 + 2]);
+      updateKmConfigField(0x0000, 3, data[2 + 3]);
+      updateKmConfigField(0x0000, 4, data[2 + 4]);
+      updateKmConfigField(0x0000, 5, data[2 + 5]);
     }
     break;
 
@@ -396,35 +697,20 @@ void parseInfo(uint8_t *data, int len) {
       km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_MAX_TEMP[config.mqtt.lang],
                kmConfigStr.hc1_max_temp); // "CFG_HK1_Max_Temperatur"    => "000e:2"
 
-      kmConfigNum.hc1_interpretation = data[2 + 4];
-      snprintf(kmConfigStr.hc1_interpretation, sizeof(kmConfigStr.hc1_interpretation), "%i °C", kmConfigNum.hc1_interpretation);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_INTERPR[config.mqtt.lang],
-               kmConfigStr.hc1_interpretation); // CFG_HK1_Auslegung"          => "000e:4"
+      updateKmConfigField(0x000e, 4, data[2 + 4]);
     }
     break;
 
   case 0x0015:
     if (config.km271.use_hc1) {
-      kmConfigNum.hc1_switch_on_temperature = data[2];
-      snprintf(kmConfigStr.hc1_switch_on_temperature, sizeof(kmConfigStr.hc1_switch_on_temperature), "%s",
-               KM_CFG_ARRAY::SWITCH_ON_TEMP[config.mqtt.lang][limit(0, kmConfigNum.hc1_switch_on_temperature, 10)]);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_SWITCH_ON_TEMP[config.mqtt.lang],
-               kmConfigStr.hc1_switch_on_temperature); // "CFG_HK1_Aufschalttemperatur"  => "0015:0,a"
-
-      kmConfigNum.hc1_switch_off_threshold = decodeNegValue(data[2 + 2]);
-      snprintf(kmConfigStr.hc1_switch_off_threshold, sizeof(kmConfigStr.hc1_switch_off_threshold), "%i °C", kmConfigNum.hc1_switch_off_threshold);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_SWITCH_OFF_THRESHOLD[config.mqtt.lang],
-               kmConfigStr.hc1_switch_off_threshold); // CFG_HK1_Aussenhalt_ab"         => "0015:2,s"
+      updateKmConfigField(0x0015, 0, data[2 + 0]);
+      updateKmConfigField(0x0015, 2, data[2 + 2]);
     }
     break;
 
   case 0x001c:
     if (config.km271.use_hc1) {
-      kmConfigNum.hc1_reduction_mode = data[2 + 1];
-      snprintf(kmConfigStr.hc1_reduction_mode, sizeof(kmConfigStr.hc1_reduction_mode), "%s",
-               KM_CFG_ARRAY::REDUCT_MODE[config.mqtt.lang][limit(0, kmConfigNum.hc1_reduction_mode, 3)]);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_REDUCTION_MODE[config.mqtt.lang],
-               kmConfigStr.hc1_reduction_mode); // "CFG_HK1_Absenkungsart"    => "001c:1,a"
+      updateKmConfigField(0x001c, 1, data[2 + 1]);
 
       kmConfigNum.hc1_heating_system = data[2 + 2];
       snprintf(kmConfigStr.hc1_heating_system, sizeof(kmConfigStr.hc1_heating_system), "%s",
@@ -448,42 +734,17 @@ void parseInfo(uint8_t *data, int len) {
                kmConfigStr.hc1_remotecontrol); // "CFG_HK1_Fernbedienung"        => "0031:4,a"
     }
 
-    kmConfigNum.hc1_frost_protection_threshold = decodeNegValue(data[2 + 5]);
-    snprintf(kmConfigStr.hc1_frost_protection_threshold, sizeof(kmConfigStr.hc1_frost_protection_threshold), "%i °C",
-             kmConfigNum.hc1_frost_protection_threshold);
-    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_FROST_THRESHOLD[config.mqtt.lang],
-             kmConfigStr.hc1_frost_protection_threshold); // "CFG_Frost_ab"                 => "0031:5,s"
+    updateKmConfigField(0x0031, 5, data[2 + 5]);
     break;
 
   case 0x0038:
 
     if (config.km271.use_hc2) {
-      kmConfigNum.hc2_summer_mode_threshold = data[2 + 1];
-      snprintf(kmConfigStr.hc2_summer_mode_threshold, sizeof(kmConfigStr.hc2_summer_mode_threshold), "%s",
-               KM_CFG_ARRAY::SUMMER[config.mqtt.lang][limit(0, kmConfigNum.hc2_summer_mode_threshold - 9, 22)]);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_SUMMER_THRESHOLD[config.mqtt.lang],
-               kmConfigStr.hc2_summer_mode_threshold); // "CFG_Sommer_ab"            => "0038:1,p:-9,a"
-
-      kmConfigNum.hc2_night_temp = decode05cTemp(data[2 + 2]);
-      snprintf(kmConfigStr.hc2_night_temp, sizeof(kmConfigStr.hc2_night_temp), "%0.1f °C", kmConfigNum.hc2_night_temp);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_NIGHT_TEMP[config.mqtt.lang],
-               kmConfigStr.hc2_night_temp); // "CFG_HK2_Nachttemperatur"   => "0038:2,d:2"
-
-      kmConfigNum.hc2_day_temp = decode05cTemp(data[2 + 3]);
-      snprintf(kmConfigStr.hc2_day_temp, sizeof(kmConfigStr.hc2_day_temp), "%0.1f °C", kmConfigNum.hc2_day_temp);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_DAY_TEMP[config.mqtt.lang],
-               kmConfigStr.hc2_day_temp); // "CFG_HK2_Tagtemperatur"     => "0038:3,d:2"
-
-      kmConfigNum.hc2_operation_mode = data[2 + 4];
-      snprintf(kmConfigStr.hc2_operation_mode, sizeof(kmConfigStr.hc2_operation_mode), "%s",
-               KM_CFG_ARRAY::OPMODE[config.mqtt.lang][limit(0, kmConfigNum.hc2_operation_mode, 2)]);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_OPMODE[config.mqtt.lang],
-               kmConfigStr.hc2_operation_mode); // "CFG_HK2_Betriebsart"       => "0038:4,a:4"
-
-      kmConfigNum.hc2_holiday_temp = decode05cTemp(data[2 + 5]);
-      snprintf(kmConfigStr.hc2_holiday_temp, sizeof(kmConfigStr.hc2_holiday_temp), "%0.1f °C", kmConfigNum.hc2_holiday_temp);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_HOLIDAY_TEMP[config.mqtt.lang],
-               kmConfigStr.hc2_holiday_temp); // "CFG_HK2_Urlaubtemperatur"  => "0038:5,d:2"
+      updateKmConfigField(0x0038, 1, data[2 + 1]);
+      updateKmConfigField(0x0038, 2, data[2 + 2]);
+      updateKmConfigField(0x0038, 3, data[2 + 3]);
+      updateKmConfigField(0x0038, 4, data[2 + 4]);
+      updateKmConfigField(0x0038, 5, data[2 + 5]);
     }
     break;
 
@@ -494,10 +755,7 @@ void parseInfo(uint8_t *data, int len) {
       km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_MAX_TEMP[config.mqtt.lang],
                kmConfigStr.hc2_max_temp); // "CFG_HK2_Max_Temperatur"    => "0046:2"
 
-      kmConfigNum.hc2_interpretation = data[2 + 4];
-      snprintf(kmConfigStr.hc2_interpretation, sizeof(kmConfigStr.hc2_interpretation), "%i °C", kmConfigNum.hc2_interpretation);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_INTERPR[config.mqtt.lang],
-               kmConfigStr.hc2_interpretation); // "CFG_HK2_Auslegung"         => "0046:4"
+      updateKmConfigField(0x0046, 4, data[2 + 4]);
     }
     break;
 
@@ -509,26 +767,14 @@ void parseInfo(uint8_t *data, int len) {
              kmConfigStr.ww_priority); // "CFG_WW_Vorrang"   => "004d:1,a"
 
     if (config.km271.use_hc2) {
-      kmConfigNum.hc2_switch_on_temperature = data[2];
-      snprintf(kmConfigStr.hc2_switch_on_temperature, sizeof(kmConfigStr.hc2_switch_on_temperature), "%s",
-               KM_CFG_ARRAY::SWITCH_ON_TEMP[config.mqtt.lang][limit(0, kmConfigNum.hc2_switch_on_temperature, 10)]);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_SWITCH_ON_TEMP[config.mqtt.lang],
-               kmConfigStr.hc2_switch_on_temperature); // "CFG_HK1_Aufschalttemperatur"  => "004d:0,a"
-
-      kmConfigNum.hc2_switch_off_threshold = decodeNegValue(data[2 + 2]);
-      snprintf(kmConfigStr.hc2_switch_off_threshold, sizeof(kmConfigStr.hc2_switch_off_threshold), "%i °C", kmConfigNum.hc2_switch_off_threshold);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_SWITCH_OFF_THRESHOLD[config.mqtt.lang],
-               kmConfigStr.hc2_switch_off_threshold); // CFG_HK1_Aussenhalt_ab"         => "004d:2,s"
+      updateKmConfigField(0x004d, 0, data[2 + 0]);
+      updateKmConfigField(0x004d, 2, data[2 + 2]);
     }
     break;
 
   case 0x0054:
     if (config.km271.use_hc2) {
-      kmConfigNum.hc2_reduction_mode = data[2 + 1];
-      snprintf(kmConfigStr.hc2_reduction_mode, sizeof(kmConfigStr.hc2_reduction_mode), "%s",
-               KM_CFG_ARRAY::REDUCT_MODE[config.mqtt.lang][limit(0, kmConfigNum.hc2_reduction_mode, 3)]);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_REDUCTION_MODE[config.mqtt.lang],
-               kmConfigStr.hc2_reduction_mode); // "CFG_HK1_Absenkungsart"    => "0054:1,a"
+      updateKmConfigField(0x0054, 1, data[2 + 1]);
 
       kmConfigNum.hc2_heating_system = data[2 + 2];
       snprintf(kmConfigStr.hc2_heating_system, sizeof(kmConfigStr.hc2_heating_system), "%s",
@@ -551,11 +797,7 @@ void parseInfo(uint8_t *data, int len) {
       km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_REMOTECTRL[config.mqtt.lang],
                kmConfigStr.hc2_remotecontrol); // "CFG_HK2_Fernbedienung"        => "0069:4,a"
 
-      kmConfigNum.hc2_frost_protection_threshold = decodeNegValue(data[2 + 5]);
-      snprintf(kmConfigStr.hc2_frost_protection_threshold, sizeof(kmConfigStr.hc2_frost_protection_threshold), "%i °C",
-               kmConfigNum.hc2_frost_protection_threshold);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_FROST_THRESHOLD[config.mqtt.lang],
-               kmConfigStr.hc2_frost_protection_threshold); // "CFG_Frost_ab"                 => "0069:5,s"
+      updateKmConfigField(0x0069, 5, data[2 + 5]);
     }
     break;
 
@@ -568,18 +810,11 @@ void parseInfo(uint8_t *data, int len) {
     break;
 
   case 0x007e:
-    kmConfigNum.ww_temp = data[2 + 3];
-    snprintf(kmConfigStr.ww_temp, sizeof(kmConfigStr.ww_temp), "%i °C", kmConfigNum.ww_temp);
-    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::WW_TEMP[config.mqtt.lang],
-             kmConfigStr.ww_temp); // "CFG_WW_Temperatur"  => "007e:3"
+    updateKmConfigField(0x007e, 3, data[2 + 3]);
     break;
 
   case 0x0085:
-    kmConfigNum.ww_operation_mode = data[2];
-    snprintf(kmConfigStr.ww_operation_mode, sizeof(kmConfigStr.ww_operation_mode), "%s",
-             KM_CFG_ARRAY::OPMODE[config.mqtt.lang][limit(0, kmConfigNum.ww_operation_mode, 2)]);
-    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::WW_OPMODE[config.mqtt.lang],
-             kmConfigStr.ww_operation_mode); // "CFG_WW_Betriebsart"  => "0085:0,a"
+    updateKmConfigField(0x0085, 0, data[2 + 0]);
 
     kmConfigNum.ww_processing = data[2 + 3];
     snprintf(kmConfigStr.ww_processing, sizeof(kmConfigStr.ww_processing), "%s",
@@ -587,11 +822,7 @@ void parseInfo(uint8_t *data, int len) {
     km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::WW_PROCESSING[config.mqtt.lang],
              kmConfigStr.ww_processing); // "CFG_WW_Aufbereitung"  => "0085:3,a"
 
-    kmConfigNum.ww_circulation = data[2 + 5];
-    snprintf(kmConfigStr.ww_circulation, sizeof(kmConfigStr.ww_circulation), "%s",
-             KM_CFG_ARRAY::CIRC_INTERVAL[config.mqtt.lang][limit(0, kmConfigNum.ww_circulation, 7)]);
-    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::WW_CIRCULATION[config.mqtt.lang],
-             kmConfigStr.ww_circulation); // "CFG_WW_Zirkulation"   => "0085:5,a"
+    updateKmConfigField(0x0085, 5, data[2 + 5]);
     break;
 
   case 0x0093:
@@ -643,31 +874,15 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x0100:
     if (config.km271.use_hc1) {
-      kmConfigNum.hc1_program = data[2];
-      snprintf(kmConfigStr.hc1_program, sizeof(kmConfigStr.hc1_program), "%s",
-               KM_CFG_ARRAY::HC_PROGRAM[config.mqtt.lang][limit(0, kmConfigNum.hc1_program, 8)]);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_PROGRAM[config.mqtt.lang],
-               kmConfigStr.hc1_program); // "CFG_HK1_Programm"  => "0100:0"
-      kmConfigNum.hc1_holiday_days = data[2 + 3];
-      snprintf(kmConfigStr.hc1_holiday_days, sizeof(kmConfigStr.hc1_holiday_days), "%i %s", kmConfigNum.hc1_holiday_days,
-               MQTT_MSG::DAYS[config.mqtt.lang]);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_HOLIDAY_DAYS[config.mqtt.lang],
-               kmConfigStr.hc1_holiday_days); // "CFG_HK1_Ferien_Tage"  => "0100:5"
+      updateKmConfigField(0x0100, 0, data[2 + 0]);
+      updateKmConfigField(0x0100, 3, data[2 + 3]);
     }
     break;
 
   case 0x0169:
     if (config.km271.use_hc2) {
-      kmConfigNum.hc2_program = data[2];
-      snprintf(kmConfigStr.hc2_program, sizeof(kmConfigStr.hc2_program), "%s",
-               KM_CFG_ARRAY::HC_PROGRAM[config.mqtt.lang][limit(0, kmConfigNum.hc2_program, 8)]);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_PROGRAM[config.mqtt.lang],
-               kmConfigStr.hc2_program); // "CFG_HK2_Programm"  => "0169:0"
-      kmConfigNum.hc2_holiday_days = data[2 + 3];
-      snprintf(kmConfigStr.hc2_holiday_days, sizeof(kmConfigStr.hc2_holiday_days), "%i %s", kmConfigNum.hc2_holiday_days,
-               MQTT_MSG::DAYS[config.mqtt.lang]);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_HOLIDAY_DAYS[config.mqtt.lang],
-               kmConfigStr.hc2_holiday_days); // "CFG_HK2_Ferien_Tage"  => "0169:5"
+      updateKmConfigField(0x0169, 0, data[2 + 0]);
+      updateKmConfigField(0x0169, 3, data[2 + 3]);
     }
     break;
 
@@ -1771,8 +1986,9 @@ void sendKM271Debug() {
   // long a link has been down, instead of only that it is
   infoJSON["rx_age_s"] = (millis() - kmSerialStats.lastRxTime) / 1000;
   portENTER_CRITICAL(&sendBufMux);
-  infoJSON["send_cmd_busy"] = (send_buf[0] != 0);
+  const bool writePending = (writeQueue.size() != 0);
   portEXIT_CRITICAL(&sendBufMux);
+  infoJSON["send_cmd_busy"] = writePending;
   infoJSON["sw_version"] = VERSION;
   infoJSON["date-time"] = EspStrUtil::getDateTimeString();
   char sendInfoJSON[255] = {'\0'};
@@ -1821,7 +2037,7 @@ void km271SetDateTimeDTI(tm dti) {
   local_buf[6] = dti.tm_mon + 1;                         // month
   local_buf[6] |= (((dti.tm_wday + 6) % 7) << 4) & 0x70; // day of week (Logamatic: 0=monday...6=sunday / wday: 0=sunday...6=saturday)
   local_buf[7] = dti.tm_year;                            // year year < 100 means 19xx / year > 100 means 20xx
-  commitSendBuf(local_buf);
+  if (!commitSendBuf(local_buf)) return;
 
   char wday[4] = {'\0'};
   switch ((dti.tm_wday + 6) % 7) {
@@ -1849,7 +2065,7 @@ void km271SetDateTimeDTI(tm dti) {
   default:
     break;
   }
-  snprintf(dateTimeInfo, sizeof(dateTimeInfo), "%s: (%s) %02d.%02d.%d - %02i:%02i:%02i", MQTT_MSG::DATETIME_CHANGED[config.mqtt.lang], wday,
+  snprintf(dateTimeInfo, sizeof(dateTimeInfo), "%s: (%s) %02d.%02d.%d - %02i:%02i:%02i", MQTT_MSG::DATETIME_QUEUED[config.mqtt.lang], wday,
            dti.tm_mday, (dti.tm_mon + 1), (dti.tm_year + 1900), dti.tm_hour, dti.tm_min, dti.tm_sec);
   km271Msg(KM_TYP_MESSAGE, dateTimeInfo, "");
 }
@@ -1858,9 +2074,9 @@ void km271SetDateTimeDTI(tm dti) {
  * *******************************************************************
  * @brief   set actual date and time to buderus
  * @param   dti: date and time info structure
- * @return  none
+ * @return  true if a valid current time was queued
  * *******************************************************************/
-void km271SetDateTimeNTP() {
+bool km271SetDateTimeNTP() {
   uint8_t local_buf[8];
 
   char dateTimeInfo[128] = {'\0'}; // Date and time info String
@@ -1876,7 +2092,7 @@ void km271SetDateTimeNTP() {
   // the Logamatic's clock, and therefore its heating program, to 1970.
   if (dti.tm_year < 116) { // years since 1900, so 116 = 2016
     km271Msg(KM_TYP_MESSAGE, "date/time not set: no valid time source (NTP not synced)", "");
-    return;
+    return false;
   }
 
   /* ---------------- INFO ---------------------------------
@@ -1900,7 +2116,7 @@ void km271SetDateTimeNTP() {
   local_buf[6] = dti.tm_mon + 1;                         // month
   local_buf[6] |= (((dti.tm_wday + 6) % 7) << 4) & 0x70; // day of week (Logamatic: 0=monday...6=sunday / wday: 0=sunday...6=saturday)
   local_buf[7] = dti.tm_year;                            // year
-  commitSendBuf(local_buf);
+  if (!commitSendBuf(local_buf)) return false;
 
   char wday[4] = {'\0'};
   switch ((dti.tm_wday + 6) % 7) {
@@ -1929,9 +2145,10 @@ void km271SetDateTimeNTP() {
     break;
   }
 
-  snprintf(dateTimeInfo, sizeof(dateTimeInfo), "%s: (%s) %02d.%02d.%d - %02i:%02i:%02i - DST:%d", MQTT_MSG::DATETIME_CHANGED[config.mqtt.lang], wday,
+  snprintf(dateTimeInfo, sizeof(dateTimeInfo), "%s: (%s) %02d.%02d.%d - %02i:%02i:%02i - DST:%d", MQTT_MSG::DATETIME_QUEUED[config.mqtt.lang], wday,
            dti.tm_mday, (dti.tm_mon + 1), (dti.tm_year + 1900), dti.tm_hour, dti.tm_min, dti.tm_sec, (dti.tm_isdst > 0));
   km271Msg(KM_TYP_MESSAGE, dateTimeInfo, "");
+  return true;
 }
 
 /**
@@ -1955,7 +2172,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = cmdPara; // 0:Night | 1:Day | 2:AUTO
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC1_OPMODE[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -1975,7 +2192,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = cmdPara; // 0:Night | 1:Day | 2:AUTO
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC2_OPMODE[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -1995,7 +2212,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = cmdPara; // Resolution: 1 °C - Range: 30 – 90 °C WE: 75 °C
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC1_INTERPR[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2015,7 +2232,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = cmdPara; // Resolution: 1 °C - Range: 30 – 90 °C WE: 75 °C
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC2_INTERPR[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2035,7 +2252,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC1_PROGRAM[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2055,7 +2272,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = cmdPara; // Holiday days -  Resolution: 1 Day - Range: 0 – 99 Days
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC1_HOLIDAY_DAYS[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2075,7 +2292,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC2_PROGRAM[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2095,7 +2312,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = cmdPara; // Resolution: 1 Day - Range: 0 – 99 Days
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC2_HOLIDAY_DAYS[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2115,7 +2332,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::WW_OPMODE[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2135,7 +2352,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang],
                KM_CFG_TOPIC::HC1_SUMMER_THRESHOLD[config.mqtt.lang], KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2155,7 +2372,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang],
                KM_CFG_TOPIC::HC2_SUMMER_THRESHOLD[config.mqtt.lang], KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2175,7 +2392,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = (cmdPara > 0) ? cmdPara : cmdPara + 256; // -20° ... +10° (add 256 if value is negative)
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC1_FROST_THRESHOLD[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2195,7 +2412,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = (cmdPara > 0) ? cmdPara : cmdPara + 256; // -20° ... +10° (add 256 if value is negative)
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC2_FROST_THRESHOLD[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2215,7 +2432,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang],
                KM_CFG_TOPIC::HC1_SWITCH_OFF_THRESHOLD[config.mqtt.lang], KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2235,7 +2452,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang],
                KM_CFG_TOPIC::HC2_SWITCH_OFF_THRESHOLD[config.mqtt.lang], KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2255,7 +2472,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = cmdPara; // 30°-60°
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::WW_TEMP[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2275,7 +2492,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = cmdPara; // 0:OFF - 1..6 - 7:ON
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::WW_CIRCULATION[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2295,7 +2512,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC1_SWITCH_ON_TEMP[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2315,7 +2532,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC2_SWITCH_ON_TEMP[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2335,7 +2552,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC1_REDUCTION_MODE[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2355,7 +2572,7 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC2_REDUCTION_MODE[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2391,7 +2608,7 @@ void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara) {
       local_buf[5] = trunc(2.0 * cmdPara + 0.5); // Resolution: 0.5 °C - Range: 10 – 30 °C
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC1_DAY_TEMP[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2411,7 +2628,7 @@ void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC1_NIGHT_TEMP[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2431,7 +2648,7 @@ void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara) {
       local_buf[5] = trunc(2.0 * cmdPara + 0.5); // Resolution: 0.5 °C - Range: 10 – 30 °C
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC2_DAY_TEMP[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2451,7 +2668,7 @@ void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = 0x65;
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC2_NIGHT_TEMP[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2471,7 +2688,7 @@ void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = trunc(2.0 * cmdPara + 0.5); // Resolution: 0.5 °C - Range: 10 – 30 °C
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC1_HOLIDAY_TEMP[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2491,7 +2708,7 @@ void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara) {
       local_buf[5] = 0x65;
       local_buf[6] = 0x65;
       local_buf[7] = trunc(2.0 * cmdPara + 0.5); // Resolution: 0.5 °C - Range: 10 – 30 °C
-      commitSendBuf(local_buf);
+      if (!commitSendBuf(local_buf)) return;
       snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %.1f", KM_INFO_MSG::CMD[config.mqtt.lang], KM_CFG_TOPIC::HC2_HOLIDAY_TEMP[config.mqtt.lang],
                KM_INFO_MSG::VALUE[config.mqtt.lang], cmdPara);
     } else {
@@ -2509,29 +2726,16 @@ void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara) {
 /**
  * *******************************************************************
  * @brief   prepare and send setvalues to buderus controller
- * @details the KM_TSK_LOGGING send-loop (see handleRxBlock) uses
- *          "send_buf[0] != 0" as its only signal that a command is
- *          queued. Every OTHER sender in this file always writes a
- *          fixed, non-zero Data-Type byte (0x01/0x07/0x08/0x0C/0x11/0x12)
- *          into send_buf[0], so that sentinel works for them - but this
- *          is the one path where the first byte comes directly from the
- *          caller (the "cmd/service" MQTT topic) and could be 0x00. That
- *          previously copied the command into send_buf and returned
- *          void, so it silently never got sent (the send-loop saw
- *          send_buf[0] == 0 and reported "nothing queued"), while the
- *          MQTT handler logged "service message accepted" regardless.
- * @param   sendCmd: send command
- * @param   cmdPara: array of 8 hex parameter (pre checked)
- * @return  true if the command was queued for sending, false if rejected
- *          (cmdPara[0] == 0x00 can't be queued - see details above)
+ * @details Queue a pre-checked service telegram. A zero Data-Type remains
+ *          rejected for compatibility; queue admission failures are reported too.
+ * @return  true only if the telegram was queued, not yet acknowledged.
  * *******************************************************************/
 bool km271sendServiceCmd(uint8_t cmdPara[8]) {
   if (cmdPara[0] == 0) {
+    km271Msg(KM_TYP_MESSAGE, "service message rejected: first byte must not be 00", "");
     return false;
   }
-  // service command with 8 pre checked hex parameters
-  commitSendBuf(cmdPara);
-  return true;
+  return commitSendBuf(cmdPara);
 }
 
 /**
