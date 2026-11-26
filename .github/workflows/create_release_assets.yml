@@ -75,9 +75,11 @@ jobs:
         run: |
           flash="release/buderus_km271_esp32_flash_${RELEASE_TAG}.bin"
           ota="release/buderus_km271_ota_update_${RELEASE_TAG}.bin"
+          debug="release/buderus_km271_debug_${RELEASE_TAG}.zip"
+          test -s "$debug"
           test -s "$flash"
           test -s "$ota"
-          gh release create "$RELEASE_TAG" "$flash" "$ota" \
+          gh release create "$RELEASE_TAG" "$flash" "$ota" "$debug" \
             --verify-tag \
             --repo "$GITHUB_REPOSITORY" \
             --title "$RELEASE_TAG" \

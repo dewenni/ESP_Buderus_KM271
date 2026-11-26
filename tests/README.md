@@ -28,3 +28,16 @@ acknowledgement on the test controller. The WebUI currently labels it “Cleared
 
 The Python host suite also invokes these Node.js checks when `node` is on PATH;
 it reports a skipped test otherwise. Install Node.js 18+ for the full host suite.
+
+Crash download state and chunk validation (Node.js 18+, no packages):
+
+```sh
+node --test tests/crash_diagnostics.test.cjs
+```
+
+These tests execute the actual browser code with a simulated WebSocket and DOM.
+They cover chunk bounds and identity, request matching, interrupted transfers,
+completed downloads without implicit erase, and cancelled deletion. The Python
+host suite includes them when Node.js is available. They do not test flash,
+ESP-IDF panic capture or browser layout. Hardware procedure and ELF archive
+requirements are documented in `Doc/Absturzdiagnose.md`.

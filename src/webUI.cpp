@@ -1,4 +1,5 @@
 #include <LittleFS.h>
+#include <crashDiagnostics.h>
 #include <dashboardHistory.h>
 #include <Update.h>
 #include <basics.h>
@@ -190,6 +191,7 @@ void webUICyclic() {
       break;
     }
     if (strcmp(msg.elementID, "dashboard_history") == 0) dashboardHistoryReply(msg.clientId, msg.value);
+    else if (strcmp(msg.elementID, "crash_diagnostics") == 0) crashDiagnosticsReply(msg.clientId, msg.value);
     else webCallback(msg.elementID, msg.value);
   }
 
