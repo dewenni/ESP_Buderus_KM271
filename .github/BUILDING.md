@@ -31,6 +31,24 @@ cp .github/pages/config.json web/output/config.json
 The demo detection in EspWebUI is based on the GitHub Pages hostname; local
 hosting does not enable simulation automatically.
 
+## Local firmware files and OTA
+
+Every normal build also maintains the matching files under `release/`:
+
+```sh
+pio run -e esp32
+```
+
+Use `release/buderus_km271_ota_update_vX.Y.Z.bin` for a local
+WebUI OTA update. The corresponding `buderus_km271_esp32_flash` file is for initial installation.
+Choose the filename matching the device and the version in `include/config.h`.
+Nothing is uploaded automatically by a build.
+
+The exports are separate build targets depending on the firmware, version header
+and boot images. Missing exports are recreated without recompiling unchanged
+firmware. Current exports retain their timestamps; building one environment does
+not remove files belonging to another environment or an older version.
+
 ## Firmware releases
 
 `create_release_assets.yml` checks the tag against `include/config.h` and the
@@ -62,3 +80,9 @@ It must generate five HTML/CSS/JS assets plus `web/output/sim.json`, and both
 nonempty versioned binaries under `release/`. Copy the demo configuration as
 above before deploying Pages. These local checks do not verify GitHub token
 permissions, environment rules or the actual upload/deployment on GitHub.
+
+For the local export regression check, build the project, move its exported
+OTA file to a temporary backup, and build again without editing sources. Both
+exports must be present and match the build outputs, with no C++ compilation.
+A third unchanged build must preserve export timestamps and unrelated files
+in the release directory.
