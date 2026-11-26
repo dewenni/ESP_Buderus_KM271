@@ -414,6 +414,8 @@ Wähle **KM271**, um die Logamatic-Kommunikation zu untersuchen, und stelle den 
 
 Unter **SYSTEM** stehen Meldungen zu Start, Netzwerk, MQTT und weiteren Firmware-Funktionen. Das Level wählt die angezeigte Schwere; Debug liefert zur Fehlersuche mehr Details. Beide Logbücher sind begrenzte Diagnosepuffer und keine dauerhaften Archive.
 
+Unter **Einstellungen → Zugriff & Wartung → Absturzdiagnose** lassen sich gespeicherte Core-Dumps mit dem Service-Passwort anzeigen, herunterladen und ausdrücklich löschen. Downloads erhalten den Bericht auf dem ESP. Die passende Firmware-ELF wird beim Build als Debug-ZIP archiviert. Hinweise zur Auswertung und zu den Grenzen stehen unter [Absturzdiagnose](Doc/Absturzdiagnose.md).
+
 <img src="Doc/weubui_logger_sys.png" alt="WebUI" width="750">
 
 ## System

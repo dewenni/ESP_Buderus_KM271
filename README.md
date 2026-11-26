@@ -421,6 +421,8 @@ Select **KM271** to inspect Logamatic communication and choose the relevant filt
 
 Select **SYSTEM** for startup, network, MQTT and other firmware messages. The level selects the displayed severity; Debug is useful for troubleshooting but produces more output. Both logs are bounded diagnostic buffers, not permanent archives.
 
+Under **Settings → Access & maintenance → Crash diagnostics**, use the service password to inspect, download or explicitly delete saved core dumps. Downloads preserve the report on the ESP. Each build also archives the matching firmware ELF in a debug ZIP. See [crash diagnostics](Doc/Absturzdiagnose.md) for analysis instructions and limitations (German).
+
 <img src="Doc/weubui_logger_sys.png" alt="WebUI" width="750">
 
 ## System

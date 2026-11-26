@@ -2,6 +2,25 @@
 // localization texts
 // --------------------------------------
 const user_translations = {
+  crash_title: {"de": "Absturzdiagnose", "en": "Crash diagnostics"},
+  crash_hint: {"de": "Gespeicherter Absturzbericht. Download und Details benötigen das Service-Passwort. Ein weiterer Absturz kann den Bericht ersetzen.", "en": "Saved crash report. Download and details require the service password. Another crash may replace the report."},
+  crash_info: {"de": "Details / Aktualisieren", "en": "Details / Refresh"},
+  crash_download: {"de": "Core-Dump herunterladen", "en": "Download core dump"},
+  crash_erase: {"de": "Bericht löschen", "en": "Delete report"},
+  crash_available: {"de": "Gültiger Absturzbericht vorhanden", "en": "Valid crash report available"},
+  crash_none: {"de": "Kein Absturzbericht gespeichert", "en": "No crash report saved"},
+  crash_invalid: {"de": "Absturzbericht unvollständig oder nicht lesbar", "en": "Crash report incomplete or unreadable"},
+  crash_no_partition: {"de": "Keine Core-Dump-Partition vorhanden", "en": "No core dump partition available"},
+  crash_auth: {"de": "Service-Passwort falsch oder Service-Zugang deaktiviert", "en": "Incorrect service password or service access disabled"},
+  crash_busy: {"de": "Während eines Updates nicht verfügbar", "en": "Unavailable during an update"},
+  crash_changed: {"de": "Bericht nicht mehr verfügbar. Bitte neu laden.", "en": "Report no longer available. Please reload."},
+  crash_error: {"de": "Vorgang fehlgeschlagen oder Verbindung unterbrochen", "en": "Operation failed or connection interrupted"},
+  crash_confirm: {"de": "Gespeicherten Absturzbericht endgültig löschen?", "en": "Permanently delete the saved crash report?"},
+  crash_password: {"de": "Service-Passwort für die Absturzdiagnose:", "en": "Service password for crash diagnostics:"},
+  crash_erased: {"de": "Absturzbericht gelöscht", "en": "Crash report deleted"},
+  crash_downloaded: {"de": "Download erstellt. Der Bericht bleibt auf dem ESP gespeichert.", "en": "Download created. The report remains saved on the ESP."},
+  crash_trace_corrupt: {"de": "Backtrace unvollständig oder beschädigt", "en": "Backtrace incomplete or corrupted"},
+
   help_operate: {"de": "Bedienen", "en": "Operate"},
   help_setup: {"de": "Einrichten", "en": "Set up"},
   help_solve: {"de": "Probleme lösen", "en": "Troubleshoot"},

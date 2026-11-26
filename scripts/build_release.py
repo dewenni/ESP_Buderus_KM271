@@ -69,3 +69,27 @@ release_files = env.Command(
     merge_bin,
 )
 env.Depends("buildprog", release_files)
+
+# Archive the exact linked ELF; rebuilding a tag later need not reproduce the
+# same addresses or ELF hash. Keep this alongside the corresponding binaries.
+def archive_debug(source, target, env):
+    import hashlib
+    import json
+    import zipfile
+    elf = source[0].get_abspath()
+    digest = hashlib.sha256(open(elf, "rb").read()).hexdigest()
+    metadata = {"version": version, "environment": env.subst("$PIOENV"),
+                "elf_sha256": digest, "platform": env.GetProjectOption("platform")}
+    archive = target[0].get_abspath()
+    os.makedirs(os.path.dirname(archive), exist_ok=True)
+    with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as bundle:
+        bundle.write(elf, "firmware.elf")
+        bundle.writestr("build-info.json", json.dumps(metadata, indent=2) + "\n")
+
+
+debug_archive = env.Command(
+    os.path.join(release_path, f"buderus_km271_debug_{version}.zip"),
+    ["$BUILD_DIR/${PROGNAME}.elf", "$PROJECT_DIR/scripts/build_release.py", "$PROJECT_DIR/platformio.ini"],
+    archive_debug,
+)
+env.Depends("buildprog", debug_archive)

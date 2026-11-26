@@ -1,5 +1,6 @@
 // includes
 #include <ArduinoOTA.h>
+#include <crashDiagnostics.h>
 #include <WiFiMgn.h>
 #include <basics.h>
 #include <config.h>
@@ -122,6 +123,8 @@ void setup() {
 
   // Message Service Setup (before use of ESP_LOGx)
   messageSetup();
+
+  crashDiagnosticsSetup();
 
   // Cache firmware metrics before any network service or OTA can run.
   initFirmwareInfo();

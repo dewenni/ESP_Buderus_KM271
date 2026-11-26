@@ -1,6 +1,7 @@
 // --------------------------------------
 // --------------------------------------
 document.addEventListener("DOMContentLoaded", function () {
+  initCrashDiagnostics();
   // call user functions
   initPageHeader();
   initMobileNavigation();
