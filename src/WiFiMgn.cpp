@@ -204,18 +204,9 @@ void setupWiFi() {
   }
 }
 
-/**
- * *******************************************************************
- * @brief   Send WiFi Information in JSON format via MQTT
- * @param   none
- * @return  none
- * *******************************************************************/
-void sendWiFiInfo() {
-
-  JsonDocument wifiJSON;
-
-  if (wifi.connected) {
-    // check  RSSI
+// Refresh measurements independently of MQTT; disconnected values are invalid.
+void updateWiFiSignal() {
+  if (wifiIsConnected()) {
     wifi.rssi = WiFi.RSSI();
 
     // dBm to Quality:
@@ -225,7 +216,24 @@ void sendWiFiInfo() {
       wifi.signal = 100;
     else
       wifi.signal = 2 * (wifi.rssi + 100);
+  } else {
+    wifi.rssi = 0;
+    wifi.signal = 0;
+  }
+}
 
+/**
+ * *******************************************************************
+ * @brief   Send WiFi Information in JSON format via MQTT
+ * @param   none
+ * @return  none
+ * *******************************************************************/
+void sendWiFiInfo() {
+
+  updateWiFiSignal();
+  JsonDocument wifiJSON;
+
+  if (wifiIsConnected()) {
     wifiJSON["status"] = wifi.connected ? "connected" : "disconnected";
     wifiJSON["rssi"] = wifi.rssi;
     wifiJSON["signal"] = wifi.signal;
