@@ -207,5 +207,65 @@
     "p08_err_msg1": "Kein Fehler",
     "p08_err_msg2": "Kein Fehler",
     "p08_err_msg3": "Kein Fehler",
-    "p08_err_msg4": "Kein Fehler"
+    "p08_err_msg4": "Kein Fehler",
+    "km271Alarms": {
+        "type": "km271Alarms",
+        "enabled": true,
+        "connected": true,
+        "current": 15,
+        "slots": [
+            {
+                "title": "Warmwasserfuehler defekt",
+                "raw": "Warmwasserfuehler defekt (>> 16:26 -0 Tage | << 16:27 -0 Tage)",
+                "data": [
+                    8,
+                    16,
+                    26,
+                    0,
+                    16,
+                    27,
+                    0
+                ]
+            },
+            {
+                "title": "Kesselvorlauffuehler defekt",
+                "raw": "Kesselvorlauffuehler defekt (>> 16:25 -0 Tage | << 16:26 -0 Tage)",
+                "data": [
+                    49,
+                    16,
+                    25,
+                    0,
+                    16,
+                    26,
+                    0
+                ]
+            },
+            {
+                "title": "Aussenfuehler defekt",
+                "raw": "Aussenfuehler defekt (>> 16:24 -0 Tage | << 16:25 -0 Tage)",
+                "data": [
+                    2,
+                    16,
+                    24,
+                    0,
+                    16,
+                    25,
+                    0
+                ]
+            },
+            {
+                "title": "Kein Fehler",
+                "raw": "Kein Fehler",
+                "data": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        ]
+    }
 }

@@ -26,7 +26,7 @@ static s_km271_config_str *pkmConfigStr = km271GetConfigStringsAdr();
 static s_km271_config_num *pkmConfigNum = km271GetConfigValueAdr();
 
 static char tmpMessage[300] = {'\0'};
-static unsigned int KmAlarmHash[4] = {0};
+static bool alarmForceUpdate = true;
 static bool refreshRequest = false;
 static uint8_t chartSnapshotValid = 0;
 static bool km271RefreshActiveOld = false;
@@ -74,8 +74,8 @@ void updateAllElements() {
   refreshRequest = true;         // start combined json refresh
   km271RefreshActiveOld = false; // reset reminder for refreshBar
 
-  // reset hash values to force updates
-  memset((void *)KmAlarmHash, 0, sizeof(KmAlarmHash));
+  // Resend the complete alarm snapshot to a newly connected browser.
+  alarmForceUpdate = true;
 
   updateOilmeterElements(true);
   updateSensorElements(true);
@@ -351,15 +351,51 @@ void updateSystemInfoElementsStatic() {
  * *******************************************************************/
 void updateKm271AlarmElements() {
 
-  char text[CFG_MAX_CHAR_ALARM];
+  static uint8_t previousData[4][9] = {};
+  static uint8_t previousValidity = 0;
+  static bool previousEnabled = false, previousConnected = false;
+  static uint8_t previousLanguage = 0;
+  const uint8_t validity = km271GetAlarmValidity();
+  const bool connected = km271GetLogMode();
+  bool changed = alarmForceUpdate || validity != previousValidity ||
+                 config.km271.use_alarmMsg != previousEnabled || connected != previousConnected || config.lang != previousLanguage;
+  uint8_t data[4][9] = {};
+  uint8_t received = 0;
   for (uint8_t i = 0; i < 4; ++i) {
-    km271GetAlarmText(i, text, sizeof(text), config.lang);
-    if (EspStrUtil::strDiff(&KmAlarmHash[i], text)) {
-      char elementId[16];
-      snprintf(elementId, sizeof(elementId), "p08_err_msg%u", i + 1);
-      webUI.wsUpdateWebText(elementId, text, false);
-    }
+    if (km271GetAlarmData(i, data[i])) received |= 1U << i;
   }
+  // Compare bytes too: different error codes may have the same display text.
+  changed = changed || memcmp(previousData, data, sizeof(data)) != 0;
+  if (!changed) return;
+  memcpy(previousData, data, sizeof(data));
+  char text[CFG_MAX_CHAR_ALARM];
+
+  // One bounded snapshot, also sent while the alarm tab is closed.
+  // Retain cached slots on disconnect; current marks only this logging session.
+  JsonDocument snapshot;
+  snapshot["type"] = "km271Alarms";
+  snapshot["enabled"] = config.km271.use_alarmMsg;
+  snapshot["connected"] = connected;
+  snapshot["current"] = validity;
+  JsonArray slots = snapshot["slots"].to<JsonArray>();
+  for (uint8_t i = 0; i < 4; ++i) {
+    if (!(received & (1U << i))) {
+      slots.add(nullptr);
+      continue;
+    }
+    JsonObject slot = slots.add<JsonObject>();
+    slot["title"] = km271GetAlarmTitle(data[i][2], config.lang);
+    km271GetAlarmText(i, text, sizeof(text), config.lang);
+    slot["raw"] = text;
+    JsonArray fields = slot["data"].to<JsonArray>();
+    for (uint8_t j = 2; j < 9; ++j) fields.add(data[i][j]);
+  }
+  webUI.wsUpdateWebJSON(snapshot);
+  previousValidity = validity;
+  previousEnabled = config.km271.use_alarmMsg;
+  previousConnected = connected;
+  previousLanguage = config.lang;
+  alarmForceUpdate = false;
 }
 
 // Keep WebUI state labels consistent without changing MQTT payloads.
@@ -1137,9 +1173,7 @@ void webUIupdates() {
       }
       break;
     case 4:
-      if (!km271GetRefreshState()) {
-        updateKm271AlarmElements(); // check if one or more "Alarm" elements have changed
-      }
+      updateKm271AlarmElements(); // Include unknown/partial state during a Logamatic refresh.
       break;
     case 5:
       if (!km271GetRefreshState()) {

@@ -151,3 +151,39 @@
 /* Override the shared footer surface only while the message flies in/out. */
 .footerBar.msgBar { transform: translateY(100%); }
 .footerBar.msgBar.visible { transform: translateY(0); }
+
+/* Alarm memory: an atomic received snapshot; only open entries need a badge. */
+#tab8 { max-width: 76rem; }
+.alarm-summary { margin: 0 0 1.5rem; padding: 1.15rem 1.3rem; background: var(--ui-surface); border: 1px solid var(--ui-border); border-left: 4px solid var(--ui-target); border-radius: 0.75rem; }
+.alarm-summary.is-alarm { border-left-color: var(--pico-del-color); }
+.alarm-summary.is-unknown { border-left-color: var(--ui-accent); }
+.alarm-summary h2 { margin: 0 0 0.35rem; font-size: 1.15rem; font-weight: 500; }
+.alarm-summary p { margin: 0; color: var(--ui-muted); font-size: 0.85rem; }
+.alarm-section { margin-bottom: 1.5rem; }
+.alarm-section-heading { display: flex; gap: 0.65rem; align-items: center; margin-bottom: 0.75rem; }
+.alarm-section-heading h2 { margin: 0; font-size: 1.05rem; font-weight: 500; }
+.alarm-count { padding: 0 0.5rem; border-radius: 1rem; background: var(--ui-rail); color: var(--ui-muted); font-size: 0.75rem; }
+.alarm-list { border: 1px solid var(--ui-border); border-radius: 0.75rem; overflow: hidden; background: var(--ui-surface); }
+.information-page .alarm-entry { display: grid; grid-template-columns: minmax(0, 1fr) 10rem 10rem; align-items: center; gap: 1rem; margin: 0; padding: 1.15rem 1.25rem; border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+.alarm-entry + .alarm-entry { border-top: 1px solid var(--ui-border); }
+.alarm-identity, .alarm-date { min-width: 0; overflow-wrap: anywhere; }
+.alarm-entry h3 { margin: 0; font-size: 0.95rem; font-weight: 500; }
+.alarm-badge { display: block; color: var(--pico-del-color); font-size: 0.75rem; margin-bottom: 0.35rem; }
+.alarm-date-label { display: block; color: var(--ui-muted); font-size: 0.75rem; margin-bottom: 0.25rem; }
+.alarm-date-value { font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.alarm-empty { padding: 1rem 1.25rem; margin: 0; border: 1px dashed var(--ui-border); border-radius: 0.65rem; color: var(--ui-muted); font-size: 0.85rem; }
+.alarm-originals { border-top: 1px solid var(--ui-border); padding-top: 1rem; margin-top: 1.5rem; }
+.alarm-originals summary { color: var(--ui-muted); font-size: 0.85rem; }
+.alarm-raw { font-size: 0.8rem; }
+.alarm-raw th { width: 7rem; font-weight: 400; }
+.alarm-raw td { text-align: left; }
+.alarm-nav-label { position: relative; display: inline-block; }
+.has-active-alarm .alarm-nav-label::after { content: ""; position: absolute; left: calc(100% + 7px); top: 0.15em; width: 8px; height: 8px; border-radius: 50%; background: #e34d59; }
+@container (max-width: 700px) {
+  .information-page .alarm-entry { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .alarm-identity { grid-column: 1 / -1; }
+}
+@container (max-width: 420px) {
+  .information-page .alarm-entry, .alarm-summary { padding: 1rem; }
+  .alarm-raw th { width: auto; }
+}

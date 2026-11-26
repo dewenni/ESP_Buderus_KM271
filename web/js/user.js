@@ -163,8 +163,9 @@ async function loadSimulatedData() {
     if (!response.ok)
       throw new Error("Fehler beim Abrufen der Simulationsdaten");
 
-    const simData = await response.json();
+    const { km271Alarms, ...simData } = await response.json();
     updateJSON(simData); // Aktualisiert die UI mit den Simulationsdaten
+    if (km271Alarms) window.dispatchEvent(new CustomEvent("webui:message", { detail: km271Alarms }));
   } catch (error) {
     console.error("Fehler beim Laden von sim.json:", error);
   }
