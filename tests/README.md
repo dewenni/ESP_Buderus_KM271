@@ -1,5 +1,19 @@
 # Build checks
 
+GitHub OTA asset selection is compiled from production `src/github.cpp` for
+ESP32 and ESP32-S3 by `test_github_ota.py` (C++17 compiler required). It checks
+mixed/reordered assets, legacy ESP32 names, exact chip/version matching,
+missing assets, stale result clearing and invalid release metadata. GitHub
+network access and flashing are stubbed; real downloads, image validation,
+USB, Ethernet and OTA reboot still require hardware tests.
+
+Firmware builds: `pio run -e esp32` and then `pio run -e esp32s3`. Run them
+sequentially because WebUI generation writes shared output. Both use the pinned
+EspWebUI dependency from `platformio.ini`. Release notes must have the matching
+version heading. S3 update asset names deliberately omit the substring `ota`, so older ESP32
+firmware which selects by that substring cannot pick an S3 image, regardless
+of asset order.
+
 The MQTT discovery replay compiles the complete production `mqttDiscovery.cpp`
 with the real ArduinoJson headers from `.pio/libdeps/esp32/ArduinoJson/src`.
 It requires a C++11 compiler and installed PlatformIO dependencies; it is skipped

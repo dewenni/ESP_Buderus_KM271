@@ -471,12 +471,22 @@ void webCallback(const char *elementId, const char *value) {
       config.gpio.trigger_oilcounter = -1;
       break;
 
-    case 3: // KM271-WiFi >= v0.0.6
+    case 3: // KM271-WiFi v0.0.6 through v1.x
       config.gpio.km271_RX = 4;
       config.gpio.km271_TX = 2;
       config.gpio.led_wifi = 21;
       config.gpio.led_heartbeat = 22;
       config.gpio.led_logmode = 17;
+      config.gpio.led_oilcounter = -1;
+      config.gpio.trigger_oilcounter = -1;
+      break;
+
+    case 4: // KM271-WiFi v2.0 (ESP32-S3)
+      config.gpio.km271_RX = 18;
+      config.gpio.km271_TX = 17;
+      config.gpio.led_wifi = 21;
+      config.gpio.led_heartbeat = 38;
+      config.gpio.led_logmode = 39;
       config.gpio.led_oilcounter = -1;
       config.gpio.trigger_oilcounter = -1;
       break;

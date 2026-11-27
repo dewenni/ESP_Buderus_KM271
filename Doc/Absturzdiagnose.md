@@ -39,7 +39,8 @@ Flash-Schreibzugriffe für die Diagnose und keinen eigenen Panic-Handler.
 
 Jeder Build erzeugt zusätzlich
 `release/buderus_km271_debug_<Version>.zip` mit `firmware.elf` und `build-info.json`.
-Der Release-Workflow lädt dieses Archiv zusammen mit den Binaries hoch. Version
+Beim S3-Build heißt das Archiv `buderus_km271_esp32s3_debug_<Version>.zip`.
+Der Release-Workflow lädt das zum Chip passende Archiv zusammen mit den Binaries hoch. Version
 und Environment allein identifizieren einen Build nicht eindeutig: Entscheidend
 ist die zur abgestürzten Anwendung passende ELF-SHA256. Bei lokalen Builds das
 Archiv vor dem nächsten Build separat sichern.

@@ -138,11 +138,19 @@ struct s_cfg_sensor {
   bool ch1_enable = false;
   char ch1_name[32] = {"sensor1"};
   char ch1_description[32];
+#if CONFIG_IDF_TARGET_ESP32S3
+  int ch1_gpio = 15; // OneWire on KM271-WiFi v2.0; GPIO18 is KM271 RX
+#else
   int ch1_gpio = 18;
+#endif
   bool ch2_enable = false;
   char ch2_name[32] = {"sensor2"};
   char ch2_description[32];
+#if CONFIG_IDF_TARGET_ESP32S3
+  int ch2_gpio = -1; // GPIO19/20 are reserved for native USB
+#else
   int ch2_gpio = 19;
+#endif
 };
 
 struct s_cfg_pushover {

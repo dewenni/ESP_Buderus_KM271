@@ -2,6 +2,7 @@
 // localization texts
 // --------------------------------------
 const user_translations = {
+  board_v2_hint: {de: "Board v2.0 benötigt ESP32-S3-Firmware. OneWire: GPIO15; GPIO19/20 für USB freihalten. Das GPIO-Preset setzt RX/TX und Status-LEDs; Sensoren und Ethernet separat prüfen. Nach GPIO-Änderungen neu starten.", en: "Board v2.0 requires ESP32-S3 firmware. OneWire: GPIO15; keep GPIO19/20 free for USB. The GPIO preset sets RX/TX and status LEDs; check sensors and Ethernet separately. Restart after GPIO changes."},
   equipment_values: { de: "Betriebswerte", en: "Operating values" },
   equipment_timer: { de: "Timer", en: "Timers" },
   equipment_diagnosis: { de: "Diagnose", en: "Diagnostics" },

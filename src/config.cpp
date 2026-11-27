@@ -320,6 +320,21 @@ void configInitValue() {
 
   // gpio: -1 means "unused", which is not the value-initialised 0
   memset(&config.gpio, -1, sizeof(config.gpio));
+#if CONFIG_IDF_TARGET_ESP32S3
+  // KM271-WiFi v2.0 defaults for a fresh configuration only.
+  config.gpio.km271_RX = 18;
+  config.gpio.km271_TX = 17;
+  config.gpio.led_wifi = 21;
+  config.gpio.led_heartbeat = 38;
+  config.gpio.led_logmode = 39;
+  config.eth.gpio_sck = 12;
+  config.eth.gpio_mosi = 11;
+  config.eth.gpio_miso = 13;
+  config.eth.gpio_cs = 10;
+  config.eth.gpio_irq = 14;
+  config.eth.gpio_rst = 16;
+  config.eth.gpio_lvl_shift = -1;
+#endif
 }
 
 /**

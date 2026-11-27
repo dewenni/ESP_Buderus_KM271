@@ -22,6 +22,7 @@ bool ghGetLatestRelease(GithubRelease *release, GithubReleaseInfo *info) {
   if (release == nullptr || info == nullptr) {
     return false;
   }
+  *info = {};
 
   // Get the latest release from GitHub
   *release = ota.getLatestRelease();
@@ -35,10 +36,21 @@ bool ghGetLatestRelease(GithubRelease *release, GithubReleaseInfo *info) {
   snprintf(info->url, sizeof(info->url), "%s", release->html_url);
   ESP_LOGI(TAG, "GitHb latest Release: %s", info->tag);
 
-  // search for the first asset that contains "ota" in its name
+  // Match the complete application image name for this chip and release.
+  // Keep the legacy ESP32 name so existing releases remain usable.
+  // S3 names omit "ota" so older ESP32 firmware cannot select them.
+  char expectedAsset[128];
+#if CONFIG_IDF_TARGET_ESP32S3
+  const char *prefix = "buderus_km271_esp32s3_update_";
+#else
+  const char *prefix = "buderus_km271_ota_update_";
+#endif
+  if (snprintf(expectedAsset, sizeof(expectedAsset), "%s%s.bin", prefix, release->tag_name) >= static_cast<int>(sizeof(expectedAsset))) {
+    return false;
+  }
   const char *otaAssetName = NULL;
   for (const auto &asset : release->assets) {
-    if (asset.name != NULL && strstr(asset.name, "ota") != NULL) {
+    if (asset.name != NULL && strcmp(asset.name, expectedAsset) == 0) {
       otaAssetName = asset.name;
       break;
     }

@@ -141,6 +141,20 @@ You can order it here: <https://www.tindie.com/products/24664/>
 In this case you only need this DIY interface and nothing more.
 It includes the RS232/TTL Adapter and also an ESP32.
 
+### KM271-WiFi v2.0 (ESP32-S3)
+
+The new revision uses an ESP32-S3-WROOM-1-N8R2. Install **ESP32-S3 firmware** and select **Board 2.0 (ESP32-S3)** under Device → GPIO. RX/TX are 18/17; WiFi/heartbeat/logmode LEDs are 21/38/39. The 0.0.6–1.x preset remains available for older ESP32 boards.
+
+Fresh S3 configurations already use these defaults. OneWire defaults to GPIO15; channel 2 has no GPIO assigned. Sensors remain disabled by default. Keep GPIO19/20 free for native USB. The GPIO preset only changes communication/LED pins and disables the oil meter GPIOs; check existing sensor and Ethernet settings separately and restart afterwards.
+
+W5500 extension: SCLK 12, MOSI 11, MISO 13, CS 10, INT 14, RST 16; no level shifter enable. Fresh S3 configurations use these defaults with Ethernet disabled.
+
+Build with `pio run -e esp32s3` (classic ESP32: `pio run -e esp32`). PSRAM is not required. Both builds use the existing `min_spiffs.csv` OTA partition layout; the extra flash capacity is initially unused.
+
+The release workflow builds both variants sequentially. S3 assets are named `buderus_km271_esp32s3_flash_<Version>.bin`, `buderus_km271_esp32s3_update_<Version>.bin` and `buderus_km271_esp32s3_debug_<Version>.zip`. Existing ESP32 asset names are preserved. S3 update filenames deliberately omit `ota` so older ESP32 firmware cannot pick them with its substring search. GitHub OTA matches the complete filename for the chip and release tag; no update is offered without a matching asset. For manual uploads, also choose the OTA image for your chip. Selecting a GPIO preset does not change the firmware target chip.
+
+Pin assignments follow the [v2.0 software requirements](https://github.com/the78mole/km271-wifi/blob/148b85529cf4247615d486f39032ff758c389e69/KM217-WiFi/req/05_software_requirements.sdoc) and [Ethernet requirements](https://github.com/the78mole/km271-wifi/blob/148b85529cf4247615d486f39032ff758c389e69/EXTENSIONS/ETH_W5500/req/05_software_requirements.sdoc). Older hardware repository documents still contain classic ESP32 pin assignments.
+
 ![KM217_mod](/Doc/KM271-WiFi.png)
 
 
@@ -284,8 +298,8 @@ Clone the repository and open it in Visual Studio Code with PlatformIO. Select t
 
 Prebuilt binaries are available under [Releases](https://github.com/dewenni/ESP_Buderus_KM271/releases).
 
-- **Initial USB installation:** use `buderus_km271_esp32_flash_vx.x.x.bin`. This merged image includes bootloader, partition table and application and is flashed at address **0x00** with a compatible ESP flashing tool.
-- **Update of an existing installation:** use `buderus_km271_ota_update_vx.x.x.bin` with the WebUI.
+- **Initial USB installation:** use `buderus_km271_esp32_flash_vx.x.x.bin` for ESP32 or `buderus_km271_esp32s3_flash_vx.x.x.bin` for board v2.0. This merged image includes bootloader, partition table and application and is flashed at address **0x00** with a compatible ESP flashing tool.
+- **Update of an existing installation:** use `buderus_km271_ota_update_vx.x.x.bin` for ESP32 or `buderus_km271_esp32s3_update_vx.x.x.bin` for board v2.0 with the WebUI.
 
 Use the image intended for your board. Export the configuration before updating an existing installation.
 
@@ -591,7 +605,7 @@ The example dashboard is available as an export:
 ## No connection to the Logamatic / no heating values
 
 1. **Identify the hardware.** A KM271-WiFi board plugs into the controller directly. An original KM271 with an RS232 connector requires a suitable RS232/TTL converter. Never connect RS232 voltage levels directly to ESP GPIOs.
-2. **Check GPIOs under Settings → Device.** Generic ESP32 presets use RX 16 / TX 17; KM271-WiFi v0.0.5 and ≥ v0.0.6 presets use RX 4 / TX 2. These are presets, not automatic detection. Wiring must match the configured pins; avoid duplicate assignments and restart after GPIO changes.
+2. **Check GPIOs under Settings → Device.** Generic ESP32 presets use RX 16 / TX 17; KM271-WiFi v0.0.5 and v0.0.6–1.x presets use RX 4 / TX 2, and v2.0 (ESP32-S3) uses RX 18 / TX 17. These are presets, not automatic detection. Wiring must match the configured pins; avoid duplicate assignments and restart after GPIO changes.
 3. **Check signal direction and cable continuity.** ESP TX must feed the converter's TTL input; its TTL output must feed ESP RX, with common ground. Converter labels vary. Verify the RS232 pinout and whether your converter requires straight or crossed wiring. A null-modem cable is not universally correct. See [discussion #174](https://github.com/dewenni/ESP_Buderus_KM271/discussions/174).
 4. **Check System → KM271 and Logger → KM271.** A working WebUI/MQTT connection, received bytes or a successful loopback test alone do not prove valid Logamatic communication. Look for protocol setup followed by current heating values. After two minutes without serial reception, the firmware treats the link as down and retries setup.
 5. **Check supply and connectors.** Follow the board's documentation, including any required identification resistor. Perform electrical checks with the equipment powered off.
