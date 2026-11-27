@@ -52,16 +52,16 @@ The full Python suite includes this check and skips it if `c++` is unavailable.
 It compiles the actual production prefix of `src/km271.cpp` up to the application
 decoder `parseInfo`, with the real timer encoder, `km271.h` and `km271WriteQueue.h`. Only Arduino
 clock/UART, critical sections, hardware configuration and message delivery are
-stubbed. The production helpers and 27 parameter senders are compiled too,
+stubbed. The production helpers and 35 parameter senders are compiled too,
 using the real DE/EN dictionaries. The value decoder is replaced except for
-the actual received WW/clock config cases and timer-register dispatch. Test sources and the executable are
+the actual received WW/clock and additional HK config cases and timer-register dispatch. Test sources and the executable are
 generated in a temporary directory.
 
 It covers atomic batch admission, capacity and FIFO wrap-around, owned command
 bytes, sequential requests, distinct send permission/final ACK, no log restart
 on success, preserved validity, NAK retries and group cancellation, timeouts,
 late ACK, reconnect, incoming framing/checksum and clock rollover. It also
-checks all 27 parameter updates and config-message topic/payload in DE/EN,
+checks all 35 parameter updates and config-message topic/payload in DE/EN,
 ACK-only cache updates, untouched neighbouring/status values, partial failure,
 keep bytes, unknown commands and subsequent real WW config reception. MQTT
 publication uses the existing production message path; no broker is contacted.
@@ -70,6 +70,22 @@ section stubs verify that UART/logging run outside the lock; they do not model
 real scheduling or prove thread safety on the ESP32. The checks do not confirm
 device timing, parameter adoption, actual MQTT delivery or browser refresh.
 Hardware procedure and limits are in `Doc/KM271-Schreiben.md`.
+
+The additional configuration replay checks fixed wire bytes for all eight new
+commands, signed negative/half-degree adjustments, value limits, invalid enum
+values, underfloor maximum 60 °C, NaN/infinity rejection and WW priority when
+HK2 display is disabled. Receive and ACK paths use the same field handlers.
+The actual shared MQTT
+configuration handler is replayed for all 35 commands in DE/EN, comparing its
+queued telegrams with direct driver calls. Additional cases cover localized
+choices (including summer/winter's 9..31 mapping), malformed/empty values,
+NaN/infinity, overflow, underflow, fractional input for integer commands and
+unknown topics. The shared WebSocket configuration handler is replayed for
+all 35 commands too, including invalid numeric inputs and all nine fixed-value
+operation-mode buttons (41 element IDs in total). Unknown IDs and display/help
+IDs must not enqueue a write. Direct KM271
+confirmation of the new WW and selected HK1 fields is recorded in
+`Doc/KM271-Zusaetzliche-Parameter.md`. No broker is used by these host tests.
 
 The clock-correction replay covers the display-confirmed `01E0` payloads for
 0, -6 and +4 seconds/day from the original KM271 (2026-11-27), plus -30/+30.

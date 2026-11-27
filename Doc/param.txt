@@ -145,6 +145,30 @@ command:    heating circuit 2: reduction mode
 topic:      {"setvalue/hk2_absenkungsart", setvalue/hc2_reduction_mode"}
 payload:    Number 0..3 (Abschalt,Reduziert,Raumhalt,Aussenhalt) / {off,fixed,room,outdoors)
 
+command:    heating circuit 1 / 2: maximum flow temperature
+topic:      {"setvalue/HK1_Max_Temperatur", "setvalue/hc1_max_temp"}
+            {"setvalue/HK2_Max_Temperatur", "setvalue/hc2_max_temp"}
+payload:    integer 20..90 [°C]; HK2 underfloor heating: max. 60 [°C]
+
+command:    heating circuit 1 / 2: room temperature adjustment
+topic:      {"setvalue/HK1_Temperatur_Offset", "setvalue/hc1_temp_offset"}
+            {"setvalue/HK2_Temperatur_Offset", "setvalue/hc2_temp_offset"}
+payload:    -5..+5 [°C], steps of 0.5 [°C]
+
+command:    heating circuit 1 / 2: heating system
+topic:      {"setvalue/HK1_Heizsystem", "setvalue/hc1_heating_system"}
+            {"setvalue/HK2_Heizsystem", "setvalue/hc2_heating_system"}
+payload:    0=off, 1=radiator; HK2 additionally 3=underfloor; 2 is invalid
+            localized names from the read topics are also accepted
+
+command:    warm water: system-level heating enabled
+topic:      {"setvalue/WW_Aufbereitung", "setvalue/ww_processing"}
+payload:    0=off, 1=on; Aus/An or off/on depending on MQTT language
+
+command:    warm water: priority for heating circuit 2
+topic:      {"setvalue/WW_Vorrang", "setvalue/ww_priority"}
+payload:    0=off, 1=on; Aus/An or off/on depending on MQTT language
+
 =================================================================================================
 
 Logamatic CONFIG values (read)

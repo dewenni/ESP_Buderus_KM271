@@ -59,7 +59,7 @@ Telegramme. Erfolgreiches Einreihen und Quittieren sind Debug-Meldungen und
 werden nicht per Pushover versendet. Die eigentliche Befehlsmeldung sowie
 Ablehnungen und Abbrüche bleiben normale Informationsmeldungen.
 Eine Transportquittung bestätigt keine unabhängig zurückgelesene
-Übernahme. Für die 27 bisher unterstützten Parameter wird nach der einzelnen
+Übernahme. Für die 35 unterstützten Parameter wird nach der einzelnen
 Abschlussquittung eine Übernahme angenommen: Nur die tatsächlich geschriebenen
 Felder werden im numerischen Cache, Anzeigetext und per `KM_TYP_CONFIG` über
 den bestehenden MQTT-Weg aktualisiert (einschließlich Topic, Sprache und
@@ -77,7 +77,9 @@ nicht aus Config-Schreibbefehlen abgeleitet.
 Unterstützt sind Betriebsart, Tages-/Nacht-/Urlaubstemperatur, Sommer-/Frostgrenze,
 Auslegung, Aufschalttemperatur, Abschaltgrenze, Absenkungsart, Programm und
 Urlaubstage beider Heizkreise sowie Warmwassertemperatur, -betriebsart und
-Zirkulationsintervall. Bekannte Felder eines Service-Schreibtelegramms nutzen
+Zirkulationsintervall. Zusätzlich sind HK-Maximaltemperatur, Temperaturabgleich
+und Heizsystem beider Heizkreise sowie WW-Aktivierung und -Vorrang angebunden.
+Zuordnung und Gerätetest: `Doc/KM271-Zusaetzliche-Parameter.md`. Bekannte Felder eines Service-Schreibtelegramms nutzen
 auch diesen Weg; unbekannte Befehle, Datum/Uhrzeit und bislang nicht unterstützte
 Timer-Schreibtelegramme erzeugen keine angenommenen Config-Werte. Datum/Uhrzeit
 werden beim Einreihen weiterhin als vorgemerkt gemeldet.

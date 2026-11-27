@@ -469,6 +469,58 @@ void sendTxBlock(uint8_t *data, int len) {
 // one field keeps numerical cache, formatted WebUI text and MQTT consistent.
 static void updateKmConfigField(uint16_t reg, uint8_t offset, uint8_t value) {
   switch ((static_cast<uint32_t>(reg) << 8) | offset) {
+  case 0x000e02: // hc1_max_temp
+    kmConfigNum.hc1_max_temp = value;
+    snprintf(kmConfigStr.hc1_max_temp, sizeof(kmConfigStr.hc1_max_temp), "%i °C", kmConfigNum.hc1_max_temp);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_MAX_TEMP[config.mqtt.lang],
+             kmConfigStr.hc1_max_temp); // "CFG_HK1_Max_Temperatur"    => "000e:2"
+    break;
+  case 0x004602: // hc2_max_temp
+    kmConfigNum.hc2_max_temp = value;
+    snprintf(kmConfigStr.hc2_max_temp, sizeof(kmConfigStr.hc2_max_temp), "%i °C", kmConfigNum.hc2_max_temp);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_MAX_TEMP[config.mqtt.lang],
+             kmConfigStr.hc2_max_temp); // "CFG_HK2_Max_Temperatur"    => "0046:2"
+    break;
+  case 0x001c02: // hc1_heating_system
+    kmConfigNum.hc1_heating_system = value;
+    snprintf(kmConfigStr.hc1_heating_system, sizeof(kmConfigStr.hc1_heating_system), "%s",
+             KM_CFG_ARRAY::HEATING_SYSTEM[config.mqtt.lang][limit(0, kmConfigNum.hc1_heating_system, 3)]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_HEATING_SYSTEM[config.mqtt.lang],
+             kmConfigStr.hc1_heating_system); // "CFG_HK1_Heizsystem"       => "001c:2,a"
+    break;
+  case 0x005402: // hc2_heating_system
+    kmConfigNum.hc2_heating_system = value;
+    snprintf(kmConfigStr.hc2_heating_system, sizeof(kmConfigStr.hc2_heating_system), "%s",
+             KM_CFG_ARRAY::HEATING_SYSTEM[config.mqtt.lang][limit(0, kmConfigNum.hc2_heating_system, 3)]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_HEATING_SYSTEM[config.mqtt.lang],
+             kmConfigStr.hc2_heating_system); // "CFG_HK1_Heizsystem"       => "0054:2,a"
+    break;
+  case 0x003103: // hc1_temp_offset
+    kmConfigNum.hc1_temp_offset = decodeNegValue(value) / 2.0f;
+    snprintf(kmConfigStr.hc1_temp_offset, sizeof(kmConfigStr.hc1_temp_offset), "%0.1f °C", kmConfigNum.hc1_temp_offset);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_TEMP_OFFSET[config.mqtt.lang],
+             kmConfigStr.hc1_temp_offset); // "CFG_HK1_Temperatur_Offset"    => "0031:3,s,d:2"
+    break;
+  case 0x006903: // hc2_temp_offset
+    kmConfigNum.hc2_temp_offset = decodeNegValue(value) / 2.0f;
+    snprintf(kmConfigStr.hc2_temp_offset, sizeof(kmConfigStr.hc2_temp_offset), "%0.1f °C", kmConfigNum.hc2_temp_offset);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_TEMP_OFFSET[config.mqtt.lang],
+             kmConfigStr.hc2_temp_offset); // "CFG_HK2_Temperatur_Offset"    => "0069:3,s,d:2"
+    break;
+  case 0x004d01: // ww_priority
+    kmConfigNum.ww_priority = value;
+    snprintf(kmConfigStr.ww_priority, sizeof(kmConfigStr.ww_priority), "%s",
+             KM_CFG_ARRAY::ON_OFF[config.mqtt.lang][limit(0, kmConfigNum.ww_priority, 1)]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::WW_PRIO[config.mqtt.lang],
+             kmConfigStr.ww_priority); // "CFG_WW_Vorrang"   => "004d:1,a"
+    break;
+  case 0x008503: // ww_processing
+    kmConfigNum.ww_processing = value;
+    snprintf(kmConfigStr.ww_processing, sizeof(kmConfigStr.ww_processing), "%s",
+             KM_CFG_ARRAY::ON_OFF[config.mqtt.lang][limit(0, kmConfigNum.ww_processing, 1)]);
+    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::WW_PROCESSING[config.mqtt.lang],
+             kmConfigStr.ww_processing); // "CFG_WW_Aufbereitung"  => "0085:3,a"
+    break;
   case 0x000001: // 0000:1 hc1_summer_mode_threshold
     kmConfigNum.hc1_summer_mode_threshold = value;
     snprintf(kmConfigStr.hc1_summer_mode_threshold, sizeof(kmConfigStr.hc1_summer_mode_threshold), "%s",
@@ -688,7 +740,7 @@ static void applyAcknowledgedConfig(const uint8_t data[8]) {
     reg = data[1];
     break;
   case 0x08:
-    if (!config.km271.use_hc2) return;
+    if (!config.km271.use_hc2 && data[1] != 0x15) return;
     reg = 0x0038 + data[1];
     break;
   case 0x0c:
@@ -712,6 +764,7 @@ static void applyAcknowledgedConfig(const uint8_t data[8]) {
     // These two HK1 fields are also received when HK1 is disabled.
     if (data[0] == 0x07 && !config.km271.use_hc1 &&
         !((reg == 0x0000 && offset == 1) || (reg == 0x0031 && offset == 5))) continue;
+    if (data[0] == 0x08 && !config.km271.use_hc2 && !(reg == 0x004d && offset == 1)) continue;
     updateKmConfigField(reg, offset, data[2 + offset]);
   }
 }
@@ -797,10 +850,7 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x000e:
     if (config.km271.use_hc1) {
-      kmConfigNum.hc1_max_temp = data[2 + 2];
-      snprintf(kmConfigStr.hc1_max_temp, sizeof(kmConfigStr.hc1_max_temp), "%i °C", kmConfigNum.hc1_max_temp);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_MAX_TEMP[config.mqtt.lang],
-               kmConfigStr.hc1_max_temp); // "CFG_HK1_Max_Temperatur"    => "000e:2"
+      updateKmConfigField(0x000e, 2, data[2 + 2]);
 
       updateKmConfigField(0x000e, 4, data[2 + 4]);
     }
@@ -817,20 +867,13 @@ void parseInfo(uint8_t *data, int len) {
     if (config.km271.use_hc1) {
       updateKmConfigField(0x001c, 1, data[2 + 1]);
 
-      kmConfigNum.hc1_heating_system = data[2 + 2];
-      snprintf(kmConfigStr.hc1_heating_system, sizeof(kmConfigStr.hc1_heating_system), "%s",
-               KM_CFG_ARRAY::HEATING_SYSTEM[config.mqtt.lang][limit(0, kmConfigNum.hc1_heating_system, 3)]);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_HEATING_SYSTEM[config.mqtt.lang],
-               kmConfigStr.hc1_heating_system); // "CFG_HK1_Heizsystem"       => "001c:2,a"
+      updateKmConfigField(0x001c, 2, data[2 + 2]);
     }
     break;
 
   case 0x0031:
     if (config.km271.use_hc1) {
-      kmConfigNum.hc1_temp_offset = decode05cTemp(decodeNegValue(data[2 + 3]));
-      snprintf(kmConfigStr.hc1_temp_offset, sizeof(kmConfigStr.hc1_temp_offset), "%0.1f °C", kmConfigNum.hc1_temp_offset);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_TEMP_OFFSET[config.mqtt.lang],
-               kmConfigStr.hc1_temp_offset); // "CFG_HK1_Temperatur_Offset"    => "0031:3,s,d:2"
+      updateKmConfigField(0x0031, 3, data[2 + 3]);
 
       kmConfigNum.hc1_remotecontrol = data[2 + 4];
       snprintf(kmConfigStr.hc1_remotecontrol, sizeof(kmConfigStr.hc1_remotecontrol), "%s",
@@ -855,21 +898,14 @@ void parseInfo(uint8_t *data, int len) {
 
   case 0x0046:
     if (config.km271.use_hc2) {
-      kmConfigNum.hc2_max_temp = data[2 + 2];
-      snprintf(kmConfigStr.hc2_max_temp, sizeof(kmConfigStr.hc2_max_temp), "%i °C", kmConfigNum.hc2_max_temp);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_MAX_TEMP[config.mqtt.lang],
-               kmConfigStr.hc2_max_temp); // "CFG_HK2_Max_Temperatur"    => "0046:2"
+      updateKmConfigField(0x0046, 2, data[2 + 2]);
 
       updateKmConfigField(0x0046, 4, data[2 + 4]);
     }
     break;
 
   case 0x004d:
-    kmConfigNum.ww_priority = data[2 + 1];
-    snprintf(kmConfigStr.ww_priority, sizeof(kmConfigStr.ww_priority), "%s",
-             KM_CFG_ARRAY::ON_OFF[config.mqtt.lang][limit(0, kmConfigNum.ww_priority, 1)]);
-    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::WW_PRIO[config.mqtt.lang],
-             kmConfigStr.ww_priority); // "CFG_WW_Vorrang"   => "004d:1,a"
+    updateKmConfigField(0x004d, 1, data[2 + 1]);
 
     if (config.km271.use_hc2) {
       updateKmConfigField(0x004d, 0, data[2 + 0]);
@@ -881,20 +917,13 @@ void parseInfo(uint8_t *data, int len) {
     if (config.km271.use_hc2) {
       updateKmConfigField(0x0054, 1, data[2 + 1]);
 
-      kmConfigNum.hc2_heating_system = data[2 + 2];
-      snprintf(kmConfigStr.hc2_heating_system, sizeof(kmConfigStr.hc2_heating_system), "%s",
-               KM_CFG_ARRAY::HEATING_SYSTEM[config.mqtt.lang][limit(0, kmConfigNum.hc2_heating_system, 3)]);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_HEATING_SYSTEM[config.mqtt.lang],
-               kmConfigStr.hc2_heating_system); // "CFG_HK1_Heizsystem"       => "0054:2,a"
+      updateKmConfigField(0x0054, 2, data[2 + 2]);
     }
     break;
 
   case 0x0069:
     if (config.km271.use_hc2) {
-      kmConfigNum.hc2_temp_offset = decode05cTemp(decodeNegValue(data[2 + 3]));
-      snprintf(kmConfigStr.hc2_temp_offset, sizeof(kmConfigStr.hc2_temp_offset), "%0.1f °C", kmConfigNum.hc2_temp_offset);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_TEMP_OFFSET[config.mqtt.lang],
-               kmConfigStr.hc2_temp_offset); // "CFG_HK2_Temperatur_Offset"    => "0069:3,s,d:2"
+      updateKmConfigField(0x0069, 3, data[2 + 3]);
 
       kmConfigNum.hc2_remotecontrol = data[2 + 4];
       snprintf(kmConfigStr.hc2_remotecontrol, sizeof(kmConfigStr.hc2_remotecontrol), "%s",
@@ -921,11 +950,7 @@ void parseInfo(uint8_t *data, int len) {
   case 0x0085:
     updateKmConfigField(0x0085, 0, data[2 + 0]);
 
-    kmConfigNum.ww_processing = data[2 + 3];
-    snprintf(kmConfigStr.ww_processing, sizeof(kmConfigStr.ww_processing), "%s",
-             KM_CFG_ARRAY::ON_OFF[config.mqtt.lang][limit(0, kmConfigNum.ww_processing, 1)]);
-    km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::WW_PROCESSING[config.mqtt.lang],
-             kmConfigStr.ww_processing); // "CFG_WW_Aufbereitung"  => "0085:3,a"
+    updateKmConfigField(0x0085, 3, data[2 + 3]);
 
     updateKmConfigField(0x0085, 5, data[2 + 5]);
     break;
@@ -1962,6 +1987,34 @@ void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara) {
   uint8_t local_buf[8];
 
   switch (sendCmd) {
+  case KM271_SENDCMD_HC1_MAX_TEMP:
+  case KM271_SENDCMD_HC2_MAX_TEMP:
+  case KM271_SENDCMD_HC1_HEATING_SYSTEM:
+  case KM271_SENDCMD_HC2_HEATING_SYSTEM:
+  case KM271_SENDCMD_WW_PROCESSING:
+  case KM271_SENDCMD_WW_PRIORITY: {
+    const bool hc2 = sendCmd == KM271_SENDCMD_HC2_MAX_TEMP || sendCmd == KM271_SENDCMD_HC2_HEATING_SYSTEM;
+    const bool maximum = sendCmd == KM271_SENDCMD_HC1_MAX_TEMP || sendCmd == KM271_SENDCMD_HC2_MAX_TEMP;
+    const bool system = sendCmd == KM271_SENDCMD_HC1_HEATING_SYSTEM || sendCmd == KM271_SENDCMD_HC2_HEATING_SYSTEM;
+    const bool processing = sendCmd == KM271_SENDCMD_WW_PROCESSING;
+    const char *topic = maximum ? (hc2 ? KM_CFG_TOPIC::HC2_MAX_TEMP[config.mqtt.lang] : KM_CFG_TOPIC::HC1_MAX_TEMP[config.mqtt.lang]) :
+                        system ? (hc2 ? KM_CFG_TOPIC::HC2_HEATING_SYSTEM[config.mqtt.lang] : KM_CFG_TOPIC::HC1_HEATING_SYSTEM[config.mqtt.lang]) :
+                        processing ? KM_CFG_TOPIC::WW_PROCESSING[config.mqtt.lang] : KM_CFG_TOPIC::WW_PRIO[config.mqtt.lang];
+    const int maxTemperature = hc2 && kmConfigNum.hc2_heating_system == 3 ? 60 : 90;
+    const bool valid = maximum ? cmdPara >= 20 && cmdPara <= maxTemperature :
+                       system ? (cmdPara == 0 || cmdPara == 1 || (hc2 && cmdPara == 3)) : cmdPara == 0 || cmdPara == 1;
+    if (valid) {
+      memset(local_buf, 0x65, sizeof(local_buf));
+      local_buf[0] = processing ? 0x0c : (hc2 || sendCmd == KM271_SENDCMD_WW_PRIORITY) ? 0x08 : 0x07;
+      local_buf[1] = maximum ? 0x0e : system ? 0x1c : processing ? 0x0e : 0x15;
+      local_buf[processing ? 5 : maximum || system ? 4 : 3] = cmdPara;
+      if (!commitSendBuf(local_buf)) return;
+    }
+    snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %d", KM_INFO_MSG::CMD[config.mqtt.lang], topic,
+             valid ? KM_INFO_MSG::VALUE[config.mqtt.lang] : KM_INFO_MSG::INVALID[config.mqtt.lang], cmdPara);
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
+    break;
+  }
   case KM271_SENDCMD_HC1_OPMODE:
     if (cmdPara >= 0 && cmdPara <= 2) {
       local_buf[0] = 0x07; // Data-Type für HK1 (0x07)
@@ -2398,6 +2451,24 @@ void km271sendCmdFlt(e_km271_sendCmd sendCmd, float cmdPara) {
   uint8_t local_buf[8];
 
   switch (sendCmd) {
+  case KM271_SENDCMD_HC1_TEMP_OFFSET:
+  case KM271_SENDCMD_HC2_TEMP_OFFSET: {
+    const bool hc2 = sendCmd == KM271_SENDCMD_HC2_TEMP_OFFSET;
+    // Range check also rejects NaN/infinity before any float-to-integer conversion.
+    const bool valid = cmdPara >= -5 && cmdPara <= 5 && cmdPara * 2 == static_cast<int>(cmdPara * 2);
+    if (valid) {
+      memset(local_buf, 0x65, sizeof(local_buf));
+      local_buf[0] = hc2 ? 0x08 : 0x07;
+      local_buf[1] = 0x31;
+      local_buf[5] = static_cast<uint8_t>(static_cast<int>(cmdPara * 2));
+      if (!commitSendBuf(local_buf)) return;
+    }
+    snprintf(kmTmpMsg, sizeof(kmTmpMsg), "%s: %s - %s: %0.1f", KM_INFO_MSG::CMD[config.mqtt.lang],
+             hc2 ? KM_CFG_TOPIC::HC2_TEMP_OFFSET[config.mqtt.lang] : KM_CFG_TOPIC::HC1_TEMP_OFFSET[config.mqtt.lang],
+             valid ? KM_INFO_MSG::VALUE[config.mqtt.lang] : KM_INFO_MSG::INVALID[config.mqtt.lang], cmdPara);
+    km271Msg(KM_TYP_MESSAGE, kmTmpMsg, "");
+    break;
+  }
   case KM271_SENDCMD_HC1_DAY_SETPOINT:
     if (cmdPara >= 10 && cmdPara <= 30) {
       local_buf[0] = 0x07; // Data-Type für HK1 (0x07)

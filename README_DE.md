@@ -513,6 +513,11 @@ Die Tabelle enthält den Suffix **hinter `<basis>/`** und numerische Payloads. T
 | `cmd/debug` | `0` / `1` für Debug-Aufzeichnung aus/ein |
 | `cmd/setdebugflt` | 11 durch `_` getrennte Hex-Werte, `XX` als Platzhalter, z. B. `08_15_XX_XX_XX_XX_XX_XX_XX_XX_XX` |
 | `cmd/getdebugflt` | Leer; aktuellen Filter abfragen |
+| `setvalue/HK1_Max_Temperatur`, `setvalue/HK2_Max_Temperatur` / `setvalue/hc1_max_temp`, `setvalue/hc2_max_temp` | Max. Vorlauftemperatur 20–90 °C; HK2 Fußboden bis 60 °C |
+| `setvalue/HK1_Temperatur_Offset`, `setvalue/HK2_Temperatur_Offset` / `setvalue/hc1_temp_offset`, `setvalue/hc2_temp_offset` | Raumtemperaturabgleich −5 bis +5 °C, Schritte 0,5 °C |
+| `setvalue/HK1_Heizsystem`, `setvalue/HK2_Heizsystem` / `setvalue/hc1_heating_system`, `setvalue/hc2_heating_system` | Heizsystem 0=Aus, 1=Heizkörper; HK2 zusätzlich 3=Fußboden |
+| `setvalue/WW_Aufbereitung` / `setvalue/ww_processing` | Warmwasserbereitung grundsätzlich Aus/An (0/1) |
+| `setvalue/WW_Vorrang` / `setvalue/ww_priority` | Warmwasservorrang für HK2 Aus/An (0/1) |
 | `cmd/service` | Expertenfunktion: 8 durch `_` getrennte Hex-Werte als Rohbefehl; nur mit gesichertem Protokollwissen verwenden |
 
 Befehle nicht mit Retain senden: Ein gespeicherter Stellbefehl kann beim Wiederverbinden erneut ausgeführt werden. Alte retained Nachrichten auf `setvalue`-/`cmd`-Topics müssen am Broker gelöscht werden; ein neuer Statuswert auf einem anderen Topic überschreibt sie nicht. Ungültige Ölzähler-Payloads wie `offline` werden verworfen und im Log gemeldet.

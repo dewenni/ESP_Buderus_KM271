@@ -520,6 +520,11 @@ The table lists the suffix **after `<base>/`** and numeric payloads. Use a decim
 | `cmd/debug` | `0` / `1` for debug recording off/on |
 | `cmd/setdebugflt` | 11 hex values separated by `_`, with `XX` as a wildcard, e.g. `08_15_XX_XX_XX_XX_XX_XX_XX_XX_XX` |
 | `cmd/getdebugflt` | Empty; request the current filter |
+| `setvalue/HK1_Max_Temperatur`, `setvalue/HK2_Max_Temperatur` / `setvalue/hc1_max_temp`, `setvalue/hc2_max_temp` | Maximum flow temperature 20–90 °C; HC2 underfloor up to 60 °C |
+| `setvalue/HK1_Temperatur_Offset`, `setvalue/HK2_Temperatur_Offset` / `setvalue/hc1_temp_offset`, `setvalue/hc2_temp_offset` | Room temperature adjustment −5 to +5 °C, 0.5 °C steps |
+| `setvalue/HK1_Heizsystem`, `setvalue/HK2_Heizsystem` / `setvalue/hc1_heating_system`, `setvalue/hc2_heating_system` | Heating system 0=Off, 1=Radiator; HC2 additionally 3=Underfloor |
+| `setvalue/WW_Aufbereitung` / `setvalue/ww_processing` | System-level hot water heating Off/On (0/1) |
+| `setvalue/WW_Vorrang` / `setvalue/ww_priority` | Hot water priority for HC2 Off/On (0/1) |
 | `cmd/service` | Expert function: 8 hex values separated by `_` as a raw command; requires verified protocol knowledge |
 
 Do not send commands with Retain: stored commands can execute again after reconnecting. Delete old retained messages on `setvalue`/`cmd` topics at the broker; a new status value on another topic does not overwrite them. Invalid oil-counter payloads such as `offline` are rejected and logged.

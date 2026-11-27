@@ -16,6 +16,8 @@ void km271Msg(e_kmMsgTyp type, const char *text, const char *value) {
   if (type == KM_TYP_CONFIG) configMessages.emplace_back(text, value);
 }
 
+#include "route_config.cpp"
+
 static void feed(uint8_t byte) {
   Serial2.incoming.push_back(byte);
   cyclicKM271();
@@ -83,35 +85,44 @@ static void finishWrite() {
 static void testAcknowledgedConfig() {
   for (uint8_t language : {0, 1}) {
     config.mqtt.lang = language;
-    struct Example { e_km271_sendCmd command; float value; const char *topic; std::string text; bool fractional; };
+    kmConfigNum.hc2_heating_system = 1;
+    struct Example { e_km271_sendCmd command; float value; const char *topic; std::string text; bool fractional; const char *elementId; };
     const Example examples[] = {
-      {KM271_SENDCMD_HC1_OPMODE, 2.0f, KM_CFG_TOPIC::HC1_OPMODE[language], KM_CFG_ARRAY::OPMODE[language][2], false},
-      {KM271_SENDCMD_HC1_DESIGN_TEMP, 70.0f, KM_CFG_TOPIC::HC1_INTERPR[language], "70 °C", false},
-      {KM271_SENDCMD_HC1_PROGRAMM, 3.0f, KM_CFG_TOPIC::HC1_PROGRAM[language], KM_CFG_ARRAY::HC_PROGRAM[language][3], false},
-      {KM271_SENDCMD_HC1_HOLIDAYS, 12.0f, KM_CFG_TOPIC::HC1_HOLIDAY_DAYS[language], std::string("12 ") + MQTT_MSG::DAYS[language], false},
-      {KM271_SENDCMD_HC1_SUMMER, 21.0f, KM_CFG_TOPIC::HC1_SUMMER_THRESHOLD[language], KM_CFG_ARRAY::SUMMER[language][12], false},
-      {KM271_SENDCMD_HC1_FROST, -5.0f, KM_CFG_TOPIC::HC1_FROST_THRESHOLD[language], "-5 °C", false},
-      {KM271_SENDCMD_HC1_SWITCH_OFF_THRESHOLD, -4.0f, KM_CFG_TOPIC::HC1_SWITCH_OFF_THRESHOLD[language], "-4 °C", false},
-      {KM271_SENDCMD_HC1_SWITCH_ON_TEMP, 3.0f, KM_CFG_TOPIC::HC1_SWITCH_ON_TEMP[language], KM_CFG_ARRAY::SWITCH_ON_TEMP[language][3], false},
-      {KM271_SENDCMD_HC1_REDUCTION_MODE, 2.0f, KM_CFG_TOPIC::HC1_REDUCTION_MODE[language], KM_CFG_ARRAY::REDUCT_MODE[language][2], false},
-      {KM271_SENDCMD_HC1_DAY_SETPOINT, 21.5f, KM_CFG_TOPIC::HC1_DAY_TEMP[language], "21.5 °C", true},
-      {KM271_SENDCMD_HC1_NIGHT_SETPOINT, 17.5f, KM_CFG_TOPIC::HC1_NIGHT_TEMP[language], "17.5 °C", true},
-      {KM271_SENDCMD_HC1_HOLIDAY_SETPOINT, 16.5f, KM_CFG_TOPIC::HC1_HOLIDAY_TEMP[language], "16.5 °C", true},
-      {KM271_SENDCMD_HC2_OPMODE, 2.0f, KM_CFG_TOPIC::HC2_OPMODE[language], KM_CFG_ARRAY::OPMODE[language][2], false},
-      {KM271_SENDCMD_HC2_DESIGN_TEMP, 70.0f, KM_CFG_TOPIC::HC2_INTERPR[language], "70 °C", false},
-      {KM271_SENDCMD_HC2_PROGRAMM, 3.0f, KM_CFG_TOPIC::HC2_PROGRAM[language], KM_CFG_ARRAY::HC_PROGRAM[language][3], false},
-      {KM271_SENDCMD_HC2_HOLIDAYS, 12.0f, KM_CFG_TOPIC::HC2_HOLIDAY_DAYS[language], std::string("12 ") + MQTT_MSG::DAYS[language], false},
-      {KM271_SENDCMD_HC2_SUMMER, 21.0f, KM_CFG_TOPIC::HC2_SUMMER_THRESHOLD[language], KM_CFG_ARRAY::SUMMER[language][12], false},
-      {KM271_SENDCMD_HC2_FROST, -5.0f, KM_CFG_TOPIC::HC2_FROST_THRESHOLD[language], "-5 °C", false},
-      {KM271_SENDCMD_HC2_SWITCH_OFF_THRESHOLD, -4.0f, KM_CFG_TOPIC::HC2_SWITCH_OFF_THRESHOLD[language], "-4 °C", false},
-      {KM271_SENDCMD_HC2_SWITCH_ON_TEMP, 3.0f, KM_CFG_TOPIC::HC2_SWITCH_ON_TEMP[language], KM_CFG_ARRAY::SWITCH_ON_TEMP[language][3], false},
-      {KM271_SENDCMD_HC2_REDUCTION_MODE, 2.0f, KM_CFG_TOPIC::HC2_REDUCTION_MODE[language], KM_CFG_ARRAY::REDUCT_MODE[language][2], false},
-      {KM271_SENDCMD_HC2_DAY_SETPOINT, 21.5f, KM_CFG_TOPIC::HC2_DAY_TEMP[language], "21.5 °C", true},
-      {KM271_SENDCMD_HC2_NIGHT_SETPOINT, 17.5f, KM_CFG_TOPIC::HC2_NIGHT_TEMP[language], "17.5 °C", true},
-      {KM271_SENDCMD_HC2_HOLIDAY_SETPOINT, 16.5f, KM_CFG_TOPIC::HC2_HOLIDAY_TEMP[language], "16.5 °C", true},
-      {KM271_SENDCMD_WW_SETPOINT, 53, KM_CFG_TOPIC::WW_TEMP[language], "53 °C", false},
-      {KM271_SENDCMD_WW_OPMODE, 2, KM_CFG_TOPIC::WW_OPMODE[language], KM_CFG_ARRAY::OPMODE[language][2], false},
-      {KM271_SENDCMD_WW_PUMP_CYCLES, 4, KM_CFG_TOPIC::WW_CIRCULATION[language], KM_CFG_ARRAY::CIRC_INTERVAL[language][4], false},
+      {KM271_SENDCMD_HC1_MAX_TEMP, 75.0f, KM_CFG_TOPIC::HC1_MAX_TEMP[language], "75 °C", false, "p02_hc1_max_temp"},
+      {KM271_SENDCMD_HC1_TEMP_OFFSET, -1.5f, KM_CFG_TOPIC::HC1_TEMP_OFFSET[language], "-1.5 °C", true, "p02_hc1_temp_offset"},
+      {KM271_SENDCMD_HC1_HEATING_SYSTEM, 1.0f, KM_CFG_TOPIC::HC1_HEATING_SYSTEM[language], KM_CFG_ARRAY::HEATING_SYSTEM[language][1], false, "p02_hc1_heatsys"},
+      {KM271_SENDCMD_HC2_MAX_TEMP, 75.0f, KM_CFG_TOPIC::HC2_MAX_TEMP[language], "75 °C", false, "p02_hc2_max_temp"},
+      {KM271_SENDCMD_HC2_TEMP_OFFSET, -1.5f, KM_CFG_TOPIC::HC2_TEMP_OFFSET[language], "-1.5 °C", true, "p02_hc2_temp_offset"},
+      {KM271_SENDCMD_HC2_HEATING_SYSTEM, 1.0f, KM_CFG_TOPIC::HC2_HEATING_SYSTEM[language], KM_CFG_ARRAY::HEATING_SYSTEM[language][1], false, "p02_hc2_heatsys"},
+      {KM271_SENDCMD_WW_PROCESSING, 1, KM_CFG_TOPIC::WW_PROCESSING[language], KM_CFG_ARRAY::ON_OFF[language][1], false, "p02_ww_processing"},
+      {KM271_SENDCMD_WW_PRIORITY, 1, KM_CFG_TOPIC::WW_PRIO[language], KM_CFG_ARRAY::ON_OFF[language][1], false, "p02_ww_priority"},
+      {KM271_SENDCMD_HC1_OPMODE, 2.0f, KM_CFG_TOPIC::HC1_OPMODE[language], KM_CFG_ARRAY::OPMODE[language][2], false, "p02_hc1_opmode_auto"},
+      {KM271_SENDCMD_HC1_DESIGN_TEMP, 70.0f, KM_CFG_TOPIC::HC1_INTERPR[language], "70 °C", false, "p02_hc1_interp"},
+      {KM271_SENDCMD_HC1_PROGRAMM, 3.0f, KM_CFG_TOPIC::HC1_PROGRAM[language], KM_CFG_ARRAY::HC_PROGRAM[language][3], false, "p02_hc1_prg"},
+      {KM271_SENDCMD_HC1_HOLIDAYS, 12.0f, KM_CFG_TOPIC::HC1_HOLIDAY_DAYS[language], std::string("12 ") + MQTT_MSG::DAYS[language], false, "p02_hc1_holiday_days"},
+      {KM271_SENDCMD_HC1_SUMMER, 21.0f, KM_CFG_TOPIC::HC1_SUMMER_THRESHOLD[language], KM_CFG_ARRAY::SUMMER[language][12], false, "p02_hc1_summer_th"},
+      {KM271_SENDCMD_HC1_FROST, -5.0f, KM_CFG_TOPIC::HC1_FROST_THRESHOLD[language], "-5 °C", false, "p02_hc1_frost_prot_th"},
+      {KM271_SENDCMD_HC1_SWITCH_OFF_THRESHOLD, -4.0f, KM_CFG_TOPIC::HC1_SWITCH_OFF_THRESHOLD[language], "-4 °C", false, "p02_hc1_sw_off_th"},
+      {KM271_SENDCMD_HC1_SWITCH_ON_TEMP, 3.0f, KM_CFG_TOPIC::HC1_SWITCH_ON_TEMP[language], KM_CFG_ARRAY::SWITCH_ON_TEMP[language][3], false, "p02_hc1_sw_on_temp"},
+      {KM271_SENDCMD_HC1_REDUCTION_MODE, 2.0f, KM_CFG_TOPIC::HC1_REDUCTION_MODE[language], KM_CFG_ARRAY::REDUCT_MODE[language][2], false, "p02_hc1_reduct_mode"},
+      {KM271_SENDCMD_HC1_DAY_SETPOINT, 21.5f, KM_CFG_TOPIC::HC1_DAY_TEMP[language], "21.5 °C", true, "p02_hc1_day_temp"},
+      {KM271_SENDCMD_HC1_NIGHT_SETPOINT, 17.5f, KM_CFG_TOPIC::HC1_NIGHT_TEMP[language], "17.5 °C", true, "p02_hc1_night_temp"},
+      {KM271_SENDCMD_HC1_HOLIDAY_SETPOINT, 16.5f, KM_CFG_TOPIC::HC1_HOLIDAY_TEMP[language], "16.5 °C", true, "p02_hc1_holiday_temp"},
+      {KM271_SENDCMD_HC2_OPMODE, 2.0f, KM_CFG_TOPIC::HC2_OPMODE[language], KM_CFG_ARRAY::OPMODE[language][2], false, "p02_hc2_opmode_auto"},
+      {KM271_SENDCMD_HC2_DESIGN_TEMP, 70.0f, KM_CFG_TOPIC::HC2_INTERPR[language], "70 °C", false, "p02_hc2_interp"},
+      {KM271_SENDCMD_HC2_PROGRAMM, 3.0f, KM_CFG_TOPIC::HC2_PROGRAM[language], KM_CFG_ARRAY::HC_PROGRAM[language][3], false, "p02_hc2_prg"},
+      {KM271_SENDCMD_HC2_HOLIDAYS, 12.0f, KM_CFG_TOPIC::HC2_HOLIDAY_DAYS[language], std::string("12 ") + MQTT_MSG::DAYS[language], false, "p02_hc2_holiday_days"},
+      {KM271_SENDCMD_HC2_SUMMER, 21.0f, KM_CFG_TOPIC::HC2_SUMMER_THRESHOLD[language], KM_CFG_ARRAY::SUMMER[language][12], false, "p02_hc2_summer_th"},
+      {KM271_SENDCMD_HC2_FROST, -5.0f, KM_CFG_TOPIC::HC2_FROST_THRESHOLD[language], "-5 °C", false, "p02_hc2_frost_prot_th"},
+      {KM271_SENDCMD_HC2_SWITCH_OFF_THRESHOLD, -4.0f, KM_CFG_TOPIC::HC2_SWITCH_OFF_THRESHOLD[language], "-4 °C", false, "p02_hc2_sw_off_th"},
+      {KM271_SENDCMD_HC2_SWITCH_ON_TEMP, 3.0f, KM_CFG_TOPIC::HC2_SWITCH_ON_TEMP[language], KM_CFG_ARRAY::SWITCH_ON_TEMP[language][3], false, "p02_hc2_sw_on_temp"},
+      {KM271_SENDCMD_HC2_REDUCTION_MODE, 2.0f, KM_CFG_TOPIC::HC2_REDUCTION_MODE[language], KM_CFG_ARRAY::REDUCT_MODE[language][2], false, "p02_hc2_reduct_mode"},
+      {KM271_SENDCMD_HC2_DAY_SETPOINT, 21.5f, KM_CFG_TOPIC::HC2_DAY_TEMP[language], "21.5 °C", true, "p02_hc2_day_temp"},
+      {KM271_SENDCMD_HC2_NIGHT_SETPOINT, 17.5f, KM_CFG_TOPIC::HC2_NIGHT_TEMP[language], "17.5 °C", true, "p02_hc2_night_temp"},
+      {KM271_SENDCMD_HC2_HOLIDAY_SETPOINT, 16.5f, KM_CFG_TOPIC::HC2_HOLIDAY_TEMP[language], "16.5 °C", true, "p02_hc2_holiday_temp"},
+      {KM271_SENDCMD_WW_SETPOINT, 53, KM_CFG_TOPIC::WW_TEMP[language], "53 °C", false, "p02_ww_temp"},
+      {KM271_SENDCMD_WW_OPMODE, 2, KM_CFG_TOPIC::WW_OPMODE[language], KM_CFG_ARRAY::OPMODE[language][2], false, "p02_ww_opmode_auto"},
+      {KM271_SENDCMD_WW_PUMP_CYCLES, 4, KM_CFG_TOPIC::WW_CIRCULATION[language], KM_CFG_ARRAY::CIRC_INTERVAL[language][4], false, "p02_ww_circ"},
     };
     for (const auto &example : examples) {
       connect();
@@ -130,6 +141,37 @@ static void testAcknowledgedConfig() {
       // details remain available through the existing debug channel.
       assert(infoMessages == 1 && debugMessages == 2);
       assert(configMessages[0].first == example.topic && configMessages[0].second == example.text);
+      // Every MQTT topic and WebUI input must enqueue the same bytes as the driver.
+      connect();
+      const std::string topic = std::string("setvalue/") + example.topic;
+      const std::string value = std::to_string(example.value);
+      assert(routeMqttConfig(topic.c_str(), value.c_str()));
+      Km271WriteQueue::Telegram routed;
+      assert(writeQueue.front(routed));
+      assert(memcmp(routed.data, telegram.data, 8) == 0);
+      connect();
+      assert(routeWebConfig(example.elementId, value.c_str()));
+      assert(writeQueue.front(routed));
+      assert(memcmp(routed.data, telegram.data, 8) == 0);
+
+      if (!example.fractional) {
+        connect();
+        assert(routeMqttConfig(topic.c_str(), "1.5"));
+        assert(writeQueue.size() == 0);
+        if (!strstr(example.elementId, "_opmode_")) {
+          assert(routeWebConfig(example.elementId, "1.5"));
+          assert(writeQueue.size() == 0);
+        }
+      }
+      for (const char *invalid : {"", "garbage", "12junk", "nan", "inf", "1e99", "1e-99", "2147483648", "-2147483649"}) {
+        connect();
+        assert(routeMqttConfig(topic.c_str(), invalid));
+        assert(writeQueue.size() == 0);
+        if (!strstr(example.elementId, "_opmode_")) {
+          assert(routeWebConfig(example.elementId, invalid));
+          assert(writeQueue.size() == 0);
+        }
+      }
     }
   }
 
@@ -192,6 +234,152 @@ static void testAcknowledgedConfig() {
 }
 
 #include "km271_timers.cpp"
+
+static void testAdditionalConfigCommands() {
+  struct Example { e_km271_sendCmd command; float value; bool fractional; uint8_t bytes[8]; };
+  const Example cases[] = {
+    {KM271_SENDCMD_HC1_MAX_TEMP, 65, false, {7,14,0x65,0x65,65,0x65,0x65,0x65}},
+    {KM271_SENDCMD_HC2_MAX_TEMP, 60, false, {8,14,0x65,0x65,60,0x65,0x65,0x65}},
+    {KM271_SENDCMD_HC1_HEATING_SYSTEM, 1, false, {7,28,0x65,0x65,1,0x65,0x65,0x65}},
+    {KM271_SENDCMD_HC2_HEATING_SYSTEM, 3, false, {8,28,0x65,0x65,3,0x65,0x65,0x65}},
+    {KM271_SENDCMD_HC1_TEMP_OFFSET, -1.5f, true, {7,49,0x65,0x65,0x65,0xfd,0x65,0x65}},
+    {KM271_SENDCMD_HC2_TEMP_OFFSET, .5f, true, {8,49,0x65,0x65,0x65,1,0x65,0x65}},
+    {KM271_SENDCMD_WW_PROCESSING, 0, false, {12,14,0x65,0x65,0x65,0,0x65,0x65}},
+    {KM271_SENDCMD_WW_PRIORITY, 0, false, {8,21,0x65,0,0x65,0x65,0x65,0x65}},
+  };
+  kmConfigNum.hc2_heating_system = 1;
+  for (const auto &example : cases) {
+    connect();
+    if (example.fractional) km271sendCmdFlt(example.command, example.value);
+    else km271sendCmd(example.command, example.value);
+    assert(writeQueue.size() == 1);
+    beginWrite(example.bytes); // Compare actual production framing with fixed bytes.
+    finishWrite();
+  }
+  for (const auto &invalid : std::vector<std::pair<e_km271_sendCmd,int>>{
+      {KM271_SENDCMD_HC1_MAX_TEMP,19}, {KM271_SENDCMD_HC1_MAX_TEMP,91},
+      {KM271_SENDCMD_HC2_MAX_TEMP,61}, // Underfloor system from the case above.
+      {KM271_SENDCMD_HC1_HEATING_SYSTEM,3}, {KM271_SENDCMD_HC2_HEATING_SYSTEM,2},
+      {KM271_SENDCMD_WW_PROCESSING,-1}, {KM271_SENDCMD_WW_PRIORITY,2}}) {
+    connect();
+    km271sendCmd(invalid.first, invalid.second);
+    assert(writeQueue.size() == 0);
+  }
+  for (float invalid : {-5.5f,5.5f,.25f,NAN,INFINITY,-INFINITY}) {
+    connect();
+    km271sendCmdFlt(KM271_SENDCMD_HC1_TEMP_OFFSET, invalid);
+    assert(writeQueue.size() == 0);
+  }
+  // Real reception overrides an assumed negative offset, preserving neighbours.
+  connect();
+  const uint8_t reported[] = {0,0x31,0x65,0x65,0x65,0xff,0,0xfc};
+  feed(KM_STX);
+  for (uint8_t byte : frame(reported,sizeof(reported))) feed(byte);
+  assert(kmConfigNum.hc1_temp_offset == -.5f);
+  assert(std::string(kmConfigStr.hc1_temp_offset) == "-0.5 °C");
+  assert(kmConfigNum.hc1_frost_protection_threshold == -4);
+
+  // WW priority is a global setting even when HK2 display is disabled.
+  config.km271.use_hc2 = false;
+  connect();
+  km271sendCmd(KM271_SENDCMD_WW_PRIORITY, 1);
+  const uint8_t priority[] = {8,21,0x65,1,0x65,0x65,0x65,0x65};
+  beginWrite(priority); finishWrite();
+  assert(kmConfigNum.ww_priority == 1);
+  config.km271.use_hc2 = true;
+
+  // Exercise the actual new MQTT and WebSocket dispatch blocks, not a model.
+  config.mqtt.lang = 0;
+  connect();
+  routeMqttConfig("setvalue/HK1_Temperatur_Offset", "-1.5");
+  const uint8_t negative[] = {7,49,0x65,0x65,0x65,0xfd,0x65,0x65};
+  beginWrite(negative); finishWrite();
+  for (uint8_t language : {0,1}) {
+    config.mqtt.lang = language;
+    connect();
+    const std::string topic = std::string("setvalue/") + KM_CFG_TOPIC::WW_PROCESSING[language];
+    routeMqttConfig(topic.c_str(), language ? "off" : "Aus");
+    const uint8_t off[] = {12,14,0x65,0x65,0x65,0,0x65,0x65};
+    beginWrite(off); finishWrite();
+  }
+  for (const char *invalid : {"", "garbage", "1junk", "0.25", "nan", "inf", "1000000000000000000000000000"}) {
+    connect();
+    routeWebConfig("p02_hc1_heatsys", invalid);
+    assert(writeQueue.size() == 0);
+    routeWebConfig("p02_hc1_temp_offset", invalid);
+    assert(writeQueue.size() == 0);
+    const std::string topic = std::string("setvalue/") + KM_CFG_TOPIC::WW_PROCESSING[config.mqtt.lang];
+    routeMqttConfig(topic.c_str(), invalid);
+    assert(writeQueue.size() == 0);
+  }
+  connect();
+  routeWebConfig("p02_ww_priority", "0");
+  const uint8_t offPriority[] = {8,21,0x65,0,0x65,0x65,0x65,0x65};
+  beginWrite(offPriority); finishWrite();
+}
+
+static void testWebConfigButtons() {
+  const char *groups[] = {"hc1", "hc2", "ww"};
+  const e_km271_sendCmd commands[] = {KM271_SENDCMD_HC1_OPMODE, KM271_SENDCMD_HC2_OPMODE, KM271_SENDCMD_WW_OPMODE};
+  const char *modes[] = {"night", "day", "auto"};
+  for (unsigned group = 0; group < 3; ++group) {
+    for (int mode = 0; mode < 3; ++mode) {
+      connect();
+      km271sendCmd(commands[group], mode);
+      Km271WriteQueue::Telegram expected, actual;
+      assert(writeQueue.front(expected));
+      const std::string id = std::string("p02_") + groups[group] + "_opmode_" + modes[mode];
+      // A button's ID determines the mode, irrespective of its event payload.
+      for (const char *payload : {"", "1", "garbage"}) {
+        connect();
+        assert(routeWebConfig(id.c_str(), payload));
+        assert(writeQueue.front(actual));
+        assert(writeQueue.size() == 1);
+        assert(memcmp(expected.data, actual.data, 8) == 0);
+      }
+    }
+  }
+  connect();
+  for (const char *id : {"unknown", "p02_hc1_day_temp_help", "p02_hc1_opmode", "p02_hc1_max_temp_txt"}) {
+    assert(!routeWebConfig(id, "1"));
+    assert(writeQueue.size() == 0);
+  }
+}
+
+static void testMqttConfigChoices() {
+  for (uint8_t language : {0, 1}) {
+    config.mqtt.lang = language;
+    struct Choice { const char *topic; e_km271_sendCmd command; const char *text; int value; };
+    const Choice choices[] = {
+      {KM_CFG_TOPIC::HC1_OPMODE[language], KM271_SENDCMD_HC1_OPMODE, KM_CFG_ARRAY::OPMODE[language][2], 2},
+      {KM_CFG_TOPIC::HC2_PROGRAM[language], KM271_SENDCMD_HC2_PROGRAMM, KM_CFG_ARRAY::HC_PROGRAM[language][3], 3},
+      {KM_CFG_TOPIC::HC1_REDUCTION_MODE[language], KM271_SENDCMD_HC1_REDUCTION_MODE, KM_CFG_ARRAY::REDUCT_MODE[language][2], 2},
+      {KM_CFG_TOPIC::HC2_HEATING_SYSTEM[language], KM271_SENDCMD_HC2_HEATING_SYSTEM, KM_CFG_ARRAY::HEATING_SYSTEM[language][1], 1},
+      {KM_CFG_TOPIC::HC1_SUMMER_THRESHOLD[language], KM271_SENDCMD_HC1_SUMMER, KM_CFG_ARRAY::SUMMER[language][0], 9},
+      {KM_CFG_TOPIC::HC1_SUMMER_THRESHOLD[language], KM271_SENDCMD_HC1_SUMMER, KM_CFG_ARRAY::SUMMER[language][1], 10},
+      {KM_CFG_TOPIC::HC2_SUMMER_THRESHOLD[language], KM271_SENDCMD_HC2_SUMMER, KM_CFG_ARRAY::SUMMER[language][22], 31},
+      {KM_CFG_TOPIC::WW_OPMODE[language], KM271_SENDCMD_WW_OPMODE, KM_CFG_ARRAY::OPMODE[language][1], 1},
+      {KM_CFG_TOPIC::WW_CIRCULATION[language], KM271_SENDCMD_WW_PUMP_CYCLES, KM_CFG_ARRAY::CIRC_INTERVAL[language][0], 0},
+      {KM_CFG_TOPIC::WW_CIRCULATION[language], KM271_SENDCMD_WW_PUMP_CYCLES, KM_CFG_ARRAY::CIRC_INTERVAL[language][4], 4},
+      {KM_CFG_TOPIC::WW_CIRCULATION[language], KM271_SENDCMD_WW_PUMP_CYCLES, KM_CFG_ARRAY::CIRC_INTERVAL[language][7], 7},
+      {KM_CFG_TOPIC::WW_PRIO[language], KM271_SENDCMD_WW_PRIORITY, KM_CFG_ARRAY::ON_OFF[language][0], 0},
+    };
+    for (const auto &choice : choices) {
+      connect();
+      km271sendCmd(choice.command, choice.value);
+      Km271WriteQueue::Telegram expected, actual;
+      assert(writeQueue.front(expected));
+      connect();
+      const std::string topic = std::string("setvalue/") + choice.topic;
+      assert(routeMqttConfig(topic.c_str(), choice.text));
+      assert(writeQueue.front(actual));
+      assert(memcmp(expected.data, actual.data, 8) == 0);
+    }
+  }
+  connect();
+  assert(!routeMqttConfig("setvalue/unknown", "1"));
+  assert(writeQueue.size() == 0);
+}
 
 static void testClockCorrection() {
   // Display-confirmed raw values from the original KM271 on 2026-11-27,
@@ -346,6 +534,9 @@ int main() {
   cyclicKM271();
   assert(KmRxBlockState == KM_TSK_START && writeQueue.size() == 0);
   testAcknowledgedConfig();
+  testAdditionalConfigCommands();
+  testMqttConfigChoices();
+  testWebConfigButtons();
   testClockCorrection();
   testTimers();
   std::puts("KM271 production serial engine: all replay checks passed");
