@@ -28,41 +28,80 @@
     <!-- Tab-Content -->
     <main class="container">
       <!--SECTION-START-->
-      <div id="tab5" class="tab-content information-page information-page--compact">
+      <div id="tab5" class="tab-content equipment-page information-page information-page--compact">
         <header class="page-heading">
           <h1 data-i18n="hot_water"></h1><p data-i18n="info_ww_subtitle"></p>
         </header>
-<div class="information-grid information-water-grid">
-  <div class="information-stack">
+<div class="equipment-tabs" role="tablist" data-equipment-tabs><button type="button" data-ui-local role="tab" id="tab5_settings_tab" aria-controls="tab5_settings" aria-selected="true" data-i18n="settings"></button><button type="button" data-ui-local role="tab" id="tab5_values_tab" aria-controls="tab5_values" aria-selected="false" data-i18n="equipment_values"></button><button type="button" data-ui-local role="tab" id="tab5_diagnosis_tab" aria-controls="tab5_diagnosis" aria-selected="false" data-i18n="equipment_diagnosis"></button>
+</div>
+<section id="tab5_settings" class="equipment-panel" role="tabpanel" aria-labelledby="tab5_settings_tab">
+<div class="control-page" data-connection-required>  <section class="control-section OPT_HW" aria-labelledby="p02_ww_heading">
+    <div class="control-section-heading">
+      <h2 id="p02_ww_heading" data-i18n="hot_water">
+</h2>
+    </div>
+    <div class="control-water-grid">
+      <div class="control-card control-mode-card">
+        <div class="dash-main">
+          <h3 class="dash-header" id="p02_ww_opmode_label" data-i18n="opmode"></h3>
+          <div class="dash-content">
+            <fieldset class="radio-buttons" aria-labelledby="p02_ww_opmode_label">
+              <input class="button-like" type="radio" id="p02_ww_opmode_night" name="ww_opmode" checked >
+              <label class="button-like-label" for="p02_ww_opmode_night"><i class="svg i_night" aria-hidden="true"></i><span data-i18n="night"></span></label>
+              <input class="button-like" type="radio" id="p02_ww_opmode_day" name="ww_opmode" >
+              <label class="button-like-label" for="p02_ww_opmode_day"><i class="svg i_day" aria-hidden="true"></i><span data-i18n="day"></span></label>
+              <input class="button-like" type="radio" id="p02_ww_opmode_auto" name="ww_opmode">
+              <label class="button-like-label" for="p02_ww_opmode_auto"><i class="svg i_auto" aria-hidden="true"></i><span data-i18n="auto"></span></label>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <button type="button" class="dash-header setting-help" id="p02_ww_temp_help" aria-describedby="p02_ww_temp_help_text" data-ui-local data-setting-help="control_help_ww_temp" data-i18n="temp"></button><span id="p02_ww_temp_help_text" data-i18n="control_help_ww_temp" hidden></span>
+            <div class="control-reading">
+              <span id="p02_ww_temp_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
+            </div>
+          </div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_ww_temp_txt" id="p02_ww_temp" aria-labelledby="p02_ww_temp_help" aria-describedby="p02_ww_temp_help_text" min="30" max="60" value="30" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>30 °C</span>
+            <span>60 °C</span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <button type="button" class="dash-header setting-help" id="p02_ww_circ_help" aria-describedby="p02_ww_circ_help_text" data-ui-local data-setting-help="control_help_circulation" data-i18n="circulation"></button><span id="p02_ww_circ_help_text" data-i18n="control_help_circulation" hidden></span>
+            <div class="control-reading">
+              <span id="p02_ww_circ_txt"></span>
+            </div>
+          </div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_ww_circ_txt" id="p02_ww_circ" aria-labelledby="p02_ww_circ_help" aria-describedby="p02_ww_circ_help_text" min="0" max="7" value="0" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span data-i18n="chart_off"></span>
+            <span data-i18n="on"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<div hidden><span id="p05_hw_temp" class="table-value"></span><span id="p05_hw_op_mode" class="table-value"></span><span id="p05_hw_circ" class="table-value"></span>
+</div>
+</section>
+<section id="tab5_values" class="equipment-panel" role="tabpanel" aria-labelledby="tab5_values_tab" hidden>
+<div class="equipment-data">
 <article class="card">
-            <h2 class="table-header" data-i18n="config"></h2>
-            <table class="striped">
-              <tbody>
-                <tr>
-                  <td data-i18n="priority"></td>
-                  <td id="p05_hw_prio" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="temp"></td>
-                  <td id="p05_hw_temp" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="operation_mode"></td>
-                  <td id="p05_hw_op_mode" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="processing"></td>
-                  <td id="p05_hw_proccess" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="circulation"></td>
-                  <td id="p05_hw_circ" class="table-value"></td>
-                </tr>
-              </tbody>
-            </table>
-          </article>
-<article class="card">
-            <h2 class="table-header" data-i18n="info_current_values"></h2>
+            <h2 class="table-header" data-i18n="info_current_values">
+</h2>
             <table class="striped">
               <tbody>
                 <tr>
@@ -94,10 +133,29 @@
               </tbody>
             </table>
           </article>
-  </div>
-  <div class="information-stack">
 <article class="card">
-<h2 class="table-header" data-i18n="info_operating_states"></h2>
+<h2 class="table-header" data-i18n="equipment_system_data">
+</h2>
+<table>
+<tbody>
+<tr>
+                  <td data-i18n="priority"></td>
+                  <td id="p05_hw_prio" class="table-value"></td>
+                </tr>
+<tr>
+                  <td data-i18n="processing"></td>
+                  <td id="p05_hw_proccess" class="table-value"></td>
+                </tr>
+</tbody>
+</table>
+</article>
+</div>
+</section>
+<section id="tab5_diagnosis" class="equipment-panel" role="tabpanel" aria-labelledby="tab5_diagnosis_tab" hidden>
+<div class="equipment-data">
+<article class="card">
+<h2 class="table-header" data-i18n="info_operating_states">
+</h2>
 <table class="striped">
 <tbody>
 <tr>
@@ -156,7 +214,8 @@
 </table>
 </article>
 <article class="card">
-<h2 class="table-header" data-i18n="info_monitoring"></h2>
+<h2 class="table-header" data-i18n="info_monitoring">
+</h2>
 <table class="striped">
 <tbody>
 <tr>
@@ -178,8 +237,8 @@
 </tbody>
 </table>
 </article>
-  </div>
 </div>
+</section>
 </div>
       <!--SECTION-END-->
     </main>

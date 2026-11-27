@@ -12,6 +12,37 @@
 static tm dti;
 static const char *TAG = "WEB"; // LOG TAG
 
+static void timerCommand(const char *value) {
+  JsonDocument input, reply;
+  reply["type"] = "km271TimerReply";
+  const char *error = "timer_invalid";
+  if (!deserializeJson(input, value) && input["id"].is<uint32_t>()) {
+    reply["id"] = input["id"];
+    reply["hc"] = input["hc"];
+    const char *op = input["op"] | "";
+    const bool add = !strcmp(op, "add"), remove = !strcmp(op, "remove");
+    if (input["hc"].is<unsigned>() && input["hc"].as<unsigned>() >= 1 && input["hc"].as<unsigned>() <= 2 &&
+        input["session"].is<uint32_t>() && input["revision"].is<uint32_t>() &&
+        (add || remove || !strcmp(op, "edit")) &&
+        (add || (input["on"].is<unsigned>() && input["off"].is<unsigned>() &&
+                 input["on"].as<unsigned>() < 42 && input["off"].as<unsigned>() < 42)) &&
+        (remove || (input["days"].is<unsigned>() && input["days"].as<unsigned>() <= 127 &&
+                    input["from"].is<unsigned>() && input["from"].as<unsigned>() < 1440 &&
+                    input["to"].is<unsigned>() && input["to"].as<unsigned>() <= 1440 && input["next"].is<bool>()))) {
+      Km271Timers::Change change;
+      change.add = add; change.remove = remove;
+      change.on = input["on"] | 0; change.off = input["off"] | 0;
+      change.days = input["days"] | 0; change.from = input["from"] | 0;
+      change.to = input["to"] | 0; change.next = input["next"] | false;
+      error = config.sim.enable ? "timer_demo" : km271WriteTimers(input["hc"].as<unsigned>() - 1,
+          input["session"], input["revision"], input["id"], change);
+    }
+  }
+  if (error) reply["error"] = error;
+  else reply["accepted"] = true;
+  webUI.wsUpdateWebJSON(reply);
+}
+
 /**
  * *******************************************************************
  * @brief   callback function for web elements
@@ -24,6 +55,7 @@ void webCallback(const char *elementId, const char *value) {
   ESP_LOGD(TAG, "Received - Element ID: %s", elementId);
 
   if (webUI.handleConfigFileCommand(elementId, value)) return;
+  if (!strcmp(elementId, "timer_write")) { timerCommand(value); return; }
 
   // ------------------------------------------------------------------
   // GitHub / Version

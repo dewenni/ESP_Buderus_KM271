@@ -16,6 +16,7 @@
 /* P R O T O T Y P E S ********************************************************/
 void sendTxBlock(uint8_t *data, int len);
 static void applyAcknowledgedConfig(const uint8_t data[8]);
+static void updateTimerBlock(uint8_t circuit, uint8_t block, const uint8_t *bytes);
 void handleRxBlock(uint8_t *data, int len, uint8_t bcc);
 void parseInfo(uint8_t *data, int len);
 float decode05cTemp(uint8_t data);
@@ -74,11 +75,60 @@ static bool km271RefreshActive = false;
 // on loop(). Only queue operations/session admission are inside this lock.
 static portMUX_TYPE sendBufMux = portMUX_INITIALIZER_UNLOCKED;
 static bool writesAccepted = false;
+static KmTimerSnapshot timerSnapshots[2];
+static int8_t timerWriteCircuit = -1;
+static uint32_t timerSession = 0;
+
+const KmTimerSnapshot &km271GetTimers(uint8_t circuit) { return timerSnapshots[circuit == 1 ? 1 : 0]; }
+uint32_t km271TimerSession() { return timerSession; }
+bool km271TimersBusy() { return timerWriteCircuit >= 0; }
+
+static bool timerAddress(const uint8_t *data) {
+  return (data[0] == 0x11 || data[0] == 0x12) && data[1] >= 7 &&
+         data[1] <= 98 && data[1] % 7 == 0;
+}
+
+const char *km271WriteTimers(uint8_t circuit, uint32_t session, uint32_t revision,
+                           uint32_t request, const Km271Timers::Change &change) {
+  if (circuit > 1 || !(circuit == 0 ? config.km271.use_hc1 : config.km271.use_hc2)) return "timer_disabled";
+  if (!writesAccepted) return "timer_offline";
+  if (timerWriteCircuit >= 0 || writeQueue.size()) return "timer_busy";
+  KmTimerSnapshot &snapshot = timerSnapshots[circuit];
+  if (snapshot.valid != Km271Timers::Complete) return "timer_loading";
+  if (session != timerSession || revision != snapshot.revision) return "timer_stale";
+  uint8_t output[Km271Timers::Bytes];
+  const char *error = Km271Timers::apply(snapshot.raw, change, output);
+  if (error) return error;
+  uint8_t telegrams[Km271Timers::Blocks][8];
+  uint8_t count = 0;
+  // FHEM order: the later block first, preserving every untouched neighbour.
+  for (int block = Km271Timers::Blocks - 1; block >= 0; --block) {
+    if (!memcmp(snapshot.raw + block * 6, output + block * 6, 6)) continue;
+    telegrams[count][0] = 0x11 + circuit;
+    telegrams[count][1] = 7 * (block + 1);
+    memcpy(telegrams[count++] + 2, output + block * 6, 6);
+  }
+  if (count) {
+    portENTER_CRITICAL(&sendBufMux);
+    const bool queued = writesAccepted && writeQueue.size() == 0 && writeQueue.enqueue(telegrams, count);
+    if (queued) timerWriteCircuit = circuit;
+    portEXIT_CRITICAL(&sendBufMux);
+    if (!queued) return "timer_busy";
+  }
+  snapshot.request = request;
+  snapshot.state = count ? KmTimerWriteState::Pending : KmTimerWriteState::Saved;
+  km271Msg(KM_TYP_MESSAGE, circuit == 0 ? "Befehl: HK1_Schaltzeiten" : "Befehl: HK2_Schaltzeiten", "");
+  return nullptr;
+}
 
 bool km271QueueWrite(const uint8_t (*telegrams)[8], size_t count) {
+  // Timer writes require fresh neighbour bytes and the validated timer API.
+  // Raw service/MQTT commands cannot bypass it or interleave a timer request.
+  if (!telegrams || !count || count > KM271_WRITE_QUEUE_CAPACITY) return false;
+  for (size_t i = 0; i < count; ++i) if (timerAddress(telegrams[i])) return false;
   portENTER_CRITICAL(&sendBufMux);
   const bool connected = writesAccepted;
-  const bool queued = connected && writeQueue.enqueue(telegrams, count);
+  const bool queued = connected && timerWriteCircuit < 0 && writeQueue.enqueue(telegrams, count);
   portEXIT_CRITICAL(&sendBufMux);
   if (queued) {
     km271Msg(KM_TYP_DEBUG, "write request queued", "");
@@ -100,6 +150,8 @@ static void restartKmLogging(const char *reason) {
   writesAccepted = false;
   const size_t discarded = writeQueue.size();
   writeQueue.clear();
+  if (timerWriteCircuit >= 0) timerSnapshots[timerWriteCircuit].state = KmTimerWriteState::Failed;
+  timerWriteCircuit = -1;
   portEXIT_CRITICAL(&sendBufMux);
   if (reason && (discarded || kmSerialStats.logModeActive)) {
     char message[192];
@@ -117,6 +169,11 @@ static void restartKmLogging(const char *reason) {
   kmSerialStats.logModeActive = false;
   chartValuesReceived = 0;
   alarmsCurrent = 0;
+  for (auto &snapshot : timerSnapshots) {
+    if (snapshot.valid) ++snapshot.revision;
+    snapshot.valid = 0;
+  }
+  if (KmRxBlockState != KM_TSK_START) ++timerSession;
   km271RefreshActive = false;
   KmRxBlockState = KM_TSK_START;
   kmRxStatus = KM_RX_RESYNC;
@@ -128,6 +185,10 @@ static void rejectKmWrite() {
   if (writeRetries < KM271_WRITE_RETRIES) {
     ++writeRetries;
     KmRxBlockState = KM_TSK_LOGGING;
+    return;
+  }
+  if (timerWriteCircuit >= 0) {
+    restartKmLogging("timer write rejected; reload complete timer state before retry");
     return;
   }
   portENTER_CRITICAL(&sendBufMux);
@@ -151,6 +212,11 @@ static void rejectKmWrite() {
  * @return  none
  * *******************************************************************/
 void cyclicKM271() {
+  static uint8_t enabledCircuits = 0xff;
+  const uint8_t enabled = uint8_t(config.km271.use_hc1) | (uint8_t(config.km271.use_hc2) << 1);
+  if (enabledCircuits != 0xff && enabled != enabledCircuits)
+    restartKmLogging("heating circuit configuration changed; reload timer state");
+  enabledCircuits = enabled;
   const uint32_t now = millis();
   if (static_cast<uint32_t>(now - kmSerialStats.lastRxTime) > KM271_RX_TIMEOUT) {
     restartKmLogging("no data from Logamatic - serial link considered down");
@@ -322,6 +388,10 @@ void handleRxBlock(uint8_t *data, int len, uint8_t bcc) {
       portEXIT_CRITICAL(&sendBufMux);
       ++requestAcknowledged;
       if (activeWrite.last) {
+        if (timerWriteCircuit >= 0) {
+          timerSnapshots[timerWriteCircuit].state = KmTimerWriteState::Saved;
+          timerWriteCircuit = -1;
+        }
         char message[96];
         snprintf(message, sizeof(message), "write request acknowledged: %u telegram(s)",
                  static_cast<unsigned>(requestAcknowledged));
@@ -580,9 +650,36 @@ static void updateKmConfigField(uint16_t reg, uint8_t offset, uint8_t value) {
   }
 }
 
+static void updateTimerBlock(uint8_t circuit, uint8_t block, const uint8_t *bytes) {
+  if (circuit > 1 || block >= Km271Timers::Blocks) return;
+  KmTimerSnapshot &snapshot = timerSnapshots[circuit];
+  const uint16_t bit = 1U << block;
+  if (!(snapshot.valid & bit) || memcmp(snapshot.raw + block * 6, bytes, 6)) ++snapshot.revision;
+  memcpy(snapshot.raw + block * 6, bytes, 6);
+  snapshot.valid |= bit;
+  char *texts[2][14] = {
+    {kmConfigStr.hc1_timer01, kmConfigStr.hc1_timer02, kmConfigStr.hc1_timer03, kmConfigStr.hc1_timer04, kmConfigStr.hc1_timer05, kmConfigStr.hc1_timer06, kmConfigStr.hc1_timer07, kmConfigStr.hc1_timer08, kmConfigStr.hc1_timer09, kmConfigStr.hc1_timer10, kmConfigStr.hc1_timer11, kmConfigStr.hc1_timer12, kmConfigStr.hc1_timer13, kmConfigStr.hc1_timer14},
+    {kmConfigStr.hc2_timer01, kmConfigStr.hc2_timer02, kmConfigStr.hc2_timer03, kmConfigStr.hc2_timer04, kmConfigStr.hc2_timer05, kmConfigStr.hc2_timer06, kmConfigStr.hc2_timer07, kmConfigStr.hc2_timer08, kmConfigStr.hc2_timer09, kmConfigStr.hc2_timer10, kmConfigStr.hc2_timer11, kmConfigStr.hc2_timer12, kmConfigStr.hc2_timer13, kmConfigStr.hc2_timer14},
+  };
+  const char *topics[2][14] = {
+    {KM_CFG_TOPIC::HC1_TIMER01[config.mqtt.lang], KM_CFG_TOPIC::HC1_TIMER02[config.mqtt.lang], KM_CFG_TOPIC::HC1_TIMER03[config.mqtt.lang], KM_CFG_TOPIC::HC1_TIMER04[config.mqtt.lang], KM_CFG_TOPIC::HC1_TIMER05[config.mqtt.lang], KM_CFG_TOPIC::HC1_TIMER06[config.mqtt.lang], KM_CFG_TOPIC::HC1_TIMER07[config.mqtt.lang], KM_CFG_TOPIC::HC1_TIMER08[config.mqtt.lang], KM_CFG_TOPIC::HC1_TIMER09[config.mqtt.lang], KM_CFG_TOPIC::HC1_TIMER10[config.mqtt.lang], KM_CFG_TOPIC::HC1_TIMER11[config.mqtt.lang], KM_CFG_TOPIC::HC1_TIMER12[config.mqtt.lang], KM_CFG_TOPIC::HC1_TIMER13[config.mqtt.lang], KM_CFG_TOPIC::HC1_TIMER14[config.mqtt.lang]},
+    {KM_CFG_TOPIC::HC2_TIMER01[config.mqtt.lang], KM_CFG_TOPIC::HC2_TIMER02[config.mqtt.lang], KM_CFG_TOPIC::HC2_TIMER03[config.mqtt.lang], KM_CFG_TOPIC::HC2_TIMER04[config.mqtt.lang], KM_CFG_TOPIC::HC2_TIMER05[config.mqtt.lang], KM_CFG_TOPIC::HC2_TIMER06[config.mqtt.lang], KM_CFG_TOPIC::HC2_TIMER07[config.mqtt.lang], KM_CFG_TOPIC::HC2_TIMER08[config.mqtt.lang], KM_CFG_TOPIC::HC2_TIMER09[config.mqtt.lang], KM_CFG_TOPIC::HC2_TIMER10[config.mqtt.lang], KM_CFG_TOPIC::HC2_TIMER11[config.mqtt.lang], KM_CFG_TOPIC::HC2_TIMER12[config.mqtt.lang], KM_CFG_TOPIC::HC2_TIMER13[config.mqtt.lang], KM_CFG_TOPIC::HC2_TIMER14[config.mqtt.lang]},
+  };
+  char point[3][100];
+  for (uint8_t i = 0; i < 3; ++i) decodeTimer(point[i], sizeof(point[i]), bytes[i * 2], bytes[i * 2 + 1]);
+  snprintf(texts[circuit][block], CFG_MAX_CHAR_TIMER, "SP%02u: %s | SP%02u: %s | SP%02u: %s",
+           unsigned(block * 3 + 1), point[0], unsigned(block * 3 + 2), point[1], unsigned(block * 3 + 3), point[2]);
+  ++(circuit ? kmConfigNum.hc2_timer[block] : kmConfigNum.hc1_timer[block]);
+  km271Msg(KM_TYP_CONFIG, topics[circuit][block], texts[circuit][block]);
+}
+
 // This is an assumed adoption after transport ACK, not a synthetic receive
 // block. Unknown writes/date-time/timer data never invent configuration values.
 static void applyAcknowledgedConfig(const uint8_t data[8]) {
+  if (timerAddress(data)) {
+    updateTimerBlock(data[0] - 0x11, data[1] / 7 - 1, data + 2);
+    return; // 0x65 is a real time byte here, never a keep marker.
+  }
   if ((data[0] == 0x07 || data[0] == 0x08) && data[1] != 0x00 &&
       data[1] != 0x0e && data[1] != 0x15 && data[1] != 0x1c && data[1] != 0x31) return;
   uint16_t reg;
@@ -632,9 +729,6 @@ static void applyAcknowledgedConfig(const uint8_t data[8]) {
  * *******************************************************************/
 void parseInfo(uint8_t *data, int len) {
 
-  char t1[100] = {'\0'};
-  char t2[100] = {'\0'};
-  char t3[100] = {'\0'};
   char tmpMessage[300] = {'\0'};
 
   uint kmregister = (data[0] * 256) + data[1];
@@ -664,6 +758,17 @@ void parseInfo(uint8_t *data, int len) {
                data[5], data[6], data[7], data[8], data[9], data[10]);
       km271Msg(KM_TYP_DEBUG, tmpMessage, "");
     }
+  }
+
+  for (uint8_t circuit = 0; circuit < 2; ++circuit) {
+    const uint16_t base = circuit ? 0x0169 : 0x0100;
+    if (kmregister <= base || kmregister > base + 98 || (kmregister - base) % 7) continue;
+    if (len < 8 || !(circuit ? config.km271.use_hc2 : config.km271.use_hc1)) return;
+    const uint8_t block = (kmregister - base) / 7 - 1;
+    if (timerWriteCircuit >= 0 && memcmp(timerSnapshots[circuit].raw + block * 6, data + 2, 6))
+      restartKmLogging("timer changed externally during write; reload required");
+    updateTimerBlock(circuit, block, data + 2);
+    return;
   }
 
   switch (kmregister) { // Check if we can find known stati
@@ -883,314 +988,6 @@ void parseInfo(uint8_t *data, int len) {
     if (config.km271.use_hc2) {
       updateKmConfigField(0x0169, 0, data[2 + 0]);
       updateKmConfigField(0x0169, 3, data[2 + 3]);
-    }
-    break;
-
-  case 0x0107: // HK1_Timer01
-    if (config.km271.use_hc1) {
-      kmConfigNum.hc1_timer[0]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer01, sizeof(kmConfigStr.hc1_timer01), "SP01: %s | SP02: %s | SP03: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_TIMER01[config.mqtt.lang], kmConfigStr.hc1_timer01);
-    }
-    break;
-
-  case 0x010e: // HK1_Timer02
-    if (config.km271.use_hc1) {
-      kmConfigNum.hc1_timer[1]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer02, sizeof(kmConfigStr.hc1_timer02), "SP04: %s | SP05: %s | SP05: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_TIMER02[config.mqtt.lang], kmConfigStr.hc1_timer02);
-    }
-    break;
-
-  case 0x0115: // HK1_Timer03
-    if (config.km271.use_hc1) {
-      kmConfigNum.hc1_timer[2]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer03, sizeof(kmConfigStr.hc1_timer03), "SP07: %s | SP08: %s | SP09: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_TIMER03[config.mqtt.lang], kmConfigStr.hc1_timer03);
-    }
-    break;
-
-  case 0x011c: // HK1_Timer04
-    if (config.km271.use_hc1) {
-      kmConfigNum.hc1_timer[3]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer04, sizeof(kmConfigStr.hc1_timer04), "SP10: %s | SP11: %s | SP12: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_TIMER04[config.mqtt.lang], kmConfigStr.hc1_timer04);
-    }
-    break;
-
-  case 0x0123: // HK1_Timer05
-    if (config.km271.use_hc1) {
-      kmConfigNum.hc1_timer[4]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer05, sizeof(kmConfigStr.hc1_timer05), "SP13: %s | SP14: %s | SP15: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_TIMER05[config.mqtt.lang], kmConfigStr.hc1_timer05);
-    }
-    break;
-
-  case 0x012a: // HK1_Timer06
-    if (config.km271.use_hc1) {
-      kmConfigNum.hc1_timer[5]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer06, sizeof(kmConfigStr.hc1_timer06), "SP16: %s | SP17: %s | SP18: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_TIMER06[config.mqtt.lang], kmConfigStr.hc1_timer06);
-    }
-    break;
-
-  case 0x0131: // HK1_Timer07
-    if (config.km271.use_hc1) {
-      kmConfigNum.hc1_timer[6]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer07, sizeof(kmConfigStr.hc1_timer07), "SP19: %s | SP20: %s | SP21: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_TIMER07[config.mqtt.lang], kmConfigStr.hc1_timer07);
-    }
-    break;
-
-  case 0x0138: // HK1_Timer08
-    if (config.km271.use_hc1) {
-      kmConfigNum.hc1_timer[7]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer08, sizeof(kmConfigStr.hc1_timer08), "SP22: %s | SP23: %s | SP24: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_TIMER08[config.mqtt.lang], kmConfigStr.hc1_timer08);
-    }
-    break;
-
-  case 0x013f: // HK1_Timer09
-    if (config.km271.use_hc1) {
-      kmConfigNum.hc1_timer[8]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer09, sizeof(kmConfigStr.hc1_timer09), "SP25: %s | SP26: %s | SP27: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_TIMER09[config.mqtt.lang], kmConfigStr.hc1_timer09);
-    }
-    break;
-
-  case 0x0146: // HK1_Timer10
-    if (config.km271.use_hc1) {
-      kmConfigNum.hc1_timer[9]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer10, sizeof(kmConfigStr.hc1_timer10), "SP28: %s | SP29: %s | SP30: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_TIMER10[config.mqtt.lang], kmConfigStr.hc1_timer10);
-    }
-    break;
-
-  case 0x014d: // HK1_Timer11
-    if (config.km271.use_hc1) {
-      kmConfigNum.hc1_timer[10]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer11, sizeof(kmConfigStr.hc1_timer11), "SP31: %s | SP32: %s | SP33: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_TIMER11[config.mqtt.lang], kmConfigStr.hc1_timer11);
-    }
-    break;
-
-  case 0x0154: // HK1_Timer12
-    if (config.km271.use_hc1) {
-      kmConfigNum.hc1_timer[11]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer12, sizeof(kmConfigStr.hc1_timer12), "SP34: %s | SP35: %s | SP36: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_TIMER12[config.mqtt.lang], kmConfigStr.hc1_timer12);
-    }
-    break;
-
-  case 0x015b: // HK1_Timer13
-    if (config.km271.use_hc1) {
-      kmConfigNum.hc1_timer[12]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer13, sizeof(kmConfigStr.hc1_timer13), "SP37: %s | SP38: %s | SP39: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_TIMER13[config.mqtt.lang], kmConfigStr.hc1_timer13);
-    }
-    break;
-
-  case 0x0162: // HK1_Timer14
-    if (config.km271.use_hc1) {
-      kmConfigNum.hc1_timer[13]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc1_timer14, sizeof(kmConfigStr.hc1_timer14), "SP40: %s | SP41: %s | SP42: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC1_TIMER14[config.mqtt.lang], kmConfigStr.hc1_timer14);
-    }
-    break;
-
-  case 0x0170: // HK2_Timer01
-    if (config.km271.use_hc2) {
-      kmConfigNum.hc2_timer[0]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer01, sizeof(kmConfigStr.hc2_timer01), "SP01: %s | SP02: %s | SP03: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_TIMER01[config.mqtt.lang], kmConfigStr.hc2_timer01);
-    }
-    break;
-
-  case 0x0177: // HK2_Timer02
-    if (config.km271.use_hc2) {
-      kmConfigNum.hc2_timer[1]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer02, sizeof(kmConfigStr.hc2_timer02), "SP04: %s | SP05: %s | SP05: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_TIMER02[config.mqtt.lang], kmConfigStr.hc2_timer02);
-    }
-    break;
-
-  case 0x017e: // HK2_Timer03
-    if (config.km271.use_hc2) {
-      kmConfigNum.hc2_timer[2]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer03, sizeof(kmConfigStr.hc2_timer03), "SP07: %s | SP08: %s | SP09: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_TIMER03[config.mqtt.lang], kmConfigStr.hc2_timer03);
-    }
-    break;
-
-  case 0x0185: // HK2_Timer04
-    if (config.km271.use_hc2) {
-      kmConfigNum.hc2_timer[3]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer04, sizeof(kmConfigStr.hc2_timer04), "SP10: %s | SP11: %s | SP12: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_TIMER04[config.mqtt.lang], kmConfigStr.hc2_timer04);
-    }
-    break;
-
-  case 0x018c: // HK2_Timer05
-    if (config.km271.use_hc2) {
-      kmConfigNum.hc2_timer[4]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer05, sizeof(kmConfigStr.hc2_timer05), "SP13: %s | SP14: %s | SP15: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_TIMER05[config.mqtt.lang], kmConfigStr.hc2_timer05);
-    }
-    break;
-
-  case 0x0193: // HK2_Timer06
-    if (config.km271.use_hc2) {
-      kmConfigNum.hc2_timer[5]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer06, sizeof(kmConfigStr.hc2_timer06), "SP16: %s | SP17: %s | SP18: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_TIMER06[config.mqtt.lang], kmConfigStr.hc2_timer06);
-    }
-    break;
-
-  case 0x019a: // HK2_Timer07
-    if (config.km271.use_hc2) {
-      kmConfigNum.hc2_timer[6]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer07, sizeof(kmConfigStr.hc2_timer07), "SP19: %s | SP20: %s | SP21: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_TIMER07[config.mqtt.lang], kmConfigStr.hc2_timer07);
-    }
-    break;
-
-  case 0x01a1: // HK2_Timer08
-    if (config.km271.use_hc2) {
-      kmConfigNum.hc2_timer[7]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer08, sizeof(kmConfigStr.hc2_timer08), "SP22: %s | SP23: %s | SP24: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_TIMER08[config.mqtt.lang], kmConfigStr.hc2_timer08);
-    }
-    break;
-
-  case 0x01a8: // HK2_Timer09
-    if (config.km271.use_hc2) {
-      kmConfigNum.hc2_timer[8]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer09, sizeof(kmConfigStr.hc2_timer09), "SP25: %s | SP26: %s | SP27: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_TIMER09[config.mqtt.lang], kmConfigStr.hc2_timer09);
-    }
-    break;
-
-  case 0x01af: // HK2_Timer10
-    if (config.km271.use_hc2) {
-      kmConfigNum.hc2_timer[9]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer10, sizeof(kmConfigStr.hc2_timer10), "SP28: %s | SP29: %s | SP30: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_TIMER10[config.mqtt.lang], kmConfigStr.hc2_timer10);
-    }
-    break;
-
-  case 0x01b6: // HK2_Timer11
-    if (config.km271.use_hc2) {
-      kmConfigNum.hc2_timer[10]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer11, sizeof(kmConfigStr.hc2_timer11), "SP31: %s | SP32: %s | SP33: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_TIMER11[config.mqtt.lang], kmConfigStr.hc2_timer11);
-    }
-    break;
-
-  case 0x01bd: // HK2_Timer12
-    if (config.km271.use_hc2) {
-      kmConfigNum.hc2_timer[11]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer12, sizeof(kmConfigStr.hc2_timer12), "SP34: %s | SP35: %s | SP36: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_TIMER12[config.mqtt.lang], kmConfigStr.hc2_timer12);
-    }
-    break;
-
-  case 0x01c4: // HK2_Timer13
-    if (config.km271.use_hc2) {
-      kmConfigNum.hc2_timer[12]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer13, sizeof(kmConfigStr.hc2_timer13), "SP37: %s | SP38: %s | SP39: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_TIMER13[config.mqtt.lang], kmConfigStr.hc2_timer13);
-    }
-    break;
-
-  case 0x01cb: // HK2_Timer14
-    if (config.km271.use_hc2) {
-      kmConfigNum.hc2_timer[13]++;
-      decodeTimer(t1, sizeof(t1), data[2], data[3]);
-      decodeTimer(t2, sizeof(t2), data[4], data[5]);
-      decodeTimer(t3, sizeof(t3), data[6], data[7]);
-      snprintf(kmConfigStr.hc2_timer14, sizeof(kmConfigStr.hc2_timer14), "SP40: %s | SP41: %s | SP42: %s", t1, t2, t3);
-      km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::HC2_TIMER14[config.mqtt.lang], kmConfigStr.hc2_timer14);
     }
     break;
 
@@ -1941,6 +1738,9 @@ e_ret km271ProtInit(int rxPin, int txPin) {
   Serial2.begin(KM271_BAUDRATE, SERIAL_8N1, rxPin, txPin); // Set serial port for communication with KM271/Ecomatic 2000
 
   Serial2.setTimeout(200); // set timeout for communication with KM271
+
+  // A boot-specific session rejects stale browser requests after ESP restart.
+  timerSession = esp_random();
 
   // initialize structs
   memset((void *)&kmStatus, 0, sizeof(s_km271_status));

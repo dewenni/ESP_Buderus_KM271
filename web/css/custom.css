@@ -31,100 +31,59 @@
   margin-bottom: 0;
 }
 
-/* Weekly view of the manual heating program. */
-.weekly-program {
-  --weekly-program-border: color-mix(in srgb, var(--pico-color) 25%, transparent);
+/* ID04: compact day rows, with editing directly on the time scale. */
+.weekly-program { container-type: inline-size; }
+.timer-chart { min-width: 0; }
+.timer-axis, .timer-day-row { display: grid; grid-template-columns: 90px minmax(0, 1fr) 44px; gap: 10px; align-items: center; }
+.timer-axis { margin-bottom: 4px; }
+.timer-ticks { position: relative; height: 18px; font-size: 11px; color: var(--ui-muted); font-variant-numeric: tabular-nums; }
+.timer-ticks > span { position: absolute; transform: translateX(-50%); }
+.timer-ticks > span:first-child { transform: none; }
+.timer-ticks > span:last-child { transform: translateX(-100%); }
+.timer-day-row { padding: 5px 0; border-top: 1px solid var(--ui-border); }
+.timer-day-name { font-size: 14px; font-weight: 500; }
+.timer-short-day { display: none; }
+.timer-track { position: relative; height: 44px; min-width: 0; background: var(--ui-rail); border-radius: 3px; isolation: isolate; }
+.timer-bar { position: absolute; top: 0; height: 44px; min-height: 0; min-width: 0; padding: 0; margin: 0; border: 0; border-radius: 2px; z-index: 1; background: color-mix(in srgb, var(--ui-accent) 48%, var(--ui-surface)); }
+.timer-bar:hover, .timer-bar:focus-visible { background: color-mix(in srgb, var(--ui-accent) 68%, var(--ui-surface)); }
+.timer-bar:focus-visible { z-index: 3; }
+.timer-bar:disabled { opacity: .55; }
+.timer-raster { position: absolute; inset: 0; pointer-events: none; z-index: 2; border-radius: 3px; background: repeating-linear-gradient(to right, color-mix(in srgb, var(--ui-text) 12%, transparent) 0 1px, transparent 1px calc(100% / 24)), repeating-linear-gradient(to right, color-mix(in srgb, var(--ui-text) 18%, transparent) 0 1px, transparent 1px 25%); }
+.timer-no-period { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--ui-muted); pointer-events: none; }
+.timer-action { width: auto; min-height: 44px; margin: 0; padding: 8px 14px; border: 1px solid var(--ui-border); border-radius: 6px; font-size: 15px; line-height: 1.5; color: var(--ui-text); background: var(--ui-rail); box-shadow: none; }
+.timer-action:hover:not(:disabled) { background: var(--ui-selected); }
+.timer-primary { border-color: var(--ui-accent); background: color-mix(in srgb, var(--ui-accent) 17%, var(--ui-surface)); }
+.timer-add { width: 44px; padding: 0; font-size: 22px; }
+.timer-foot { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 10px; color: var(--ui-muted); font-size: 13px; }
+.timer-status { font-size: 14px; margin: 0 0 12px; }
+.timer-status:empty { display: none; }
+.timer-dialog > article { width: min(440px, calc(100vw - 24px)); padding: 24px; background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: 12px; }
+.timer-dialog > article > header { background: transparent; border: 0; margin: 0 0 22px; padding: 0; }
+.timer-dialog h2 { margin: 0; font-size: 19px; font-weight: 500; }
+.timer-dialog header p { color: var(--ui-muted); font-size: 14px; margin: 5px 0 0; }
+.timer-dialog label, .timer-dialog legend { font-size: 14px; }
+.timer-dialog select { margin: 7px 0 0; min-height: 48px; font-size: 16px; padding: 10px; border-radius: 6px; }
+.timer-dialog fieldset { margin: 0; padding: 0; border: 0; }
+.timer-days { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.timer-days label { display: flex; gap: 5px; align-items: center; justify-content: center; min-height: 44px; margin: 0; padding: 6px 8px; border: 1px solid var(--ui-border); border-radius: 6px; background: var(--ui-field); font-size: 13px; }
+.timer-days label:has(input:checked) { background: var(--ui-selected); border-color: var(--ui-target); }
+.timer-days input, .timer-next input { margin: 0; }
+.timer-time-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 18px 0; }
+.timer-time-fields label { margin: 0; }
+.timer-next { display: flex; align-items: center; gap: 9px; min-height: 44px; }
+.timer-preview { padding: 10px 0; margin: 0; color: var(--ui-muted); font-size: 14px; }
+.timer-buttons { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+.timer-remove { width: auto; min-height: 44px; margin: 18px 0 0; padding: 8px 0; border: 0; box-shadow: none; background: transparent; color: var(--ui-muted); text-decoration: underline; text-underline-offset: 3px; font-size: 14px; }
+.timer-dialog-feedback { margin: 12px 0 0; font-size: 14px; color: var(--pico-del-color); }
+.timer-dialog-feedback:empty { display: none; }
+@container (max-width: 740px) {
+  .timer-axis, .timer-day-row { grid-template-columns: 34px minmax(0, 1fr) 44px; gap: 8px; }
+  .timer-minor-tick, .timer-long-day { display: none; }
+  .timer-short-day { display: inline; }
 }
-
-.weekly-program-scroll {
-  overflow-x: auto;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-}
-
-.weekly-program-chart {
-  min-width: 36rem;
-}
-
-.weekly-program-header,
-.weekly-program-body {
-  display: grid;
-  grid-template-columns: 3rem repeat(7, minmax(0, 1fr));
-}
-
-.weekly-program-header {
-  padding-bottom: 0.75rem;
-  text-align: center;
-  font-weight: bold;
-}
-
-.weekly-program-body {
-  height: 28rem;
-  margin-block: 0.5rem;
-  border-block: 1px solid var(--weekly-program-border);
-}
-
-.weekly-program-axis,
-.weekly-program-day {
-  position: relative;
-}
-
-.weekly-program-axis > span {
-  position: absolute;
-  right: 0.5rem;
-  transform: translateY(-50%);
-  color: var(--pico-muted-color);
-  font-size: 0.7rem;
-}
-
-.weekly-program-day {
-  border-left: 1px solid var(--weekly-program-border);
-  background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(12.5% - 1px), var(--weekly-program-border) calc(12.5% - 1px), var(--weekly-program-border) 12.5%);
-}
-
-.weekly-program-day:last-child {
-  border-right: 1px solid var(--weekly-program-border);
-}
-
-.weekly-program-block {
-  position: absolute;
-  inset-inline: 15%;
-  min-height: 2px;
-  border-radius: 0.25rem;
-  background: color-mix(in srgb, var(--ui-accent) 35%, var(--ui-surface));
-  color: var(--ui-text);
-  padding-inline: 0.15rem;
-  text-align: center;
-  overflow: hidden;
-  font-size: 0.7rem;
-}
-
-.weekly-program-block > span {
-  display: block;
-}
-
-.weekly-program-block > span:last-child {
-  position: absolute;
-  bottom: 0;
-  inset-inline: 0;
-}
-
-.weekly-program-legend {
-  display: flex;
-  gap: 1.5rem;
-  font-size: 0.85rem;
-}
-
-.weekly-program-legend i {
-  display: inline-block;
-  width: 0.8rem;
-  height: 0.8rem;
-  border: 1px solid var(--weekly-program-border);
-  border-radius: 0.15rem;
-}
-
-.weekly-program-key-on {
-  background: color-mix(in srgb, var(--ui-accent) 35%, var(--ui-surface));
+@media (max-width: 600px) {
+  .timer-dialog > article { padding: 18px; }
+  .timer-buttons .timer-action { flex: 1; }
 }
 
 /* Compact instrument cards; histories and rendering stay in the browser. */

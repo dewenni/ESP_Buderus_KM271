@@ -30,94 +30,334 @@
     <main class="container">
       <!--SECTION-START-->
       <!-- HC1-Inhalt hier -->
-      <div id="tab3" class="tab-content heating-circuit information-page">
+      <div id="tab3" class="tab-content equipment-page heating-circuit information-page">
         <header class="page-heading">
           <h1 data-i18n="heating_circuit_1"></h1><p data-i18n="info_circuit_subtitle"></p>
         </header>
-        <div class="heating-circuit-info">
+<div class="equipment-tabs" role="tablist" data-equipment-tabs><button type="button" data-ui-local role="tab" id="tab3_settings_tab" aria-controls="tab3_settings" aria-selected="true" data-i18n="settings"></button><button type="button" data-ui-local role="tab" id="tab3_timer_tab" aria-controls="tab3_timer" aria-selected="false" data-i18n="equipment_timer"></button><button type="button" data-ui-local role="tab" id="tab3_values_tab" aria-controls="tab3_values" aria-selected="false" data-i18n="equipment_values"></button><button type="button" data-ui-local role="tab" id="tab3_diagnosis_tab" aria-controls="tab3_diagnosis" aria-selected="false" data-i18n="equipment_diagnosis"></button>
+</div>
+<section id="tab3_settings" class="equipment-panel" role="tabpanel" aria-labelledby="tab3_settings_tab">
+<div class="control-page" data-connection-required>  <section class="control-section OPT_HC1" aria-labelledby="p02_hc1_heading">
+    <div class="control-section-heading">
+      <h2 id="p02_hc1_heading" data-i18n="heating_circuit_1">
+</h2>
+    </div>
+    <div class="control-primary-grid">
+      <div class="control-card control-mode-card">
+        <div class="dash-main" >
+          <h3 class="dash-header" id="p02_hc1_opmode_label" data-i18n="opmode"></h3>
+          <div class="dash-content">
+            <fieldset class="radio-buttons" aria-labelledby="p02_hc1_opmode_label">
+              <input class="button-like" type="radio" id="p02_hc1_opmode_night" name="hc1_opmode" checked >
+              <label class="button-like-label" for="p02_hc1_opmode_night"><i class="svg i_night" aria-hidden="true"></i><span data-i18n="night"></span></label>
+              <input class="button-like" type="radio" id="p02_hc1_opmode_day" name="hc1_opmode" >
+              <label class="button-like-label" for="p02_hc1_opmode_day"><i class="svg i_day" aria-hidden="true"></i><span data-i18n="day"></span></label>
+              <input class="button-like" type="radio" id="p02_hc1_opmode_auto" name="hc1_opmode">
+              <label class="button-like-label" for="p02_hc1_opmode_auto"><i class="svg i_auto" aria-hidden="true"></i><span data-i18n="auto"></span></label>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <button type="button" class="dash-header setting-help" id="p02_hc1_prg_help" aria-describedby="p02_hc1_prg_help_text" data-ui-local data-setting-help="control_help_program" data-i18n="prg"></button><span id="p02_hc1_prg_help_text" data-i18n="control_help_program" hidden></span>
+          <div class="dash-content">
+            <select name="p02_hc1_prg" id="p02_hc1_prg" aria-labelledby="p02_hc1_prg_help" aria-describedby="p02_hc1_prg_help_text">
+              <option value="0" data-i18n="hc_prg_custom"></option>
+              <option value="1" data-i18n="hc_prg_family"></option>
+              <option value="2" data-i18n="hc_prg_early"></option>
+              <option value="3" data-i18n="hc_prg_late"></option>
+              <option value="4" data-i18n="hc_prg_am"></option>
+              <option value="5" data-i18n="hc_prg_pm"></option>
+              <option value="6" data-i18n="hc_prg_noon"></option>
+              <option value="7" data-i18n="hc_prg_single"></option>
+              <option value="8" data-i18n="hc_prg_senior"></option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="control-card control-compact-card">
+        <div class="dash-main">
+          <button type="button" class="dash-header setting-help" id="p02_hc1_holiday_days_help" aria-describedby="p02_hc1_holiday_days_help_text" data-ui-local data-setting-help="control_help_holiday_days" data-i18n="holiday_days"></button><span id="p02_hc1_holiday_days_help_text" data-i18n="control_help_holiday_days" hidden></span>
+          <div class="dash-content">
+            <input type="number" id="p02_hc1_holiday_days" aria-labelledby="p02_hc1_holiday_days_help" aria-describedby="p02_hc1_holiday_days_help_text">
+          </div>
+        </div>
+      </div>
+      <div class="control-card control-compact-card">
+        <div class="dash-main">
+          <button type="button" class="dash-header setting-help" id="p02_hc1_reduct_mode_help" aria-describedby="p02_hc1_reduct_mode_help_text" data-ui-local data-setting-help="control_help_reduction" data-i18n="reduction_mode"></button><span id="p02_hc1_reduct_mode_help_text" data-i18n="control_help_reduction" hidden></span>
+          <div class="dash-content">
+            <select name="p02_hc1_prg" id="p02_hc1_reduct_mode" aria-labelledby="p02_hc1_reduct_mode_help" aria-describedby="p02_hc1_reduct_mode_help_text">
+              <option value="0" data-i18n="reduct_mode_off"></option>
+              <option value="1" data-i18n="reduct_mode_fixed"></option>
+              <option value="2" data-i18n="reduct_mode_room"></option>
+              <option value="3" data-i18n="reduct_mode_outdoors"></option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="control-grid control-temperature-grid">
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <button type="button" class="dash-header setting-help" id="p02_hc1_day_temp_help" aria-describedby="p02_hc1_day_temp_help_text" data-ui-local data-setting-help="control_help_day" data-i18n="day_temp"></button><span id="p02_hc1_day_temp_help_text" data-i18n="control_help_day" hidden></span>
+            <div class="control-reading">
+              <span id="p02_hc1_day_temp_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
+            </div>
+          </div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc1_day_temp_txt" id="p02_hc1_day_temp" aria-labelledby="p02_hc1_day_temp_help" aria-describedby="p02_hc1_day_temp_help_text" min="10" max="30" step="0.5" value="20" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>10 °C</span>
+            <span>30 °C</span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <button type="button" class="dash-header setting-help" id="p02_hc1_night_temp_help" aria-describedby="p02_hc1_night_temp_help_text" data-ui-local data-setting-help="control_help_night" data-i18n="night_temp"></button><span id="p02_hc1_night_temp_help_text" data-i18n="control_help_night" hidden></span>
+            <div class="control-reading">
+              <span id="p02_hc1_night_temp_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
+            </div>
+          </div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc1_night_temp_txt" id="p02_hc1_night_temp" aria-labelledby="p02_hc1_night_temp_help" aria-describedby="p02_hc1_night_temp_help_text" min="10" max="30" step="0.5" value="20" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>10 °C</span>
+            <span>30 °C</span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <button type="button" class="dash-header setting-help" id="p02_hc1_holiday_temp_help" aria-describedby="p02_hc1_holiday_temp_help_text" data-ui-local data-setting-help="control_help_holiday_temp" data-i18n="holiday_temp"></button><span id="p02_hc1_holiday_temp_help_text" data-i18n="control_help_holiday_temp" hidden></span>
+            <div class="control-reading">
+              <span id="p02_hc1_holiday_temp_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
+            </div>
+          </div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc1_holiday_temp_txt" id="p02_hc1_holiday_temp" aria-labelledby="p02_hc1_holiday_temp_help" aria-describedby="p02_hc1_holiday_temp_help_text" min="10" max="30" step="0.5" value="20" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>10 °C</span>
+            <span>30 °C</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <button type="button" class="dash-header setting-help" id="p02_hc1_summer_th_help" aria-describedby="p02_hc1_summer_th_help_text" data-ui-local data-setting-help="control_help_summer" data-i18n="control_summer_threshold"></button><span id="p02_hc1_summer_th_help_text" data-i18n="control_help_summer" hidden></span>
+            <div class="control-reading">
+              <span id="p02_hc1_summer_th_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
+            </div>
+          </div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc1_summer_th_txt" id="p02_hc1_summer_th" aria-labelledby="p02_hc1_summer_th_help" aria-describedby="p02_hc1_summer_th_help_text" min="9" max="31" value="9" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span data-i18n="summer"></span>
+            <span data-i18n="winter"></span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <button type="button" class="dash-header setting-help" id="p02_hc1_frost_prot_th_help" aria-describedby="p02_hc1_frost_prot_th_help_text" data-ui-local data-setting-help="control_help_frost" data-i18n="control_frost_threshold"></button><span id="p02_hc1_frost_prot_th_help_text" data-i18n="control_help_frost" hidden></span>
+            <div class="control-reading">
+              <span id="p02_hc1_frost_prot_th_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
+            </div>
+          </div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc1_frost_prot_th_txt" id="p02_hc1_frost_prot_th" aria-labelledby="p02_hc1_frost_prot_th_help" aria-describedby="p02_hc1_frost_prot_th_help_text" min="-20" max="10" value="-20" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>-20 °C</span>
+            <span>10 °C</span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <button type="button" class="dash-header setting-help" id="p02_hc1_interp_help" aria-describedby="p02_hc1_interp_help_text" data-ui-local data-setting-help="control_help_design" data-i18n="control_design_temp"></button><span id="p02_hc1_interp_help_text" data-i18n="control_help_design" hidden></span>
+            <div class="control-reading">
+              <span id="p02_hc1_interp_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
+            </div>
+          </div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc1_interp_txt" id="p02_hc1_interp" aria-labelledby="p02_hc1_interp_help" aria-describedby="p02_hc1_interp_help_text" min="30" max="90" value="30" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>30 °C</span>
+            <span>90 °C</span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <button type="button" class="dash-header setting-help" id="p02_hc1_sw_on_temp_help" aria-describedby="p02_hc1_sw_on_temp_help_text" data-ui-local data-setting-help="control_help_switch_on" data-i18n="switch_on_temperature"></button><span id="p02_hc1_sw_on_temp_help_text" data-i18n="control_help_switch_on" hidden></span>
+            <div class="control-reading">
+              <span id="p02_hc1_sw_on_temp_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
+            </div>
+          </div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc1_sw_on_temp_txt" id="p02_hc1_sw_on_temp" aria-labelledby="p02_hc1_sw_on_temp_help" aria-describedby="p02_hc1_sw_on_temp_help_text" min="0" max="10" value="0" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>0 °C</span>
+            <span>10 °C</span>
+          </div>
+        </div>
+      </div>
+      <div class="control-card">
+        <div class="dash-main">
+          <div class="control-label-row">
+            <button type="button" class="dash-header setting-help" id="p02_hc1_sw_off_th_help" aria-describedby="p02_hc1_sw_off_th_help_text" data-ui-local data-setting-help="control_help_switch_off" data-i18n="switch_off_threshold"></button><span id="p02_hc1_sw_off_th_help_text" data-i18n="control_help_switch_off" hidden></span>
+            <div class="control-reading">
+              <span id="p02_hc1_sw_off_th_txt"></span>
+              <span class="control-unit" data-i18n="info_unit_c"></span>
+            </div>
+          </div>
+          <div class="dash-content">
+            <input type="range" class="rangeSlider" data-value-id="p02_hc1_sw_off_th_txt" id="p02_hc1_sw_off_th" aria-labelledby="p02_hc1_sw_off_th_help" aria-describedby="p02_hc1_sw_off_th_help_text" min="-20" max="10" value="-20" >
+          </div>
+          <div class="control-scale" aria-hidden="true">
+            <span>-20 °C</span>
+            <span>10 °C</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<div hidden><span id="p03_hc1_night_temp" class="table-value"></span><span id="p03_hc1_day_temp" class="table-value"></span><span id="p03_hc1_op_mode" class="table-value"></span><span id="p03_hc1_hday_temp" class="table-value"></span><span id="p03_hc1_interp" class="table-value"></span><span id="p03_hc1_sw_on_temp" class="table-value">--</span><span id="p03_hc1_sw_off_th" class="table-value">--</span><span id="p03_hc1_red_mode" class="table-value"></span><span id="p03_hc1_summer_th" class="table-value">--</span><span id="p03_hc1_frost_th" class="table-value">--</span>
+</div>
+</section>
+<section id="tab3_timer" class="equipment-panel" role="tabpanel" aria-labelledby="tab3_timer_tab" hidden>
 <article class="card">
-            <h2 class="table-header" data-i18n="config"></h2>
-            <table class="striped">
-              <tbody>
-                <tr>
-                  <td data-i18n="night_temp"></td>
-                  <td id="p03_hc1_night_temp" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="day_temp"></td>
-                  <td id="p03_hc1_day_temp" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="operation_mode"></td>
-                  <td id="p03_hc1_op_mode" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="holiday_temp"></td>
-                  <td id="p03_hc1_hday_temp" class="table-value"></td>
-                </tr>
-                <tr>
+          <h2 class="table-header" data-i18n="timer_program">
+</h2>
+          <div class="weekly-program" data-circuit="1">
+            <p class="timer-status" role="status"></p>
+            <div class="timer-chart">
+</div>
+            <div class="timer-foot"><span data-i18n="timer_hint"></span><span class="timer-capacity"></span>
+</div>
+          </div>
+        </article>
+</section>
+<section id="tab3_values" class="equipment-panel" role="tabpanel" aria-labelledby="tab3_values_tab" hidden>
+<div class="equipment-data">
+<article class="card">
+<h2 class="table-header" data-i18n="room_temp">
+</h2>
+<table>
+<tbody>
+<tr><td data-i18n="room_setpoint"></td><td class="table-value"><span id="p03_hc1_room_set"></span><span class="information-unit">°C</span></td>
+</tr>
+<tr><td data-i18n="room_temp"></td><td class="table-value"><span id="p03_hc1_room_temp"></span><span class="information-unit">°C</span></td>
+</tr>
+</tbody>
+</table>
+</article>
+<article class="card">
+<h2 class="table-header" data-i18n="flow_temp">
+</h2>
+<table>
+<tbody>
+<tr><td data-i18n="flow_setpoint"></td><td class="table-value"><span id="p03_hc1_flow_set"></span><span class="information-unit">°C</span></td>
+</tr>
+<tr><td data-i18n="flow_temp"></td><td class="table-value"><span id="p03_hc1_flow_act"></span><span class="information-unit">°C</span></td>
+</tr>
+</tbody>
+</table>
+</article>
+<article class="card">
+<h2 class="table-header" data-i18n="pump">
+</h2>
+<table>
+<tbody>
+<tr><td data-i18n="mixer"></td><td class="table-value"><span id="p03_hc1_mixer"></span><span class="information-unit">%</span></td>
+</tr>
+<tr><td data-i18n="pump"></td><td class="table-value"><span id="p03_hc1_pump" data-info-state="number"></span><span class="information-unit">%</span></td>
+</tr>
+</tbody>
+</table>
+</article>
+<article class="card">
+<h2 class="table-header" data-i18n="equipment_heat_curve">
+</h2>
+<table>
+<tbody>
+<tr><td data-i18n="heat_curve_10C"></td><td class="table-value"><span id="p03_hc1_heat_curve_10C"></span><span class="information-unit">°C</span></td>
+</tr>
+<tr><td data-i18n="heat_curve_0C"></td><td class="table-value"><span id="p03_hc1_heat_curve_0C"></span><span class="information-unit">°C</span></td>
+</tr>
+<tr><td data-i18n="heat_curve_-10C"></td><td class="table-value"><span id="p03_hc1_heat_curve_-10C"></span><span class="information-unit">°C</span></td>
+</tr>
+</tbody>
+</table>
+</article>
+<article class="card">
+<h2 class="table-header" data-i18n="equipment_optimisation">
+</h2>
+<table>
+<tbody>
+<tr><td data-i18n="off_time_opt_duration"></td><td class="table-value"><span id="p03_hc1_off_time_opt_dur">--</span><span class="information-unit">min</span></td>
+</tr>
+<tr><td data-i18n="on_time_opt_duration"></td><td class="table-value"><span id="p03_hc1_on_time_opt_dur">--</span><span class="information-unit">min</span></td>
+</tr>
+</tbody>
+</table>
+</article>
+<article class="card">
+<h2 class="table-header" data-i18n="equipment_system_data">
+</h2>
+<table>
+<tbody>
+<tr>
                   <td data-i18n="max_temp"></td>
                   <td id="p03_hc1_max_temp" class="table-value"></td>
                 </tr>
-                <tr>
-                  <td data-i18n="control_design_temp"></td>
-                  <td id="p03_hc1_interp" class="table-value"></td>
-                </tr>
-                <tr>
-                  <td data-i18n="switch_on_temperature"></td>
-                  <td id="p03_hc1_sw_on_temp" class="table-value">--</td>
-                </tr>
-                <tr>
-                  <td data-i18n="switch_off_threshold"></td>
-                  <td id="p03_hc1_sw_off_th" class="table-value">--</td>
-                </tr>
-                <tr>
-                  <td data-i18n="reduction_mode"></td>
-                  <td id="p03_hc1_red_mode" class="table-value"></td>
-                </tr>
-                <tr>
+<tr>
                   <td data-i18n="heating_system"></td>
                   <td id="p03_hc1_heatsys" class="table-value"></td>
                 </tr>
-                <tr>
+<tr>
                   <td data-i18n="temp_offset"></td>
                   <td id="p03_hc1_temp_offset" class="table-value"></td>
                 </tr>
-                <tr>
+<tr>
                   <td data-i18n="remotecontrol"></td>
                   <td id="p03_hc1_remotecontrol" class="table-value"></td>
                 </tr>
-                <tr>
-                  <td data-i18n="control_summer_threshold"></td>
-                  <td id="p03_hc1_summer_th" class="table-value">--</td>
-                </tr>
-                <tr>
-                  <td data-i18n="control_frost_threshold"></td>
-                  <td id="p03_hc1_frost_th" class="table-value">--</td>
-                </tr>
-              </tbody>
-            </table>
-          </article>
+</tbody>
+</table>
+</article>
+</div>
+</section>
+<section id="tab3_diagnosis" class="equipment-panel" role="tabpanel" aria-labelledby="tab3_diagnosis_tab" hidden>
+<div class="equipment-data">
 <article class="card">
-            <h2 class="table-header" data-i18n="info_current_values"></h2>
-            <table class="striped">
-              <tbody>
-                <tr><td data-i18n="flow_setpoint"></td><td class="table-value"><span id="p03_hc1_flow_set"></span><span class="information-unit">°C</span></td></tr>
-                <tr><td data-i18n="flow_temp"></td><td class="table-value"><span id="p03_hc1_flow_act"></span><span class="information-unit">°C</span></td></tr>
-                <tr><td data-i18n="heat_curve_10C"></td><td class="table-value"><span id="p03_hc1_heat_curve_10C"></span><span class="information-unit">°C</span></td></tr>
-                <tr><td data-i18n="heat_curve_0C"></td><td class="table-value"><span id="p03_hc1_heat_curve_0C"></span><span class="information-unit">°C</span></td></tr>
-                <tr><td data-i18n="heat_curve_-10C"></td><td class="table-value"><span id="p03_hc1_heat_curve_-10C"></span><span class="information-unit">°C</span></td></tr>
-                <tr><td data-i18n="mixer"></td><td class="table-value"><span id="p03_hc1_mixer"></span><span class="information-unit">%</span></td></tr>
-                <tr><td data-i18n="off_time_opt_duration"></td><td class="table-value"><span id="p03_hc1_off_time_opt_dur">--</span><span class="information-unit">min</span></td></tr>
-                <tr><td data-i18n="on_time_opt_duration"></td><td class="table-value"><span id="p03_hc1_on_time_opt_dur">--</span><span class="information-unit">min</span></td></tr>
-                <tr><td data-i18n="pump"></td><td class="table-value"><span id="p03_hc1_pump" data-info-state="number"></span><span class="information-unit">%</span></td></tr>
-                <tr><td data-i18n="room_setpoint"></td><td class="table-value"><span id="p03_hc1_room_set"></span><span class="information-unit">°C</span></td></tr>
-                <tr><td data-i18n="room_temp"></td><td class="table-value"><span id="p03_hc1_room_temp"></span><span class="information-unit">°C</span></td></tr>
-              </tbody>
-            </table>
-          </article>
-<article class="card">
-<h2 class="table-header" data-i18n="info_operating_states"></h2>
+<h2 class="table-header" data-i18n="info_operating_states">
+</h2>
 <table class="striped">
 <tbody>
 <tr>
@@ -160,7 +400,8 @@
 </table>
 </article>
 <article class="card">
-<h2 class="table-header" data-i18n="info_monitoring"></h2>
+<h2 class="table-header" data-i18n="info_monitoring">
+</h2>
 <table class="striped">
 <tbody>
 <tr>
@@ -188,91 +429,9 @@
 </tbody>
 </table>
 </article>
-        </div>
-
-        <article class="card">
-          <div class="program-heading">
-            <h2 class="table-header" data-i18n="programs"></h2>
-            <div class="program-status"><span data-i18n="act_prg"></span><strong id="p03_hc1_act_prg" class="program-status-value" role="status"></strong></div>
-          </div>
-          <div class="weekly-program" data-timer-prefix="p03_hc1">
-            <p>
-<small data-i18n="weekly_program_hint"></small></p>
-            <p class="weekly-program-status" role="status"></p>
-            <div class="weekly-program-scroll" hidden>
-              <div class="weekly-program-chart">
 </div>
-            </div>
-            <p class="weekly-program-legend" hidden>
-              <span><i class="weekly-program-key-on" aria-hidden="true"></i> <span data-i18n="weekly_program_on"></span></span>
-              <span><i class="weekly-program-key-off" aria-hidden="true"></i> <span data-i18n="weekly_program_off"></span></span>
-            </p>
-            <details>
-              <summary data-i18n="weekly_program_details"></summary>
-          <table class="striped">
-            <tbody>
-              <tr>
-                <td data-i18n="timer++ 01"></td>
-                <td id="p03_hc1_t01" class="table-value"></td>
-              </tr>
-              <tr>
-                <td data-i18n="timer++ 02"></td>
-                <td id="p03_hc1_t02" class="table-value"></td>
-              </tr>
-              <tr>
-                <td data-i18n="timer++ 03"></td>
-                <td id="p03_hc1_t03" class="table-value"></td>
-              </tr>
-              <tr>
-                <td data-i18n="timer++ 04"></td>
-                <td id="p03_hc1_t04" class="table-value"></td>
-              </tr>
-              <tr>
-                <td data-i18n="timer++ 05"></td>
-                <td id="p03_hc1_t05" class="table-value"></td>
-              </tr>
-              <tr>
-                <td data-i18n="timer++ 06"></td>
-                <td id="p03_hc1_t06" class="table-value"></td>
-              </tr>
-              <tr>
-                <td data-i18n="timer++ 07"></td>
-                <td id="p03_hc1_t07" class="table-value"></td>
-              </tr>
-              <tr>
-                <td data-i18n="timer++ 08"></td>
-                <td id="p03_hc1_t08" class="table-value"></td>
-              </tr>
-              <tr>
-                <td data-i18n="timer++ 09"></td>
-                <td id="p03_hc1_t09" class="table-value"></td>
-              </tr>
-              <tr>
-                <td data-i18n="timer++ 10"></td>
-                <td id="p03_hc1_t10" class="table-value"></td>
-              </tr>
-              <tr>
-                <td data-i18n="timer++ 11"></td>
-                <td id="p03_hc1_t11" class="table-value"></td>
-              </tr>
-              <tr>
-                <td data-i18n="timer++ 12"></td>
-                <td id="p03_hc1_t12" class="table-value"></td>
-              </tr>
-              <tr>
-                <td data-i18n="timer++ 13"></td>
-                <td id="p03_hc1_t13" class="table-value"></td>
-              </tr>
-              <tr>
-                <td data-i18n="timer++ 14"></td>
-                <td id="p03_hc1_t14" class="table-value"></td>
-              </tr>
-            </tbody>
-          </table>
-            </details>
-          </div>
-        </article>
-      </div>
+</section>
+</div>
       <!--SECTION-END-->
     </main>
     <!-- Footer -->
