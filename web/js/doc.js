@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initMobileNavigation();
   initDashboardStatusIcons();
   initControlSliders();
-  initControlHelp();
+  initEquipmentPages();
   initInformationPages();
   initAlarms();
   initLogType();

@@ -27,6 +27,7 @@ static s_km271_config_num *pkmConfigNum = km271GetConfigValueAdr();
 
 static char tmpMessage[300] = {'\0'};
 static bool alarmForceUpdate = true;
+static bool timerForceUpdate = true;
 static bool refreshRequest = false;
 static uint8_t chartSnapshotValid = 0;
 static bool km271RefreshActiveOld = false;
@@ -76,6 +77,7 @@ void updateAllElements() {
 
   // Resend the complete alarm snapshot to a newly connected browser.
   alarmForceUpdate = true;
+  timerForceUpdate = true;
 
   updateOilmeterElements(true);
   updateSensorElements(true);
@@ -449,21 +451,6 @@ void generateKm271ConfigJSON() {
     webUI.addJson(kmCfgJsonDoc, "p02_hc1_holiday_days", pkmConfigNum->hc1_holiday_days);
     const char *program = KM_CFG_ARRAY::HC_PROGRAM[config.lang][constrain(pkmConfigNum->hc1_program, 0, 8)];
     webUI.addJson(kmCfgJsonDoc, "p01_hc1_program", program);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_act_prg", program);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_t01", pkmConfigStr->hc1_timer01);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_t02", pkmConfigStr->hc1_timer02);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_t03", pkmConfigStr->hc1_timer03);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_t04", pkmConfigStr->hc1_timer04);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_t05", pkmConfigStr->hc1_timer05);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_t06", pkmConfigStr->hc1_timer06);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_t07", pkmConfigStr->hc1_timer07);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_t08", pkmConfigStr->hc1_timer08);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_t09", pkmConfigStr->hc1_timer09);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_t10", pkmConfigStr->hc1_timer10);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_t11", pkmConfigStr->hc1_timer11);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_t12", pkmConfigStr->hc1_timer12);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_t13", pkmConfigStr->hc1_timer13);
-    webUI.addJson(kmCfgJsonDoc, "p03_hc1_t14", pkmConfigStr->hc1_timer14);
   }
 
   // heating circuit 2 configuration
@@ -498,21 +485,6 @@ void generateKm271ConfigJSON() {
     webUI.addJson(kmCfgJsonDoc, "p02_hc2_holiday_days", pkmConfigNum->hc2_holiday_days);
     const char *program = KM_CFG_ARRAY::HC_PROGRAM[config.lang][constrain(pkmConfigNum->hc2_program, 0, 8)];
     webUI.addJson(kmCfgJsonDoc, "p01_hc2_program", program);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_act_prg", program);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_t01", pkmConfigStr->hc2_timer01);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_t02", pkmConfigStr->hc2_timer02);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_t03", pkmConfigStr->hc2_timer03);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_t04", pkmConfigStr->hc2_timer04);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_t05", pkmConfigStr->hc2_timer05);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_t06", pkmConfigStr->hc2_timer06);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_t07", pkmConfigStr->hc2_timer07);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_t08", pkmConfigStr->hc2_timer08);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_t09", pkmConfigStr->hc2_timer09);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_t10", pkmConfigStr->hc2_timer10);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_t11", pkmConfigStr->hc2_timer11);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_t12", pkmConfigStr->hc2_timer12);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_t13", pkmConfigStr->hc2_timer13);
-    webUI.addJson(kmCfgJsonDoc, "p04_hc2_t14", pkmConfigStr->hc2_timer14);
   }
 
   // hot-water config values
@@ -1123,7 +1095,48 @@ void processGitHubUpdate() {
  * @param   none
  * @return  none
  * *******************************************************************/
+static void updateKm271Timers() {
+  static uint32_t session = 0, revisions[2] = {}, requests[2] = {};
+  static uint16_t validity[2] = {};
+  static KmTimerWriteState states[2] = {};
+  static bool connected = false, busy = false, enabled[2] = {}, simulation = false;
+  const bool live = km271GetLogMode(), pending = km271TimersBusy();
+  const bool active[2] = {config.km271.use_hc1, config.km271.use_hc2};
+  bool changed = timerForceUpdate || session != km271TimerSession() || connected != live || busy != pending || simulation != config.sim.enable;
+  for (uint8_t i = 0; i < 2; ++i) {
+    const auto &s = km271GetTimers(i);
+    changed |= revisions[i] != s.revision || requests[i] != s.request || validity[i] != s.valid || states[i] != s.state || enabled[i] != active[i];
+  }
+  if (!changed) return;
+  JsonDocument snapshot;
+  snapshot["type"] = "km271Timers";
+  snapshot["session"] = km271TimerSession();
+  snapshot["connected"] = live;
+  snapshot["busy"] = pending;
+  snapshot["demo"] = config.sim.enable;
+  JsonArray circuits = snapshot["circuits"].to<JsonArray>();
+  for (uint8_t i = 0; i < 2; ++i) {
+    const auto &s = km271GetTimers(i);
+    JsonObject circuit = circuits.add<JsonObject>();
+    circuit["hc"] = i + 1;
+    circuit["enabled"] = active[i];
+    circuit["valid"] = s.valid;
+    circuit["revision"] = s.revision;
+    circuit["request"] = s.request;
+    circuit["state"] = static_cast<uint8_t>(s.state);
+    JsonArray raw = circuit["raw"].to<JsonArray>();
+    for (uint8_t byte : s.raw) raw.add(byte);
+    revisions[i] = s.revision; requests[i] = s.request; validity[i] = s.valid;
+    states[i] = s.state; enabled[i] = active[i];
+  }
+  session = km271TimerSession(); connected = live; busy = pending; simulation = config.sim.enable;
+  timerForceUpdate = false;
+  webUI.wsUpdateWebJSON(snapshot);
+}
+
 void webUIupdates() {
+  // Compare tiny metadata only; send raw points on changes/reconnect, not a timer poll.
+  updateKm271Timers();
 
   // check if new version is available
   processGitHubVersion();

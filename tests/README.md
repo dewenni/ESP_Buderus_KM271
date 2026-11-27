@@ -50,11 +50,11 @@ python3 -B -m unittest discover -s tests -p 'test_km271_writes.py'
 
 The full Python suite includes this check and skips it if `c++` is unavailable.
 It compiles the actual production prefix of `src/km271.cpp` up to the application
-decoder `parseInfo`, with the real `km271.h` and `km271WriteQueue.h`. Only Arduino
+decoder `parseInfo`, with the real timer encoder, `km271.h` and `km271WriteQueue.h`. Only Arduino
 clock/UART, critical sections, hardware configuration and message delivery are
 stubbed. The production helpers and 27 parameter senders are compiled too,
 using the real DE/EN dictionaries. The value decoder is replaced except for
-the actual received WW config case. Test sources and the executable are
+the actual received WW config case and timer-register dispatch. Test sources and the executable are
 generated in a temporary directory.
 
 It covers atomic batch admission, capacity and FIFO wrap-around, owned command
@@ -68,5 +68,41 @@ publication uses the existing production message path; no broker is contacted.
 Critical
 section stubs verify that UART/logging run outside the lock; they do not model
 real scheduling or prove thread safety on the ESP32. The checks do not confirm
-device timing, parameter adoption, actual MQTT delivery, browser refresh or ID04
-timer write encoding. Hardware procedure and limits are in `Doc/KM271-Schreiben.md`.
+device timing, parameter adoption, actual MQTT delivery or browser refresh.
+Hardware procedure and limits are in `Doc/KM271-Schreiben.md`.
+
+ID04 adds `km271_timers.cpp` to that replay. It tests all 18 recorded positive
+timer vectors from `fixtures/km271_timers.json` with the production UART framer
+and ACK updater, then tests the production timer encoder/cache/admission:
+cross-block ordering, stable positions and neighbours, both circuits, all blocks,
+special time bytes, MQTT topic/text, multi-day allocation, capacity, midnight,
+stale revisions/sessions, concurrent writes, short packets, partial NAK, timeout,
+late ACK and external mutation. The fixture source is a direct original-KM271
+test from 2026-11-27; replay does not access a device.
+
+Timer browser model and request state (Node.js 18+, no packages):
+
+```sh
+node --test tests/weekly_program.test.cjs
+```
+
+The Python suite also invokes these checks. They run the actual raw decoder,
+local validator and dialog state logic, covering recorded snapshots, neighbours,
+capacity, conflicts, 24:00/week boundary, malformed/non-pairable data, no sends
+on local edits/cancel, request matching, final-ACK-only success, stale/incomplete
+data, disconnect and lost replies without automatic resend. A small DOM double
+models controls and events; it cannot verify layout, tooltips or native focus.
+Safari layout/dialog checks and the remaining ESP/WebUI/MQTT hardware procedure
+are described in `Doc/KM271-Schaltzeiten.md`.
+
+Equipment page navigation and contextual help (Node.js 18+, no packages):
+
+```sh
+node --test tests/equipment_pages.test.cjs
+```
+
+The Python suite includes this check. It executes production navigation/help
+code with a DOM double: local tabs and keyboard navigation, contextual help,
+translated descriptions, close events and no device sends. It does not prove
+browser layout, native touch/focus behavior or controller adoption. See
+`Doc/WebUI-Anlagenseiten.md` for the remaining browser/hardware checks.

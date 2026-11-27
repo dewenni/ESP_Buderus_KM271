@@ -177,10 +177,9 @@ static void testAcknowledgedConfig() {
   connect();
   configMessages.clear();
   const uint8_t unknown[][8] = {{0x07, 0x38, 0, 0, 0, 0, 0, 0},
-                              {0x11, 0x07, 1, 2, 3, 4, 5, 6},
                               {0x01, 0, 0, 0, 0, 0, 0, 0},
                               {0x0c, 7, 0x65, 0x65, 0x65, 0x65, 0x65, 0x65}};
-  assert(km271QueueWrite(unknown, 4));
+  assert(km271QueueWrite(unknown, 3));
   for (const auto &telegram : unknown) { beginWrite(telegram); finishWrite(); }
   assert(configMessages.empty() && kmConfigNum.ww_temp == 54);
 
@@ -191,6 +190,8 @@ static void testAcknowledgedConfig() {
   assert(kmConfigNum.hc1_night_temp == 17.5f && kmConfigNum.hc1_day_temp == 21.5f);
   assert(configMessages.size() == 2);
 }
+
+#include "km271_timers.cpp"
 
 int main() {
   const uint8_t batch[][8] = {{0x07, 0, 0x65, 0x10, 0x65, 0x65, 1, 0x65},
@@ -322,5 +323,6 @@ int main() {
   cyclicKM271();
   assert(KmRxBlockState == KM_TSK_START && writeQueue.size() == 0);
   testAcknowledgedConfig();
+  testTimers();
   std::puts("KM271 production serial engine: all replay checks passed");
 }

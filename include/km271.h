@@ -11,6 +11,7 @@
 //
 //*****************************************************************************
 #pragma once
+#include <km271Timers.h>
 #include <Arduino.h>
 
 /* D E F I N E S ****************************************************/
@@ -353,6 +354,19 @@ bool km271sendServiceCmd(uint8_t cmdPara[8]);
 // false: invalid/empty, disconnected or insufficient capacity; nothing queued.
 // true means queued, not acknowledged or confirmed by a returned value.
 bool km271QueueWrite(const uint8_t (*telegrams)[8], size_t count);
+// Loop-task API: raw timers belong to the current logging session only.
+enum class KmTimerWriteState : uint8_t { Idle, Pending, Saved, Failed };
+struct KmTimerSnapshot {
+  uint8_t raw[Km271Timers::Bytes] = {};
+  uint16_t valid = 0;
+  uint32_t revision = 0, request = 0;
+  KmTimerWriteState state = KmTimerWriteState::Idle;
+};
+const KmTimerSnapshot &km271GetTimers(uint8_t circuit); // circuit 0/1
+uint32_t km271TimerSession();
+bool km271TimersBusy();
+const char *km271WriteTimers(uint8_t circuit, uint32_t session, uint32_t revision,
+                           uint32_t request, const Km271Timers::Change &change);
 bool km271GetLogMode();
 // Bits: boiler, WW, solar, HC1, HC2, outside, burner, HC1 WW priority.
 uint8_t km271ChartValidity();

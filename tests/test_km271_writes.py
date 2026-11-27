@@ -1,5 +1,6 @@
 """Compile the production serial engine with a host UART/clock, then replay it."""
 from pathlib import Path
+import json
 import shutil
 import subprocess
 import tempfile
@@ -37,6 +38,7 @@ class Km271WriteTests(unittest.TestCase):
                 return source[start:end] + "\n"
 
             for signature in ["float decode05cTemp(uint8_t data)",
+                              "void decodeTimer(char *timerInfo, unsigned int size, uint8_t dateOnOff, uint8_t time)",
                               "int8_t decodeNegValue(uint8_t data)",
                               "uint8_t limit(uint8_t lower, uint8_t value, uint8_t upper)",
                               "void km271sendCmd(e_km271_sendCmd sendCmd, int cmdPara)",
@@ -44,12 +46,29 @@ class Km271WriteTests(unittest.TestCase):
                               "bool km271sendServiceCmd(uint8_t cmdPara[8])"]:
                 engine += definition(signature)
             (temp / "engine.cpp").write_text(engine)
+            fixtures = json.loads((ROOT / "tests/fixtures/km271_timers.json").read_text())
+            cases = []
+            for case in fixtures["cases"]:
+                cases.append("{" + ",".join([
+                    json.dumps(case["name"]),
+                    "{" + ",".join(json.dumps(x) for x in case["before"]) + "}",
+                    "{" + ",".join(json.dumps(x) for x in case["frames"]) + "}",
+                    "{" + ",".join(json.dumps(x) for x in case["after"]) + "}",
+                ]) + "}")
+            (temp / "timer_fixtures.cpp").write_text(
+                "struct TimerFixture { const char *name; const char *before[2]; std::vector<std::string> frames; const char *after[2]; };\n"
+                "static const TimerFixture timerFixtures[] = {" + ",\n".join(cases) + "};\n"
+            )
             # Replay the actual received WW config case as well. The remainder
             # of the application decoder is outside this transport test.
             ww_case = "case 0x007e:" + source.split("  case 0x007e:", 1)[1].split("\n  case ", 1)[0]
             (temp / "receive_config.cpp").write_text(
                 "void parseInfo(uint8_t *data, int len) {\n"
                 "received.emplace_back(data, data + len);\n"
+                "unsigned kmregister = (data[0] << 8) | data[1];\n" +
+                "  for (uint8_t circuit = 0; circuit < 2; ++circuit) {" +
+                source.split("  for (uint8_t circuit = 0; circuit < 2; ++circuit) {", 1)[1].split(
+                    "  switch (kmregister)", 1)[0] +
                 "if (len < 8) return;\n"
                 "switch ((data[0] << 8) | data[1]) {\n" + ww_case + "\n}\n}\n"
             )

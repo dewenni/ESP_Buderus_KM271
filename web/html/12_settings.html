@@ -679,7 +679,27 @@
                 id="cfg_oilmeter_debounce_time" />
 </div>
 </div>
-<div class="section-header">
+<div class="control-page">  <section class="control-section OPT_HW_OIL" aria-labelledby="p02_oil_heading">
+    <div class="control-section-heading">
+      <h2 id="p02_oil_heading" data-i18n="oilmeter"></h2>
+    </div>
+      <div class="control-card control-oil-set">
+        <button type="button" class="dash-header setting-help" id="p02_oilmeter_set_help" aria-describedby="p02_oilmeter_set_help_text" data-ui-local data-setting-help="control_help_oil_feedback" data-i18n="control_oilmeter_set"></button><span id="p02_oilmeter_set_help_text" data-i18n="control_help_oil_feedback" hidden></span>
+        <div class="control-oil-controls">
+          <div role="group">
+            <input type="number" id="p02_oilmeter_set" aria-labelledby="p02_oilmeter_set_help" aria-describedby="p02_oilmeter_set_help_text" min="0" step="1" />
+            <button type="button" data-i18n="set" id="p02_oilmeter_btn"></button>
+          </div>
+          <div class="control-oil-feedback" role="status" aria-live="polite">
+            <span data-i18n="act_value"></span>
+            <div class="control-oil-reading">
+              <span id="p02_oilmeter_act"></span>
+              <span class="control-unit">L</span>
+            </div>
+          </div>
+        </div>
+      </div>
+  </section></div><div class="section-header">
                 <h6 for="oil_virtual" data-i18n="oil_virtual"></h6>
                 <input
                   name="oil_virtual"

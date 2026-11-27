@@ -28,13 +28,16 @@
     <!-- Tab-Content -->
     <main class="container">
       <!--SECTION-START-->
-      <div id="tab13" class="tab-content information-page information-page--compact">
+      <div id="tab13" class="tab-content equipment-page information-page information-page--compact">
         <header class="page-heading">
           <h1 data-i18n="solar"></h1><p data-i18n="info_solar_subtitle"></p>
         </header>
-<div class="information-grid">
+<div class="equipment-tabs" role="tablist" data-equipment-tabs><button type="button" data-ui-local role="tab" id="tab13_settings_tab" aria-controls="tab13_settings" aria-selected="true" data-i18n="settings"></button><button type="button" data-ui-local role="tab" id="tab13_values_tab" aria-controls="tab13_values" aria-selected="false" data-i18n="equipment_values"></button><button type="button" data-ui-local role="tab" id="tab13_diagnosis_tab" aria-controls="tab13_diagnosis" aria-selected="false" data-i18n="equipment_diagnosis"></button>
+</div>
+<section id="tab13_settings" class="equipment-panel" role="tabpanel" aria-labelledby="tab13_settings_tab">
 <article class="card">
-            <h2 class="table-header" data-i18n="config"></h2>
+            <h2 class="table-header" data-i18n="config">
+</h2>
             <table class="striped">
               <tbody>
                 <tr>
@@ -56,19 +59,26 @@
               </tbody>
             </table>
           </article>
+</section>
+<section id="tab13_values" class="equipment-panel" role="tabpanel" aria-labelledby="tab13_values_tab" hidden>
+<div class="equipment-data">
 <article class="card">
-            <h2 class="table-header" data-i18n="info_current_values"></h2>
-            <table class="striped">
-              <tbody>
-                <tr><td data-i18n="load"></td><td class="table-value"><span id="p13_solar_load" data-info-state="on">--</span></td></tr>
-                <tr><td data-i18n="hot_water"></td><td class="table-value"><span id="p13_solar_ww">--</span><span class="information-unit">°C</span></td></tr>
-                <tr><td data-i18n="collector"></td><td class="table-value"><span id="p13_solar_collector">--</span><span class="information-unit">°C</span></td></tr>
-                <tr><td data-i18n="info_solar_status"></td><td class="table-value"><span id="p13_solar_9147">--</span></td></tr>
-              </tbody>
-            </table>
-          </article>
+<h2 class="table-header" data-i18n="info_current_values">
+</h2>
+<table>
+<tbody>
+<tr><td data-i18n="load"></td><td class="table-value"><span id="p13_solar_load" data-info-state="on">--</span></td>
+</tr>
+<tr><td data-i18n="hot_water"></td><td class="table-value"><span id="p13_solar_ww">--</span><span class="information-unit">°C</span></td>
+</tr>
+<tr><td data-i18n="collector"></td><td class="table-value"><span id="p13_solar_collector">--</span><span class="information-unit">°C</span></td>
+</tr>
+</tbody>
+</table>
+</article>
 <article class="card">
-<h2 class="table-header" data-i18n="lifetimes"></h2>
+<h2 class="table-header" data-i18n="lifetimes">
+</h2>
 <div class="information-runtime">
 <span>
 <span id="p13_solar_run_years">--</span> <small data-i18n="info_years"></small></span>
@@ -81,6 +91,19 @@
 </div>
 </article>
 </div>
+</section>
+<section id="tab13_diagnosis" class="equipment-panel" role="tabpanel" aria-labelledby="tab13_diagnosis_tab" hidden>
+<article class="card">
+<h2 class="table-header" data-i18n="equipment_diagnosis">
+</h2>
+<table>
+<tbody>
+<tr><td data-i18n="info_solar_status"></td><td class="table-value"><span id="p13_solar_9147">--</span></td>
+</tr>
+</tbody>
+</table>
+</article>
+</section>
 </div>
       <!--SECTION-END-->
     </main>
