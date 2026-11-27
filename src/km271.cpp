@@ -1021,9 +1021,9 @@ void parseInfo(uint8_t *data, int len) {
     }
     break;
 
-  case 0x01e0: // 01e0:1,s Uhrzeit_Offset
-    kmConfigNum.time_offset = decode05cTemp(decodeNegValue(data[2 + 1]));
-    snprintf(kmConfigStr.time_offset, sizeof(kmConfigStr.time_offset), "%0.1f %s", kmConfigNum.time_offset, MQTT_MSG::HOURS[config.mqtt.lang]);
+  case 0x01e0: // Clock correction: signed seconds/day, not half-hours.
+    kmConfigNum.time_offset = decodeNegValue(data[2 + 1]);
+    snprintf(kmConfigStr.time_offset, sizeof(kmConfigStr.time_offset), "%d %s", kmConfigNum.time_offset, MQTT_MSG::SECONDS_PER_DAY[config.mqtt.lang]);
     km271Msg(KM_TYP_CONFIG, KM_CFG_TOPIC::TIME_OFFSET[config.mqtt.lang],
              kmConfigStr.time_offset); // "CFG_Uhrzeit_Offset"    => "01e0:1,s"
     break;

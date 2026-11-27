@@ -284,9 +284,10 @@ value:      burner modulation runtime
 topic:      {"Brenner_Mod_Laufzeit", "burner_modulation_runtime"}
 payload:    time [min]
 
-value:      time offset
+value:      clock correction (01E0, second payload byte; signed 8-bit value)
 topic:      {"Uhrzeit_Offset", "time_offset"}
-payload:    time [min]
+payload:    correction [s/Tag] / [s/day], integer seconds per day (-30 to +30)
+note:       existing topic names are retained for compatibility
 
 ------- s o l a r -  F M 2 4 4 ------------------------------------------------------------------
 

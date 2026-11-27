@@ -54,7 +54,7 @@ decoder `parseInfo`, with the real timer encoder, `km271.h` and `km271WriteQueue
 clock/UART, critical sections, hardware configuration and message delivery are
 stubbed. The production helpers and 27 parameter senders are compiled too,
 using the real DE/EN dictionaries. The value decoder is replaced except for
-the actual received WW config case and timer-register dispatch. Test sources and the executable are
+the actual received WW/clock config cases and timer-register dispatch. Test sources and the executable are
 generated in a temporary directory.
 
 It covers atomic batch admission, capacity and FIFO wrap-around, owned command
@@ -70,6 +70,13 @@ section stubs verify that UART/logging run outside the lock; they do not model
 real scheduling or prove thread safety on the ESP32. The checks do not confirm
 device timing, parameter adoption, actual MQTT delivery or browser refresh.
 Hardware procedure and limits are in `Doc/KM271-Schreiben.md`.
+
+The clock-correction replay covers the display-confirmed `01E0` payloads for
+0, -6 and +4 seconds/day from the original KM271 (2026-11-27), plus -30/+30.
+It checks signed decoding without half-degree scaling, the second payload-byte
+position independently of the unknown first byte, and DE/EN config text with
+the existing MQTT topics. It does not test long-term clock accuracy, real MQTT
+delivery or the rendered WebUI/Home Assistant unit.
 
 ID04 adds `km271_timers.cpp` to that replay. It tests all 18 recorded positive
 timer vectors from `fixtures/km271_timers.json` with the production UART framer

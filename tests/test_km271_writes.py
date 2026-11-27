@@ -59,9 +59,10 @@ class Km271WriteTests(unittest.TestCase):
                 "struct TimerFixture { const char *name; const char *before[2]; std::vector<std::string> frames; const char *after[2]; };\n"
                 "static const TimerFixture timerFixtures[] = {" + ",\n".join(cases) + "};\n"
             )
-            # Replay the actual received WW config case as well. The remainder
+            # Replay the actual received WW and clock config cases as well. The remainder
             # of the application decoder is outside this transport test.
             ww_case = "case 0x007e:" + source.split("  case 0x007e:", 1)[1].split("\n  case ", 1)[0]
+            clock_case = "case 0x01e0:" + source.split("  case 0x01e0:", 1)[1].split("\n  case ", 1)[0]
             (temp / "receive_config.cpp").write_text(
                 "void parseInfo(uint8_t *data, int len) {\n"
                 "received.emplace_back(data, data + len);\n"
@@ -70,7 +71,7 @@ class Km271WriteTests(unittest.TestCase):
                 source.split("  for (uint8_t circuit = 0; circuit < 2; ++circuit) {", 1)[1].split(
                     "  switch (kmregister)", 1)[0] +
                 "if (len < 8) return;\n"
-                "switch ((data[0] << 8) | data[1]) {\n" + ww_case + "\n}\n}\n"
+                "switch ((data[0] << 8) | data[1]) {\n" + ww_case + "\n" + clock_case + "\n}\n}\n"
             )
             executable = temp / "km271-writes"
             subprocess.run([

@@ -193,6 +193,29 @@ static void testAcknowledgedConfig() {
 
 #include "km271_timers.cpp"
 
+static void testClockCorrection() {
+  // Display-confirmed raw values from the original KM271 on 2026-11-27,
+  // plus the documented range boundaries. Payload byte 0 is still unknown.
+  for (uint8_t language : {0, 1}) {
+    config.mqtt.lang = language;
+    for (uint8_t unknown : {0x02, 0xfb}) {
+      for (int seconds : {0, -6, 4, -30, 30}) {
+        uint8_t payload[] = {0x01, 0xe0, unknown, uint8_t(seconds), 0x65, 0x65, 0x65, 0x65};
+        configMessages.clear();
+        connect();
+        feed(KM_STX);
+        for (uint8_t byte : frame(payload, sizeof(payload))) feed(byte);
+        assert(kmConfigNum.time_offset == seconds);
+        const std::string expected = std::to_string(seconds) + (language ? " s/day" : " s/Tag");
+        assert(kmConfigStr.time_offset == expected);
+        assert(configMessages.size() == 1);
+        assert(configMessages[0].first == KM_CFG_TOPIC::TIME_OFFSET[language]);
+        assert(configMessages[0].second == expected);
+      }
+    }
+  }
+}
+
 int main() {
   const uint8_t batch[][8] = {{0x07, 0, 0x65, 0x10, 0x65, 0x65, 1, 0x65},
                               {0x08, 0, 0x65, 0x65, 0x65, 0x65, 2, 0x65}};
@@ -323,6 +346,7 @@ int main() {
   cyclicKM271();
   assert(KmRxBlockState == KM_TSK_START && writeQueue.size() == 0);
   testAcknowledgedConfig();
+  testClockCorrection();
   testTimers();
   std::puts("KM271 production serial engine: all replay checks passed");
 }

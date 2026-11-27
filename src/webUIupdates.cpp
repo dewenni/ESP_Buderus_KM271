@@ -511,7 +511,7 @@ void generateKm271ConfigJSON() {
   webUI.addJson(kmCfgJsonDoc, "p07_burner_min_mod", pkmConfigStr->burner_min_modulation);
   webUI.addJson(kmCfgJsonDoc, "p07_burner_mod_run", pkmConfigStr->burner_modulation_runtime);
   webUI.addJson(kmCfgJsonDoc, "p07_building_type", KM_CFG_ARRAY::BUILDING_TYPE[config.lang][constrain(pkmConfigNum->building_type, 0, 2)]);
-  snprintf(tmpMessage, sizeof(tmpMessage), "%0.1f %s", pkmConfigNum->time_offset, MQTT_MSG::HOURS[config.lang]);
+  snprintf(tmpMessage, sizeof(tmpMessage), "%d %s", pkmConfigNum->time_offset, MQTT_MSG::SECONDS_PER_DAY[config.lang]);
   webUI.addJson(kmCfgJsonDoc, "p07_time_offset", tmpMessage);
 
   // solar config values

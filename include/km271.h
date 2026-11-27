@@ -277,7 +277,7 @@ struct s_km271_config_num {
   uint8_t burner_modulation_runtime;
   uint8_t hc1_program;
   uint8_t hc2_program;
-  float time_offset;
+  int8_t time_offset; // Clock correction in seconds per day (01E0, payload byte 1).
   uint8_t hc1_holiday_days;
   uint8_t hc2_holiday_days;
   uint8_t hc1_timer[14];
