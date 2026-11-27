@@ -65,6 +65,7 @@ constexpr const char *SAT[MAX_LANG] = {"Sa", "Sat"};
 constexpr const char *SUN[MAX_LANG] = {"So", "Sun"};
 constexpr const char *DAYS[MAX_LANG] = {"Tage", "days"};
 constexpr const char *HOURS[MAX_LANG] = {"Stunden", "hours"};
+constexpr const char *SECONDS_PER_DAY[MAX_LANG] = {"s/Tag", "s/day"};
 }; // namespace MQTT_MSG
 
 // ======================================================================================

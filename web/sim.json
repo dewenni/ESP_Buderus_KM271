@@ -56,7 +56,7 @@
     "p07_burner_min_mod": "30 %",
     "p07_burner_mod_run": "12 s",
     "p07_building_type": "Mittel",
-    "p07_time_offset": "0.0 Stunden",
+    "p07_time_offset": "0 s/Tag",
     "p01_solar_opmode_icon": "i_auto",
     "p01_solar_opmode": "Automatik",
     "p13_solar_enable": "Aus",

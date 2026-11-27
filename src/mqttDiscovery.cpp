@@ -476,7 +476,7 @@ void mqttSendHaCfg_KmCfg() {
   mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::BURNER_MOD_TIME[config.mqtt.lang], NULL, "sensor", "s", valueTmpl(VAL_SPLIT), "mdi:clock-outline", TYP_TEXT,
                textPar());
 
-  mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::TIME_OFFSET[config.mqtt.lang], NULL, "sensor", "h", valueTmpl(VAL_SPLIT), "mdi:clock-outline", TYP_TEXT,
+  mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::TIME_OFFSET[config.mqtt.lang], NULL, "sensor", "s/d", valueTmpl(VAL_SPLIT), "mdi:clock-outline", TYP_TEXT,
                textPar());
 
   if (config.km271.use_solar) {

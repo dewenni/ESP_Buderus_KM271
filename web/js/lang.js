@@ -746,8 +746,8 @@ const user_translations = {
     en: "Holiday days",
   },
   time_offset: {
-    de: "Uhrzeit_Offset",
-    en: "time offset",
+    de: "Gangkorrektur der Uhr",
+    en: "Clock correction",
   },
   priority: {
     de: "Vorrang",
