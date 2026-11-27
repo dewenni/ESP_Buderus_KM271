@@ -2,8 +2,17 @@
 
 Die vorhandenen Schreibqueue-, WebSocket- und MQTT-Wege unterstützen zusätzlich
 Maximaltemperatur, Raumtemperaturabgleich und Heizsystem für HK1/HK2 sowie
-Warmwasserbereitung aktiv und Warmwasservorrang. Bestehende MQTT-Topics bleiben
-bei den zusätzlichen Schreibbefehlen erhalten.
+Warmwasserbereitung aktiv und Warmwasservorrang. WebUI-Eingaben liegen auf den
+jeweiligen Einstellungsseiten; alte Empfangs-IDs und MQTT-Topics bleiben erhalten.
+Die acht neuen Schreibbefehle sind über die dokumentierten `setvalue`-Topics,
+die WebUI und Home-Assistant-Discovery verfügbar.
+Die Maximaltemperatur verwendet denselben Sliderstil wie die übrigen
+Temperaturen. Das Heizsystem steht oben bei der Absenkungsart.
+Bei beiden Heizkreisen stehen Betriebsart und Programm mit Urlaubstagen in
+der ersten Zeile, Heizsystem und Absenkungsart in der zweiten. Beim Warmwasser
+stehen Betriebsart, Bereitung aktiv und Vorrang oben; Temperatur und Zirkulation
+folgen darunter als eigene Slider-Zeile. Schmale Ansichten ordnen die Felder
+untereinander an.
 
 Alle 35 MQTT-Konfigurationsbefehle werden gemeinsam in
 `processMqttConfigCommand()` verarbeitet. Eine nach HK1, HK2 und Warmwasser
@@ -152,6 +161,16 @@ praktisch geprüft. Nach Firmwareinstallation separat kontrollieren:
    automatisch angepasste Nachbarparameter am Gerät vergleichen.
 4. Mobile/Desktop-Darstellung und DE/EN sowie unveränderte lokale Hilfeaktionen.
 
-Die aktuellen Sender und die MQTT-/WebSocket-Verarbeitung sind mit Hosttests
-geprüft. Ein abschließender ESP32-Build der aktuellen Quellen und der Test
-des vollständigen Firmwarepfads auf dem ESP stehen noch aus.
+Host-Testsuite einschließlich neuer Encoder-/Routing-/UI-Prüfungen und
+JavaScript-Syntaxprüfung erfolgreich. Ein ESP32-/WebUI-Build mit allen neuen
+Befehlen war erfolgreich. Warmwasser und HK1 wurden in der gebauten lokalen
+Demo in Safari, auch bei 390 Pixeln Breite, visuell geprüft.
+Die anschließend gewünschte Maximaltemperatur als Slider und das Verschieben
+des Heizsystems nach oben wurden an den Quellen umgesetzt und auf Syntax,
+Anordnung und eindeutige IDs geprüft. Der erneute Build dafür wurde nicht
+freigegeben; diese letzten Darstellungsänderungen sind noch nicht im gebauten
+Artefakt enthalten und wurden nicht erneut im Browser betrachtet.
+Die anschließende Neuordnung der Heizkreis- und Warmwasser-Einstellungen wurde
+ebenfalls nur an den Quellen und mit den UI-Hosttests geprüft. Die lokale
+Browser-Vorschau wurde nicht freigegeben; eine visuelle Prüfung dieses Layouts
+steht noch aus.

@@ -59,32 +59,38 @@
           </div>
         </div>
       </div>
-      <div class="control-card">
-        <div class="dash-main">
-          <button type="button" class="dash-header setting-help" id="p02_hc2_prg_help" aria-describedby="p02_hc2_prg_help_text" data-ui-local data-setting-help="control_help_program" data-i18n="prg"></button><span id="p02_hc2_prg_help_text" data-i18n="control_help_program" hidden></span>
-          <div class="dash-content">
-            <select name="p02_hc2_prg" id="p02_hc2_prg" aria-labelledby="p02_hc2_prg_help" aria-describedby="p02_hc2_prg_help_text">
-              <option value="0" data-i18n="hc_prg_custom"></option>
-              <option value="1" data-i18n="hc_prg_family"></option>
-              <option value="2" data-i18n="hc_prg_early"></option>
-              <option value="3" data-i18n="hc_prg_late"></option>
-              <option value="4" data-i18n="hc_prg_am"></option>
-              <option value="5" data-i18n="hc_prg_pm"></option>
-              <option value="6" data-i18n="hc_prg_noon"></option>
-              <option value="7" data-i18n="hc_prg_single"></option>
-              <option value="8" data-i18n="hc_prg_senior"></option>
-            </select>
+      <div class="control-program-grid">
+        <div class="control-card">
+          <div class="dash-main">
+            <button type="button" class="dash-header setting-help" id="p02_hc2_prg_help" aria-describedby="p02_hc2_prg_help_text" data-ui-local data-setting-help="control_help_program" data-i18n="prg"></button><span id="p02_hc2_prg_help_text" data-i18n="control_help_program" hidden></span>
+            <div class="dash-content">
+              <select name="p02_hc2_prg" id="p02_hc2_prg" aria-labelledby="p02_hc2_prg_help" aria-describedby="p02_hc2_prg_help_text">
+                <option value="0" data-i18n="hc_prg_custom"></option>
+                <option value="1" data-i18n="hc_prg_family"></option>
+                <option value="2" data-i18n="hc_prg_early"></option>
+                <option value="3" data-i18n="hc_prg_late"></option>
+                <option value="4" data-i18n="hc_prg_am"></option>
+                <option value="5" data-i18n="hc_prg_pm"></option>
+                <option value="6" data-i18n="hc_prg_noon"></option>
+                <option value="7" data-i18n="hc_prg_single"></option>
+                <option value="8" data-i18n="hc_prg_senior"></option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="control-card control-compact-card">
+          <div class="dash-main">
+            <button type="button" class="dash-header setting-help" id="p02_hc2_holiday_days_help" aria-describedby="p02_hc2_holiday_days_help_text" data-ui-local data-setting-help="control_help_holiday_days" data-i18n="holiday_days"></button><span id="p02_hc2_holiday_days_help_text" data-i18n="control_help_holiday_days" hidden></span>
+            <div class="dash-content">
+              <input type="number" id="p02_hc2_holiday_days" aria-labelledby="p02_hc2_holiday_days_help" aria-describedby="p02_hc2_holiday_days_help_text">
+            </div>
           </div>
         </div>
       </div>
-      <div class="control-card control-compact-card">
-        <div class="dash-main">
-          <button type="button" class="dash-header setting-help" id="p02_hc2_holiday_days_help" aria-describedby="p02_hc2_holiday_days_help_text" data-ui-local data-setting-help="control_help_holiday_days" data-i18n="holiday_days"></button><span id="p02_hc2_holiday_days_help_text" data-i18n="control_help_holiday_days" hidden></span>
-          <div class="dash-content">
-            <input type="number" id="p02_hc2_holiday_days" aria-labelledby="p02_hc2_holiday_days_help" aria-describedby="p02_hc2_holiday_days_help_text">
-          </div>
-        </div>
-      </div>
+      <div class="control-card"><div class="dash-main">
+        <button type="button" class="dash-header setting-help" id="p02_hc2_heatsys_help" aria-describedby="p02_hc2_heatsys_help_text" data-ui-local data-setting-help="control_help_heating_system" data-i18n="heating_system"></button><span id="p02_hc2_heatsys_help_text" data-i18n="control_help_heating_system" hidden></span>
+        <div class="dash-content"><select id="p02_hc2_heatsys" aria-labelledby="p02_hc2_heatsys_help" aria-describedby="p02_hc2_heatsys_help_text"><option value="0" data-i18n="chart_off"></option><option value="1" data-i18n="heating_radiator"></option><option value="3" data-i18n="heating_underfloor"></option></select></div>
+      </div></div>
       <div class="control-card control-compact-card">
         <div class="dash-main">
           <button type="button" class="dash-header setting-help" id="p02_hc2_reduct_mode_help" aria-describedby="p02_hc2_reduct_mode_help_text" data-ui-local data-setting-help="control_help_reduction" data-i18n="reduction_mode"></button><span id="p02_hc2_reduct_mode_help_text" data-i18n="control_help_reduction" hidden></span>
@@ -245,6 +251,16 @@
           </div>
         </div>
       </div>
+      <div class="control-card"><div class="dash-main">
+        <div class="control-label-row"><button type="button" class="dash-header setting-help" id="p02_hc2_max_temp_help" aria-describedby="p02_hc2_max_temp_help_text" data-ui-local data-setting-help="control_help_max_temp" data-i18n="max_temp"></button><span id="p02_hc2_max_temp_help_text" data-i18n="control_help_max_temp" hidden></span><div class="control-reading"><span id="p02_hc2_max_temp_txt"></span><span class="control-unit">°C</span></div></div>
+        <div class="dash-content"><input type="range" class="rangeSlider" id="p02_hc2_max_temp" data-value-id="p02_hc2_max_temp_txt" aria-labelledby="p02_hc2_max_temp_help" aria-describedby="p02_hc2_max_temp_help_text" min="20" max="90" step="1" value="20"></div>
+        <div class="control-scale" aria-hidden="true"><span>20 °C</span><span><span id="p02_hc2_max_limit">90</span> °C</span></div>
+      </div></div>
+      <div class="control-card"><div class="dash-main">
+        <div class="control-label-row"><button type="button" class="dash-header setting-help" id="p02_hc2_temp_offset_help" aria-describedby="p02_hc2_temp_offset_help_text" data-ui-local data-setting-help="control_help_temp_offset" data-i18n="temp_offset"></button><span id="p02_hc2_temp_offset_help_text" data-i18n="control_help_temp_offset" hidden></span><div class="control-reading"><span id="p02_hc2_temp_offset_txt"></span><span class="control-unit">°C</span></div></div>
+        <div class="dash-content"><input type="range" class="rangeSlider" id="p02_hc2_temp_offset" data-value-id="p02_hc2_temp_offset_txt" aria-labelledby="p02_hc2_temp_offset_help" aria-describedby="p02_hc2_temp_offset_help_text" min="-5" max="5" step="0.5" value="0"></div>
+        <div class="control-scale" aria-hidden="true"><span>−5 °C</span><span>5 °C</span></div>
+      </div></div>
     </div>
   </section>
 </div>

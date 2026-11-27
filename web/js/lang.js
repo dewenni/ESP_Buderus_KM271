@@ -734,8 +734,8 @@ const user_translations = {
     en: "heating system",
   },
   temp_offset: {
-    de: "Temperatur_Offset",
-    en: "temp offset",
+    de: "Raumtemperaturabgleich",
+    en: "Room temperature adjustment",
   },
   remotecontrol: {
     de: "Fernbedienung",
@@ -745,6 +745,14 @@ const user_translations = {
     de: "Urlaubstage",
     en: "Holiday days",
   },
+  heating_radiator: { de: "Heizkörper", en: "Radiators" },
+  heating_underfloor: { de: "Fußbodenheizung", en: "Underfloor heating" },
+  ww_processing_enabled: { de: "Warmwasserbereitung aktiv", en: "Hot water heating enabled" },
+  control_help_max_temp: { de: "Begrenzt die Vorlauftemperatur dieses Heizkreises. Bei Fußbodenheizung sind höchstens 60 °C einstellbar. Die zulässige Temperatur der Anlage beachten.", en: "Limits this heating circuit’s flow temperature. Underfloor heating allows settings up to 60 °C. Observe the temperature limit of the installation." },
+  control_help_temp_offset: { de: "Verschiebt die Heizkennlinie parallel, um die Raumtemperatur abzugleichen. Bereich −5 bis +5 °C.", en: "Shifts the heating curve in parallel to adjust the room temperature. Range −5 to +5 °C." },
+  control_help_heating_system: { de: "Anlagenkonfiguration des Heizkreises: Aus deaktiviert den Heizkreis. Nur das tatsächlich angeschlossene Heizsystem auswählen.", en: "Heating circuit configuration: Off disables the circuit. Select the heating system that is actually connected." },
+  control_help_ww_processing: { de: "Aktiviert oder deaktiviert die Warmwasserbereitung grundsätzlich. Bei Aus wird der Speicher nicht durch die normale Warmwasserregelung nachgeladen.", en: "Enables or disables hot water heating at system level. When off, normal hot water control does not reheat the cylinder." },
+  control_help_ww_priority: { de: "Warmwasservorrang für Heizkreis 2: Während der Speicherladung wird dessen Heizbetrieb nachrangig behandelt. Das ist keine zusätzliche Warmwasser-Betriebsart.", en: "Hot water priority for heating circuit 2: cylinder heating takes priority over this circuit’s space heating. This is separate from the hot water operating mode." },
   time_offset: {
     de: "Gangkorrektur der Uhr",
     en: "Clock correction",

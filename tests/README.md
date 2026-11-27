@@ -89,7 +89,8 @@ The additional configuration replay checks fixed wire bytes for all eight new
 commands, signed negative/half-degree adjustments, value limits, invalid enum
 values, underfloor maximum 60 °C, NaN/infinity rejection and WW priority when
 HK2 display is disabled. Receive and ACK paths use the same field handlers.
-The actual shared MQTT
+The UI check also verifies a received underfloor limit without replacing the
+reported value text or emitting a device command. The actual shared MQTT
 configuration handler is replayed for all 35 commands in DE/EN, comparing its
 queued telegrams with direct driver calls. Additional cases cover localized
 choices (including summer/winter's 9..31 mapping), malformed/empty values,

@@ -32,6 +32,9 @@
 .control-help-dialog [hidden] { display: none; }
 .control-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 2rem; align-items: start; }
 .control-primary-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem 2rem; max-width: 64rem; }
+.control-program-grid { display: grid; grid-template-columns: minmax(0, 1fr) 7rem; gap: 1rem; align-items: start; }
+.control-program-grid .control-compact-card .dash-main { display: flex; flex-direction: column; align-items: flex-end; }
+.control-water-temperatures { max-width: none; }
 .control-temperature-grid { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--control-border); }
 .control-water-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 2rem; align-items: start; }
 .control-page .control-card { min-width: 0; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
@@ -91,7 +94,8 @@
   .control-water-grid .control-mode-card { grid-column: 1 / -1; max-width: 32rem; width: 100%; }
 }
 @container (max-width: 600px) {
-  .control-grid, .control-primary-grid, .control-water-grid { grid-template-columns: minmax(0, 1fr); }
+  .control-grid, .control-primary-grid, .control-program-grid, .control-water-grid { grid-template-columns: minmax(0, 1fr); }
+  .control-program-grid .control-compact-card .dash-main { align-items: flex-start; }
   .control-section { padding: 1rem; }
 }
 @media (pointer: coarse) {

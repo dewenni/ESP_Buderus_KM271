@@ -4,6 +4,32 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
+test('received underfloor limit constrains the slider without replacing the reported text or sending', () => {
+  const source = {textContent:'60'};
+  const reported = {textContent:'75'};
+  // Native range inputs clamp their thumb when max changes; the separate
+  // received-value text must still describe the actual reported setting.
+  const input = {value:'75',get max() { return this.limit; },set max(value) { this.limit=value; this.value=String(Math.min(Number(this.value),Number(value))); }};
+  let observer;
+  const context = {
+    document: {
+      getElementById: id => id === 'p02_hc2_max_limit' ? source : id === 'p02_hc2_max_temp' ? input : reported,
+      querySelectorAll: () => [],
+    },
+    MutationObserver: class { constructor(callback) { observer=callback; } observe() {} },
+    sendValue: () => assert.fail('Limit update must not transmit'),
+  };
+  vm.createContext(context);
+  const production = fs.readFileSync(path.join(__dirname,'../web/js/user.js'),'utf8');
+  vm.runInContext(production.split('function initMobileNavigation()')[0]+'\ninitControlSliders();',context);
+  assert.equal(input.max,'60');
+  assert.equal(input.value,'60');
+  assert.equal(reported.textContent,'75');
+  source.textContent='90';
+  observer([{target:source}]);
+  assert.equal(input.max,'90');
+  assert.equal(reported.textContent,'75');
+});
 class Element {
   constructor() { this.attrs = {}; this.listeners = {}; this.dataset = {}; this.style = {}; this.hidden = false; }
   addEventListener(name, callback) { this.listeners[name] = callback; }

@@ -436,6 +436,9 @@ void generateKm271ConfigJSON() {
     webUI.addJson(kmCfgJsonDoc, "p02_hc1_opmode_auto", pkmConfigNum->hc1_operation_mode == 2 ? true : false);
     webUI.addJson(kmCfgJsonDoc, "p03_hc1_op_mode", webUIConfigText(KM_CFG_ARRAY::OPMODE[config.lang][constrain(pkmConfigNum->hc1_operation_mode, 0, 2)]));
     webUI.addJson(kmCfgJsonDoc, "p03_hc1_max_temp", pkmConfigStr->hc1_max_temp);
+    webUI.addJson(kmCfgJsonDoc, "p02_hc1_max_temp", pkmConfigNum->hc1_max_temp);
+    webUI.addJson(kmCfgJsonDoc, "p02_hc1_temp_offset", pkmConfigNum->hc1_temp_offset);
+    webUI.addJson(kmCfgJsonDoc, "p02_hc1_heatsys", pkmConfigNum->hc1_heating_system);
     webUI.addJson(kmCfgJsonDoc, "p02_hc1_interp", pkmConfigNum->hc1_interpretation);
     webUI.addJson(kmCfgJsonDoc, "p03_hc1_interp", pkmConfigStr->hc1_interpretation);
     webUI.addJson(kmCfgJsonDoc, "p03_hc1_sw_on_temp", webUIConfigText(KM_CFG_ARRAY::SWITCH_ON_TEMP[config.lang][constrain(pkmConfigNum->hc1_switch_on_temperature, 0, 10)]));
@@ -470,6 +473,10 @@ void generateKm271ConfigJSON() {
     webUI.addJson(kmCfgJsonDoc, "p02_hc2_opmode_auto", pkmConfigNum->hc2_operation_mode == 2 ? true : false);
     webUI.addJson(kmCfgJsonDoc, "p04_hc2_op_mode", webUIConfigText(KM_CFG_ARRAY::OPMODE[config.lang][constrain(pkmConfigNum->hc2_operation_mode, 0, 2)]));
     webUI.addJson(kmCfgJsonDoc, "p04_hc2_max_temp", pkmConfigStr->hc2_max_temp);
+    webUI.addJson(kmCfgJsonDoc, "p02_hc2_max_limit", pkmConfigNum->hc2_heating_system == 3 ? 60 : 90);
+    webUI.addJson(kmCfgJsonDoc, "p02_hc2_max_temp", pkmConfigNum->hc2_max_temp);
+    webUI.addJson(kmCfgJsonDoc, "p02_hc2_temp_offset", pkmConfigNum->hc2_temp_offset);
+    webUI.addJson(kmCfgJsonDoc, "p02_hc2_heatsys", pkmConfigNum->hc2_heating_system);
     webUI.addJson(kmCfgJsonDoc, "p02_hc2_interp", pkmConfigNum->hc2_interpretation);
     webUI.addJson(kmCfgJsonDoc, "p04_hc2_interp", pkmConfigStr->hc2_interpretation);
     webUI.addJson(kmCfgJsonDoc, "p04_hc2_sw_on_temp", webUIConfigText(KM_CFG_ARRAY::SWITCH_ON_TEMP[config.lang][constrain(pkmConfigNum->hc2_switch_on_temperature, 0, 10)]));
@@ -497,6 +504,8 @@ void generateKm271ConfigJSON() {
     webUI.addJson(kmCfgJsonDoc, "p02_ww_opmode_auto", pkmConfigNum->ww_operation_mode == 2 ? true : false);
     webUI.addJson(kmCfgJsonDoc, "p05_hw_op_mode", webUIConfigText(KM_CFG_ARRAY::OPMODE[config.lang][constrain(pkmConfigNum->ww_operation_mode, 0, 2)]));
     webUI.addJson(kmCfgJsonDoc, "p05_hw_proccess", webUIConfigText(KM_CFG_ARRAY::ON_OFF[config.lang][constrain(pkmConfigNum->ww_processing, 0, 1)]));
+    webUI.addJson(kmCfgJsonDoc, "p02_ww_processing", pkmConfigNum->ww_processing);
+    webUI.addJson(kmCfgJsonDoc, "p02_ww_priority", pkmConfigNum->ww_priority);
     webUI.addJson(kmCfgJsonDoc, "p02_ww_circ", pkmConfigNum->ww_circulation);
     webUI.addJson(kmCfgJsonDoc, "p05_hw_circ", webUIConfigText(KM_CFG_ARRAY::CIRC_INTERVAL[config.lang][constrain(pkmConfigNum->ww_circulation, 0, 7)]));
   }
