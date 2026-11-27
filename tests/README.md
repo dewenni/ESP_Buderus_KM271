@@ -1,5 +1,19 @@
 # Build checks
 
+The MQTT discovery replay compiles the complete production `mqttDiscovery.cpp`
+with the real ArduinoJson headers from `.pio/libdeps/esp32/ArduinoJson/src`.
+It requires a C++11 compiler and installed PlatformIO dependencies; it is skipped
+with a reason when either is missing. Run it alone with
+`python3 -B -m unittest discover -s tests -p test_mqtt_discovery.py`.
+Local publication capture checks DE/EN JSON for all eight new controls, command
+and state topics, slider limits/steps, valid choices, old-sensor deletion before
+replacement, repeated discovery, reset, disabled groups and empty prefixes.
+It also checks HK2's dynamic 60/90 °C limit, including a change during an ongoing
+discovery pass. It uses real serialization but replaces the timer ticks and MQTT
+publisher; no broker, Home Assistant instance or device is contacted. Actual
+entity migration, dashboards/automations and command round trips require a
+separate installation test.
+
 Run from the Buderus repository with Python 3.9+:
 
 ```sh

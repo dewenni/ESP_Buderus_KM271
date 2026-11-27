@@ -528,6 +528,14 @@ Aktiviere zuerst MQTT und prüfe die Broker-Verbindung. Unter **Integrationen �
 
 Topic- und Payload-Sprache hängen von der MQTT-Einstellung ab. Nach einer Änderung bestehende Entitäten und Automationen prüfen.
 
+Maximaltemperatur und Raumtemperaturabgleich für HK1/HK2 werden als Slider,
+Heizsystem sowie Warmwasserbereitung und Warmwasservorrang als Auswahllisten
+bereitgestellt. Bei HK2-Fußbodenheizung ist die Maximaltemperatur auf 60 °C
+begrenzt. Die bisherigen acht Sensor-Discovery-Einträge werden automatisch
+entfernt. Durch den Wechsel zu `number`/`select` ändern sich die Entity-IDs;
+betroffene Dashboards und Automationen anpassen. Details zur Zuordnung und
+Migration stehen in [Zusätzliche Konfigurationsbefehle](Doc/KM271-Zusaetzliche-Parameter.md).
+
 <img src="Doc/mqtt_ha_1.png" alt="WebUI" width="750">
 
 <img src="Doc/mqtt_ha_2.png" alt="WebUI" width="750">

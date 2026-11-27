@@ -21,6 +21,37 @@ der Tabelle; die übrigen Eingaben verwenden dieselbe vollständige Zahlenprüfu
 wie MQTT. Bestehende IDs bleiben erhalten. Unbekannte IDs werden nicht als
 Konfigurationsbefehl behandelt; lokale Hilfe-/Anzeige-IDs lösen kein Schreiben aus.
 
+## Home Assistant
+
+Die vier Temperaturfelder werden als `number` mit Slidern angelegt:
+Maximaltemperatur 20–90 °C in 1-°C-Schritten und Temperaturabgleich −5 bis
++5 °C in 0,5-°C-Schritten. Für HK2-Fußbodenheizung ist das Maximum 60 °C.
+Die Discovery aktualisiert diese Grenze bei geänderter Heizsystemkonfiguration
+aus dem vorhandenen Empfangscache über ihren bestehenden Sendezyklus.
+Es gibt dafür keine zusätzliche Geräteabfrage und keinen neuen Timer.
+
+Die Heizsysteme erscheinen als `select`: HK1 Aus/Heizkörper,
+HK2 zusätzlich Fußboden. Der ungültige Platzhalterwert 2 (`-`) wird nicht
+angeboten. Warmwasserbereitung und Vorrang verwenden `select` mit An/Aus.
+Alle Optionen folgen der MQTT-Sprache; bestehende Status- und Befehlstopics
+sowie die jeweiligen Unique-IDs bleiben erhalten. Der Zustand stammt weiterhin
+aus dem vorhandenen Config-Publish-Pfad, ohne optimistische HA-Annahme.
+
+Vor jeder Konfigurations-Discovery werden gezielt die acht früheren
+`sensor`-Discovery-Topics mit leerer Retain-Nachricht gelöscht. Die wiederholte
+Löschung ist idempotent und entfernt auch am Broker gespeicherte Altdefinitionen.
+Für deaktivierte Gruppen werden auch die zugehörigen neuen Bedienelemente
+gelöscht. Discovery-Reset verwendet ebenfalls leere Retain-Nachrichten.
+Die Migration gilt für den aktuell konfigurierten Discovery-Präfix,
+Gerätenamen und die aktuelle MQTT-Sprache.
+
+Durch den Domänenwechsel von `sensor` zu `number`/`select` entstehen neue
+Entity-IDs in Home Assistant. Dashboards und Automationen, die bisherige
+Sensor-IDs verwenden, müssen entsprechend angepasst werden; deren Zuordnung
+kann die Firmware nicht automatisch umschreiben. Eine tatsächliche Migration
+in einem laufenden Home Assistant und MQTT-Schreiben über diese Entitäten
+stehen als Praxistest nach Firmwareinstallation noch aus.
+
 ## Zuordnung
 
 Alle Adressen hexadezimal; Nutzbyte ab null nach Typ/Offset beziehungsweise

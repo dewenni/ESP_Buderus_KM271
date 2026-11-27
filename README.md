@@ -533,6 +533,14 @@ Do not send commands with Retain: stored commands can execute again after reconn
 
 First enable MQTT and verify the broker connection. Under **Integrations → Home Assistant**, enable discovery and configure the discovery topic and device name. Home Assistant needs its MQTT integration connected to the same broker. The Logamatic appears as a device with measurements and supported controls.
 
+HC1/HC2 maximum temperature and room temperature adjustment are exposed as
+sliders; heating systems, hot-water processing and hot-water priority use
+select entities. HC2 underfloor heating limits the maximum temperature to 60 °C.
+The eight previous sensor discovery entries are removed automatically. Changing
+from `sensor` to `number`/`select` changes entity IDs; update affected dashboards
+and automations. Mapping and migration details are recorded in
+[Additional configuration commands](Doc/KM271-Zusaetzliche-Parameter.md).
+
 Topic and payload language follow the MQTT setting. Check existing entities and automations after changing it.
 
 <img src="Doc/mqtt_ha_1.png" alt="WebUI" width="750">
