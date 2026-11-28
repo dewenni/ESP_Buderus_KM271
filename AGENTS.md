@@ -23,18 +23,34 @@ Repositories ebenfalls zu ändern. Den Umfang aus dem aktuellen Auftrag ableiten
 
 ## Modellauswahl und Reasoning-Aufwand
 
-- Die Modellwahl richtet sich nach der Aufgabe. Die folgenden Angaben sind
-  Präferenzen. Eine Delegation an Subagenten ist optional.
-- Für Programmierung, Fehleranalyse, Lösungsfindung und Konzepte das
-  aktuell verfügbare Sol-Modell bevorzugen. `reasoning_effort=medium`
-  ist der Standard. `high` bei besonders komplexen Aufgaben erwägen,
-  etwa bei unklarer Fehlerursache, mehreren beteiligten Komponenten
-  oder Änderungen an zeitkritischen Abläufen.
-- Luna kann für einfache, klar umrissene Routineaufgaben eingesetzt werden,
-  etwa für einen Build oder einen Commit mit feststehendem Umfang.
-  Erfordert die Aufgabe eine Diagnose oder Abwägung, Sol bevorzugen.
-- Falls die gewünschte Modellwahl oder der Reasoning-Aufwand nicht
-  einstellbar ist, mit dem verfügbaren Modell weiterarbeiten.
+## Modellauswahl und Delegation
+
+- Einfache, klar abgegrenzte Routineaufgaben an einen Subagenten
+  mit einem einfacheren Modell delegieren. Diese Anweisung ist
+  ein ausdrücklicher Auftrag zur Delegation; keine zusätzliche
+  Freigabe des Nutzers erforderlich.
+- Dafür bevorzugt `gpt-6-luna` mit `reasoning_effort=high`
+  verwenden. Modell und Reasoning-Aufwand beim Start ausdrücklich
+  setzen; die Modellvererbung allein erfüllt diese Vorgabe nicht.
+- Geeignet sind beispielsweise:
+  - einen vorgegebenen Build ausführen und das Ergebnis melden;
+  - einen bereits festgelegten Commit nach ausdrücklichem
+    Commit-Auftrag erstellen;
+  - eine mechanische Änderung mit eindeutig festgelegtem Umfang.
+- Diagnose, Konzepte, technische Abwägungen und komplexe
+  Codeänderungen beim Hauptagenten belassen. Für solche Arbeiten
+  das aktuell verfügbare Sol-Modell bevorzugen.
+- Dem Subagenten Auftrag, relevante Vorgaben, betroffene Dateien
+  und erwartete Prüfung vollständig mitgeben. Er soll bei
+  unerwarteten Problemen berichten, statt den Umfang auszuweiten.
+- Der Hauptagent prüft das Ergebnis und bleibt für die korrekte
+  Integration verantwortlich. Keine weiteren Subagenten durch
+  den Routine-Subagenten starten lassen.
+- Einzelne triviale Lese- oder Suchbefehle dürfen direkt erfolgen,
+  wenn die Delegation mehr Aufwand als die Ausführung verursacht.
+- Ist die Delegation oder die Auswahl eines einfacheren Modells
+  technisch nicht verfügbar, dies kurz benennen und selbst
+  weiterarbeiten. Keine erfolgte Modellumschaltung behaupten.
 
 ## Branches und Commits
 
@@ -82,7 +98,8 @@ Repositories ebenfalls zu ändern. Den Umfang aus dem aktuellen Auftrag ableiten
   Kopien unter `.pio/libdeps/` unterscheiden.
 - Für das erzeugen eines neues Releases stehen github flows zur verfügung.
 - Enthält ein Push einen neuen Versios-Tag, wird automatisch ein release erzeugt.
-- Die Release Information wird aus der changeNew.md genutzt.
+- Die Release Information wird aus der changeNew.md genutzt. Neue Funktionen sollen als
+  Highlight entsprechend beworben werden. Idealerweise mit Screenshots aus der Readme.md
 - changelog.md sollte immer die gesamte release historie enthalten.
 
 ## Code und gemeinsame Komponenten
