@@ -46,6 +46,16 @@ class Km271WriteTests(unittest.TestCase):
                               "bool km271sendServiceCmd(uint8_t cmdPara[8])"]:
                 engine += definition(signature)
             (temp / "engine.cpp").write_text(engine)
+            mqtt_dispatch = (ROOT / "src/mqttCustom.cpp").read_text().split(
+                "// All setvalue configuration commands share topic matching and payload parsing.", 1)[1].split("void processMqttMessage", 1)[0]
+            web_dispatch = (ROOT / "src/webUIcallback.cpp").read_text().split(
+                "// All heating and hot-water inputs share ID matching and payload parsing.", 1)[1].split("static void timerCommand", 1)[0]
+            (temp / "route_config.cpp").write_text(
+                "#include <cstdlib>\n#include <strings.h>\n#include <cerrno>\n#include <climits>\n#include <cmath>\n"
+                "static const char *addCfgCmdTopic(const char *topic) { static std::string name; name = std::string(\"setvalue/\") + topic; return name.c_str(); }\n"
+                + mqtt_dispatch + "\nstatic bool routeMqttConfig(const char *topic, const char *payload) { return processMqttConfigCommand(topic, payload); }\n"
+                + web_dispatch + "\nstatic bool routeWebConfig(const char *elementId, const char *value) { return processWebConfigCommand(elementId, value); }\n"
+            )
             fixtures = json.loads((ROOT / "tests/fixtures/km271_timers.json").read_text())
             cases = []
             for case in fixtures["cases"]:
@@ -63,6 +73,8 @@ class Km271WriteTests(unittest.TestCase):
             # of the application decoder is outside this transport test.
             ww_case = "case 0x007e:" + source.split("  case 0x007e:", 1)[1].split("\n  case ", 1)[0]
             clock_case = "case 0x01e0:" + source.split("  case 0x01e0:", 1)[1].split("\n  case ", 1)[0]
+            extra_cases = "\n".join("case " + reg + ":" + source.split("  case " + reg + ":", 1)[1].split("\n  case ", 1)[0]
+                                    for reg in ("0x000e", "0x001c", "0x0031", "0x0046", "0x004d", "0x0054", "0x0069", "0x0085"))
             (temp / "receive_config.cpp").write_text(
                 "void parseInfo(uint8_t *data, int len) {\n"
                 "received.emplace_back(data, data + len);\n"
@@ -71,7 +83,7 @@ class Km271WriteTests(unittest.TestCase):
                 source.split("  for (uint8_t circuit = 0; circuit < 2; ++circuit) {", 1)[1].split(
                     "  switch (kmregister)", 1)[0] +
                 "if (len < 8) return;\n"
-                "switch ((data[0] << 8) | data[1]) {\n" + ww_case + "\n" + clock_case + "\n}\n}\n"
+                "switch ((data[0] << 8) | data[1]) {\n" + ww_case + "\n" + clock_case + "\n" + extra_cases + "\n}\n}\n"
             )
             executable = temp / "km271-writes"
             subprocess.run([

@@ -2,6 +2,7 @@
 // localization texts
 // --------------------------------------
 const user_translations = {
+  board_v2_hint: {de: "Board v2.0 benötigt ESP32-S3-Firmware. OneWire: GPIO15; GPIO19/20 für USB freihalten. Das GPIO-Preset setzt RX/TX und Status-LEDs; Sensoren und Ethernet separat prüfen. Nach GPIO-Änderungen neu starten.", en: "Board v2.0 requires ESP32-S3 firmware. OneWire: GPIO15; keep GPIO19/20 free for USB. The GPIO preset sets RX/TX and status LEDs; check sensors and Ethernet separately. Restart after GPIO changes."},
   equipment_values: { de: "Betriebswerte", en: "Operating values" },
   equipment_timer: { de: "Timer", en: "Timers" },
   equipment_diagnosis: { de: "Diagnose", en: "Diagnostics" },
@@ -53,7 +54,6 @@ const user_translations = {
   help_controls: {"de": "Betriebsart, Temperaturen und weitere Parameter direkt auf der jeweiligen Anlagenseite unter Einstellungen ändern. Die Konfigurationsanzeige wird nach Bestätigung des Schreibbefehls aktualisiert. Erklärungen erscheinen beim Überfahren der Einstellung oder beim Antippen ihrer Beschriftung. Der Ölzähler wird in den Geräteeinstellungen gesetzt.", "en": "Change operating mode, temperatures and other parameters under Settings on each equipment page. Configuration values update after the write command is acknowledged. Hover over a setting or tap its label for an explanation. Set the oil meter in the device settings."},
   help_weekly: {"de": "Unter Heizkreis 1/2 einen Zeitbalken zum Bearbeiten antippen oder über Plus eine Heizzeit hinzufügen. Speichern im Dialog überträgt die Änderung direkt an die Logamatic; Abbrechen verwirft die Eingabe. Die Programmauswahl wird dabei nicht geändert.", "en": "On Heating Circuit 1/2, select a time bar to edit or use Plus to add a heating period. Save in the dialog sends the change directly to the Logamatic; Cancel discards the input. The program selection remains unchanged."},
   help_trends: {"de": "Die Trends zeigen die letzten 60 Minuten im Minutenraster. Der Verlauf liegt im RAM des ESP, wird beim Öffnen und nach Wiederverbindung geladen und geht bei einem ESP-Neustart verloren. Schwach gezeichnete Verbindungen über Lücken sind keine zusätzlichen Messwerte.", "en": "Trends show the last 60 minutes at one-minute intervals. History is held in ESP RAM, loaded on page opening and reconnection, and lost after an ESP restart. Faint connections across gaps are not additional measurements."},
-  help_control: {"de": "Zur Bedienung", "en": "Go to Control"},
   help_setup_title: {"de": "Ersteinrichtung und Einstellungen", "en": "Initial setup and settings"},
   help_setup_network: {"de": "Im Setup-Mode mit dem WLAN ESP-Buderus-km271 verbinden und http://192.168.4.1 öffnen. Unter Einstellungen → Netzwerk WLAN oder Ethernet konfigurieren. Nach der Verbindung die im Router vergebene beziehungsweise selbst eingestellte Adresse verwenden.", "en": "In Setup Mode, connect to Wi-Fi ESP-Buderus-km271 and open http://192.168.4.1. Configure Wi-Fi or Ethernet under Settings → Network. Once connected, use the address assigned by the router or configured on the device."},
   help_wifi: {"de": "Die WLAN-Suche übernimmt die SSID; versteckte WLAN-Namen bleiben manuell eingebbar. Eine BSSID ist optional und legt einen bestimmten Access Point fest. Leer lassen für die automatische Auswahl. Eine feste IP muss frei und im Router reserviert oder vom DHCP-Vergabebereich ausgeschlossen sein.", "en": "Wi-Fi search fills in the SSID; hidden network names can still be entered manually. An optional BSSID selects a specific access point. Leave it empty for automatic selection. A static IP must be unused and reserved in the router or excluded from its DHCP range."},
@@ -186,11 +186,9 @@ const user_translations = {
   info_log_order: { de: "Reihenfolge", en: "Order" },
   info_solar_status: { de: "Status 9147", en: "Status 9147" },
 
-  control_help: { de: "Hilfe", en: "Help" },
   control_summer_threshold: { de: "Sommergrenze", en: "Summer threshold" },
   control_frost_threshold: { de: "Frostschutz", en: "Frost protection" },
   control_design_temp: { de: "Auslegungstemperatur", en: "Design temperature" },
-  control_help_hc_mode: { de: "Nacht und Tag wählen dauerhaft den jeweiligen Betrieb. Auto wechselt anhand des an der Logamatic gewählten Heizprogramms zwischen Tag- und Nachtbetrieb.", en: "Night and Day select the respective operating mode continuously. Auto switches between day and night operation according to the heating program selected on the Logamatic." },
   control_help_program: { de: "Wählt das Zeitprogramm der Logamatic für den Automatikbetrieb. „Eigen“ verwendet das individuelle Programm der Regelung; die übrigen Einträge sind deren vordefinierte Programme. Die Schaltzeiten werden hier nicht bearbeitet.", en: "Selects the Logamatic schedule for automatic operation. Custom uses the controller’s individual program; the other entries are its predefined programs. Switching times are not edited here." },
   control_help_holiday_days: { de: "Dauer des Urlaubsbetriebs: 0–99 Tage. Die Logamatic verringert den Wert täglich um einen Tag. 0 bedeutet keinen laufenden Urlaubszeitraum. Die zugehörige Temperatur wird separat eingestellt.", en: "Holiday operation duration: 0–99 days. The Logamatic decreases the value by one each day. 0 means no active holiday period. Its temperature is set separately." },
   control_help_reduction: { de: "Bestimmt die Betriebsweise während der Absenkzeiten: Abschalt, Reduziert, Raumhalt oder Aussenhalt. Raumhalt berücksichtigt die Raumtemperatur, Aussenhalt die Außentemperatur. Die tatsächliche Wirkung hängt von der Ausstattung und Konfiguration der Logamatic ab.", en: "Selects operation during setback periods: Off, Reduced, Room hold or Outdoor hold. Room hold uses room temperature; Outdoor hold uses outdoor temperature. Actual behavior depends on the Logamatic equipment and configuration." },
@@ -202,12 +200,10 @@ const user_translations = {
   control_help_design: { de: "Auslegungstemperatur der Heizkennlinie: 30–90 °C in Schritten von 1 °C. Sie beschreibt die Auslegung des Vorlaufs und ist keine Raum-Solltemperatur.", en: "Heating curve design temperature: 30–90 °C in 1 °C steps. It describes the flow temperature design point, not a room temperature setpoint." },
   control_help_switch_on: { de: "Aufschalttemperatur des Heizkreises: 0–10 °C in Schritten von 1 °C. Dieser Parameter wird direkt an die Logamatic übertragen; seine genaue Wirkung richtet sich nach der verwendeten Regelung und deren Konfiguration.", en: "Heating-circuit switch-on temperature: 0–10 °C in 1 °C steps. This parameter is sent directly to the Logamatic; its exact effect depends on the controller and its configuration." },
   control_help_switch_off: { de: "Außentemperaturschwelle für die Absenkungsart Aussenhalt: −20 bis +10 °C in Schritten von 1 °C. Der Wert gehört zur außentemperaturabhängigen Absenkung.", en: "Outdoor temperature threshold for Outdoor hold reduction: −20 to +10 °C in 1 °C steps. This value belongs to outdoor-temperature-dependent setback operation." },
-  control_help_ww_mode: { de: "Wählt Nacht-, Tag- oder Automatikbetrieb der Warmwasserbereitung. Auto nutzt die zeitabhängige Freigabe der Logamatic. Die genaue Freigabe ist von deren Konfiguration abhängig.", en: "Selects night, day or automatic operation for hot water. Auto uses the Logamatic’s timed enable. The exact enable behavior depends on its configuration." },
   control_help_ww_temp: { de: "Solltemperatur für das Warmwasser: 30–60 °C in Schritten von 1 °C. Die aktuelle Speichertemperatur wird separat im Dashboard angezeigt.", en: "Hot-water setpoint: 30–60 °C in 1 °C steps. The current cylinder temperature is displayed separately on the dashboard." },
   control_help_circulation: { de: "Ansteuerung der Warmwasser-Zirkulationspumpe. 0 = AUS; 1–6 = Anzahl der Zyklen pro Stunde; 7 = EIN. Die Zahlen 1–6 sind keine Temperaturwerte.", en: "Hot-water circulation pump control. 0 = OFF; 1–6 = cycles per hour; 7 = ON. Values 1–6 are not temperatures." },
   control_help_oil_feedback: { de: "„Setzen“ überträgt den eingegebenen Zählerstand. Der Istwert daneben zeigt den vom ESP bestätigten Stand in Litern; er wird erst mit dessen Rückmeldung aktualisiert.", en: "Set sends the entered meter reading. The actual value beside it shows the reading confirmed by the ESP in liters and updates only after its response." },
 
-  control_subtitle: { de: "Betriebsarten und Temperaturen", en: "Operating modes and temperatures" },
   control_oilmeter_set: { de: "Zählerstand setzen", en: "Set meter reading" },
   summer: { de: "Sommer", en: "Summer" },
   winter: { de: "Winter", en: "Winter" },
@@ -340,10 +336,6 @@ const user_translations = {
   wifi_ap_ssid_changed: {
     de: "Der WLAN-Name wurde geändert. Bitte den Dialog schließen und erneut suchen.",
     en: "The Wi-Fi name has changed. Close this dialog and scan again.",
-  },
-  control: {
-    de: "Bedienung",
-    en: "Control",
   },
   dashboard: {
     de: "Dashboard",
@@ -629,10 +621,6 @@ const user_translations = {
     de: "Berechnungskorrekturwert für virtuellen Verbrauch",
     en: "Calculation Correction Value for Virtual Consumption",
   },
-  oil_unit_info_set: {
-    de: "Die Eingabe erfolgt als Ganzzahl in 100stel Liter\n(12345 = 123,45 Liter)",
-    en: "The input is a whole number in 100th of a liter\n(12345 = 123.45 liters)",
-  },
   temp_out: {
     de: "Au\u00dfentemperatur",
     en: "Temperature outdoor",
@@ -705,10 +693,6 @@ const user_translations = {
     de: "Tagtemperatur",
     en: "day temp",
   },
-  operation_mode: {
-    de: "Betriebsart",
-    en: "operation mode",
-  },
   holiday_temp: {
     de: "Urlaubtemperatur",
     en: "holiday temp",
@@ -734,8 +718,8 @@ const user_translations = {
     en: "heating system",
   },
   temp_offset: {
-    de: "Temperatur_Offset",
-    en: "temp offset",
+    de: "Raumtemperaturabgleich",
+    en: "Room temperature adjustment",
   },
   remotecontrol: {
     de: "Fernbedienung",
@@ -745,6 +729,14 @@ const user_translations = {
     de: "Urlaubstage",
     en: "Holiday days",
   },
+  heating_radiator: { de: "Heizkörper", en: "Radiators" },
+  heating_underfloor: { de: "Fußbodenheizung", en: "Underfloor heating" },
+  ww_processing_enabled: { de: "Warmwasserbereitung aktiv", en: "Hot water heating enabled" },
+  control_help_max_temp: { de: "Begrenzt die Vorlauftemperatur dieses Heizkreises. Bei Fußbodenheizung sind höchstens 60 °C einstellbar. Die zulässige Temperatur der Anlage beachten.", en: "Limits this heating circuit’s flow temperature. Underfloor heating allows settings up to 60 °C. Observe the temperature limit of the installation." },
+  control_help_temp_offset: { de: "Verschiebt die Heizkennlinie parallel, um die Raumtemperatur abzugleichen. Bereich −5 bis +5 °C.", en: "Shifts the heating curve in parallel to adjust the room temperature. Range −5 to +5 °C." },
+  control_help_heating_system: { de: "Anlagenkonfiguration des Heizkreises: Aus deaktiviert den Heizkreis. Nur das tatsächlich angeschlossene Heizsystem auswählen.", en: "Heating circuit configuration: Off disables the circuit. Select the heating system that is actually connected." },
+  control_help_ww_processing: { de: "Aktiviert oder deaktiviert die Warmwasserbereitung grundsätzlich. Bei Aus wird der Speicher nicht durch die normale Warmwasserregelung nachgeladen.", en: "Enables or disables hot water heating at system level. When off, normal hot water control does not reheat the cylinder." },
+  control_help_ww_priority: { de: "Warmwasservorrang für Heizkreis 2: Während der Speicherladung wird dessen Heizbetrieb nachrangig behandelt. Das ist keine zusätzliche Warmwasser-Betriebsart.", en: "Hot water priority for heating circuit 2: cylinder heating takes priority over this circuit’s space heating. This is separate from the hot water operating mode." },
   time_offset: {
     de: "Gangkorrektur der Uhr",
     en: "Clock correction",

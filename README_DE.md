@@ -59,6 +59,7 @@ Die WebUI ist responsiv und bietet auch ein mobiles Layout.
 <img style="display: inline;
   margin-left: auto;
   width: 200px;" src="./Doc/webui_mobile_3.png">
+<br>
 (Mobile Version)
 
 Um sich einen ersten Eindruck von den Funktionen und der WebUI zu verschaffen, steht auch eine eingeschränkte Demo zur Verfügung.
@@ -71,42 +72,39 @@ Diese kann über den folgenden Link aufgerufen werden: [WebUI-DEMO](https://dewe
 - [Überblick](#überblick)
   - [Optionale Ölverbrauchserfassung](#optionale-ölverbrauchserfassung)
 - [Hardware](#hardware)
-  - [Option 1 - Board von the78mole](#option-1---board-von-the78mole)
-  - [Option 2 - ESP32 mit original Buderus KM271](#option-2---esp32-mit-original-buderus-km271)
-  - [Optional: Ethernet Modul W5500](#optional-ethernet-modul-w5500)
-  - [Optional: Solarmodul FM244](#optional-solarmodul-fm244)
-  - [Optional: Hardware Ölzähler](#optional-hardware-ölzähler)
-  - [Optional: OneWire Sensor](#optional-onewire-sensor)
-  - [Optional: Abgas Sensor](#optional-abgas-sensor)
-- [Erste Schritte](#erste-schritte)
+- [Inbetriebnahme](#inbetriebnahme)
   - [PlatformIO](#platformio)
   - [Fertige Firmware](#fertige-firmware)
-  - [OTA-Updates](#ota-updates)
   - [Setup Mode](#setup-mode)
   - [Konfiguration](#konfiguration)
-  - [Zugänge und Passwörter](#zugänge-und-passwörter)
-  - [Konfiguration sichern und wiederherstellen](#konfiguration-sichern-und-wiederherstellen)
-- [WebUI](#webui)
+- [WebUI bedienen](#webui-bedienen)
   - [Dashboard](#dashboard)
-  - [Bedienung](#bedienung)
-  - [Heizkreise, Warmwasser, Solar und Brenner](#heizkreise-warmwasser-solar-und-brenner)
-  - [Logbuch](#logbuch)
-  - [System](#system)
+  - [Anlagenseiten](#anlagenseiten)
+    - [Heizkreise](#heizkreise)
+      - [Wochenprogramm](#wochenprogramm)
+    - [Warmwasser](#warmwasser)
+    - [Solar](#solar)
+    - [Brenner](#brenner)
+    - [Allgemein](#allgemein)
   - [Alarme](#alarme)
+  - [System](#system)
+  - [Logbuch](#logbuch)
   - [Tools](#tools)
   - [Einstellungen](#einstellungen)
+    - [Ölzählerstand korrigieren](#ölzählerstand-korrigieren)
   - [Hilfe](#hilfe)
-- [MQTT](#mqtt)
-  - [Empfangene Werte](#empfangene-werte)
-  - [Kommandos](#kommandos)
-  - [Home Assistant](#home-assistant)
-- [Optionale Kommunikation](#optionale-kommunikation)
-  - [Pushover](#pushover)
+- [Updates, Sicherung und Diagnose](#updates-sicherung-und-diagnose)
+  - [OTA-Updates](#ota-updates)
+  - [Konfiguration sichern und wiederherstellen](#konfiguration-sichern-und-wiederherstellen)
+  - [Zugänge und Passwörter](#zugänge-und-passwörter)
   - [Telnet](#telnet)
-- [Optionale Komponenten](#optionale-komponenten)
-  - [node-red](#node-red)
-  - [grafana](#grafana)
-- [FAQ](#faq)
+  - [Absturzdiagnose](#absturzdiagnose)
+- [Integrationen](#integrationen)
+  - [MQTT](#mqtt)
+  - [Home Assistant](#home-assistant)
+  - [Pushover](#pushover)
+  - [Node-RED und Grafana](#node-red-und-grafana)
+- [Fehlersuche und Support](#fehlersuche-und-support)
   - [Keine Verbindung zur Logamatic / keine Heizungswerte](#keine-verbindung-zur-logamatic--keine-heizungswerte)
   - [Netzwerk- oder MQTT-Verbindung bricht ab](#netzwerk--oder-mqtt-verbindung-bricht-ab)
   - [Ölzähler verändert sich unerwartet](#ölzähler-verändert-sich-unerwartet)
@@ -131,141 +129,26 @@ Alternativ schätzt der virtuelle Ölzähler den Verbrauch anhand der Brennerlau
 
 # Hardware
 
-## Option 1 - Board von the78mole
+Wähle die Schnittstelle passend zu deiner Logamatic. Die [Hardware-Anleitung](Doc/hardware_DE.md) enthält Verdrahtungs-, Pin- und Bauteilangaben.
 
-Eine Möglichkeit ist das integrierte KM271-WiFi-Interface von Daniel Glaser. Vielen Dank für seine Arbeit an dieser Hardware!
-Weitere Informationen findest du hier: <https://github.com/the78mole/km271-wifi>
-Bestellen kann man es hier: <https://www.tindie.com/products/24664/>
+| Option | Kurzbeschreibung | Details |
+| --- | --- | --- |
+| Integriertes KM271-WiFi-Board | Ältere Revisionen verwenden den klassischen ESP32; v2.0 den ESP32-S3 mit passender Firmware. | [KM271-WiFi](Doc/hardware_DE.md#option-1---board-von-the78mole) |
+| Originales KM271 mit ESP32 | Anschluss des Originalmoduls über einen geeigneten RS232/TTL-Wandler. | [Originales KM271](Doc/hardware_DE.md#option-2---esp32-mit-original-buderus-km271) |
 
-In diesem Fall brauchst du nur dieses DIY-Interface und nichts weiter.
-Es beinhaltet den RS232/TTL Adapter und auch einen ESP32.
-
-![KM217_mod](/Doc/KM271-WiFi.png)
-
-
-## Option 2 - ESP32 mit original Buderus KM271
-
-Das originale KM271-Modul besitzt eine RS232-Schnittstelle. Ein geeigneter RS232/TTL-Wandler (MAX3232) verbindet sie mit dem ESP.
-
-Die Pfeile zeigen die Signalrichtung. Wandler-Beschriftungen und RS232-Pinbelegungen sind modulabhängig; passende TX-/RX-Namen allein garantieren keine richtige Verbindung. Ob ein gerades oder ein Nullmodemkabel erforderlich ist, muss anhand der tatsächlichen Pinbelegung geprüft werden.
-
-```text
-(ESP32) TX-Ausgang -> TTL-Eingang des Wandlers -> RS232-Ausgang -> KM271-Empfang
-(ESP32) RX-Eingang <- TTL-Ausgang des Wandlers <- RS232-Eingang <- KM271-Senden
-(ESP32) GND <-> Wandler-GND <-> RS232-Signalmasse
-```
-
-![Original KM271](Doc/esp32_with_km271.jpeg)
-
-## Optional: Ethernet Modul W5500
-
-### Option 1 - einzelnes W5500 Modul
-
-Es ist auch möglich, ein W5500 Ethernet Modul an das Board oder einen generischen ESP32 anzuschließen. Bei den KM271-Boards von Daniel kann das W5500 an dem J7-Anschluss des Boards angeschlossen werden.
-
-> [!IMPORTANT]
-> Das Anschlusskabel sollte so kurz wie möglich sein (ca. 10 cm).
-
-Board >= 0.0.6
-
-| Signal | GPIO          | Pin (J7) |
-|--------|---------------|----------|
-| VCC    |               | J7.2     |
-| GND    |               | J7.10    |
-| CLK    |  18           | J7.9     |
-| MOSI   |  23           | J7.7     |
-| MISO   |  19           | J7.5     |
-| CS     |  15           | J7.3     |
-| INT    |  14           | J7.8     |
-| RST    |  13           | J7.6     |
-
-
-Beispiel für einen generischen ESP32-Mini (bei Überschneidung mit seriellen RX-/TX-GPIOs oder anderen Komponenten andere freie Pins wählen)
-
-| Signal| GPIO |
-|-------|------|
-| CLK   | 18   |
-| MOSI  | 23   |
-| MISO  | 19   |
-| CS    | 5    |
-| INT   | 16   |
-| RST   | 17   |
-
-![W5500](/Doc/w5500.png)
-
-### Option 2 - Board von the78mole
-
-Eine passende Ethernet-Erweiterung für das KM271-WiFi-Board ist hier dokumentiert:
-
-https://www.tindie.com/products/the78mole/km271-wifi-ethernet-extension
-
-![W5500-Extention](/Doc/w5500_extention.png)
-
-## Optional: Solarmodul FM244
-
-Für die Solarwerte ist das **Buderus-Solarmodul FM244** erforderlich. Es belegt normalerweise denselben Steckplatz wie das KM271 beziehungsweise das KM271-WiFi-Interface. Für den gleichzeitigen Betrieb ist deshalb eine geeignete Adapter-/Erweiterungslösung erforderlich; die beiden Module können nicht einfach denselben Steckplatz belegen.
-
-Die Solarwerte stammen vom FM244 über die Logamatic. Das Aktivieren von Solar in der WebUI allein stellt diese Werte nicht bereit. Hinweise zum gemeinsamen Betrieb und zur Solar-Unterstützung stehen in [Issue #64](https://github.com/dewenni/ESP_Buderus_KM271/issues/64).
-
-## Optional: Hardware Ölzähler
-
-Die Software ist auch für den Anschluss eines Ölzählers vorbereitet. Ein bekannter Hersteller von Ölzählern ist Braun mit den Modellen HZ-5 oder HZ6.
-Diese sind bereits mit einem potentialfreien Kontakt erhältlich.
-Ich habe einen ohne potentialfreien Kontakt verwendet und nachträglich einen Reedkontakt angebracht. Das war auch sehr einfach und funktioniert sehr zuverlässig.
-
-![braun_hz5](/Doc/oilmeter.jpeg)
-
-> [!NOTE]
-> Dies ist jedoch nur optional und kann zusätzlich zu den Informationen, die die Software aus der Logamatic liest, verwendet werden.
-
-
-Impulse pro Liter und Entprellzeit werden unter Gerät → Ölzähler eingestellt. Der Eingang benötigt ein geeignetes externes Signal beziehungsweise einen Pull-up. Reine Eingangs-GPIOs wie GPIO35 besitzen keinen internen Pull-up. Die GPIO-Pegel müssen bei maximal 3,3 V bleiben.
-
-## Optional: OneWire Sensor
-
-Es können auch zusätzliche OneWire-Sensoren (z. B. DS18B20) konfiguriert werden. In der Konfiguration kann man einen oder zwei Sensoren einrichten.
-Der Sensorwert wird auf dem Dashboard angezeigt und wird auch von mqtt mit dem Topic `sensor` und dem Namen, den man konfigurieren kann, gesendet.
-Abhängig von der verwendeten Hardware muss eventuell ein zusätzlicher Widerstand installiert werden. Klassischerweise werden die OneWire-Sensoren mit einem Widerstand von 4,7kOhm zwischen VCC und dem Sensorkabel angeschlossen und mit 3,3 V betrieben.
-In der Konfiguration wird nur der GPIO angegeben, an dem das Sensorkabel angeschlossen ist. Der Rest ist eine hardwareabhängige Verdrahtung.
-
-
-> [!NOTE]
-> Der Sensor muss beim Start des ESP angeschlossen sein, sonst wird er nicht gefunden. Änderungen an der Verkabelung oder den GPIO-Einstellungen erfordern einen Neustart.
-
-
-<img src="Doc/opt_sensor_dash.png" alt="opt-sensor-dash1" width="75%">
-
-(Dashboard Elemente)
-
-<img src="Doc/opt_sensor_cfg.png" alt="opt-sensor-config" width="75%">
-
-(Einstellungen)
-
-> [!NOTE]
-> Dies ist jedoch nur optional und kann zusätzlich zu den Informationen, die die Software aus der Logamatic liest, verwendet werden.
-
-## Optional: Abgas Sensor
-
-Es ist auch möglich, einen optionalen Abgassensor (NTC 100K) an den Anschluss J5 der Platine anzuschließen. In einigen Fällen müssen einige fehlende Komponenten auf der Platine ergänzt werden.
-
-
-| Komponente | Wert        |
-|-----------|--------------|
-| D5        | BZX84C5V1    |
-| R17       | 3.3K         |
-| R11       | 100K         |
-| C11       | 100nF        |
-| C12       | 33nF         |
-| R35       | 0            |
-| R39       | 0            |
-
-Es besteht keine Notwendigkeit, den Sensor in der Software zu konfigurieren. Die Logamatic selbst erkennt den Sensor automatisch und sendet den Wert wie die anderen Werte.
-
-![exhaust-sens](/Doc/exhaust_sens.png)
+| Erweiterung | Nutzen | Details |
+| --- | --- | --- |
+| W5500-Ethernet | Kabelgebundene Netzwerkverbindung. | [W5500](Doc/hardware_DE.md#optional-ethernet-modul-w5500) |
+| Solarmodul FM244 | Solarwerte; gemeinsamer Betrieb mit dem KM271 benötigt einen geeigneten Steckplatzadapter. | [FM244](Doc/hardware_DE.md#optional-solarmodul-fm244) |
+| Hardware-Ölzähler | Impulsbasierte Erfassung des Ölverbrauchs. | [Ölzähler](Doc/hardware_DE.md#optional-hardware-ölzähler) |
+| DS18B20-Sensoren | Bis zu zwei OneWire-Temperatursensoren. | [OneWire](Doc/hardware_DE.md#optional-onewire-sensor) |
+| Abgassensor | NTC100K-Messwerte, abhängig von der Platine. | [Abgassensor](Doc/hardware_DE.md#optional-abgas-sensor) |
 
 -----
 
-# Erste Schritte
+<a id="erste-schritte"></a>
+
+# Inbetriebnahme
 
 Installiere die Firmware, richte das Netzwerk ein und wähle das passende Hardware-Preset, bevor du Heizungsparameter veränderst. MQTT und zusätzliche Sensoren sind optional; die WebUI funktioniert auch eigenständig.
 
@@ -273,29 +156,16 @@ Installiere die Firmware, richte das Netzwerk ein und wähle das passende Hardwa
 
 Klone das Repository und öffne es in Visual Studio Code mit PlatformIO. Wähle in `platformio.ini` die passende Umgebung und den USB-Upload-Port, baue das Projekt und lade es auf den ESP. Die Build-Skripte benötigen Python und erzeugen sowie komprimieren auch die WebUI-Dateien.
 
+Lokaler Build: `pio run -e esp32s3` (klassischer ESP32: `pio run -e esp32`). PSRAM wird nicht benötigt. Beide Builds verwenden die bestehende OTA-Partitionierung `min_spiffs.csv`; der zusätzliche Flash-Speicher wird zunächst nicht ausgenutzt.
+
 ## Fertige Firmware
 
 Fertige Binaries stehen unter [Releases](https://github.com/dewenni/ESP_Buderus_KM271/releases) bereit.
 
-- **Erstinstallation per USB:** `buderus_km271_esp32_flash_vx.x.x.bin` verwenden. Dieses zusammengeführte Image enthält Bootloader, Partitionstabelle und Anwendung und wird mit einem geeigneten ESP-Flashtool an Adresse **0x00** geschrieben.
-- **Update einer bestehenden Installation:** `buderus_km271_ota_update_vx.x.x.bin` über die WebUI installieren.
+- **Erstinstallation per USB:** `buderus_km271_esp32_flash_vx.x.x.bin` für ESP32 bzw. `buderus_km271_esp32s3_flash_vx.x.x.bin` für Board v2.0 verwenden. Dieses zusammengeführte Image enthält Bootloader, Partitionstabelle und Anwendung und wird mit einem geeigneten ESP-Flashtool an Adresse **0x00** geschrieben.
+- **Update einer bestehenden Installation:** `buderus_km271_ota_update_vx.x.x.bin` für ESP32 bzw. `buderus_km271_esp32s3_update_vx.x.x.bin` für Board v2.0 über die WebUI installieren.
 
 Verwende das für dein Board vorgesehene Image. Exportiere vor einem Update die vorhandene Konfiguration.
-
-## OTA-Updates
-
-Die Karte **Tools → Firmware-Update** trennt zwei Wege:
-
-- **Lokale Datei:** OTA-Datei mit Endung `.bin` auf dem Computer auswählen und anschließend **Datei installieren** anklicken. Die Dateiauswahl allein startet kein Update.
-- **Von GitHub:** **GitHub-Version prüfen** anklicken, installierte und verfügbare Version vergleichen und die Installation ausdrücklich starten. Der ESP lädt das Release selbst herunter; dafür benötigt er Internetzugang.
-
-Die Versionsnummer in der Navigation führt zum Update-Bereich auf der Tools-Seite. Fortschritt und Ergebnis erscheinen dort. Warte den Abschluss und den anschließenden Neustart ab.
-
-<img src="Doc/weubui_ota_local.gif" alt="WebUI" width="750">
-
-<img src="Doc/weubui_ota_github.gif" alt="WebUI" width="750">
-
-Remote ArduinoOTA ist zusätzlich über PlatformIO möglich. Geräteadresse und OTA-Authentifizierung werden in `platformio.ini` eingetragen. Dafür gilt das **Service-Passwort**, nicht die optionale WebUI-Anmeldung.
 
 ## Setup Mode
 
@@ -317,7 +187,7 @@ Die Einstellungen sind in fünf Kategorien gegliedert:
 | Netzwerk | WLAN, SSID-Suche, optionale feste BSSID, W5500-Ethernet, IP-Konfiguration |
 | Integrationen | MQTT, Home-Assistant-Discovery, Pushover |
 | Gerät | Logamatic-Komponenten, Ölzähler, zusätzliche Sensoren, GPIO-Zuordnung und Board-Presets |
-| Zugriff & Wartung | Optionale WebUI-Anmeldung, Service-Passwort, Telnet-Freigabe, Simulation |
+| Zugriff & Wartung | Optionale WebUI-Anmeldung, Service-Passwort, Telnet-Freigabe, Absturzdiagnose, Simulation |
 
 Änderungen werden automatisch gespeichert. Starte neu, wenn eine Hardware- oder Netzwerkeinstellung dies erfordert. Aktiviere nur die tatsächlich vorhandenen Logamatic-Komponenten; davon hängen die sichtbaren Seiten und Dashboard-Elemente ab.
 
@@ -327,34 +197,15 @@ Reserviere eine feste IP für die MAC-Adresse der richtigen Schnittstelle oder w
 
 Die MQTT-Sprache wird unabhängig von der WebUI-Sprache eingestellt. Eine Änderung kann Topic-Namen und Text-Payloads verändern. Prüfe deshalb vorher bestehende Automationen.
 
-<img src="Doc/weubui_setting.png" alt="WebUI" width="750">
+Der **WLAN-Energiesparmodus** reduziert den Stromverbrauch und ist standardmäßig aktiv. Bei Verbindungsproblemen kann er testweise abgeschaltet werden; die Änderung gilt ab der nächsten WLAN-Verbindung oder nach einem Neustart.
 
-## Zugänge und Passwörter
+Bei W5500-Anbindungen mit bestücktem PCA9306 unter **Netzwerk → Ethernet → Level-Shifter aktivieren** den zur Platine passenden GPIO EN konfigurieren. Die Option gibt beim Ethernet-Start den Reset-Signalweg frei und wird nach einem Neustart wirksam. Ohne diesen Pegelwandler bleibt sie aus; die Ethernet-Hilfe erklärt die Verdrahtung.
 
-| Zugang | Authentifizierung |
-| --- | --- |
-| Normale WebUI einschließlich Firmware- und Konfigurationstools | Optionaler Benutzername und Passwort unter WebUI-Authentifizierung; abschaltbar |
-| WebUI im Setup-Mode | Feste Wiederherstellungs-Anmeldung: `admin` / `km271-2026!`, unabhängig von der Konfiguration |
-| Telnet | Muss ausdrücklich aktiviert werden; verwendet das Service-Passwort |
-| Remote ArduinoOTA | Verwendet das Service-Passwort |
+<a id="webui"></a>
 
-Im normalen Betrieb benötigen Telnet und Remote ArduinoOTA ein nicht leeres Service-Passwort. Im Setup-Mode gilt für Service-Zugänge das Wiederherstellungs-Passwort. Das Service-Passwort ist vom normalen WebUI-Passwort getrennt; das Web-Update hat kein zusätzliches eigenes Passwort.
-
-## Konfiguration sichern und wiederherstellen
-
-Unter **Tools → Konfiguration** lässt sich `config.json` anzeigen, exportieren und importieren. Der Name der ausgewählten Importdatei ist beliebig; übernommen wird sie immer als `config.json`. Vor dem Ersetzen wird gültiges JSON mit dem projektspezifischen Abschnitt geprüft. Nach erfolgreichem Import oder Wiederherstellen startet das Gerät automatisch neu.
-
-**Backup auf dem Gerät** kopiert die bereits gespeicherte Konfiguration nach `config_backup.json`. Das Wiederherstellen ersetzt die aktuelle Konfiguration; das Backup bleibt erhalten. Beide Dateien zeigen ihren letzten Speicherzeitpunkt, bei fehlender gültiger Gerätezeit „Zeitpunkt unbekannt“. Schreib- oder Platzfehler lassen die bisherige Zieldatei bestehen.
-
-Mit **Backup exportieren** lässt sich der gesicherte Stand direkt als `config_backup.json` herunterladen, ohne ihn vorher wiederherzustellen.
-
-Das lokale Backup liegt auf demselben Flash und ersetzt keinen Export auf den Computer. Es enthält Zugangsdaten und sichert ausschließlich die Konfiguration, keine separat gespeicherten Zähler oder Verlaufsdaten. Exportierte Dateien vertraulich behandeln und nicht unbereinigt veröffentlichen.
-
-# WebUI
+# WebUI bedienen
 
 Die WebUI funktioniert am Desktop und auf Mobilgeräten. Bei schmalen Ansichten wechselt die Navigation in ein Dropdown. Optionale Komponenten erscheinen nur, wenn sie aktiviert sind. Die Verbindungsanzeige im Header zeigt die **WebSocket-Verbindung des Browsers zum ESP**, nicht die Verbindung zur Logamatic oder zum MQTT-Broker.
-
-<img src="Doc/weubui_dash.png" alt="WebUI" width="750">
 
 ## Dashboard
 
@@ -376,47 +227,59 @@ Beim Überfahren des Charts mit der Maus lassen sich Werte ablesen. Dünne, blas
 
 <img src="Doc/weubui_traces.png" alt="WebUI" width="750">
 
-## Bedienung
+<a id="heizkreise-warmwasser-solar-und-brenner"></a>
 
-Je Kategorie gibt es eine gemeinsame Karte: HK1, optional HK2, Warmwasser und optional Ölzähler. Hier lassen sich Betriebsart, Heizprogramm, Temperaturen und weitere unterstützte Parameter setzen. Hilfe-Symbole erklären die Werte und besondere Slider-Stellungen. Alle Controls bleiben sichtbar; Parameter sind nicht in zusätzlichen Untermenüs versteckt.
+## Anlagenseiten
 
-Am Ölzähler-Control wird ein Zählerstand gesetzt und der aktuelle Istwert als Rückmeldung angezeigt. Die Eingabe erfolgt in **Hundertsteln Liter**: **123,45 L → `12345`**. Damit wird der Zählerstand korrigiert, nicht eine Verbrauchsmenge hinzugefügt.
-
-<img src="Doc/weubui_control.png" alt="WebUI" width="750">
-
-## Heizkreise, Warmwasser, Solar und Brenner
-
-Die Informationsseiten trennen Konfiguration, aktuelle Werte und Betriebszustände. HK2 und Solar erscheinen bei entsprechender Aktivierung. Die Seiten helfen, das Verhalten der Regelung zu verstehen; die verfügbaren Schreibfunktionen befinden sich unter Bedienung.
+Die Informationsseiten trennen Konfiguration, aktuelle Werte und Betriebszustände. HK2 und Solar erscheinen bei entsprechender Aktivierung. Die Seiten helfen, das Verhalten der Regelung zu verstehen; die Bedienelemente befinden sich auf den jeweiligen Anlagenseiten.
 
 ### Heizkreise
 
-Die Heizkreisseite fasst eingestellte Parameter, aktuelle Vorlauftemperaturen und Betriebszustände zusammen. Bei aktiviertem HK2 ist dessen Seite entsprechend aufgebaut.
+HK1 und HK2 besitzen die Tabs **Einstellungen, Timer, Betriebswerte und Diagnose**. Unter Einstellungen lassen sich unter anderem Betriebsart, Programm, Urlaubstage, Temperaturen, Heizsystem und Absenkungsart ändern. Betriebswerte zeigen die gemeldeten Temperaturen, Heizkennlinie und weitere Regelungsdaten; Diagnose zeigt Betriebs- und Fehlerzustände. Erläuterungen zu Einstellungen erscheinen bei Mauszeiger, Tastaturfokus oder Antippen der Beschriftung.
 
 <img src="Doc/weubui_hc1.png" alt="Heizkreis 1: Konfiguration, aktuelle Werte und Betriebszustände" width="750">
 
-### Wochenprogramm
+#### Wochenprogramm
 
-Der Wochenplan eines Heizkreises zeigt immer die Schaltzeiten des **Eigen-Programms**. Die Statusanzeige nennt das aktuell in der Logamatic ausgewählte Programm; dieses kann davon abweichen. Die Schaltpunktliste lässt sich für Details aufklappen. Ein Programm kann ausgewählt werden; das Bearbeiten einzelner Schaltzeiten des Wochenplans ist nicht implementiert.
+Die Wochenansichten von HK1 und HK2 zeigen das **Eigen-Programm**. Klicke auf einen Heizzeitbalken, um ihn zu bearbeiten oder zu entfernen. Über **+** lassen sich Heizzeiten auch für mehrere Tage hinzufügen. Die Zeiten werden in 10-Minuten-Schritten eingestellt; Zeiträume können über Mitternacht gehen oder um 24:00 enden.
+
+Speichern überträgt die Änderungen an die Regelung; Abbrechen verwirft die lokalen Eingaben. Das aktive Programm lässt sich weiterhin separat auswählen und wird durch die Timerbearbeitung nicht umgeschaltet.
+
+Bearbeiten ist nur bei bestehender Verbindung und vollständig empfangenem, aktuellem Wochenplan möglich. Je Heizkreis stehen 42 Schaltpunkte für höchstens 21 vollständige Heizzeiten zur Verfügung; Überschneidungen und veraltete Eingaben werden abgewiesen. „Gespeichert“ erscheint nach den Transportquittungen aller zugehörigen Telegramme und ist keine unabhängige Rücklesebestätigung. Bei einem Fehler können Teile bereits übernommen worden sein. Nach einem Verbindungsabbruch ist das Ergebnis möglicherweise unbekannt: Vor einem neuen Versuch den aktuellen Gerätestand abwarten und prüfen.
 
 <img src="Doc/weubui_hc_timetable.png" alt="Wochenplan des Eigen-Programms" width="750">
 
+<img src="Doc/weubui_hc_timetable2.png" alt="Heizzeiten bearbeiten" width="750">
+
+### Warmwasser
+
+Warmwasser besitzt die Tabs **Einstellungen, Betriebswerte und Diagnose**. Betriebsart, Warmwasserbereitung, Vorrang für HK2, Solltemperatur und Zirkulation lassen sich unter Einstellungen ändern. Gemeldete Temperaturen sowie Pumpen-, Betriebs- und Fehlerzustände stehen in den anderen Tabs.
+
+<img src="Doc/weubui_hotwater.png" alt="Warmwasser" width="750">
+
 ### Solar
 
-Die Solarseite zeigt die vom FM244 über die Logamatic gemeldete Konfiguration, Temperaturen und Betriebszustände. Voraussetzung sind das installierte **FM244**, eine geeignete Adapterlösung für den gemeinsamen Betrieb mit dem KM271-Interface und die aktivierte Solarkomponente in den Einstellungen. Siehe [Hardware: Solarmodul FM244](#optional-solarmodul-fm244).
+Die Solarseite zeigt die vom FM244 über die Logamatic gemeldete Konfiguration, Temperaturen und Betriebszustände. Voraussetzung sind das installierte **FM244**, eine geeignete Adapterlösung für den gemeinsamen Betrieb mit dem KM271-Interface und die aktivierte Solarkomponente in den Einstellungen. Siehe [Hardware: Solarmodul FM244](Doc/hardware_DE.md#optional-solarmodul-fm244).
+
+Solar verwendet ebenfalls **Einstellungen, Betriebswerte und Diagnose**. Die angezeigte Konfiguration ist hier nur lesbar; Schreibregler für Solar werden nicht angeboten.
 
 <img src="Doc/weubui_solar.png" alt="Solar: Konfiguration, Temperaturen und Betriebszustände" width="750">
 
-## Logbuch
+### Brenner
 
-Wähle **KM271**, um die Logamatic-Kommunikation zu untersuchen, und stelle den passenden Filter ein. Der Schalter Aufzeichnung aktiviert oder deaktiviert die Protokollierung. Aktualisieren lädt den aktuellen Inhalt, Löschen leert das Logbuch.
+Die Brennerseite zeigt Kessel-Soll- und Isttemperatur, Ein-/Ausschalttemperaturen, Ansteuerung, Betriebs- und Fehlerzustände sowie die gemeldete Brennerlaufzeit. Sie dient zur Anzeige; hier werden keine Brennerparameter geschrieben.
 
-<img src="Doc/weubui_logger_km271.png" alt="WebUI" width="750">
+### Allgemein
 
-Unter **SYSTEM** stehen Meldungen zu Start, Netzwerk, MQTT und weiteren Firmware-Funktionen. Das Level wählt die angezeigte Schwere; Debug liefert zur Fehlersuche mehr Details. Beide Logbücher sind begrenzte Diagnosepuffer und keine dauerhaften Archive.
+Diese Seite zeigt allgemeine Logamatic-Daten wie Gebäudeart, Sprache, Displayeinstellung, Grenzen sowie Außen- und Abgastemperaturen. Die Uhrzeitkorrektur wird in Sekunden pro Tag (`s/d`) angezeigt. Diese Empfangswerte sind von den ESP-Einstellungen unter Einstellungen → Allgemein zu unterscheiden.
 
-Unter **Einstellungen → Zugriff & Wartung → Absturzdiagnose** lassen sich gespeicherte Core-Dumps mit dem Service-Passwort anzeigen, herunterladen und ausdrücklich löschen. Downloads erhalten den Bericht auf dem ESP. Die passende Firmware-ELF wird beim Build als Debug-ZIP archiviert. Hinweise zur Auswertung und zu den Grenzen stehen unter [Absturzdiagnose](Doc/Absturzdiagnose.md).
+## Alarme
 
-<img src="Doc/weubui_logger_sys.png" alt="WebUI" width="750">
+Bei aktivierten Alarmmeldungen zeigt die Seite die vier Meldungsspeicherplätze der Logamatic: offene Meldungen ohne Gegangen-Zeit und die Historie mit Gegangen-Zeit. Gekommen- und Gegangen-Zeit erscheinen, soweit verfügbar, mit relativen Tagesangaben wie heute, gestern oder vor n Tagen sowie der Uhrzeit. Aktive offene Meldungen heben den Alarmeintrag in der Desktop- und Mobilnavigation hervor.
+
+„Keine offenen Alarme“ wird erst angezeigt, wenn alle vier Speicherplätze empfangen wurden. Unvollständiger Empfang, deaktivierte Überwachung und Verbindungsverlust werden ausdrücklich markiert. Nach einem Verbindungsverlust zeigen zwischengespeicherte Meldungen nur den zuletzt bekannten Stand. Die Seite zeigt den Meldungsspeicher der Regelung, kein vollständiges Ereignisarchiv. Berücksichtige für die Diagnose auch die Anzeige der Logamatic.
+
+<img src="Doc/weubui_alarm.png" alt="Offene Alarmmeldungen und Historie des Logamatic-Speichers" width="750">
 
 ## System
 
@@ -426,17 +289,23 @@ Zu den Geräteinformationen gehören Firmware-Version, Laufzeit und Neustartgrun
 
 <img src="Doc/weubui_system.png" alt="WebUI" width="750">
 
-## Alarme
+## Logbuch
 
-Bei aktivierten Alarmmeldungen zeigt der Meldungsspeicher die letzten vier Fehlereinträge der Logamatic. Darunter können bereits quittierte Meldungen sein; ein Eintrag bedeutet nicht zwingend einen noch aktiven Fehler. Berücksichtige bei der Diagnose auch die Anzeigen der Heizungsregelung selbst.
+Wähle **KM271**, um die Logamatic-Kommunikation zu untersuchen, und stelle den passenden Filter ein. Der Schalter Aufzeichnung aktiviert oder deaktiviert die Protokollierung. Aktualisieren lädt den aktuellen Inhalt, Löschen leert das Logbuch.
 
-<img src="Doc/weubui_alarm.png" alt="WebUI" width="750">
+<img src="Doc/weubui_logger_km271.png" alt="WebUI" width="750">
+
+Unter **SYSTEM** stehen Meldungen zu Start, Netzwerk, MQTT und weiteren Firmware-Funktionen. Das Level wählt die angezeigte Schwere; Debug liefert zur Fehlersuche mehr Details. Beide Logbücher sind begrenzte Diagnosepuffer und keine dauerhaften Archive.
+
+Gespeicherte Absturzberichte werden separat unter [Absturzdiagnose](#absturzdiagnose) behandelt.
+
+<img src="Doc/weubui_logger_sys.png" alt="WebUI" width="750">
 
 ## Tools
 
-Installiere eine lokale Firmware-Datei oder prüfe und installiere ein GitHub-Release in getrennten Bereichen. Der Konfigurationsimport und -export befindet sich in einer eigenen Karte. Fortschritt und Ergebnis eines Updates erscheinen auf derselben Seite; ein separates Versions-Popup ist nicht nötig.
+Die Tools-Seite enthält [Firmware-Updates](#ota-updates) sowie [Konfiguration sichern und wiederherstellen](#konfiguration-sichern-und-wiederherstellen). Dort kannst du eine lokale Datei installieren, ein GitHub-Release prüfen oder das Geräte-Backup erstellen, wiederherstellen und exportieren.
 
-<img src="Doc/weubui_tools.png" alt="WebUI" width="750">
+<img src="Doc/weubui_tools.png" alt="Firmwareupdates und Konfigurationssicherung" width="750">
 
 ## Einstellungen
 
@@ -444,96 +313,56 @@ Nutze die fünf unter [Konfiguration](#konfiguration) beschriebenen Kategorien. 
 
 <img src="Doc/weubui_setting.png" alt="WebUI" width="750">
 
+### Ölzählerstand korrigieren
+
+Unter **Einstellungen → Gerät → Ölzähler** den Zählerstand eingeben und **Setzen** wählen. Die aktuelle Implementierung erwartet hier wie MQTT eine Ganzzahl in **Hundertsteln Liter**: `12345` setzt 123,45 L. Der Istwert daneben wird dagegen in Litern angezeigt und erst mit der ESP-Rückmeldung aktualisiert. Diese unterschiedlichen Einheiten bei Eingabe und Anzeige beachten. Die Aktion ersetzt den gespeicherten Hardware-Zählerstand; es ist keine zusätzliche Verbrauchsmessung. Siehe auch [MQTT-Referenz](Doc/MQTT_DE.md).
+
 ## Hilfe
 
 Die Offline-Hilfe ist in der ausgewählten WebUI-Sprache auf Deutsch und Englisch verfügbar. Direkteinstiege führen zu Bedienung, Einrichtung und Fehlersuche. Aufklappbare Abschnitte erklären Trends, Board-Presets, RS232-Anschluss, MQTT/Home Assistant und Service-Zugänge. Es ist jeweils nur ein Abschnitt geöffnet. Externe Links zur vollständigen Projektdokumentation benötigen Internetzugang.
 
 <img src="Doc/weubui_help.png" alt="Offline-Hilfe mit Informationen zu Einrichtung, Anschluss und Fehlersuche" width="750">
 
-# MQTT
+# Updates, Sicherung und Diagnose
 
-Die MQTT-Sprache wird unter Integrationen → MQTT unabhängig von der WebUI-Sprache gewählt. Im Folgenden steht `<basis>` für das konfigurierte Basis-Topic, zum Beispiel `esp_heizung`.
+## OTA-Updates
 
-## Empfangene Werte
+Die Karte **Tools → Firmware-Update** trennt zwei Wege:
 
-| Topic | Inhalt |
+- **Lokale Datei:** OTA-Datei mit Endung `.bin` auf dem Computer auswählen und anschließend **Datei installieren** anklicken. Die Dateiauswahl allein startet kein Update.
+- **Von GitHub:** **GitHub-Version prüfen** anklicken, installierte und verfügbare Version vergleichen und die Installation ausdrücklich starten. Der ESP lädt das Release selbst herunter; dafür benötigt er Internetzugang.
+
+Die Versionsnummer in der Navigation führt zum Update-Bereich auf der Tools-Seite. Fortschritt und Ergebnis erscheinen dort. Warte den Abschluss und den anschließenden Neustart ab.
+
+<img src="Doc/weubui_ota_local.gif" alt="WebUI" width="750">
+
+<img src="Doc/weubui_ota_github.gif" alt="WebUI" width="750">
+
+Remote ArduinoOTA ist zusätzlich über PlatformIO möglich. Geräteadresse und OTA-Authentifizierung werden in `platformio.ini` eingetragen. Dafür gilt das **Service-Passwort**, nicht die optionale WebUI-Anmeldung.
+
+Der Release-Workflow baut beide Varianten nacheinander. S3-Dateien heißen `buderus_km271_esp32s3_flash_<Version>.bin`, `buderus_km271_esp32s3_update_<Version>.bin` und `buderus_km271_esp32s3_debug_<Version>.zip`. Die bisherigen ESP32-Dateinamen bleiben erhalten. S3-Updates enthalten bewusst kein `ota` im Dateinamen, damit ältere ESP32-Firmware sie bei der bisherigen Teilstringsuche nicht auswählt. GitHub-OTA wählt den vollständigen Dateinamen passend zu Chip und Release-Tag; fehlt das passende Asset, wird kein Update angeboten. Beim manuellen Upload ebenfalls das OTA-Image für den eigenen Chip wählen. Ein GPIO-Preset ändert den Zielchip einer Firmware nicht.
+
+## Konfiguration sichern und wiederherstellen
+
+Unter **Tools → Konfiguration** lässt sich `config.json` anzeigen, exportieren und importieren. Der Name der ausgewählten Importdatei ist beliebig; übernommen wird sie immer als `config.json`. Vor dem Ersetzen wird gültiges JSON mit dem projektspezifischen Abschnitt geprüft. Nach erfolgreichem Import oder Wiederherstellen startet das Gerät automatisch neu.
+
+**Backup auf dem Gerät** kopiert die bereits gespeicherte Konfiguration nach `config_backup.json`. Das Wiederherstellen ersetzt die aktuelle Konfiguration; das Backup bleibt erhalten. Beide Dateien zeigen ihren letzten Speicherzeitpunkt, bei fehlender gültiger Gerätezeit „Zeitpunkt unbekannt“. Schreib- oder Platzfehler lassen die bisherige Zieldatei bestehen.
+
+Mit **Backup exportieren** lässt sich der gesicherte Stand direkt als `config_backup.json` herunterladen, ohne ihn vorher wiederherzustellen.
+
+Das lokale Backup liegt auf demselben Flash und ersetzt keinen Export auf den Computer. Es enthält Zugangsdaten und sichert ausschließlich die Konfiguration, keine separat gespeicherten Zähler oder Verlaufsdaten. Exportierte Dateien vertraulich behandeln und nicht unbereinigt veröffentlichen.
+
+## Zugänge und Passwörter
+
+| Zugang | Authentifizierung |
 | --- | --- |
-| `<basis>/config/...` | Aus der Logamatic gelesene Konfiguration; Retain für diese Nachrichten ist einstellbar |
-| `<basis>/status/...` | Betriebszustände und Messwerte der Logamatic |
-| `<basis>/sensor/<name>` | Optionaler OneWire-Sensor mit konfiguriertem Namen |
-| `<basis>/oilcounter` | Hardware-Ölzähler als Ganzzahl in Hundertsteln Liter |
-| `<basis>/alarm/...` | Alarmmeldungen bei aktivierter Verarbeitung |
-| `<basis>/wifi`, `<basis>/info`, `<basis>/message` | Netzwerk- und Geräteinformationen sowie Meldungen |
+| Normale WebUI einschließlich Firmware- und Konfigurationstools | Optionaler Benutzername und Passwort unter WebUI-Authentifizierung; abschaltbar |
+| WebUI im Setup-Mode | Feste Wiederherstellungs-Anmeldung: `admin` / `km271-2026!`, unabhängig von der Konfiguration |
+| Telnet | Muss ausdrücklich aktiviert werden; verwendet das Service-Passwort |
+| Remote ArduinoOTA | Verwendet das Service-Passwort |
+| Absturzdiagnose: Details, Download und Löschen | Zusätzliches Service-Passwort; normale WebUI-Anmeldung gilt weiterhin, wenn aktiviert |
 
-Payloads sind je nach Parameter Zahlen, formatierte Werte mit Einheit oder sprachabhängige Texte. Die Parameterübersicht steht in [param.txt](Doc/param.txt); die Topic-Namen sind in [language.h](include/language.h) definiert.
-
-## Kommandos
-
-Gelesene Werte werden nicht auf demselben Topic zurückgeschrieben. Zum Setzen dient `<basis>/setvalue/...`, für Gerätebefehle `<basis>/cmd/...`. Beispiel: `esp_heizung/setvalue/hc1_day_temp` mit Payload `21.5` bei englischer MQTT-Sprache.
-
-Die Tabelle enthält den Suffix **hinter `<basis>/`** und numerische Payloads. Temperaturen mit Nachkommastellen werden mit Dezimalpunkt übertragen. Unterstützte Textalternativen richten sich nach der MQTT-Sprache.
-
-| Parameter | Topic DE | Topic EN | Payload |
-| --- | --- | --- | --- |
-| HK1: Betriebsart | `setvalue/HK1_Betriebsart` | `setvalue/hc1_operation_mode` | 0=Nacht, 1=Tag, 2=AUTO |
-| HK1: Programm | `setvalue/HK1_Programm` | `setvalue/hc1_program` | 0=Eigen, 1=Familie, 2=Früh, 3=Spät, 4=Vormittag, 5=Nachmittag, 6=Mittag, 7=Single, 8=Senior |
-| HK1: Tagtemperatur | `setvalue/HK1_Tagtemperatur` | `setvalue/hc1_day_temp` | 10…30 °C, 0,5-°C-Schritte |
-| HK1: Nachttemperatur | `setvalue/HK1_Nachttemperatur` | `setvalue/hc1_night_temp` | 10…30 °C, 0,5-°C-Schritte |
-| HK1: Urlaubtemperatur | `setvalue/HK1_Urlaubtemperatur` | `setvalue/hc1_holiday_temp` | 10…30 °C, 0,5-°C-Schritte |
-| HK1: Urlaubstage | `setvalue/HK1_Ferien_Tage` | `setvalue/hc1_holiday_days` | 0…99 Tage |
-| HK1: Auslegung | `setvalue/HK1_Auslegung` | `setvalue/hc1_interpretation` | 30…90 °C, 1-°C-Schritte |
-| HK1: Aufschalttemperatur | `setvalue/HK1_Aufschalttemperatur` | `setvalue/hc1_switch_on_temperature` | 0…10 °C, 1-°C-Schritte |
-| HK1: Außenhalt ab | `setvalue/HK1_Aussenhalt_ab` | `setvalue/hc1_switch_off_threshold` | −20…10 °C, 1-°C-Schritte |
-| HK1: Frostschutz | `setvalue/HK1_Frost_ab` | `setvalue/hc1_frost_protection_threshold` | −20…10 °C, 1-°C-Schritte |
-| HK1: Sommer ab | `setvalue/HK1_Sommer_ab` | `setvalue/hc1_summer_mode_threshold` | 9=Sommer, 10…30 °C=Schwelle, 31=Winter |
-| HK1: Absenkungsart | `setvalue/HK1_Absenkungsart` | `setvalue/hc1_reduction_mode` | 0=Abschalt, 1=Reduziert, 2=Raumhalt, 3=Außenhalt |
-| HK2: Betriebsart | `setvalue/HK2_Betriebsart` | `setvalue/hc2_operation_mode` | 0=Nacht, 1=Tag, 2=AUTO |
-| HK2: Programm | `setvalue/HK2_Programm` | `setvalue/hc2_program` | 0=Eigen, 1=Familie, 2=Früh, 3=Spät, 4=Vormittag, 5=Nachmittag, 6=Mittag, 7=Single, 8=Senior |
-| HK2: Tagtemperatur | `setvalue/HK2_Tagtemperatur` | `setvalue/hc2_day_temp` | 10…30 °C, 0,5-°C-Schritte |
-| HK2: Nachttemperatur | `setvalue/HK2_Nachttemperatur` | `setvalue/hc2_night_temp` | 10…30 °C, 0,5-°C-Schritte |
-| HK2: Urlaubtemperatur | `setvalue/HK2_Urlaubtemperatur` | `setvalue/hc2_holiday_temp` | 10…30 °C, 0,5-°C-Schritte |
-| HK2: Urlaubstage | `setvalue/HK2_Ferien_Tage` | `setvalue/hc2_holiday_days` | 0…99 Tage |
-| HK2: Auslegung | `setvalue/HK2_Auslegung` | `setvalue/hc2_interpretation` | 30…90 °C, 1-°C-Schritte |
-| HK2: Aufschalttemperatur | `setvalue/HK2_Aufschalttemperatur` | `setvalue/hc2_switch_on_temperature` | 0…10 °C, 1-°C-Schritte |
-| HK2: Außenhalt ab | `setvalue/HK2_Aussenhalt_ab` | `setvalue/hc2_switch_off_threshold` | −20…10 °C, 1-°C-Schritte |
-| HK2: Frostschutz | `setvalue/HK2_Frost_ab` | `setvalue/hc2_frost_protection_threshold` | −20…10 °C, 1-°C-Schritte |
-| HK2: Sommer ab | `setvalue/HK2_Sommer_ab` | `setvalue/hc2_summer_mode_threshold` | 9=Sommer, 10…30 °C=Schwelle, 31=Winter |
-| HK2: Absenkungsart | `setvalue/HK2_Absenkungsart` | `setvalue/hc2_reduction_mode` | 0=Abschalt, 1=Reduziert, 2=Raumhalt, 3=Außenhalt |
-| Warmwasser: Betriebsart | `setvalue/WW_Betriebsart` | `setvalue/ww_operation_mode` | 0=Nacht, 1=Tag, 2=AUTO |
-| Warmwasser: Temperatur | `setvalue/WW_Temperatur` | `setvalue/ww_temp` | 30…60 °C, 1-°C-Schritte |
-| Warmwasser: Zirkulation | `setvalue/WW_Zirkulation` | `setvalue/ww_circulation` | 0=AUS, 1…6 Zyklen/Stunde, 7=EIN |
-
-### Geräte- und Diagnosebefehle
-
-| Topic-Suffix | Payload / Wirkung |
-| --- | --- |
-| `setvalue/setdatetime` | Leer; aktuelle ESP-Zeit an die Logamatic übertragen |
-| `setvalue/oilcounter` | Nicht negative Ganzzahl, z. B. `12345` für 123,45 L; ersetzt den Zählerstand |
-| `cmd/restart` | Leer; ESP neu starten |
-| `cmd/debug` | `0` / `1` für Debug-Aufzeichnung aus/ein |
-| `cmd/setdebugflt` | 11 durch `_` getrennte Hex-Werte, `XX` als Platzhalter, z. B. `08_15_XX_XX_XX_XX_XX_XX_XX_XX_XX` |
-| `cmd/getdebugflt` | Leer; aktuellen Filter abfragen |
-| `cmd/service` | Expertenfunktion: 8 durch `_` getrennte Hex-Werte als Rohbefehl; nur mit gesichertem Protokollwissen verwenden |
-
-Befehle nicht mit Retain senden: Ein gespeicherter Stellbefehl kann beim Wiederverbinden erneut ausgeführt werden. Alte retained Nachrichten auf `setvalue`-/`cmd`-Topics müssen am Broker gelöscht werden; ein neuer Statuswert auf einem anderen Topic überschreibt sie nicht. Ungültige Ölzähler-Payloads wie `offline` werden verworfen und im Log gemeldet.
-
-## Home Assistant
-
-Aktiviere zuerst MQTT und prüfe die Broker-Verbindung. Unter **Integrationen → Home Assistant** aktivierst du Discovery und konfigurierst Discovery-Topic sowie Gerätenamen. Home Assistant benötigt die MQTT-Integration am selben Broker. Die Logamatic wird mit Messwerten und unterstützten Bedienelementen als Gerät angelegt.
-
-Topic- und Payload-Sprache hängen von der MQTT-Einstellung ab. Nach einer Änderung bestehende Entitäten und Automationen prüfen.
-
-<img src="Doc/mqtt_ha_1.png" alt="WebUI" width="750">
-
-<img src="Doc/mqtt_ha_2.png" alt="WebUI" width="750">
-
-# Optionale Kommunikation
-
-## Pushover
-
-Trage API-Token, User-Key und Nachrichtenfilter unter **Integrationen → Pushover** ein. Mit einer Testnachricht lässt sich die Zustellung prüfen. Erforderlich sind ein Pushover-Konto und Internetzugang. Den API-Token der Anwendung kannst du auf der [Pushover-Webseite](https://pushover.net/apps/build) erstellen.
-
-<img src="Doc/pushover.png" alt="WebUI" width="750">
+Im normalen Betrieb benötigen Telnet und Remote ArduinoOTA ein nicht leeres Service-Passwort. Im Setup-Mode gilt für Service-Zugänge das Wiederherstellungs-Passwort. Das Service-Passwort ist vom normalen WebUI-Passwort getrennt; das Web-Update hat kein zusätzliches eigenes Passwort.
 
 ## Telnet
 
@@ -541,9 +370,50 @@ Aktiviere Telnet unter **Zugriff & Wartung → Service-Zugänge** und setze ein 
 
 <img src="Doc/telnet.png" alt="WebUI" width="750">
 
-# Optionale Komponenten
+## Absturzdiagnose
 
-## node-red
+Unter **Einstellungen → Zugriff & Wartung → Absturzdiagnose** lassen sich gespeicherte Core-Dumps mit dem Service-Passwort anzeigen, herunterladen und ausdrücklich löschen. Downloads erhalten den Bericht auf dem ESP. Die passende Firmware-ELF wird beim Build als Debug-ZIP archiviert. Hinweise zur Auswertung und zu den Grenzen stehen unter [Absturzdiagnose](Doc/Absturzdiagnose.md).
+
+Core-Dumps benötigen eine passende Flash-Partition; ein reines OTA-Anwendungsupdate ändert die Partitionstabelle nicht. Sie können vertrauliche Speicherinhalte enthalten. Für die Auswertung das Debug-Archiv des tatsächlich betroffenen Builds aufbewahren. Ein vorhandener Bericht kann von einem früheren Absturz stammen und belegt keine behobene Fehlerursache.
+
+Weitere Diagnoseinformationen stehen unter [Logbuch](#logbuch), [System](#system) und [Fehlersuche und Support](#fehlersuche-und-support).
+
+# Integrationen
+
+## MQTT
+
+Aktiviere MQTT unter **Einstellungen → Integrationen → MQTT** und trage Broker, Zugangsdaten und Basis-Topic ein. Die MQTT-Sprache ist unabhängig von der WebUI-Sprache und beeinflusst Topic-Namen und Text-Payloads. Prüfe die Verbindung unter **System → MQTT**.
+
+Beispiel bei englischer MQTT-Sprache und Basis-Topic `esp_heizung`: `esp_heizung/setvalue/hc1_day_temp` mit Payload `21.5` setzt die Tagtemperatur. Der gemeldete Konfigurationswert erscheint unter `esp_heizung/config/hc1_day_temp`. Befehle ohne Retain senden.
+
+Die **[vollständige MQTT-Referenz](Doc/MQTT_DE.md)** enthält sämtliche Konfigurations- und Statustopics, Alarmmeldungen, Schreibbefehle, Payloads und Beispiele.
+
+## Home Assistant
+
+Aktiviere zuerst MQTT und prüfe die Broker-Verbindung. Unter **Integrationen → Home Assistant** aktivierst du Discovery und konfigurierst Discovery-Topic sowie Gerätenamen. Home Assistant benötigt die MQTT-Integration am selben Broker. Die Logamatic wird mit Messwerten und unterstützten Bedienelementen als Gerät angelegt.
+
+Topic- und Payload-Sprache hängen von der MQTT-Einstellung ab. Nach einer Änderung bestehende Entitäten und Automationen prüfen.
+
+Maximaltemperatur und Raumtemperaturabgleich für HK1/HK2 werden als Slider,
+Heizsystem sowie Warmwasserbereitung und Warmwasservorrang als Auswahllisten
+bereitgestellt. Bei HK2-Fußbodenheizung ist die Maximaltemperatur auf 60 °C
+begrenzt. Die bisherigen acht Sensor-Discovery-Einträge werden automatisch
+entfernt. Durch den Wechsel zu `number`/`select` ändern sich die Entity-IDs;
+betroffene Dashboards und Automationen anpassen.
+
+<img src="Doc/mqtt_ha_1.png" alt="WebUI" width="750">
+
+<img src="Doc/mqtt_ha_2.png" alt="WebUI" width="750">
+
+## Pushover
+
+Trage API-Token, User-Key und Nachrichtenfilter unter **Integrationen → Pushover** ein. Mit einer Testnachricht lässt sich die Zustellung prüfen. Erforderlich sind ein Pushover-Konto und Internetzugang. Den API-Token der Anwendung kannst du auf der [Pushover-Webseite](https://pushover.net/apps/build) erstellen.
+
+<img src="Doc/pushover.png" alt="WebUI" width="750">
+
+## Node-RED und Grafana
+
+### node-red
 
 Ich schreibe alle Informationen, die über MQTT übertragen werden, in eine influxDB Datenbank.
 In meinem Fall verwende ich [node-red](https://nodered.org/), um die MQTT-Nachrichten zu empfangen und sie in die [influxDB](https://www.influxdata.com/) zu schreiben.
@@ -555,7 +425,7 @@ Aber es gibt noch viele andere Möglichkeiten - verwende die, die am besten zu d
 Wenn du an meinen Abläufen interessiert bist, kannst du diese Exportdatei verwenden:
 [node-red.json](/Doc/node-red.json)
 
-## grafana
+### grafana
 
 Um die Informationen zu visualisieren, verwende ich [grafana](https://grafana.com), das die Daten aus der influxDB bezieht.
 Für mich bietet dies mehr Möglichkeiten, das Verhalten des Heizungssystems zu analysieren, als ein statisches Dashboard.
@@ -572,12 +442,14 @@ Wenn du an meinem Dashboard interessiert bist, können Sie diese Exportdatei ver
 > [!NOTE]
 > Das Beispiel verwendet InfluxDB 2.0, Flux-Abfragen und deutsche MQTT-Topics. Passe nach dem Import Datenquelle, Topic-Namen und Abfragen an deine Installation an.
 
-# FAQ
+<a id="faq"></a>
+
+# Fehlersuche und Support
 
 ## Keine Verbindung zur Logamatic / keine Heizungswerte
 
 1. **Hardware identifizieren.** Ein KM271-WiFi-Board steckt direkt in der Regelung. Ein original KM271 mit RS232-Anschluss benötigt einen geeigneten RS232/TTL-Wandler. RS232-Pegel niemals direkt mit ESP-GPIOs verbinden.
-2. **GPIOs unter Einstellungen → Gerät prüfen.** Das generische ESP32-Preset verwendet RX 16 / TX 17, die KM271-WiFi-Presets v0.0.5 und ≥ v0.0.6 verwenden RX 4 / TX 2. Das sind Vorgaben, keine automatische Erkennung. Die Verdrahtung muss dazu passen; Doppelbelegungen vermeiden und nach GPIO-Änderungen neu starten.
+2. **GPIOs unter Einstellungen → Gerät prüfen.** Siehe die [GPIO-Preset-Tabelle](Doc/hardware_DE.md#gpio-presets); die Presets erkennen die Hardware nicht automatisch. Die Verdrahtung muss zu den konfigurierten Pins passen; Doppelbelegungen vermeiden und nach GPIO-Änderungen neu starten.
 3. **Signalrichtung und Kabeldurchgang prüfen.** ESP TX muss zum TTL-Eingang des Wandlers führen, dessen TTL-Ausgang zu ESP RX; gemeinsame Masse nicht vergessen. Wandler-Beschriftungen variieren. RS232-Pinbelegung und die erforderliche gerade oder gekreuzte Verdrahtung prüfen. Ein Nullmodemkabel ist nicht grundsätzlich richtig. Siehe [Diskussion #174](https://github.com/dewenni/ESP_Buderus_KM271/discussions/174).
 4. **System → KM271 und Logbuch → KM271 prüfen.** Eine funktionierende WebUI-/MQTT-Verbindung, empfangene Bytes oder ein erfolgreicher Loopback-Test allein beweisen keine gültige Logamatic-Kommunikation. Relevant sind Protokollaufbau und anschließende aktuelle Heizungswerte. Nach zwei Minuten ohne seriellen Empfang wird die Verbindung als unterbrochen gewertet und der Aufbau erneut versucht.
 5. **Versorgung und Steckverbindungen prüfen.** Die Board-Dokumentation einschließlich eines gegebenenfalls erforderlichen Erkennungswiderstands beachten. Elektrische Prüfungen nur im spannungsfreien Zustand durchführen.

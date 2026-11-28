@@ -807,7 +807,8 @@
                   data-i18n="select_template"></option>
                 <option value="1">generic ESP32</option>
                 <option value="2">Board 0.0.5</option>
-                <option value="3">Board ≥0.0.6</option>
+                <option value="3">Board 0.0.6–1.x</option>
+                <option value="4">Board 2.0 (ESP32-S3)</option>
               </select>
               <div class="settings-fields">
 <div class="settings-field settings-field--compact">
@@ -1044,45 +1045,19 @@
             </dialog>
 <dialog id="p12_gpio_dialog">
               <article>
-                <p>Description for KM271Wifi Boards</p>
+                <p>KM271-WiFi</p>
+                <p data-i18n="board_v2_hint"></p>
                 <table>
+                  <thead><tr><th>GPIO</th><th>0.0.5 / 0.0.6–1.x</th><th>2.0 (S3)</th></tr></thead>
                   <tbody>
-                    <tr>
-                      <th>Description</th>
-                      <th>GPIO</th>
-                    </tr>
-                    <tr>
-                      <td>KM271-RX</td>
-                      <td>4</td>
-                    </tr>
-                    <tr>
-                      <td>KM271-TX</td>
-                      <td>2</td>
-                    </tr>
-                    <tr>
-                      <td>LED GREEN</td>
-                      <td>21</td>
-                    </tr>
-                    <tr>
-                      <td>LED GREEN</td>
-                      <td>22</td>
-                    </tr>
-                    <tr>
-                      <td>LED YELLOW</td>
-                      <td>17 (v0.0.5 = 23)</td>
-                    </tr>
-                    <tr>
-                      <td>LED RED</td>
-                      <td>25</td>
-                    </tr>
-                    <tr>
-                      <td>SW1</td>
-                      <td>27</td>
-                    </tr>
-                    <tr>
-                      <td>SW2</td>
-                      <td>26</td>
-                    </tr>
+                    <tr><td>KM271-RX</td><td>4</td><td>18</td></tr>
+                    <tr><td>KM271-TX</td><td>2</td><td>17</td></tr>
+                    <tr><td>LED WiFi</td><td>21</td><td>21</td></tr>
+                    <tr><td>LED Heartbeat</td><td>22</td><td>38</td></tr>
+                    <tr><td>LED Logmode</td><td>23 / 17</td><td>39</td></tr>
+                    <tr><td>LED RED</td><td>25</td><td>40</td></tr>
+                    <tr><td>SW1</td><td>27</td><td>41</td></tr>
+                    <tr><td>SW2</td><td>26</td><td>42</td></tr>
                   </tbody>
                 </table>
                 <div class="dash-footer">

@@ -5,12 +5,20 @@ function initControlSliders() {
     const progress = max > min ? (Number(slider.value) - min) / (max - min) * 100 : 0;
     slider.style.setProperty("--control-progress", `${Math.max(0, Math.min(100, progress))}%`);
   };
+  const limitSource = document.getElementById("p02_hc2_max_limit");
+  const maxInput = document.getElementById("p02_hc2_max_temp");
+  const updateLimit = () => {
+    if (limitSource && maxInput) maxInput.max = Number(limitSource.textContent) === 60 ? "60" : "90";
+  };
   // Existing input and WebSocket handlers both update the linked value text.
   // One shared observer keeps the fill in sync without extra commands or timers.
   const observer = new MutationObserver(mutations => {
+    updateLimit();
     const changed = new Set(mutations.map(m => sources.get(m.target.nodeType === 3 ? m.target.parentElement : m.target)));
     changed.forEach(slider => { if (slider) update(slider); });
   });
+  updateLimit();
+  if (limitSource) observer.observe(limitSource, { childList: true, characterData: true, subtree: true });
   document.querySelectorAll(".control-page input[type=range]").forEach(slider => {
     const source = document.getElementById(slider.dataset.valueId);
     sources.set(source, slider);

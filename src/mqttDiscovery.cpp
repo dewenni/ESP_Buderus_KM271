@@ -17,8 +17,9 @@ static muTimer sendTimer = muTimer();
 static bool sendMqttConfig = false;
 static bool resetMqttConfig = false;
 static int mqttSendCnt = 0;
+static uint8_t hc2MaxTemperatureLimit = 0; // Last advertised limit; follows the received heating system.
 
-enum OptType { OPT_NULL, OPT_OP_MODE, OPT_RED_MODE, OPT_HC_PRG, OPT_WW_CRC, OPT_SUMMER };
+enum OptType { OPT_NULL, OPT_OP_MODE, OPT_RED_MODE, OPT_HC_PRG, OPT_WW_CRC, OPT_SUMMER, OPT_HC1_SYSTEM, OPT_HC2_SYSTEM, OPT_ON_OFF };
 enum DeviceType { TYP_TEXT, TYP_SLIDER, TYP_NUM, TYP_OPT, TYP_BTN };
 enum KmType { KM_CONFIG, KM_STATUS, KM_INFO, KM_WIFI, KM_ETH, KM_ALARM, KM_DEBUG, KM_SENS, KM_OIL, KM_SYSINFO, KM_CMD_BTN };
 enum ValTmpType { VAL_SPLIT, VAL_ON_OFF, VAL_ERR_OK, VAL_WW_CIRC, VAL_SUMMER_THRESHOLD };
@@ -248,6 +249,19 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
         opts.add(KM_CFG_ARRAY::CIRC_INTERVAL[config.mqtt.lang][i]);
       }
       break;
+    case OPT_HC1_SYSTEM:
+    case OPT_HC2_SYSTEM:
+      opts.add(KM_CFG_ARRAY::HEATING_SYSTEM[config.mqtt.lang][0]);
+      opts.add(KM_CFG_ARRAY::HEATING_SYSTEM[config.mqtt.lang][1]);
+      if (devCfg.optType == OPT_HC2_SYSTEM) {
+        opts.add(KM_CFG_ARRAY::HEATING_SYSTEM[config.mqtt.lang][3]);
+      }
+      break;
+    case OPT_ON_OFF:
+      for (int i = 0; i < 2; i++) {
+        opts.add(KM_CFG_ARRAY::ON_OFF[config.mqtt.lang][i]);
+      }
+      break;
     case OPT_SUMMER:
       for (int i = 0; i < 23; i++) {
         opts.add(KM_CFG_ARRAY::SUMMER[config.mqtt.lang][i]);
@@ -274,7 +288,7 @@ void mqttHaConfig(KmType kmType, const char *name, const char *deviceClass, cons
   serializeJson(doc, jsonString);
 
   if (resetMqttConfig) {
-    mqttPublish(configTopic, "", false);
+    mqttPublish(configTopic, "", true);
   } else {
     mqttPublish(configTopic, jsonString, false);
   }
@@ -310,6 +324,31 @@ void mqttSendHaCfg_KmCfg() {
   snprintf(deviceName, sizeof(deviceName), "%s", config.mqtt.ha_device);
   snprintf(deviceId, sizeof(deviceId), "%s", config.mqtt.ha_device);
   snprintf(swVersion, sizeof(swVersion), "%s", VERSION);
+  if (!discoveryPrefix[0] || !statePrefix[0]) return;
+
+  // These eight fields used to be sensors. Remove their old discovery topics
+  // before announcing controls; retained deletion also clears broker leftovers.
+  struct MigratedConfig { const char *name; const char *component; bool enabled; };
+  const MigratedConfig migrated[] = {
+    {KM_CFG_TOPIC::HC1_MAX_TEMP[config.mqtt.lang], "number", config.km271.use_hc1},
+    {KM_CFG_TOPIC::HC1_TEMP_OFFSET[config.mqtt.lang], "number", config.km271.use_hc1},
+    {KM_CFG_TOPIC::HC1_HEATING_SYSTEM[config.mqtt.lang], "select", config.km271.use_hc1},
+    {KM_CFG_TOPIC::HC2_MAX_TEMP[config.mqtt.lang], "number", config.km271.use_hc2},
+    {KM_CFG_TOPIC::HC2_TEMP_OFFSET[config.mqtt.lang], "number", config.km271.use_hc2},
+    {KM_CFG_TOPIC::HC2_HEATING_SYSTEM[config.mqtt.lang], "select", config.km271.use_hc2},
+    {KM_CFG_TOPIC::WW_PROCESSING[config.mqtt.lang], "select", config.km271.use_ww},
+    {KM_CFG_TOPIC::WW_PRIO[config.mqtt.lang], "select", config.km271.use_ww},
+  };
+  for (const auto &entry : migrated) {
+    char topic[256];
+    snprintf(topic, sizeof(topic), "%s/sensor/%s/%s/config", discoveryPrefix, deviceId, entry.name);
+    mqttPublish(topic, "", true);
+    if (!entry.enabled) {
+      snprintf(topic, sizeof(topic), "%s/%s/%s/%s/config", discoveryPrefix, entry.component, deviceId, entry.name);
+      mqttPublish(topic, "", true);
+    }
+  }
+  hc2MaxTemperatureLimit = km271GetConfigValueAdr()->hc2_heating_system == 3 ? 60 : 90;
 
   mqttHaConfig(KM_CMD_BTN, "restart", "restart", "button", NULL, NULL, "mdi:restart", TYP_BTN, textPar());
 
@@ -353,13 +392,13 @@ void mqttSendHaCfg_KmCfg() {
     mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC1_HOLIDAY_DAYS[config.mqtt.lang], NULL, "number", "days", valueTmpl(VAL_SPLIT), "mdi:calendar", TYP_NUM,
                  numPar("0", "99", "1"));
 
-    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC1_MAX_TEMP[config.mqtt.lang], "temperature", "sensor", "°C", valueTmpl(VAL_SPLIT), "mdi:thermometer",
-                 TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC1_MAX_TEMP[config.mqtt.lang], "temperature", "number", "°C", valueTmpl(VAL_SPLIT), "mdi:thermometer",
+                 TYP_SLIDER, sliderPar("20", "90", "1"));
 
-    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC1_TEMP_OFFSET[config.mqtt.lang], "temperature", "sensor", "°C", valueTmpl(VAL_SPLIT), "mdi:thermometer",
-                 TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC1_TEMP_OFFSET[config.mqtt.lang], "temperature", "number", "°C", valueTmpl(VAL_SPLIT), "mdi:thermometer",
+                 TYP_SLIDER, sliderPar("-5", "5", "0.5"));
 
-    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC1_HEATING_SYSTEM[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:heating-coil", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC1_HEATING_SYSTEM[config.mqtt.lang], NULL, "select", NULL, NULL, "mdi:heating-coil", TYP_OPT, optPar(OPT_HC1_SYSTEM));
 
     mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC1_REMOTECTRL[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:remote", TYP_TEXT, textPar());
 
@@ -414,13 +453,13 @@ void mqttSendHaCfg_KmCfg() {
     mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC2_HOLIDAY_DAYS[config.mqtt.lang], NULL, "number", "days", valueTmpl(VAL_SPLIT), "mdi:calendar", TYP_NUM,
                  numPar("0", "99", "1"));
 
-    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC2_MAX_TEMP[config.mqtt.lang], "temperature", "sensor", "°C", valueTmpl(VAL_SPLIT), "mdi:thermometer",
-                 TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC2_MAX_TEMP[config.mqtt.lang], "temperature", "number", "°C", valueTmpl(VAL_SPLIT), "mdi:thermometer",
+                 TYP_SLIDER, sliderPar("20", hc2MaxTemperatureLimit == 60 ? "60" : "90", "1"));
 
-    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC2_TEMP_OFFSET[config.mqtt.lang], "temperature", "sensor", "°C", valueTmpl(VAL_SPLIT), "mdi:thermometer",
-                 TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC2_TEMP_OFFSET[config.mqtt.lang], "temperature", "number", "°C", valueTmpl(VAL_SPLIT), "mdi:thermometer",
+                 TYP_SLIDER, sliderPar("-5", "5", "0.5"));
 
-    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC2_HEATING_SYSTEM[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:heating-coil", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC2_HEATING_SYSTEM[config.mqtt.lang], NULL, "select", NULL, NULL, "mdi:heating-coil", TYP_OPT, optPar(OPT_HC2_SYSTEM));
 
     mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::HC2_REMOTECTRL[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:remote", TYP_TEXT, textPar());
 
@@ -443,13 +482,13 @@ void mqttSendHaCfg_KmCfg() {
   // hot-water config values
   if (config.km271.use_ww) {
     mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::WW_OPMODE[config.mqtt.lang], NULL, "select", NULL, NULL, "mdi:cog", TYP_OPT, optPar(OPT_OP_MODE));
-    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::WW_PRIO[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:thermometer-chevron-up", TYP_TEXT, textPar());
+    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::WW_PRIO[config.mqtt.lang], NULL, "select", NULL, NULL, "mdi:thermometer-chevron-up", TYP_OPT, optPar(OPT_ON_OFF));
 
     mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::WW_TEMP[config.mqtt.lang], "temperature", "number", "°C", valueTmpl(VAL_SPLIT), "mdi:thermometer",
                  TYP_SLIDER, sliderPar("30", "60", "1"));
 
-    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::WW_PROCESSING[config.mqtt.lang], NULL, "sensor", NULL, NULL, "mdi:water-thermometer-outline", TYP_TEXT,
-                 textPar());
+    mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::WW_PROCESSING[config.mqtt.lang], NULL, "select", NULL, NULL, "mdi:water-thermometer-outline", TYP_OPT,
+                 optPar(OPT_ON_OFF));
 
     mqttHaConfig(KM_CONFIG, KM_CFG_TOPIC::WW_CIRCULATION[config.mqtt.lang], NULL, "select", NULL, NULL, "mdi:water-sync", TYP_OPT,
                  optPar(OPT_WW_CRC));
@@ -791,6 +830,12 @@ void mqttSendHaCfg_Sys() {
  * @return  none
  * *******************************************************************/
 void mqttDiscoveryCyclic() {
+  // Reuse the normal discovery cycle after a received/acknowledged system change.
+  // Wait for an ongoing pass to finish so a change cannot be lost mid-pass.
+  if (!sendMqttConfig && !resetMqttConfig && config.km271.use_hc2 &&
+      hc2MaxTemperatureLimit != (km271GetConfigValueAdr()->hc2_heating_system == 3 ? 60 : 90)) {
+    sendMqttConfig = true;
+  }
 
   if (sendTimer.cycleTrigger(500) && (sendMqttConfig || resetMqttConfig)) {
 

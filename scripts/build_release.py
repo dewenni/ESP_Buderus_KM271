@@ -10,6 +10,12 @@ APP_BIN = "$BUILD_DIR/${PROGNAME}.bin"
 MERGED_BIN = "$BUILD_DIR/${PROGNAME}_merged.bin"
 RELEASE_PATH = "$PROJECT_DIR/release"
 BOARD_CONFIG = env.BoardConfig()
+CHIP = BOARD_CONFIG.get("build.mcu", "esp32")
+if CHIP != "esp32":
+    # Avoid "ota" in S3 names: old ESP32 firmware selects any asset containing it.
+    OTA_NAME = f"buderus_km271_{CHIP}_update"
+    INSTALL_NAME = f"buderus_km271_{CHIP}_flash"
+DEBUG_NAME = "buderus_km271_debug" if CHIP == "esp32" else f"buderus_km271_{CHIP}_debug"
 
 
 # extract program version from /include/config.h
@@ -88,7 +94,7 @@ def archive_debug(source, target, env):
 
 
 debug_archive = env.Command(
-    os.path.join(release_path, f"buderus_km271_debug_{version}.zip"),
+    os.path.join(release_path, f"{DEBUG_NAME}_{version}.zip"),
     ["$BUILD_DIR/${PROGNAME}.elf", "$PROJECT_DIR/scripts/build_release.py", "$PROJECT_DIR/platformio.ini"],
     archive_debug,
 )

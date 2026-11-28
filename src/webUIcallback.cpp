@@ -8,9 +8,92 @@
 #include <simulation.h>
 #include <webUI.h>
 #include <webUIupdates.h>
+#include <cerrno>
+#include <climits>
+#include <cmath>
 
 static tm dti;
 static const char *TAG = "WEB"; // LOG TAG
+
+// All heating and hot-water inputs share ID matching and payload parsing.
+static bool processWebConfigCommand(const char *elementId, const char *value) {
+  struct ConfigInput {
+    const char *id;
+    e_km271_sendCmd command;
+    bool fractional;
+    int fixedValue; // -1 reads the payload; operation-mode buttons supply 0..2.
+  };
+  static const ConfigInput inputs[] = {
+    // Heating circuit 1
+    {"p02_hc1_opmode_night", KM271_SENDCMD_HC1_OPMODE, false, 0},
+    {"p02_hc1_opmode_day", KM271_SENDCMD_HC1_OPMODE, false, 1},
+    {"p02_hc1_opmode_auto", KM271_SENDCMD_HC1_OPMODE, false, 2},
+    {"p02_hc1_prg", KM271_SENDCMD_HC1_PROGRAMM, false, -1},
+    {"p02_hc1_heatsys", KM271_SENDCMD_HC1_HEATING_SYSTEM, false, -1},
+    {"p02_hc1_reduct_mode", KM271_SENDCMD_HC1_REDUCTION_MODE, false, -1},
+    {"p02_hc1_interp", KM271_SENDCMD_HC1_DESIGN_TEMP, false, -1},
+    {"p02_hc1_max_temp", KM271_SENDCMD_HC1_MAX_TEMP, false, -1},
+    {"p02_hc1_temp_offset", KM271_SENDCMD_HC1_TEMP_OFFSET, true, -1},
+    {"p02_hc1_sw_off_th", KM271_SENDCMD_HC1_SWITCH_OFF_THRESHOLD, false, -1},
+    {"p02_hc1_day_temp", KM271_SENDCMD_HC1_DAY_SETPOINT, true, -1},
+    {"p02_hc1_night_temp", KM271_SENDCMD_HC1_NIGHT_SETPOINT, true, -1},
+    {"p02_hc1_holiday_temp", KM271_SENDCMD_HC1_HOLIDAY_SETPOINT, true, -1},
+    {"p02_hc1_summer_th", KM271_SENDCMD_HC1_SUMMER, false, -1},
+    {"p02_hc1_frost_prot_th", KM271_SENDCMD_HC1_FROST, false, -1},
+    {"p02_hc1_holiday_days", KM271_SENDCMD_HC1_HOLIDAYS, false, -1},
+    {"p02_hc1_sw_on_temp", KM271_SENDCMD_HC1_SWITCH_ON_TEMP, false, -1},
+    // Heating circuit 2
+    {"p02_hc2_opmode_night", KM271_SENDCMD_HC2_OPMODE, false, 0},
+    {"p02_hc2_opmode_day", KM271_SENDCMD_HC2_OPMODE, false, 1},
+    {"p02_hc2_opmode_auto", KM271_SENDCMD_HC2_OPMODE, false, 2},
+    {"p02_hc2_prg", KM271_SENDCMD_HC2_PROGRAMM, false, -1},
+    {"p02_hc2_heatsys", KM271_SENDCMD_HC2_HEATING_SYSTEM, false, -1},
+    {"p02_hc2_reduct_mode", KM271_SENDCMD_HC2_REDUCTION_MODE, false, -1},
+    {"p02_hc2_interp", KM271_SENDCMD_HC2_DESIGN_TEMP, false, -1},
+    {"p02_hc2_max_temp", KM271_SENDCMD_HC2_MAX_TEMP, false, -1},
+    {"p02_hc2_temp_offset", KM271_SENDCMD_HC2_TEMP_OFFSET, true, -1},
+    {"p02_hc2_sw_off_th", KM271_SENDCMD_HC2_SWITCH_OFF_THRESHOLD, false, -1},
+    {"p02_hc2_day_temp", KM271_SENDCMD_HC2_DAY_SETPOINT, true, -1},
+    {"p02_hc2_night_temp", KM271_SENDCMD_HC2_NIGHT_SETPOINT, true, -1},
+    {"p02_hc2_holiday_temp", KM271_SENDCMD_HC2_HOLIDAY_SETPOINT, true, -1},
+    {"p02_hc2_summer_th", KM271_SENDCMD_HC2_SUMMER, false, -1},
+    {"p02_hc2_frost_prot_th", KM271_SENDCMD_HC2_FROST, false, -1},
+    {"p02_hc2_holiday_days", KM271_SENDCMD_HC2_HOLIDAYS, false, -1},
+    {"p02_hc2_sw_on_temp", KM271_SENDCMD_HC2_SWITCH_ON_TEMP, false, -1},
+    // Hot water
+    {"p02_ww_opmode_night", KM271_SENDCMD_WW_OPMODE, false, 0},
+    {"p02_ww_opmode_day", KM271_SENDCMD_WW_OPMODE, false, 1},
+    {"p02_ww_opmode_auto", KM271_SENDCMD_WW_OPMODE, false, 2},
+    {"p02_ww_temp", KM271_SENDCMD_WW_SETPOINT, false, -1},
+    {"p02_ww_circ", KM271_SENDCMD_WW_PUMP_CYCLES, false, -1},
+    {"p02_ww_processing", KM271_SENDCMD_WW_PROCESSING, false, -1},
+    {"p02_ww_priority", KM271_SENDCMD_WW_PRIORITY, false, -1},
+  };
+  for (const auto &input : inputs) {
+    if (strcmp(elementId, input.id) != 0) {
+      continue;
+    }
+    if (input.fixedValue >= 0) {
+      km271sendCmd(input.command, input.fixedValue);
+      return true;
+    }
+    char *end = nullptr;
+    errno = 0;
+    const float number = strtof(value, &end);
+    if (end == value || *end != '\0' || errno == ERANGE || !std::isfinite(number)) {
+      km271Msg(KM_TYP_MESSAGE, "invalid configuration value", "");
+    } else if (input.fractional) {
+      km271sendCmdFlt(input.command, number);
+    } else if (static_cast<double>(number) >= INT_MIN && static_cast<double>(number) <= INT_MAX &&
+               number == static_cast<int>(number)) {
+      km271sendCmd(input.command, static_cast<int>(number));
+    } else {
+      km271Msg(KM_TYP_MESSAGE, "invalid configuration value", "");
+    }
+    return true;
+  }
+  return false;
+}
 
 static void timerCommand(const char *value) {
   JsonDocument input, reply;
@@ -80,152 +163,7 @@ void webCallback(const char *elementId, const char *value) {
     ESP.restart();
   }
 
-  // HC1-OPMODE
-  if (strcmp(elementId, "p02_hc1_opmode_night") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC1_OPMODE, 0);
-  } else if (strcmp(elementId, "p02_hc1_opmode_day") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC1_OPMODE, 1);
-  } else if (strcmp(elementId, "p02_hc1_opmode_auto") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC1_OPMODE, 2);
-  }
-
-  // HC2-OPMODE
-  if (strcmp(elementId, "p02_hc2_opmode_night") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC2_OPMODE, 0);
-  } else if (strcmp(elementId, "p02_hc2_opmode_day") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC2_OPMODE, 1);
-  } else if (strcmp(elementId, "p02_hc2_opmode_auto") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC2_OPMODE, 2);
-  }
-
-  // WW-OPMODE
-  if (strcmp(elementId, "p02_ww_opmode_night") == 0) {
-    km271sendCmd(KM271_SENDCMD_WW_OPMODE, 0);
-  } else if (strcmp(elementId, "p02_ww_opmode_day") == 0) {
-    km271sendCmd(KM271_SENDCMD_WW_OPMODE, 1);
-  } else if (strcmp(elementId, "p02_ww_opmode_auto") == 0) {
-    km271sendCmd(KM271_SENDCMD_WW_OPMODE, 2);
-  }
-
-  // HC1-Program
-  if (strcmp(elementId, "p02_hc1_prg") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC1_PROGRAMM, atoi(value));
-  }
-
-  // HC2-Program
-  if (strcmp(elementId, "p02_hc2_prg") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC2_PROGRAMM, atoi(value));
-  }
-
-  // HC1-Reduction-Mode
-  if (strcmp(elementId, "p02_hc1_reduct_mode") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC1_REDUCTION_MODE, atoi(value));
-  }
-
-  // HC2-Reduction-Mode
-  if (strcmp(elementId, "p02_hc2_reduct_mode") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC2_REDUCTION_MODE, atoi(value));
-  }
-
-  // HC1-Frost Threshold
-  if (strcmp(elementId, "p02_hc1_frost_prot_th") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC1_FROST, atoi(value));
-  }
-
-  // HC1-Summer Threshold
-  if (strcmp(elementId, "p02_hc1_summer_th") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC1_SUMMER, atoi(value));
-  }
-
-  // HC2-Frost Threshold
-  if (strcmp(elementId, "p02_hc2_frost_prot_th") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC2_FROST, atoi(value));
-  }
-
-  // HC2-Summer Threshold
-  if (strcmp(elementId, "p02_hc2_summer_th") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC2_SUMMER, atoi(value));
-  }
-
-  // HC1-DesignTemp
-  if (strcmp(elementId, "p02_hc1_interp") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC1_DESIGN_TEMP, atoi(value));
-  }
-
-  // HC2-DesignTemp
-  if (strcmp(elementId, "p02_hc2_interp") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC2_DESIGN_TEMP, atoi(value));
-  }
-
-  // HC1-SwitchOffTemp
-  if (strcmp(elementId, "p02_hc1_sw_off_th") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC1_SWITCH_OFF_THRESHOLD, atoi(value));
-  }
-
-  // HC2-SwitchOffTemp
-  if (strcmp(elementId, "p02_hc2_sw_off_th") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC2_SWITCH_OFF_THRESHOLD, atoi(value));
-  }
-
-  // HC1-Holiday days
-  if (strcmp(elementId, "p02_hc1_holiday_days") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC1_HOLIDAYS, atoi(value));
-  }
-
-  // HC2-Holiday days
-  if (strcmp(elementId, "p02_hc2_holiday_days") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC2_HOLIDAYS, atoi(value));
-  }
-
-  // HC1-Day Temp
-  if (strcmp(elementId, "p02_hc1_day_temp") == 0) {
-    km271sendCmdFlt(KM271_SENDCMD_HC1_DAY_SETPOINT, atof(value));
-  }
-
-  // HC2-Day Temp
-  if (strcmp(elementId, "p02_hc2_day_temp") == 0) {
-    km271sendCmdFlt(KM271_SENDCMD_HC2_DAY_SETPOINT, atof(value));
-  }
-
-  // HC1-Night Temp
-  if (strcmp(elementId, "p02_hc1_night_temp") == 0) {
-    km271sendCmdFlt(KM271_SENDCMD_HC1_NIGHT_SETPOINT, atof(value));
-  }
-
-  // HC2-Night Temp
-  if (strcmp(elementId, "p02_hc2_night_temp") == 0) {
-    km271sendCmdFlt(KM271_SENDCMD_HC2_NIGHT_SETPOINT, atof(value));
-  }
-
-  // HC1-Holiday Temp
-  if (strcmp(elementId, "p02_hc1_holiday_temp") == 0) {
-    km271sendCmdFlt(KM271_SENDCMD_HC1_HOLIDAY_SETPOINT, atof(value));
-  }
-
-  // HC2-Holiday Temp
-  if (strcmp(elementId, "p02_hc2_holiday_temp") == 0) {
-    km271sendCmdFlt(KM271_SENDCMD_HC2_HOLIDAY_SETPOINT, atof(value));
-  }
-
-  // HC1-SwitchOn Temp
-  if (strcmp(elementId, "p02_hc1_sw_on_temp") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC1_SWITCH_ON_TEMP, atoi(value));
-  }
-
-  // HC2-SwitchOn Temp
-  if (strcmp(elementId, "p02_hc2_sw_on_temp") == 0) {
-    km271sendCmd(KM271_SENDCMD_HC2_SWITCH_ON_TEMP, atoi(value));
-  }
-
-  // WW-Temp
-  if (strcmp(elementId, "p02_ww_temp") == 0) {
-    km271sendCmd(KM271_SENDCMD_WW_SETPOINT, atoi(value));
-  }
-
-  // WW-Pump Cycles
-  if (strcmp(elementId, "p02_ww_circ") == 0) {
-    km271sendCmd(KM271_SENDCMD_WW_PUMP_CYCLES, atoi(value));
-  }
+  if (processWebConfigCommand(elementId, value)) return;
 
   // Set new Oilcounter value
   if (strcmp(elementId, "p02_oilmeter_set_cmd") == 0) {
@@ -533,12 +471,22 @@ void webCallback(const char *elementId, const char *value) {
       config.gpio.trigger_oilcounter = -1;
       break;
 
-    case 3: // KM271-WiFi >= v0.0.6
+    case 3: // KM271-WiFi v0.0.6 through v1.x
       config.gpio.km271_RX = 4;
       config.gpio.km271_TX = 2;
       config.gpio.led_wifi = 21;
       config.gpio.led_heartbeat = 22;
       config.gpio.led_logmode = 17;
+      config.gpio.led_oilcounter = -1;
+      config.gpio.trigger_oilcounter = -1;
+      break;
+
+    case 4: // KM271-WiFi v2.0 (ESP32-S3)
+      config.gpio.km271_RX = 18;
+      config.gpio.km271_TX = 17;
+      config.gpio.led_wifi = 21;
+      config.gpio.led_heartbeat = 38;
+      config.gpio.led_logmode = 39;
       config.gpio.led_oilcounter = -1;
       config.gpio.trigger_oilcounter = -1;
       break;

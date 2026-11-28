@@ -66,7 +66,9 @@ jobs:
         run: python -B -m unittest discover -s tests
 
       - name: Build release from source
-        run: pio run -e esp32
+        run: |
+          pio run -e esp32
+          pio run -e esp32s3
 
       - name: Create release and upload binaries
         env:
@@ -76,10 +78,16 @@ jobs:
           flash="release/buderus_km271_esp32_flash_${RELEASE_TAG}.bin"
           ota="release/buderus_km271_ota_update_${RELEASE_TAG}.bin"
           debug="release/buderus_km271_debug_${RELEASE_TAG}.zip"
+          flash_s3="release/buderus_km271_esp32s3_flash_${RELEASE_TAG}.bin"
+          ota_s3="release/buderus_km271_esp32s3_update_${RELEASE_TAG}.bin"
+          debug_s3="release/buderus_km271_esp32s3_debug_${RELEASE_TAG}.zip"
           test -s "$debug"
           test -s "$flash"
           test -s "$ota"
-          gh release create "$RELEASE_TAG" "$flash" "$ota" "$debug" \
+          test -s "$flash_s3"
+          test -s "$ota_s3"
+          test -s "$debug_s3"
+          gh release create "$RELEASE_TAG" "$flash" "$ota" "$debug" "$flash_s3" "$ota_s3" "$debug_s3" \
             --verify-tag \
             --repo "$GITHUB_REPOSITORY" \
             --title "$RELEASE_TAG" \
