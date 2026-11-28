@@ -97,7 +97,9 @@ Critical
 section stubs verify that UART/logging run outside the lock; they do not model
 real scheduling or prove thread safety on the ESP32. The checks do not confirm
 device timing, parameter adoption, actual MQTT delivery or browser refresh.
-Hardware procedure and limits are in `Doc/KM271-Schreiben.md`.
+Command payloads and acknowledgement limits are documented in the
+[MQTT reference](../Doc/MQTT.md#write-commands). Hardware adoption and recovery
+after interrupted writes require separate device testing.
 
 The additional configuration replay checks fixed wire bytes for all eight new
 commands, signed negative/half-degree adjustments, value limits, invalid enum
@@ -112,9 +114,8 @@ NaN/infinity, overflow, underflow, fractional input for integer commands and
 unknown topics. The shared WebSocket configuration handler is replayed for
 all 35 commands too, including invalid numeric inputs and all nine fixed-value
 operation-mode buttons (41 element IDs in total). Unknown IDs and display/help
-IDs must not enqueue a write. Direct KM271
-confirmation of the new WW and selected HK1 fields is recorded in
-`Doc/KM271-Zusaetzliche-Parameter.md`. No broker is used by these host tests.
+IDs must not enqueue a write. These host tests use no broker and do not
+confirm adoption of the new WW or HK parameters on a running installation.
 
 The clock-correction replay covers the display-confirmed `01E0` payloads for
 0, -6 and +4 seconds/day from the original KM271 (2026-11-27), plus -30/+30.
@@ -144,8 +145,9 @@ capacity, conflicts, 24:00/week boundary, malformed/non-pairable data, no sends
 on local edits/cancel, request matching, final-ACK-only success, stale/incomplete
 data, disconnect and lost replies without automatic resend. A small DOM double
 models controls and events; it cannot verify layout, tooltips or native focus.
-Safari layout/dialog checks and the remaining ESP/WebUI/MQTT hardware procedure
-are described in `Doc/KM271-Schaltzeiten.md`.
+For user-facing behavior and transfer limits, see the
+[weekly program guide](../README.md#weekly-program). End-to-end operation
+through the ESP, WebUI and MQTT requires separate device testing.
 
 Equipment page navigation and contextual help (Node.js 18+, no packages):
 
@@ -156,5 +158,6 @@ node --test tests/equipment_pages.test.cjs
 The Python suite includes this check. It executes production navigation/help
 code with a DOM double: local tabs and keyboard navigation, contextual help,
 translated descriptions, close events and no device sends. It does not prove
-browser layout, native touch/focus behavior or controller adoption. See
-`Doc/WebUI-Anlagenseiten.md` for the remaining browser/hardware checks.
+browser layout, native touch/focus behavior or controller adoption. See the
+[equipment page guide](../README.md#equipment-pages) for the documented UI.
+Browser rendering and controller adoption require separate practical checks.
